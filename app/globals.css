@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+:root {
+  --color-canvas: #f7f9fb;
+  --color-surface: #ffffff;
+  --color-ink: #12141c;
+  --color-muted: #5b6472;
+  --color-primary: #3e63dd;
+  --color-primary-hover: #3454c4;
+  --color-primary-soft: rgba(62, 99, 221, 0.08);
+  --color-border: #e7eaf0;
+  --color-hairline: rgba(18, 21, 33, 0.07);
+  --color-hairline-strong: rgba(18, 21, 33, 0.12);
+  --color-success: #2fa36b;
+  --color-success-soft: rgba(47, 163, 107, 0.1);
+  --color-gks-u: #e8794f;
+  --color-gks-g: #3e63dd;
+
+  /* Shadows are tinted toward the ink hue (not flat black) and layered so
+     elevation reads as depth rather than a generic drop-shadow. */
+  --shadow-xs: 0 1px 2px rgba(18, 22, 40, 0.04);
+  --shadow-card: 0 1px 2px rgba(18, 22, 40, 0.04), 0 8px 24px -8px rgba(18, 22, 40, 0.08);
+  --shadow-card-hover: 0 2px 4px rgba(18, 22, 40, 0.05), 0 16px 36px -12px rgba(18, 22, 40, 0.14);
+  --shadow-pop: 0 12px 32px -8px rgba(18, 22, 40, 0.22);
+}
+
+@theme inline {
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-border: var(--color-border);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-strong: var(--color-hairline-strong);
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-gks-u: var(--color-gks-u);
+  --color-gks-g: var(--color-gks-g);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-pop: var(--shadow-pop);
+  --font-sans: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-canvas);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: white;
+}
+
+/* Quiet, thin scrollbar instead of the browser default. */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(18, 21, 33, 0.14);
+  border-radius: 999px;
+  border: 2px solid var(--color-canvas);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* A fixed, near-invisible noise layer so large flat surfaces don't read as
+   sterile/digital-flat. Applied once at the root layout. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+}
+
+/* Soft glass treatment for elevated/floating surfaces (modals, popovers,
+   the navbar) -- goes beyond a flat blur with an inner highlight so it
+   reads as a refractive edge rather than a plain frosted rectangle. */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 1px 1px rgba(18, 22, 40, 0.03),
+    var(--shadow-pop),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Faint backdrop grid, masked to fade out radially -- used behind the
+   landing hero so the section isn't just flat text on flat canvas. */
+.grid-texture {
+  background-image:
+    linear-gradient(rgba(18, 21, 33, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 21, 33, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, black 40%, transparent 90%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
