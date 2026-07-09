@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 
 export const metadata: Metadata = {
-  title: "Set up your profile — GKS Connect",
+  title: "Set up your profile — KMate",
 };
 
 export default async function OnboardingPage() {

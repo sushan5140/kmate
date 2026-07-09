@@ -3,9 +3,10 @@
 interface BioStepProps {
   value: string;
   onChange: (value: string) => void;
+  onSkip?: () => void;
 }
 
-export function BioStep({ value, onChange }: BioStepProps) {
+export function BioStep({ value, onChange, onSkip }: BioStepProps) {
   return (
     <div>
       <textarea
@@ -15,7 +16,20 @@ export function BioStep({ value, onChange }: BioStepProps) {
         rows={3}
         className="w-full resize-none rounded-lg border border-border bg-white px-3 py-2 text-[14px] text-ink outline-none focus:border-primary"
       />
-      <p className="mt-1 text-right text-[12px] text-muted">{value.length}/150</p>
+      <div className="mt-1 flex items-center justify-between">
+        {onSkip ? (
+          <button
+            type="button"
+            onClick={onSkip}
+            className="text-[12.5px] font-medium text-muted underline-offset-2 hover:text-ink hover:underline"
+          >
+            Skip for now
+          </button>
+        ) : (
+          <span />
+        )}
+        <p className="text-[12px] text-muted">{value.length}/150</p>
+      </div>
     </div>
   );
 }

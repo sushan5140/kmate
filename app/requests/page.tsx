@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { RequestsList, type RequestRow } from "@/components/connections/requests-list";
 
 export const metadata: Metadata = {
-  title: "Requests — GKS Connect",
+  title: "Requests — KMate",
 };
 
 interface ConnectionRequestRow {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Community guidelines — GKS Connect",
+  title: "Community guidelines — KMate",
 };
 
 export default function GuidelinesPage() {
@@ -9,7 +9,7 @@ export default function GuidelinesPage() {
     <article className="flex flex-col gap-4 text-[14.5px] leading-relaxed text-ink">
       <h1 className="text-[22px] font-semibold">Community guidelines</h1>
 
-      <p>GKS Connect exists to help applicants prepare together, not to be a social app.</p>
+      <p>KMate exists to help applicants prepare together, not to be a social app.</p>
 
       <ul className="flex list-disc flex-col gap-2 pl-5">
         <li>No harassment, hate speech, or unwanted contact. Use Report or Block if someone crosses a line.</li>

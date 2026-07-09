@@ -5,10 +5,23 @@ import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-export function DraftAnswerEditor({ questionId, initialContent }: { questionId: string; initialContent: string }) {
+export function DraftAnswerEditor({
+  questionId,
+  initialContent,
+  rows = 8,
+  onContentChange,
+}: {
+  questionId: string;
+  initialContent: string;
+  rows?: number;
+  /** Fires only when content crosses the empty/non-empty boundary, so a parent can track a live drafted-count without re-checking every keystroke. */
+  onContentChange?: (hasContent: boolean) => void;
+}) {
   const [content, setContent] = useState(initialContent);
   const [status, setStatus] = useState<SaveStatus>("idle");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   const savedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hadContentRef = useRef(initialContent.trim().length > 0);
 
   async function save(value: string) {
     setStatus("saving");
@@ -22,7 +35,9 @@ export function DraftAnswerEditor({ questionId, initialContent }: { questionId: 
         setStatus("error");
         return;
       }
+      const data = (await res.json()) as { savedAt: string };
       setStatus("saved");
+      setSavedAt(data.savedAt);
       if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current);
       savedTimeoutRef.current = setTimeout(() => setStatus("idle"), 2000);
     } catch {
@@ -41,6 +56,11 @@ export function DraftAnswerEditor({ questionId, initialContent }: { questionId: 
   function handleChange(value: string) {
     setContent(value);
     debounced(value);
+    const hasContent = value.trim().length > 0;
+    if (hasContent !== hadContentRef.current) {
+      hadContentRef.current = hasContent;
+      onContentChange?.(hasContent);
+    }
   }
 
   return (
@@ -49,13 +69,17 @@ export function DraftAnswerEditor({ questionId, initialContent }: { questionId: 
         value={content}
         onChange={(e) => handleChange(e.target.value)}
         onBlur={() => flush(content)}
-        rows={8}
+        rows={rows}
         placeholder="Draft your answer here -- only you can see this."
         className="w-full resize-y rounded-xl border border-border bg-white px-4 py-3 text-[14px] leading-relaxed text-ink outline-none focus:border-primary"
       />
       <p className="mt-1.5 text-[12.5px] text-muted">
         {status === "saving" && "Saving…"}
-        {status === "saved" && <span className="text-success">Saved</span>}
+        {status === "saved" && (
+          <span className="text-success">
+            Saved{savedAt && ` · ${new Date(savedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
+          </span>
+        )}
         {status === "error" && (
           <span className="text-red-600">
             Couldn&apos;t save.{" "}

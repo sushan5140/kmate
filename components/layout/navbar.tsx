@@ -25,7 +25,7 @@ export default async function Navbar() {
     <header className="sticky top-0 z-40 border-b border-hairline bg-surface/75 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
         <Link href={user ? "/home" : "/"} className="text-[15px] font-semibold tracking-tight text-ink">
-          GKS Connect
+          KMate
         </Link>
 
         {user ? (
@@ -42,6 +42,12 @@ export default async function Navbar() {
           </nav>
         ) : (
           <nav className="flex items-center gap-4 text-[14px]">
+            <Link
+              href="/#how-it-works"
+              className="hidden text-muted transition-colors hover:text-ink sm:inline"
+            >
+              How it works
+            </Link>
             <Link href="/about" className="text-muted transition-colors hover:text-ink">
               About
             </Link>

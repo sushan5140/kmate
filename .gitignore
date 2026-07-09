@@ -25,3 +25,9 @@ npm-debug.log*
 
 # typescript
 *.tsbuildinfo
+
+# AI tooling artifacts (not app source)
+/.agents/
+/.claude/
+/videos/
+skills-lock.json

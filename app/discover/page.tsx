@@ -6,7 +6,7 @@ import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Discover — GKS Connect",
+  title: "Discover — KMate",
 };
 
 interface UniversityChoiceEmbed {

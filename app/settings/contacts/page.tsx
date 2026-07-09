@@ -5,7 +5,7 @@ import { EditContactsForm } from "@/components/settings/edit-contacts-form";
 import type { ContactValue } from "@/components/onboarding/contacts-step";
 
 export const metadata: Metadata = {
-  title: "Contact vault — GKS Connect",
+  title: "Contact vault — KMate",
 };
 
 export default async function SettingsContactsPage() {

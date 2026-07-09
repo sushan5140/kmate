@@ -11,17 +11,48 @@ import { UniversityPicker, type SelectedUniversity } from "@/components/onboardi
 import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
 import { ContactsStep, type ContactValue } from "@/components/onboarding/contacts-step";
+import { ReviewStep } from "@/components/onboarding/review-step";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { isValidUsernameFormat } from "@/lib/validation/username";
 import { applicationYearOptions, type GksUEmbassyPath, type Track } from "@/lib/constants";
 
-const STEPS = ["track", "major", "universities", "year", "username", "bio", "contacts"] as const;
+const STEPS = ["username", "bio", "track", "major", "universities", "year", "contacts", "review"] as const;
 type Step = (typeof STEPS)[number];
+
+const STEP_LABELS: Record<Step, string> = {
+  username: "Username",
+  bio: "Bio",
+  track: "Track",
+  major: "Major",
+  universities: "Universities",
+  year: "Year",
+  contacts: "Contacts",
+  review: "Review",
+};
+
+function StepProgress({ stepIndex }: { stepIndex: number }) {
+  return (
+    <div className="mb-6 flex items-center gap-1.5">
+      {STEPS.map((s, i) => (
+        <div key={s} className="h-1.5 flex-1 overflow-hidden rounded-full bg-hairline">
+          <div
+            className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: i <= stepIndex ? "100%" : "0%" }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function OnboardingWizard() {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const step: Step = STEPS[stepIndex];
+
+  const [username, setUsername] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState(false);
+  const [bio, setBio] = useState("");
 
   const [track, setTrack] = useState<Track | null>(null);
   const [gksUEmbassyPath, setGksUEmbassyPath] = useState<GksUEmbassyPath | null>(null);
@@ -31,9 +62,6 @@ export function OnboardingWizard() {
   const [major, setMajor] = useState("");
   const [universities, setUniversities] = useState<SelectedUniversity[]>([]);
   const [applicationYear, setApplicationYear] = useState<number>(applicationYearOptions()[0]);
-  const [username, setUsername] = useState("");
-  const [usernameAvailable, setUsernameAvailable] = useState(false);
-  const [bio, setBio] = useState("");
   const [contacts, setContacts] = useState<ContactValue[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +69,10 @@ export function OnboardingWizard() {
 
   function canAdvance(): boolean {
     switch (step) {
+      case "username":
+        return isValidUsernameFormat(username) && usernameAvailable;
+      case "bio":
+        return true;
       case "track":
         return track !== null;
       case "major":
@@ -53,10 +85,8 @@ export function OnboardingWizard() {
         ).valid;
       case "year":
         return Boolean(applicationYear);
-      case "username":
-        return isValidUsernameFormat(username) && usernameAvailable;
-      case "bio":
       case "contacts":
+      case "review":
         return true;
       default:
         return false;
@@ -107,9 +137,34 @@ export function OnboardingWizard() {
 
   return (
     <Card className="mx-auto w-full max-w-lg">
+      <StepProgress stepIndex={stepIndex} />
       <p className="text-[12px] font-medium uppercase tracking-wide text-muted">
-        Step {stepIndex + 1} of {STEPS.length}
+        Step {stepIndex + 1} of {STEPS.length} · {STEP_LABELS[step]}
       </p>
+
+      {step === "username" && (
+        <div className="mt-3">
+          <h2 className="text-[18px] font-semibold text-ink">Choose your username</h2>
+          <p className="mt-1 text-[13px] text-muted">
+            This is how other applicants find you. You can change it anytime in Settings.
+          </p>
+          <div className="mt-4">
+            <UsernameField value={username} onChange={setUsername} onAvailabilityChange={setUsernameAvailable} />
+          </div>
+        </div>
+      )}
+
+      {step === "bio" && (
+        <div className="mt-3">
+          <h2 className="text-[18px] font-semibold text-ink">Add a short bio</h2>
+          <p className="mt-1 text-[13px] text-muted">
+            Optional. A one-line intro helps other applicants know if you&apos;re a good fit to connect with.
+          </p>
+          <div className="mt-4">
+            <BioStep value={bio} onChange={setBio} onSkip={next} />
+          </div>
+        </div>
+      )}
 
       {step === "track" && (
         <div className="mt-3">
@@ -217,7 +272,7 @@ export function OnboardingWizard() {
 
       {step === "year" && (
         <div className="mt-3">
-          <h2 className="text-[18px] font-semibold text-ink">What application year?</h2>
+          <h2 className="text-[18px] font-semibold text-ink">Which intake are you applying for?</h2>
           <div className="mt-4 flex gap-2">
             {applicationYearOptions().map((year) => (
               <button
@@ -235,29 +290,28 @@ export function OnboardingWizard() {
         </div>
       )}
 
-      {step === "username" && (
-        <div className="mt-3">
-          <h2 className="text-[18px] font-semibold text-ink">Pick a username</h2>
-          <div className="mt-4">
-            <UsernameField value={username} onChange={setUsername} onAvailabilityChange={setUsernameAvailable} />
-          </div>
-        </div>
-      )}
-
-      {step === "bio" && (
-        <div className="mt-3">
-          <h2 className="text-[18px] font-semibold text-ink">Add a short bio</h2>
-          <div className="mt-4">
-            <BioStep value={bio} onChange={setBio} />
-          </div>
-        </div>
-      )}
-
       {step === "contacts" && (
         <div className="mt-3">
           <h2 className="text-[18px] font-semibold text-ink">Add contact methods (optional)</h2>
           <div className="mt-4">
             <ContactsStep contacts={contacts} onChange={setContacts} />
+          </div>
+        </div>
+      )}
+
+      {step === "review" && (
+        <div className="mt-3">
+          <h2 className="text-[18px] font-semibold text-ink">You&apos;re all set</h2>
+          <div className="mt-4">
+            <ReviewStep
+              username={username}
+              bio={bio}
+              track={track!}
+              major={major}
+              universities={universities}
+              applicationYear={applicationYear}
+              contacts={contacts}
+            />
           </div>
         </div>
       )}
@@ -281,9 +335,9 @@ export function OnboardingWizard() {
           >
             Community guidelines
           </a>
-          {step === "contacts" ? (
+          {step === "review" ? (
             <Button onClick={submit} disabled={submitting}>
-              {submitting ? "Finishing…" : "Finish"}
+              {submitting ? "Finishing…" : "Finish setup"}
             </Button>
           ) : (
             <Button onClick={next} disabled={!canAdvance()}>

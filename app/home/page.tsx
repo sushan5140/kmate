@@ -8,7 +8,7 @@ import { TrackBadge } from "@/components/ui/track-badge";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Home — GKS Connect",
+  title: "Home — KMate",
 };
 
 export default async function HomePage() {

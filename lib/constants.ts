@@ -52,6 +52,19 @@ export const QUESTION_CATEGORY_LABELS: Record<QuestionCategory, string> = {
   curveball: "Curveball",
 };
 
+// Reuses the app's existing accent tokens (same bg-{color}/10 text-{color}
+// pattern as TRACK_BADGE_CLASS) rather than introducing new colors -- one
+// category (academic_background) falls back to a neutral ink tint since
+// there are 6 categories but only 5 distinct accent hues in the palette.
+export const QUESTION_CATEGORY_BADGE_CLASS: Record<QuestionCategory, string> = {
+  motivation: "bg-primary/10 text-primary",
+  academic_background: "bg-ink/[0.06] text-muted",
+  korea_specific: "bg-gks-u/10 text-gks-u",
+  major_specific: "bg-success/10 text-success",
+  behavioral: "bg-gold/10 text-gold",
+  curveball: "bg-danger/10 text-danger",
+};
+
 export const CONNECTION_REQUEST_STATUSES = [
   "pending",
   "accepted",
@@ -60,7 +73,12 @@ export const CONNECTION_REQUEST_STATUSES = [
 ] as const;
 export type ConnectionRequestStatus = (typeof CONNECTION_REQUEST_STATUSES)[number];
 
+/**
+ * GKS notices for the current calendar year are typically already closed by
+ * the time an applicant is onboarding (GKS-G ~Feb-Mar, GKS-U ~Sept-Oct) --
+ * only the next two intakes are actually open to apply for.
+ */
 export function applicationYearOptions(): number[] {
   const currentYear = new Date().getFullYear();
-  return [currentYear, currentYear + 1, currentYear + 2];
+  return [currentYear + 1, currentYear + 2];
 }

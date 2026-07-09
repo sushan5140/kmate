@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
-import { X, GripVertical } from "lucide-react";
+import { X, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
@@ -84,6 +84,14 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
     onChange(selected.filter((s) => s.universityId !== universityId));
   }
 
+  function move(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= selected.length) return;
+    const next = [...selected];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  }
+
   const validation = validateUniversityChoices(
     track,
     gksUEmbassyPath,
@@ -138,7 +146,7 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
               value={s}
               className="flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2"
             >
-              <GripVertical className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+              <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted" aria-hidden />
               <span className="text-[12px] font-medium text-muted">#{i + 1}</span>
               <span className="flex-1 text-[14px] text-ink">{s.name}</span>
               {s.embassyType && (
@@ -146,6 +154,26 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
                   {s.embassyType === "type_a" ? "Type A" : "Type B"}
                 </span>
               )}
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => move(i, -1)}
+                  disabled={i === 0}
+                  className="text-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label={`Move ${s.name} up`}
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => move(i, 1)}
+                  disabled={i === selected.length - 1}
+                  className="text-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label={`Move ${s.name} down`}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => removeUniversity(s.universityId)}
@@ -160,7 +188,7 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
       )}
 
       <p className="mt-2 text-[12.5px] text-muted">
-        Drag to reorder by priority. Pick 1-4 universities.
+        Drag, or use the arrows, to reorder by priority. Pick 1-4 universities.
       </p>
       {!validation.valid && (
         <p className="mt-1 text-[12.5px] text-red-600">{validation.message}</p>

@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ username: string }>;
 }): Promise<Metadata> {
   const { username } = await params;
-  return { title: `@${username} — GKS Connect` };
+  return { title: `@${username} — KMate` };
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {

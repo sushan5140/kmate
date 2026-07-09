@@ -5,7 +5,7 @@ import GoogleSignInButton from "@/components/auth/google-sign-in-button";
 import { Card } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Sign in — GKS Connect",
+  title: "Sign in — KMate",
 };
 
 export default async function LoginPage({
@@ -30,7 +30,7 @@ export default async function LoginPage({
     <main className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-6">
       <div className="grid-texture pointer-events-none absolute inset-0" aria-hidden />
       <Card className="relative w-full max-w-sm text-center">
-        <h1 className="text-[20px] font-semibold tracking-tight text-ink">Sign in to GKS Connect</h1>
+        <h1 className="text-[20px] font-semibold tracking-tight text-ink">Sign in to KMate</h1>
         <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
           We use Google sign-in only. Your profile and contact info stay private
           until you choose to share them.

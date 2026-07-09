@@ -5,7 +5,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ModerationQueue } from "@/components/admin/moderation-queue";
 
 export const metadata: Metadata = {
-  title: "Moderation — GKS Connect",
+  title: "Moderation — KMate",
 };
 
 export default async function AdminQuestionsPage() {

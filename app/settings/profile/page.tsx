@@ -6,7 +6,7 @@ import { DeleteAccountButton } from "@/components/settings/delete-account-button
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Edit profile — GKS Connect",
+  title: "Edit profile — KMate",
 };
 
 interface UniversityChoiceRow {

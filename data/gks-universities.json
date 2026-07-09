@@ -5,25 +5,25 @@
     "GKS-U": {
       "embassy_track": {
         "type_a": [
-          "Ajou University", "Chung-Ang University", "Dongguk University (Seoul)", "Duksung Women's University",
+          "Ajou University", "Chung-Ang University", "Dankook University", "Dongguk University (Seoul)", "Duksung Women's University",
           "Ewha Womans University", "Hankuk University of Foreign Studies", "Hansung University", "Hanyang University",
           "Hongik University", "Incheon National University", "Inha University", "Konkuk University", "Kookmin University",
-          "Korea University", "Kyung Hee University", "Myongji University (Yongin campus)",
-          "Pohang University of Science and Technology (POSTECH)", "Seokyeong University", "Seoul National University",
-          "Seoul National University of Science and Technology", "Sogang University", "Sookmyung Women's University",
+          "Korea University", "Kyung Hee University", "Myongji University",
+          "POSTECH (Pohang University of Science and Technology)", "Seokyeong University", "Seoul National University",
+          "Seoul National University of Science and Technology (SeoulTech)", "Sogang University", "Sookmyung Women's University",
           "Sungkyunkwan University (SKKU)", "Shinhan University", "Sungshin Women's University",
-          "Tech University of Korea", "University of Seoul", "Ulsan National Institute of Science and Technology (UNIST)",
+          "Tech University of Korea", "University of Seoul", "UNIST (Ulsan National Institute of Science and Technology)",
           "Yonsei University"
         ],
         "type_b_rgks": [
           "Busan University of Foreign Studies", "Cheongju University", "Chonnam National University", "Chosun University",
-          "Chungbuk National University", "Chungnam National University (CNU)", "Daegu Catholic University", "Daegu University",
+          "Chungbuk National University", "Chungnam National University", "Daegu Catholic University", "Daegu University",
           "Daejeon University", "Dong-A University", "Dongseo University", "Gyeongkuk National University",
           "Gyeongsang National University", "Hannam University", "Hoseo University", "Inje University", "Jeju National University",
           "Jeonbuk National University", "Kangwon National University", "Keimyung University", "Kongju National University",
-          "Konyang University", "Korea University (Sejong)", "KOREATECH (Korea University of Technology and Education)",
+          "Konyang University", "Korea University Sejong Campus", "KOREATECH (Korea University of Technology and Education)",
           "Kunsan National University", "Kyungpook National University", "Kyungsung University", "Mokwon University",
-          "National Korea Maritime & Ocean University", "Pai Chai University", "Pukyong National University",
+          "Korea Maritime & Ocean University", "Pai Chai University", "Pukyong National University",
           "Pusan National University", "Semyung University", "Silla University", "Sunchon National University",
           "Sun Moon University", "Soonchunhyang University", "University of Ulsan", "Yeungnam University"
         ],
@@ -35,22 +35,22 @@
         "Sungshin Women's University", "Yeungnam University"
       ],
       "university_track_associate_degree": [
-        "Dong-Eui Institute of Technology", "Gumi University", "Hanyang Women's University", "Hosan University",
-        "Korea University of Media Arts", "Kyungbok University", "Osan University", "Vision University of Jeonju",
+        "Dong Eui Institute of Technology", "Gumi University", "Hanyang Women's University", "Hosan University",
+        "Korea University of Media Arts", "Kyungbok University", "Osan University", "Vision College of Jeonju",
         "Yeungjin University"
       ]
     },
     "GKS-G": {
       "type_a": [
         "Ajou University", "Chung-Ang University", "Dankook University", "DGIST (Daegu Gyeongbuk Institute of Science and Technology)",
-        "Dongguk University", "Duksung Women's University", "Ewha Womans University", "GIST (Gwangju Institute of Science and Technology)",
+        "Dongguk University (Seoul)", "Duksung Women's University", "Ewha Womans University", "GIST (Gwangju Institute of Science and Technology)",
         "Hankuk University of Foreign Studies", "Hanyang University (ERICA)", "Hanyang University (Seoul)", "Hongik University",
         "Incheon National University", "Inha University", "KAIST (Korea Advanced Institute of Science and Technology)",
         "KDI School of Public Policy and Management", "Konkuk University", "Kookmin University", "Korea University",
         "Kyung Hee University", "NCC-GCSP (National Cancer Center Graduate School of Cancer Science and Policy)",
         "POSTECH (Pohang University of Science and Technology)", "Sejong University", "Seokyeong University",
-        "Seoul National University", "SeoulTech (Seoul National University of Science and Technology)", "Sogang University",
-        "Sookmyung Women's University", "Soongsil University", "Sungkyunkwan University", "Sungshin Women's University",
+        "Seoul National University", "Seoul National University of Science and Technology (SeoulTech)", "Sogang University",
+        "Sookmyung Women's University", "Soongsil University", "Sungkyunkwan University (SKKU)", "Sungshin Women's University",
         "The Academy of Korean Studies", "UNIST (Ulsan National Institute of Science and Technology)", "University of Seoul",
         "Yonsei University"
       ],
@@ -73,7 +73,7 @@
           "Jeju National University", "KAIST (Korea Advanced Institute of Science and Technology)", "Keimyung University",
           "Konkuk University", "Kookmin University", "KOREATECH (Korea University of Technology and Education)",
           "Kunsan National University", "Kyungpook National University", "Pukyong National University", "Pusan National University",
-          "Seoul Theological University", "SeoulTech (Seoul National University of Science and Technology)", "Sogang University",
+          "Seoul Theological University", "Seoul National University of Science and Technology (SeoulTech)", "Sogang University",
           "Sunchon National University", "Yeungnam University", "Yonsei University"
         ],
         "global_network_program": [

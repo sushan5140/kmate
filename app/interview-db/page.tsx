@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
-import { QuestionFilters } from "@/components/interview-db/question-filters";
-import { QuestionCard, type QuestionCardData } from "@/components/interview-db/question-card";
+import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
 import { Card } from "@/components/ui/card";
+import type { QuestionCardData } from "@/components/interview-db/question-card";
 
 export const metadata: Metadata = {
-  title: "Interview DB — GKS Connect",
+  title: "Interview DB — KMate",
 };
 
 interface QuestionRow {
@@ -18,38 +18,32 @@ interface QuestionRow {
   question_upvotes: { user_id: string }[];
 }
 
-export default async function InterviewDbPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; relevant?: string }>;
-}) {
+export default async function InterviewDbPage() {
   const user = await requireOnboarded("/interview-db");
-  const params = await searchParams;
   const supabase = await createClient(); // RLS-respecting: only approved + own + admin rows come back
 
-  let query = supabase
-    .from("interview_questions")
-    .select("id, text, category, upvotes_count, status, question_upvotes ( user_id )")
-    .order("upvotes_count", { ascending: false });
+  const [{ data: questionRows }, { data: draftRows }] = await Promise.all([
+    supabase
+      .from("interview_questions")
+      .select("id, text, category, upvotes_count, status, question_upvotes ( user_id )")
+      .order("upvotes_count", { ascending: false }),
+    supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
+  ]);
 
-  if (params.category) {
-    query = query.eq("category", params.category);
-  } else if (params.relevant === "1") {
-    // Categories tied most directly to a specific major/university, since
-    // questions here aren't individually tagged by major/university.
-    query = query.in("category", ["major_specific", "korea_specific"]);
-  }
+  const draftsByQuestionId = new Map((draftRows ?? []).map((d) => [d.question_id, d.content]));
 
-  const { data } = await query;
-
-  const questions: QuestionCardData[] = ((data ?? []) as unknown as QuestionRow[]).map((q) => ({
+  const questions: QuestionCardData[] = ((questionRows ?? []) as unknown as QuestionRow[]).map((q) => ({
     id: q.id,
     text: q.text,
     category: q.category,
     upvotesCount: q.upvotes_count,
     upvotedByMe: q.question_upvotes.some((u) => u.user_id === user.id),
     status: q.status,
+    draftContent: draftsByQuestionId.get(q.id) ?? "",
   }));
+
+  const totalApproved = questions.filter((q) => q.status === "approved").length;
+  const initialDraftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -68,18 +62,11 @@ export default async function InterviewDbPage({
         </p>
       </Card>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <QuestionFilters />
+      <div className="mt-6 flex justify-end">
         <SubmitQuestionForm />
       </div>
 
-      <div className="mt-6 flex flex-col gap-3">
-        {questions.length === 0 ? (
-          <p className="text-[14px] text-muted">No questions match this filter yet.</p>
-        ) : (
-          questions.map((q) => <QuestionCard key={q.id} question={q} />)
-        )}
-      </div>
+      <QuestionBrowser questions={questions} initialDraftedCount={initialDraftedCount} totalApproved={totalApproved} />
     </main>
   );
 }
