@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Instrument_Serif } from "next/font/google";
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
+import AppShell from "@/components/layout/app-shell";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -34,9 +33,7 @@ export default function RootLayout({
     <html lang="en" className={`${manrope.variable} ${instrumentSerif.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-canvas text-ink antialiased">
         <div className="grain-overlay" />
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ReportBlockMenuProps {
-  targetType: "profile" | "question";
+  targetType: "profile" | "question" | "eca" | "mistake";
   targetId: string;
   /** Only meaningful when targetType === 'profile'. */
   blockedUserId?: string;

@@ -13,7 +13,10 @@ function isPublicPath(pathname: string) {
 }
 
 export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  // Captured (not applied to a response) during getUser()'s cookie refresh,
+  // then re-applied once at the end alongside the user-id header below --
+  // see the comment further down for why this is one response, not two.
+  let cookiesToSetList: { name: string; value: string; options: Parameters<NextResponse["cookies"]["set"]>[2] }[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,10 +28,7 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          cookiesToSetList = cookiesToSet;
         },
       },
     }
@@ -47,7 +47,19 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return supabaseResponse;
+  // Forward the already-validated user id to Server Components via a request
+  // header. AppShell (root layout, wraps every page) used to call
+  // supabase.auth.getUser() a second time just to re-derive who's signed in
+  // -- a fully redundant network round-trip to Supabase Auth on every single
+  // page load, since proxy() already did this exact check. Reading the
+  // header instead is free.
+  if (user) {
+    request.headers.set("x-kmate-user-id", user.id);
+  }
+
+  const response = NextResponse.next({ request });
+  cookiesToSetList.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+  return response;
 }
 
 export const config = {

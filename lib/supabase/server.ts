@@ -1,5 +1,13 @@
-import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+// No `server-only` import here (deliberately): this module is also imported
+// directly by standalone Node scripts under supabase/scripts/ (seed-*.ts, run
+// via tsx outside Next's bundler), where the server-only guard throws
+// unconditionally since it relies on a bundler condition tsx doesn't set.
+// The real safety boundary is that SUPABASE_SERVICE_ROLE_KEY is never
+// NEXT_PUBLIC_-prefixed, so Next.js strips it to `undefined` in any client
+// bundle regardless -- this file accidentally reaching client code fails
+// loudly (getSupabaseAdmin throws) rather than leaking the key.
 
 let cached: SupabaseClient | null = null;
 

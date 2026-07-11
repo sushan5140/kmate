@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     targetId: string;
     reason: string;
   };
-  if (!["profile", "question"].includes(targetType)) {
+  if (!["profile", "question", "eca", "mistake", "app"].includes(targetType)) {
     return NextResponse.json({ error: "invalid_target_type" }, { status: 400 });
   }
   if (!targetId || typeof targetId !== "string") {

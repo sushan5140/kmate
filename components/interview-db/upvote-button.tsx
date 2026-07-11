@@ -7,10 +7,13 @@ export function UpvoteButton({
   questionId,
   initialCount,
   initialUpvoted,
+  endpoint,
 }: {
   questionId: string;
   initialCount: number;
   initialUpvoted: boolean;
+  /** Defaults to the interview-question upvote route; pass e.g. `/api/eca` to reuse this for other upvotable lists. */
+  endpoint?: string;
 }) {
   const [count, setCount] = useState(initialCount);
   const [upvoted, setUpvoted] = useState(initialUpvoted);
@@ -24,7 +27,7 @@ export function UpvoteButton({
     setUpvoted(!wasUpvoted);
     setCount((c) => (wasUpvoted ? c - 1 : c + 1));
     try {
-      const res = await fetch(`/api/questions/${questionId}/upvote`, { method: "POST" });
+      const res = await fetch(`${endpoint ?? "/api/questions"}/${questionId}/upvote`, { method: "POST" });
       if (!res.ok) {
         setUpvoted(wasUpvoted);
         setCount((c) => (wasUpvoted ? c + 1 : c - 1));

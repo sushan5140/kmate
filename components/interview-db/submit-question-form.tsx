@@ -6,7 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QUESTION_CATEGORIES, QUESTION_CATEGORY_LABELS, type QuestionCategory } from "@/lib/constants";
 
-export function SubmitQuestionForm() {
+export function SubmitQuestionForm({
+  kind = "interview",
+  placeholder = "What question should other applicants prepare for?",
+}: {
+  kind?: "interview" | "interviewer";
+  placeholder?: string;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -22,7 +28,7 @@ export function SubmitQuestionForm() {
       const res = await fetch("/api/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, category }),
+        body: JSON.stringify({ text, category, kind }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -70,7 +76,7 @@ export function SubmitQuestionForm() {
         value={text}
         onChange={(e) => setText(e.target.value.slice(0, 500))}
         rows={3}
-        placeholder="What question should other applicants prepare for?"
+        placeholder={placeholder}
         className="mt-2 w-full resize-none rounded-lg border border-border bg-white px-3 py-2 text-[14px] text-ink outline-none focus:border-primary"
       />
 

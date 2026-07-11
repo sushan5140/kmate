@@ -118,8 +118,18 @@ create table if not exists public.interview_questions (
   submitted_by uuid references public.profiles(id) on delete set null,
   upvotes_count int not null default 0,
   status text not null default 'pending' check (status in ('approved', 'pending', 'rejected')),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- 'interview' = questions applicants get asked; 'interviewer' = the
+  -- separate Ask-the-Interviewer bank (PRD §4.4) -- same shape/tagging/
+  -- upvote pattern, so it's a flag on this table rather than a duplicate one.
+  kind text not null default 'interview' check (kind in ('interview', 'interviewer'))
 );
+
+-- Idempotent column add for databases that already ran an earlier version of
+-- this file before `kind` existed.
+alter table public.interview_questions add column if not exists kind text not null default 'interview';
+alter table public.interview_questions drop constraint if exists interview_questions_kind_check;
+alter table public.interview_questions add constraint interview_questions_kind_check check (kind in ('interview', 'interviewer'));
 
 create table if not exists public.question_upvotes (
   question_id uuid not null references public.interview_questions(id) on delete cascade,
@@ -139,7 +149,7 @@ create table if not exists public.draft_answers (
 create table if not exists public.reports (
   id uuid primary key default gen_random_uuid(),
   reporter_id uuid references public.profiles(id) on delete set null,
-  target_type text not null check (target_type in ('profile', 'question')),
+  target_type text not null check (target_type in ('profile', 'question', 'eca', 'mistake', 'app')),
   target_id uuid not null,
   reason text not null,
   status text not null default 'open' check (status in ('open', 'reviewed', 'dismissed')),
@@ -152,6 +162,142 @@ create table if not exists public.blocks (
   created_at timestamptz not null default now(),
   primary key (blocker_id, blocked_id),
   check (blocker_id <> blocked_id)
+);
+
+-- PRD §12.1 Applicant Timeline. `route`/`country` nullable = applies
+-- regardless of that dimension -- MVP ships one generic default template
+-- (both null), with route/country-specific overrides added incrementally
+-- without any app-logic changes (same "admin-editable data, not hardcoded
+-- rules" lesson already applied to the universities table).
+create table if not exists public.timeline_templates (
+  id uuid primary key default gen_random_uuid(),
+  route text check (route in ('embassy', 'university')),
+  country text,
+  item_label text not null,
+  item_description text,
+  typical_deadline_offset_days int,
+  sort_order int not null default 0
+);
+
+create table if not exists public.user_timeline_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  timeline_template_item_id uuid not null references public.timeline_templates(id) on delete cascade,
+  completed boolean not null default false,
+  completed_at timestamptz,
+  unique (user_id, timeline_template_item_id)
+);
+
+-- PRD §4.5 Extracurricular Activities ranking.
+create table if not exists public.eca_entries (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  track text not null default 'both' check (track in ('gks_u', 'gks_g', 'both')),
+  submitted_by uuid references public.profiles(id) on delete set null,
+  upvotes_count int not null default 0,
+  status text not null default 'pending' check (status in ('approved', 'pending', 'rejected')),
+  created_at timestamptz not null default now(),
+  -- Populated only for research-seeded entries (data/gks-extracurriculars-seed-data.md);
+  -- null for ordinary user submissions.
+  activity_type text check (activity_type in (
+    'academic_competition', 'cultural_engagement_korea', 'internship_work_experience',
+    'language_study_topik', 'leadership_role', 'online_course_certification',
+    'other', 'research_publication', 'volunteering_community_service'
+  )),
+  impact_area text check (impact_area in (
+    'general_competitiveness', 'interview_talking_point', 'scoring_points_niied',
+    'strengthens_recommendation', 'strengthens_sop', 'strengthens_study_plan'
+  )),
+  source_platform text check (source_platform in ('facebook', 'reddit', 'blog', 'forum', 'other')),
+  source_url text,
+  confidence text check (confidence in ('recurring_theme', 'single_anecdote'))
+);
+
+alter table public.eca_entries add column if not exists activity_type text;
+alter table public.eca_entries drop constraint if exists eca_entries_activity_type_check;
+alter table public.eca_entries add constraint eca_entries_activity_type_check
+  check (activity_type in (
+    'academic_competition', 'cultural_engagement_korea', 'internship_work_experience',
+    'language_study_topik', 'leadership_role', 'online_course_certification',
+    'other', 'research_publication', 'volunteering_community_service'
+  ));
+alter table public.eca_entries add column if not exists impact_area text;
+alter table public.eca_entries drop constraint if exists eca_entries_impact_area_check;
+alter table public.eca_entries add constraint eca_entries_impact_area_check
+  check (impact_area in (
+    'general_competitiveness', 'interview_talking_point', 'scoring_points_niied',
+    'strengthens_recommendation', 'strengthens_sop', 'strengthens_study_plan'
+  ));
+alter table public.eca_entries add column if not exists source_platform text;
+alter table public.eca_entries drop constraint if exists eca_entries_source_platform_check;
+alter table public.eca_entries add constraint eca_entries_source_platform_check
+  check (source_platform in ('facebook', 'reddit', 'blog', 'forum', 'other'));
+alter table public.eca_entries add column if not exists source_url text;
+alter table public.eca_entries add column if not exists confidence text;
+alter table public.eca_entries drop constraint if exists eca_entries_confidence_check;
+alter table public.eca_entries add constraint eca_entries_confidence_check
+  check (confidence in ('recurring_theme', 'single_anecdote'));
+
+create table if not exists public.eca_upvotes (
+  entry_id uuid not null references public.eca_entries(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (entry_id, user_id)
+);
+
+-- PRD §12.2 Application Mistakes & Rejection Reasons (merged, searchable by
+-- either dimension).
+create table if not exists public.mistake_entries (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  document_type text not null check (
+    document_type in ('passport', 'apostille', 'recommendation', 'medical', 'transcript', 'study_plan', 'sop', 'interview', 'university_choice', 'other')
+  ),
+  reason_category text not null check (
+    reason_category in ('weak_study_plan', 'generic_sop', 'missing_document', 'poor_interview', 'wrong_university_choice', 'other')
+  ),
+  submitted_by uuid references public.profiles(id) on delete set null,
+  upvotes_count int not null default 0,
+  status text not null default 'pending' check (status in ('approved', 'pending', 'rejected')),
+  created_at timestamptz not null default now(),
+  -- Populated only for research-seeded entries (data/gks-mistakes-seed-data.md);
+  -- null for ordinary user submissions.
+  source_platform text check (source_platform in ('facebook', 'reddit', 'blog', 'forum', 'other')),
+  source_url text,
+  confidence text check (confidence in ('recurring_theme', 'single_anecdote'))
+);
+
+alter table public.mistake_entries add column if not exists source_platform text;
+alter table public.mistake_entries drop constraint if exists mistake_entries_source_platform_check;
+alter table public.mistake_entries add constraint mistake_entries_source_platform_check
+  check (source_platform in ('facebook', 'reddit', 'blog', 'forum', 'other'));
+alter table public.mistake_entries add column if not exists source_url text;
+alter table public.mistake_entries add column if not exists confidence text;
+alter table public.mistake_entries drop constraint if exists mistake_entries_confidence_check;
+alter table public.mistake_entries add constraint mistake_entries_confidence_check
+  check (confidence in ('recurring_theme', 'single_anecdote'));
+
+create table if not exists public.mistake_upvotes (
+  entry_id uuid not null references public.mistake_entries(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (entry_id, user_id)
+);
+
+-- PRD §12.3 AI Interview Feedback. Scoped strictly to clarity/confidence/
+-- repetition/length -- never content correctness (see app/api call site).
+-- Stores a snapshot of the answer text alongside the feedback rather than
+-- just a draft_answer_id FK, since a draft keeps changing after the fact and
+-- past feedback should stay legible against what was actually reviewed.
+create table if not exists public.answer_feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  question_id uuid not null references public.interview_questions(id) on delete cascade,
+  answer_snapshot text not null,
+  feedback_json jsonb not null,
+  created_at timestamptz not null default now()
 );
 
 -- =========================================================================
@@ -182,6 +328,34 @@ begin
     return new;
   elsif (tg_op = 'DELETE') then
     update public.interview_questions set upvotes_count = greatest(0, upvotes_count - 1) where id = old.question_id;
+    return old;
+  end if;
+  return null;
+end;
+$$;
+
+create or replace function public.handle_eca_upvote_change() returns trigger
+language plpgsql as $$
+begin
+  if (tg_op = 'INSERT') then
+    update public.eca_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    return new;
+  elsif (tg_op = 'DELETE') then
+    update public.eca_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+    return old;
+  end if;
+  return null;
+end;
+$$;
+
+create or replace function public.handle_mistake_upvote_change() returns trigger
+language plpgsql as $$
+begin
+  if (tg_op = 'INSERT') then
+    update public.mistake_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    return new;
+  elsif (tg_op = 'DELETE') then
+    update public.mistake_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
     return old;
   end if;
   return null;
@@ -341,6 +515,58 @@ drop policy if exists "blocks_all_own" on public.blocks;
 create policy "blocks_all_own" on public.blocks for all
   using (auth.uid() = blocker_id) with check (auth.uid() = blocker_id);
 
+alter table public.timeline_templates enable row level security;
+drop policy if exists "timeline_templates_select_all" on public.timeline_templates;
+create policy "timeline_templates_select_all" on public.timeline_templates for select using (true);
+
+alter table public.user_timeline_progress enable row level security;
+drop policy if exists "user_timeline_progress_all_own" on public.user_timeline_progress;
+create policy "user_timeline_progress_all_own" on public.user_timeline_progress for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table public.eca_entries enable row level security;
+drop policy if exists "eca_entries_select" on public.eca_entries;
+create policy "eca_entries_select" on public.eca_entries for select
+  using (status = 'approved' or submitted_by = auth.uid() or public.is_admin());
+drop policy if exists "eca_entries_insert_own" on public.eca_entries;
+create policy "eca_entries_insert_own" on public.eca_entries for insert
+  with check (submitted_by = auth.uid());
+drop policy if exists "eca_entries_update_admin" on public.eca_entries;
+create policy "eca_entries_update_admin" on public.eca_entries for update
+  using (public.is_admin());
+
+alter table public.eca_upvotes enable row level security;
+drop policy if exists "eca_upvotes_select_all" on public.eca_upvotes;
+create policy "eca_upvotes_select_all" on public.eca_upvotes for select using (true);
+drop policy if exists "eca_upvotes_insert_own" on public.eca_upvotes;
+create policy "eca_upvotes_insert_own" on public.eca_upvotes for insert with check (auth.uid() = user_id);
+drop policy if exists "eca_upvotes_delete_own" on public.eca_upvotes;
+create policy "eca_upvotes_delete_own" on public.eca_upvotes for delete using (auth.uid() = user_id);
+
+alter table public.mistake_entries enable row level security;
+drop policy if exists "mistake_entries_select" on public.mistake_entries;
+create policy "mistake_entries_select" on public.mistake_entries for select
+  using (status = 'approved' or submitted_by = auth.uid() or public.is_admin());
+drop policy if exists "mistake_entries_insert_own" on public.mistake_entries;
+create policy "mistake_entries_insert_own" on public.mistake_entries for insert
+  with check (submitted_by = auth.uid());
+drop policy if exists "mistake_entries_update_admin" on public.mistake_entries;
+create policy "mistake_entries_update_admin" on public.mistake_entries for update
+  using (public.is_admin());
+
+alter table public.mistake_upvotes enable row level security;
+drop policy if exists "mistake_upvotes_select_all" on public.mistake_upvotes;
+create policy "mistake_upvotes_select_all" on public.mistake_upvotes for select using (true);
+drop policy if exists "mistake_upvotes_insert_own" on public.mistake_upvotes;
+create policy "mistake_upvotes_insert_own" on public.mistake_upvotes for insert with check (auth.uid() = user_id);
+drop policy if exists "mistake_upvotes_delete_own" on public.mistake_upvotes;
+create policy "mistake_upvotes_delete_own" on public.mistake_upvotes for delete using (auth.uid() = user_id);
+
+alter table public.answer_feedback enable row level security;
+drop policy if exists "answer_feedback_all_own" on public.answer_feedback;
+create policy "answer_feedback_all_own" on public.answer_feedback for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
 -- =========================================================================
 -- PASS 4: triggers + seed data
 -- =========================================================================
@@ -356,6 +582,22 @@ create trigger on_question_upvote_insert after insert on public.question_upvotes
 drop trigger if exists on_question_upvote_delete on public.question_upvotes;
 create trigger on_question_upvote_delete after delete on public.question_upvotes
   for each row execute function public.handle_question_upvote_change();
+
+drop trigger if exists on_eca_upvote_insert on public.eca_upvotes;
+create trigger on_eca_upvote_insert after insert on public.eca_upvotes
+  for each row execute function public.handle_eca_upvote_change();
+
+drop trigger if exists on_eca_upvote_delete on public.eca_upvotes;
+create trigger on_eca_upvote_delete after delete on public.eca_upvotes
+  for each row execute function public.handle_eca_upvote_change();
+
+drop trigger if exists on_mistake_upvote_insert on public.mistake_upvotes;
+create trigger on_mistake_upvote_insert after insert on public.mistake_upvotes
+  for each row execute function public.handle_mistake_upvote_change();
+
+drop trigger if exists on_mistake_upvote_delete on public.mistake_upvotes;
+create trigger on_mistake_upvote_delete after delete on public.mistake_upvotes
+  for each row execute function public.handle_mistake_upvote_change();
 
 -- Curated starter questions, published directly as 'approved'. Cleaned,
 -- deduplicated, and categorized from applicant-submitted questions.
@@ -445,4 +687,37 @@ from (values
 ) as v(text, category)
 where not exists (
   select 1 from public.interview_questions iq where iq.text = v.text
+);
+
+-- PRD §12.1 MVP: one generic default timeline (route/country null = applies
+-- to everyone), ordered roughly by how early each item typically needs to
+-- start. Route/country-specific overrides come later without touching app code.
+insert into public.timeline_templates (route, country, item_label, item_description, typical_deadline_offset_days, sort_order)
+select null, null, v.item_label, v.item_description, v.offset_days, v.sort_order
+from (values
+  ('Passport', 'Valid passport, with enough validity left to cover the full program length.', 180, 1),
+  ('Recommendation letters', 'Usually 1-2 letters from professors or academic advisors -- ask early, they take time to write.', 150, 2),
+  ('Study plan', 'A clear, specific plan for what you''ll study and why in Korea -- avoid generic language.', 120, 3),
+  ('Personal statement / self-introduction', 'Your personal story and motivation -- keep it honest and specific, not a template.', 120, 4),
+  ('Medical check', 'A general health exam covering the items GKS requires -- book with enough lead time for results.', 90, 5),
+  ('Apostille / notarization', 'Apostille or consular authentication for degree certificates and transcripts -- rules vary by country.', 75, 6),
+  ('Transcript', 'Official academic transcript(s), translated if not already in English or Korean.', 75, 7),
+  ('Degree certificate', 'Proof of degree completion (or expected completion) -- translated and authenticated as required.', 75, 8)
+) as v(item_label, item_description, offset_days, sort_order)
+where not exists (
+  select 1 from public.timeline_templates t where t.item_label = v.item_label and t.route is null and t.country is null
+);
+
+-- PRD §4.5 starter examples, published directly as 'approved'.
+insert into public.eca_entries (title, description, track, submitted_by, status)
+select v.title, v.description, v.track, null, 'approved'
+from (values
+  ('Korean language certificate (TOPIK)', 'A TOPIK score signals genuine commitment and helps with the language-year waiver in some programs.', 'both'),
+  ('Volunteering', 'Any sustained volunteer work -- community service, tutoring, NGO work -- shows follow-through beyond academics.', 'both'),
+  ('Research publication or project', 'A paper, poster, or research project, even a small one -- most relevant for GKS-G applicants.', 'gks_g'),
+  ('Leadership roles', 'Club president, team captain, project lead -- anything showing you''ve taken initiative and responsibility.', 'both'),
+  ('Korea-related clubs or activities', 'K-culture clubs, Korean language exchange, Korea-focused academic societies -- shows sustained interest, not a last-minute pivot.', 'both')
+) as v(title, description, track)
+where not exists (
+  select 1 from public.eca_entries e where e.title = v.title
 );

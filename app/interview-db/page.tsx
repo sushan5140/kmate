@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
@@ -26,6 +27,7 @@ export default async function InterviewDbPage() {
     supabase
       .from("interview_questions")
       .select("id, text, category, upvotes_count, status, question_upvotes ( user_id )")
+      .eq("kind", "interview")
       .order("upvotes_count", { ascending: false }),
     supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
   ]);
@@ -62,7 +64,10 @@ export default async function InterviewDbPage() {
         </p>
       </Card>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <Link href="/interview-db/ask" className="text-[13.5px] font-medium text-primary hover:underline">
+          Ask the Interviewer questions →
+        </Link>
         <SubmitQuestionForm />
       </div>
 
