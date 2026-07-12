@@ -300,6 +300,36 @@ create table if not exists public.answer_feedback (
   created_at timestamptz not null default now()
 );
 
+-- Audit trail for admin_bootstrap_promote() (see PASS 2 and
+-- supabase/scripts/bootstrap-admin.ts) -- the one-time, manual, secret-gated
+-- ceremony for promoting an admin when no admin session exists to do it
+-- through the normal app flow. Logs both successful promotions and failed
+-- attempts (e.g. wrong secret), so a leaked service-role key being used to
+-- probe this is at least visible after the fact.
+create table if not exists public.admin_actions_log (
+  id uuid primary key default gen_random_uuid(),
+  action text not null,
+  target_user_id uuid,
+  target_email text,
+  outcome text not null check (outcome in ('success', 'failure')),
+  detail text,
+  created_at timestamptz not null default now()
+);
+
+-- Holds the SHA-256 hash of the admin-bootstrap secret (never the plaintext
+-- secret itself). A single-row table rather than a Postgres GUC/config
+-- setting -- ALTER DATABASE/ROLE SET is not permitted for the connecting
+-- role on Supabase's hosted Postgres (persistent config changes are
+-- reserved for their control plane), so a plain RLS-locked table is the
+-- portable equivalent. `id boolean primary key default true` plus the check
+-- constraint enforces there can only ever be one row.
+create table if not exists public.admin_bootstrap_config (
+  id boolean primary key default true,
+  secret_hash text not null,
+  updated_at timestamptz not null default now(),
+  constraint admin_bootstrap_config_singleton check (id)
+);
+
 -- =========================================================================
 -- PASS 2: functions (all tables above already exist, so these can
 -- reference any of them)
@@ -311,6 +341,98 @@ create or replace function public.is_admin() returns boolean
 language sql security definer stable set search_path = public as $$
   select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
 $$;
+
+-- Second, independent layer of defense on top of profiles_update_own's RLS
+-- policy: WITH CHECK alone can only judge "is the new row acceptable," not
+-- "which columns changed," so it can't stop a user from PATCHing their own
+-- row with is_admin=true via a direct Supabase REST call. This trigger
+-- silently reverts is_admin to its prior value unless the ACTING user
+-- (auth.uid()) is already an admin -- is_admin() reads the pre-update
+-- committed state, so this can't be bypassed by racing the same statement.
+-- The bootstrap_promote transaction-local flag is set in exactly one place:
+-- inside admin_bootstrap_promote() below, after it has already verified the
+-- caller's secret. Nothing else in this codebase ever sets it, and clients
+-- can't set it themselves -- PostgREST only exposes functions that live in
+-- the public schema, and set_config() is a pg_catalog builtin, not one of
+-- them.
+create or replace function public.guard_profiles_is_admin() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.is_admin is distinct from old.is_admin
+     and not public.is_admin()
+     and current_setting('kmate.bootstrap_promote', true) is distinct from 'true' then
+    new.is_admin := old.is_admin;
+  end if;
+  return new;
+end;
+$$;
+
+-- One-time admin-bootstrap ceremony (see supabase/scripts/bootstrap-admin.ts
+-- and SECURITY.md "Admin bootstrap"). This is the ONLY code path allowed to
+-- bypass guard_profiles_is_admin()'s normal restriction when no admin
+-- session exists yet to promote one through the ordinary route.
+--
+-- Gated on a secret whose SHA-256 hash lives only in
+-- admin_bootstrap_config (a single-row, RLS-locked table set once via a
+-- plain upsert in the SQL editor -- see that table's comment for why it's a
+-- table and not a Postgres GUC) -- never committed to the repo, never in
+-- application code. Every call is logged to admin_actions_log, success or
+-- failure, so repeated wrong-secret attempts are visible after the fact.
+create or replace function public.admin_bootstrap_promote(target_email text, secret text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_secret_hash text;
+  v_provided_hash text;
+  v_user_id uuid;
+begin
+  v_secret_hash := (select secret_hash from public.admin_bootstrap_config limit 1);
+  -- pgcrypto lives in the `extensions` schema on this project, not `public`
+  -- -- fully qualified rather than widening this function's search_path.
+  v_provided_hash := encode(extensions.digest(coalesce(secret, ''), 'sha256'), 'hex');
+
+  if v_secret_hash is null or v_secret_hash = '' then
+    insert into public.admin_actions_log (action, target_email, outcome, detail)
+      values ('admin_bootstrap_promote', target_email, 'failure', 'no secret configured on this database');
+    return false;
+  end if;
+
+  if v_provided_hash is distinct from v_secret_hash then
+    insert into public.admin_actions_log (action, target_email, outcome, detail)
+      values ('admin_bootstrap_promote', target_email, 'failure', 'secret mismatch');
+    return false;
+  end if;
+
+  select id into v_user_id from auth.users where lower(email) = lower(target_email);
+
+  if v_user_id is null then
+    insert into public.admin_actions_log (action, target_email, outcome, detail)
+      values ('admin_bootstrap_promote', target_email, 'failure', 'no such user');
+    return false;
+  end if;
+
+  perform set_config('kmate.bootstrap_promote', 'true', true);
+
+  update public.profiles set is_admin = true where id = v_user_id;
+
+  insert into public.admin_actions_log (action, target_user_id, target_email, outcome, detail)
+    values ('admin_bootstrap_promote', v_user_id, target_email, 'success', 'promoted via admin_bootstrap_promote()');
+
+  return true;
+end;
+$$;
+
+-- PostgREST grants EXECUTE on public-schema functions to PUBLIC by default,
+-- which would otherwise expose this as POST /rest/v1/rpc/admin_bootstrap_promote
+-- to anon/authenticated callers. The secret check inside is the real gate,
+-- but this removes the function from the deployed app's reachable surface
+-- entirely -- only the service-role key (used exclusively by
+-- bootstrap-admin.ts, run locally) can invoke it.
+revoke all on function public.admin_bootstrap_promote(text, text) from public, anon, authenticated;
+grant execute on function public.admin_bootstrap_promote(text, text) to service_role;
 
 create or replace function public.handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
@@ -469,9 +591,29 @@ create policy "connection_requests_insert_own" on public.connection_requests for
       select 1 from public.blocks b where b.blocker_id = to_user_id and b.blocked_id = from_user_id
     )
   );
+-- Replaced by the two policies below: this single blanket policy had no
+-- WITH CHECK, so its USING clause (either party) was the only gate on an
+-- UPDATE -- letting the *sender* PATCH their own outgoing request straight
+-- to status='accepted' via a direct Supabase REST call, bypassing the
+-- recipient-only check that only exists in app/api/connections/respond's
+-- application code. That immediately unlocks contact_methods for both
+-- parties (see contact_methods_select) without the recipient's consent.
 drop policy if exists "connection_requests_update_parties" on public.connection_requests;
-create policy "connection_requests_update_parties" on public.connection_requests for update
-  using (auth.uid() in (from_user_id, to_user_id));
+
+-- Only the recipient may accept/decline a pending request, and only into
+-- those two statuses.
+drop policy if exists "connection_requests_accept_or_decline" on public.connection_requests;
+create policy "connection_requests_accept_or_decline" on public.connection_requests for update
+  using (auth.uid() = to_user_id)
+  with check (auth.uid() = to_user_id and status in ('accepted', 'declined'));
+
+-- Either party may revoke (only app/api/connections/revoke's own status
+-- check restricts this to previously-accepted requests -- RLS just fixes
+-- the destination status, matching the accept/decline split above).
+drop policy if exists "connection_requests_revoke" on public.connection_requests;
+create policy "connection_requests_revoke" on public.connection_requests for update
+  using (auth.uid() in (from_user_id, to_user_id))
+  with check (status = 'revoked');
 
 alter table public.notifications enable row level security;
 drop policy if exists "notifications_select_own" on public.notifications;
@@ -567,6 +709,15 @@ drop policy if exists "answer_feedback_all_own" on public.answer_feedback;
 create policy "answer_feedback_all_own" on public.answer_feedback for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Deliberately no policies -- deny-all for anon/authenticated via the REST
+-- API. Only the service-role client or admin_bootstrap_promote() (itself
+-- SECURITY DEFINER) can read/write this table.
+alter table public.admin_actions_log enable row level security;
+
+-- Same treatment -- deny-all via REST. Setting the secret is a deliberate
+-- service-role/SQL-editor-only action.
+alter table public.admin_bootstrap_config enable row level security;
+
 -- =========================================================================
 -- PASS 4: triggers + seed data
 -- =========================================================================
@@ -574,6 +725,10 @@ create policy "answer_feedback_all_own" on public.answer_feedback for all
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+
+drop trigger if exists on_profiles_update_guard_admin on public.profiles;
+create trigger on_profiles_update_guard_admin before update on public.profiles
+  for each row execute function public.guard_profiles_is_admin();
 
 drop trigger if exists on_question_upvote_insert on public.question_upvotes;
 create trigger on_question_upvote_insert after insert on public.question_upvotes
