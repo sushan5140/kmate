@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
@@ -11,6 +12,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { data: profile } = await admin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
   if (!profile?.is_admin) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  // Tighter than the user-facing rate limits -- a compromised admin session
+  // hammering approve/reject is a distinct, higher-stakes risk than a normal
+  // user spamming a toggle.
+  const rateLimit = checkRateLimit(`moderate-eca:${user.id}`, 20, 5 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   const { id } = await params;

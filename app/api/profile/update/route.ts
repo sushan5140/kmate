@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validation/username";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_EMBASSY_PATHS } from "@/lib/constants";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 interface UpdateProfileBody {
   track: string;
@@ -18,6 +19,11 @@ interface UpdateProfileBody {
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const rateLimit = checkRateLimit(`profile-update:${user.id}`, 20, 60 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   const body = (await request.json()) as UpdateProfileBody;
   const { track, gksUEmbassyPath, major, applicationYear, username, bio, universityChoices } = body;

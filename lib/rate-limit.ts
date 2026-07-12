@@ -1,4 +1,8 @@
-import "server-only";
+// Deliberately no `import "server-only"` here -- same reasoning as
+// lib/supabase/server.ts's getSupabaseAdmin(): it throws outside the Next.js
+// bundler, which breaks standalone tsx execution (seed scripts, regression
+// tests). Next's own build-time env-var stripping is the real boundary that
+// keeps server-only code out of client bundles, not this import.
 
 /**
  * In-process sliding-window rate limiter. Deliberately simple for this

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { CONTACT_TYPES } from "@/lib/constants";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function GET() {
   const user = await getAuthenticatedUser();
@@ -18,6 +19,11 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const rateLimit = checkRateLimit(`contacts:${user.id}`, 20, 60 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   const { contacts } = (await request.json()) as { contacts: { type: string; value: string }[] };
   if (!Array.isArray(contacts)) {

@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const rateLimit = checkRateLimit(`revoke:${user.id}`, 30, 60 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   const { requestId } = (await request.json()) as { requestId: string };
   if (!requestId) return NextResponse.json({ error: "invalid_request" }, { status: 400 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * Soft-delete per PRD Decision #1: don't hard-delete auth.users/profiles --
@@ -12,6 +13,14 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 export async function POST() {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  // Destructive and rare -- almost no legitimate reason to call this more
+  // than once. A tight cap mainly protects against a hijacked session token
+  // or a client bug hammering this, not normal user behavior.
+  const rateLimit = checkRateLimit(`account-delete:${user.id}`, 3, 60 * 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
 
   const admin = getSupabaseAdmin();
 

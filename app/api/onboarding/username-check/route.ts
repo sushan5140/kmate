@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isValidUsernameFormat, escapeForIlike } from "@/lib/validation/username";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,6 +13,13 @@ export async function GET(request: Request) {
   }
 
   const user = await getAuthenticatedUser();
+
+  // 30/min comfortably covers the 300ms-debounced live-typing check
+  // (components/onboarding/username-field.tsx) even for fast, repeated edits.
+  const rateLimit = checkRateLimit(`username-check:${user?.id ?? "anon"}`, 30, 60 * 1000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ available: false, reason: "rate_limited" }, { status: 429 });
+  }
 
   let query = getSupabaseAdmin()
     .from("profiles")

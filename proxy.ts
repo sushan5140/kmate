@@ -12,7 +12,60 @@ function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
 }
 
+// The browser Supabase client (lib/supabase/browser-client.ts) calls Supabase
+// Auth directly for sign-in/sign-out, so connect-src must allow that origin
+// alongside 'self'.
+const SUPABASE_ORIGIN = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin;
+
+// Nonce-based CSP per https://nextjs.org/docs/app/guides/content-security-policy
+// -- chosen over `script-src 'unsafe-inline'` because it costs nothing here:
+// every route in this app already reads headers()/cookies() in AppShell, so
+// the whole app is dynamically rendered already (confirmed via `next build`),
+// meaning the "all pages must be dynamic" requirement for nonces is already
+// true regardless of this change.
+//
+// style-src stays on 'unsafe-inline' (not nonce'd) in every environment --
+// confirmed via a real browser CSP check that framer-motion writes
+// `element.style.cssText` directly for its animations, which CSP always
+// treats as an inline-style mutation with no way to attach a nonce to it.
+// A nonce'd style-src silently broke the onboarding wizard's step
+// transitions and the admin pages' action menus. Inline-style injection is
+// a materially lower-severity class than script injection, so this trades
+// away a secondary protection to keep the primary one (script-src) strict.
+function buildCsp(nonce: string, isDev: boolean) {
+  return [
+    `default-src 'self'`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    `style-src 'self' 'unsafe-inline'`,
+    `img-src 'self' blob: data:`,
+    `font-src 'self'`,
+    `connect-src 'self' ${SUPABASE_ORIGIN}`,
+    `object-src 'none'`,
+    `base-uri 'self'`,
+    `form-action 'self'`,
+    `frame-ancestors 'none'`,
+    ...(isDev ? [] : ["upgrade-insecure-requests"]),
+  ].join("; ");
+}
+
 export async function proxy(request: NextRequest) {
+  // Unconditionally strip any client-supplied value for this header before
+  // anything else runs. AppShell trusts this header as "the verified signed-
+  // in user" -- if we only ever *set* it (inside `if (user)` below) and never
+  // clear it, a request with no session at all could arrive with its own
+  // x-kmate-user-id header already attached and have that spoofed value pass
+  // straight through untouched to Server Components on every public path.
+  request.headers.delete("x-kmate-user-id");
+
+  // Generated fresh per-request -- Next.js reads this off the CSP header (on
+  // the request, for rendering; on the response, for the browser) and
+  // automatically tags its own framework/page scripts with it.
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const isDev = process.env.NODE_ENV === "development";
+  const csp = buildCsp(nonce, isDev);
+  request.headers.set("x-nonce", nonce);
+  request.headers.set("Content-Security-Policy", csp);
+
   // Captured (not applied to a response) during getUser()'s cookie refresh,
   // then re-applied once at the end alongside the user-id header below --
   // see the comment further down for why this is one response, not two.
@@ -59,6 +112,7 @@ export async function proxy(request: NextRequest) {
 
   const response = NextResponse.next({ request });
   cookiesToSetList.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+  response.headers.set("Content-Security-Policy", csp);
   return response;
 }
 
