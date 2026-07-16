@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -36,6 +37,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .eq("id", id);
 
   if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
+
+  // So a newly-approved question shows up on /interview-db and
+  // /interview-db/ask right away instead of waiting out the cache's
+  // time-based revalidation window.
+  revalidateTag("questions", { expire: 0 });
 
   return NextResponse.json({ ok: true });
 }

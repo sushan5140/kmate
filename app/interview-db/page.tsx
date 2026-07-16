@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
+import { getCachedApprovedQuestions } from "@/lib/cached-content";
 import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
 import { Card } from "@/components/ui/card";
@@ -21,35 +22,87 @@ interface QuestionRow {
 
 export default async function InterviewDbPage() {
   const user = await requireOnboarded("/interview-db");
-  const supabase = await createClient(); // RLS-respecting: only approved + own + admin rows come back
+  const supabase = await createClient(); // RLS-respecting, for the personalized queries below
 
-  const [{ data: questionRows }, { data: draftRows }] = await Promise.all([
-    supabase
-      .from("interview_questions")
-      .select("id, text, category, upvotes_count, downvotes_count, status, question_upvotes ( user_id, vote_type )")
-      .eq("kind", "interview")
-      .order("upvotes_count", { ascending: false }),
-    supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
-  ]);
+  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
 
-  const draftsByQuestionId = new Map((draftRows ?? []).map((d) => [d.question_id, d.content]));
+  let questions: QuestionCardData[];
+  let draftRowsForCount: { content: string }[];
 
-  const questions: QuestionCardData[] = ((questionRows ?? []) as unknown as QuestionRow[]).map((q) => {
-    const myVote = q.question_upvotes.find((u) => u.user_id === user.id);
-    return {
+  if (profile?.is_admin) {
+    // Admins see every submission regardless of status/owner on this page
+    // today (an RLS side-effect, not a deliberate feature -- there's a
+    // dedicated /admin/questions moderation queue for reviewing others'
+    // pending content). Left on the original fully-dynamic, uncached path
+    // rather than guessing whether that behavior should be preserved
+    // through the cache -- admins are a tiny fraction of traffic.
+    const [{ data: questionRows }, { data: draftRows }] = await Promise.all([
+      supabase
+        .from("interview_questions")
+        .select("id, text, category, upvotes_count, downvotes_count, status, question_upvotes ( user_id, vote_type )")
+        .eq("kind", "interview")
+        .order("upvotes_count", { ascending: false }),
+      supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
+    ]);
+    const draftsByQuestionId = new Map((draftRows ?? []).map((d) => [d.question_id, d.content]));
+    questions = ((questionRows ?? []) as unknown as QuestionRow[]).map((q) => {
+      const myVote = q.question_upvotes.find((u) => u.user_id === user.id);
+      return {
+        id: q.id,
+        text: q.text,
+        category: q.category,
+        upvotesCount: q.upvotes_count,
+        downvotesCount: q.downvotes_count,
+        voteType: myVote?.vote_type ?? null,
+        status: q.status,
+        draftContent: draftsByQuestionId.get(q.id) ?? "",
+      };
+    });
+    draftRowsForCount = draftRows ?? [];
+  } else {
+    const [cachedApproved, { data: ownPendingRows }, { data: myVoteRows }, { data: draftRows }] = await Promise.all([
+      getCachedApprovedQuestions("interview"),
+      // This user's own non-approved submissions -- shown inline with a
+      // status label, same as before caching (see question-card.tsx).
+      supabase
+        .from("interview_questions")
+        .select("id, text, category, upvotes_count, downvotes_count, status")
+        .eq("kind", "interview")
+        .eq("submitted_by", user.id)
+        .neq("status", "approved"),
+      supabase.from("question_upvotes").select("question_id, vote_type").eq("user_id", user.id),
+      supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
+    ]);
+
+    const draftsByQuestionId = new Map((draftRows ?? []).map((d) => [d.question_id, d.content]));
+    const myVoteByQuestionId = new Map((myVoteRows ?? []).map((v) => [v.question_id, v.vote_type as "up" | "down"]));
+
+    const approved: QuestionCardData[] = cachedApproved.map((q) => ({
+      id: q.id,
+      text: q.text,
+      category: q.category,
+      upvotesCount: q.upvotesCount,
+      downvotesCount: q.downvotesCount,
+      voteType: myVoteByQuestionId.get(q.id) ?? null,
+      status: "approved",
+      draftContent: draftsByQuestionId.get(q.id) ?? "",
+    }));
+    const ownPending: QuestionCardData[] = (ownPendingRows ?? []).map((q) => ({
       id: q.id,
       text: q.text,
       category: q.category,
       upvotesCount: q.upvotes_count,
       downvotesCount: q.downvotes_count,
-      voteType: myVote?.vote_type ?? null,
+      voteType: myVoteByQuestionId.get(q.id) ?? null,
       status: q.status,
       draftContent: draftsByQuestionId.get(q.id) ?? "",
-    };
-  });
+    }));
+    questions = [...approved, ...ownPending];
+    draftRowsForCount = draftRows ?? [];
+  }
 
   const totalApproved = questions.filter((q) => q.status === "approved").length;
-  const initialDraftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
+  const initialDraftedCount = draftRowsForCount.filter((d) => d.content.trim().length > 0).length;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
