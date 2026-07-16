@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { QuestionCard, type QuestionCardData } from "@/components/interview-db/question-card";
+import { DownloadMenu } from "@/components/interview-db/download-menu";
 import { cn } from "@/lib/cn";
 import { QUESTION_CATEGORIES, QUESTION_CATEGORY_LABELS, type QuestionCategory } from "@/lib/constants";
 
@@ -74,11 +75,14 @@ export function QuestionBrowser({
   return (
     <div>
       <div className="mt-6">
-        <div className="flex items-center justify-between text-[13px]">
-          <span className="font-medium text-ink">
-            {draftedCount} of {totalApproved} drafted
-          </span>
-          <span className="text-muted">{progressPct}%</span>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[13px]">
+            <span className="font-medium text-ink">
+              {draftedCount} of {totalApproved} drafted
+            </span>
+            <span className="text-muted">{progressPct}%</span>
+          </div>
+          <DownloadMenu totalApproved={totalApproved} draftedCount={draftedCount} />
         </div>
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.06]">
           <div
