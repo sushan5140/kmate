@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { TimelineChecklist, type TimelineItemData } from "@/components/timeline/timeline-checklist";
+import { DeadlineBanner } from "@/components/timeline/deadline-banner";
 import { Card } from "@/components/ui/card";
-import { estimateApplicationDeadline, computeStartByDate } from "@/lib/timeline/deadline";
+import { estimateApplicationDeadline } from "@/lib/timeline/deadline";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -25,28 +26,24 @@ export default async function TimelinePage() {
   ]);
 
   const completedIds = new Set((progressRows ?? []).filter((p) => p.completed).map((p) => p.timeline_template_item_id));
+  const track = (profile?.track as Track | null) ?? null;
 
-  // Only computable once track + application_year are both set (always true
-  // post-onboarding, but this page doesn't hard-require it) -- falls back to
-  // just the offset-days text otherwise, same as before this change.
-  const deadline =
-    profile?.track && profile?.application_year
-      ? estimateApplicationDeadline(profile.track as Track, profile.application_year)
-      : null;
-
-  // If the stored application_year's deadline has already passed, per-item
-  // due dates would all be nonsensically in the past -- suppress them (items
-  // fall back to their offset-only text) and surface a clear "cycle closed"
-  // message instead, rather than auto-changing the user's stored year.
-  const cycleClosed = deadline !== null && deadline.getTime() < new Date().getTime();
-  const effectiveDeadline = cycleClosed ? null : deadline;
+  // True once the estimated deadline for the user's stored (track,
+  // application_year) is already in the past -- a nudge to update their
+  // profile, separate from the calendar banner below (which always shows
+  // the upcoming cycle's dates for the track, not tied to which year the
+  // user personally has saved).
+  let cycleClosed = false;
+  if (track && profile?.application_year) {
+    const deadline = estimateApplicationDeadline(track, profile.application_year);
+    cycleClosed = deadline.getTime() < new Date().getTime();
+  }
 
   const items: TimelineItemData[] = (templateItems ?? []).map((t) => ({
     id: t.id,
     label: t.item_label,
     description: t.item_description,
     offsetDays: t.typical_deadline_offset_days,
-    dueDate: effectiveDeadline ? computeStartByDate(effectiveDeadline, t.typical_deadline_offset_days) : null,
     completed: completedIds.has(t.id),
   }));
 
@@ -54,10 +51,12 @@ export default async function TimelinePage() {
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Applicant Timeline</h1>
 
+      {track && <DeadlineBanner track={track} />}
+
       {cycleClosed && (
         <Card className="mt-4 bg-gold/5 ring-gold/30">
           <p className="text-[13.5px] font-medium text-ink">
-            This application cycle&apos;s deadline has passed -- update your application year in your profile.
+            Your saved application year&apos;s deadline has passed -- update your application year in your profile.
           </p>
         </Card>
       )}

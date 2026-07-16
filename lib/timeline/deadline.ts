@@ -16,11 +16,39 @@ export function estimateApplicationDeadline(track: Track, applicationYear: numbe
   return new Date(applicationYear - 1, 8, 30); // gks_u: ~Sept 30 of the prior year
 }
 
-/** deadline minus a timeline step's typical lead time. */
-export function computeStartByDate(deadline: Date, offsetDays: number | null): Date {
-  const startBy = new Date(deadline);
-  startBy.setDate(startBy.getDate() - (offsetDays ?? 0));
-  return startBy;
+/**
+ * Hand-maintained calendar dates for the upcoming intake cycle, shown as a
+ * single banner rather than derived from estimateApplicationDeadline above.
+ * GKS-U's embassy deadline is reasonably predictable year to year, but
+ * GKS-G's official notice isn't published this far ahead, so it's labeled
+ * rather than dated. Same caveat as estimateApplicationDeadline and the
+ * university list / mistake-data seeds elsewhere in this codebase: these
+ * are estimates/placeholders, not pulled from an authoritative NIIED
+ * source -- verify and update at the start of each new cycle.
+ */
+const GKS_U_PREP_BY_DATE = new Date(2026, 8, 15); // ~Sept 15, 2026
+const GKS_U_OFFICIAL_DEADLINE_DATE = new Date(2026, 8, 30); // ~Sept 30, 2026 (embassy deadline estimate)
+const GKS_G_PREP_BY_DATE = new Date(2027, 1, 15); // ~Feb 15, 2027
+
+const bannerDateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+export interface DeadlineBannerCopy {
+  prepBy: string;
+  official: string;
+}
+
+/** Prep-by / official-deadline copy for the calendar banner, by track. */
+export function deadlineBannerCopy(track: Track): DeadlineBannerCopy {
+  if (track === "gks_g") {
+    return {
+      prepBy: `Prepare your documents by ${bannerDateFormatter.format(GKS_G_PREP_BY_DATE)}`,
+      official: "Official deadline: not yet announced",
+    };
+  }
+  return {
+    prepBy: `Prepare your documents by ${bannerDateFormatter.format(GKS_U_PREP_BY_DATE)}`,
+    official: `Official embassy deadline: ${bannerDateFormatter.format(GKS_U_OFFICIAL_DEADLINE_DATE)}`,
+  };
 }
 
 /**

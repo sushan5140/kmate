@@ -5,7 +5,8 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
-import { estimateApplicationDeadline, computeStartByDate } from "@/lib/timeline/deadline";
+import { DeadlineBannerText } from "@/components/timeline/deadline-banner";
+import { estimateApplicationDeadline } from "@/lib/timeline/deadline";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -34,11 +35,7 @@ export default async function HomePage() {
     { count: pendingRequestsCount },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
-    admin
-      .from("timeline_templates")
-      .select("id, item_label, typical_deadline_offset_days")
-      .is("route", null)
-      .is("country", null),
+    admin.from("timeline_templates").select("id").is("route", null).is("country", null),
     admin.from("user_timeline_progress").select("timeline_template_item_id, completed").eq("user_id", user.id),
     admin.from("draft_answers").select("content").eq("user_id", user.id),
     admin.from("interview_questions").select("id", { count: "exact", head: true }).eq("status", "approved").eq("kind", "interview"),
@@ -75,29 +72,14 @@ export default async function HomePage() {
   const totalTimelineItems = templateItems?.length ?? 0;
   const doneTimelineItems = completedIds.size;
 
-  let nextUpLabel: string | null = null;
-  let nextUpDays: number | null = null;
   // True once the estimated deadline for the user's stored (track,
   // application_year) is already in the past -- e.g. an account still set
-  // to a cycle whose deadline passed months ago. Surfaced as a "this cycle
-  // has closed" message instead of a nonsensical negative countdown; never
-  // auto-changes the stored application_year.
+  // to a cycle whose deadline passed months ago. Never auto-changes the
+  // stored application_year, just nudges the user to update it themselves.
   let cycleClosed = false;
   if (profile?.track && profile?.application_year) {
     const deadline = estimateApplicationDeadline(profile.track as Track, profile.application_year);
-    if (deadline.getTime() < new Date().getTime()) {
-      cycleClosed = true;
-    } else {
-      const incomplete = (templateItems ?? [])
-        .filter((t) => !completedIds.has(t.id))
-        .map((t) => ({ label: t.item_label, startBy: computeStartByDate(deadline, t.typical_deadline_offset_days) }))
-        .sort((a, b) => a.startBy.getTime() - b.startBy.getTime());
-      if (incomplete.length > 0) {
-        nextUpLabel = incomplete[0].label;
-        const now = new Date().getTime();
-        nextUpDays = Math.ceil((incomplete[0].startBy.getTime() - now) / (1000 * 60 * 60 * 24));
-      }
-    }
+    cycleClosed = deadline.getTime() < new Date().getTime();
   }
 
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
@@ -118,28 +100,20 @@ export default async function HomePage() {
       </div>
 
       <Card className="mt-8 bg-primary text-white">
-        <MicroLabel className="text-white/60">Next up · Timeline</MicroLabel>
+        <MicroLabel className="text-white/60">Application calendar</MicroLabel>
         {cycleClosed ? (
           <>
             <h2 className="mt-1 text-[19px] font-semibold leading-snug">This application cycle&apos;s deadline has passed</h2>
             <p className="mt-1 text-[13.5px] text-white/70">Update your application year in your profile to keep tracking your timeline.</p>
           </>
+        ) : track ? (
+          <DeadlineBannerText track={track} />
         ) : (
-          <>
-            <h2 className="mt-1 text-[19px] font-semibold leading-snug" title="Estimated from your track and application year -- not an official NIIED deadline.">
-              {nextUpLabel
-                ? nextUpDays === null || nextUpDays > 0
-                  ? `${nextUpLabel} is due in ${nextUpDays ?? 0} day${nextUpDays === 1 ? "" : "s"}`
-                  : nextUpDays === 0
-                    ? `${nextUpLabel} is due today`
-                    : `${nextUpLabel} was due ${-nextUpDays} day${nextUpDays === -1 ? "" : "s"} ago`
-                : "You're all caught up"}
-            </h2>
-            <p className="mt-1 text-[13.5px] text-white/70">
-              {doneTimelineItems} of {totalTimelineItems} timeline steps done.
-            </p>
-          </>
+          <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
         )}
+        <p className="mt-3 text-[13.5px] text-white/70">
+          {doneTimelineItems} of {totalTimelineItems} timeline steps done.
+        </p>
         <Link
           href="/timeline"
           className="mt-4 inline-flex h-10 items-center rounded-full bg-white px-4 text-[13.5px] font-medium text-primary shadow-xs transition-all duration-150 hover:bg-white/90 active:scale-[0.97]"
