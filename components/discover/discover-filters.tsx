@@ -48,15 +48,15 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
     router.push(`/requests?${params.toString()}`);
   }
 
-  function toggleTrack(track: Track) {
+  // Exclusive selection -- clicking a track pill always replaces the current
+  // filter with just that track, never unions with whatever was selected
+  // before (a prior union-based toggle here meant one click on GKS-G still
+  // included GKS-U, since the implicit own-track default got merged in
+  // instead of replaced).
+  function selectTrack(track: Track) {
     pushParams((params) => {
-      const current = new Set(params.getAll("track").length ? params.getAll("track") : [ownTrack]);
-      if (current.has(track)) current.delete(track);
-      else current.add(track);
       params.delete("track");
-      // Never let both be removed -- always fall back to at least own track.
-      const next = current.size ? current : new Set([ownTrack]);
-      next.forEach((t) => params.append("track", t));
+      params.append("track", track);
     });
   }
 
@@ -99,7 +99,7 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
           <button
             key={track}
             type="button"
-            onClick={() => toggleTrack(track)}
+            onClick={() => selectTrack(track)}
             className={`rounded-full border px-3 py-1.5 text-[13px] font-medium ${
               effectiveTracks.includes(track)
                 ? "border-primary bg-primary/10 text-primary"
