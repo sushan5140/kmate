@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Settings, ShieldCheck, Flag, Info, LogOut } from "lucide-react";
+import { MoreHorizontal, ShieldCheck, Flag, Info, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import { Button } from "@/components/ui/button";
 
@@ -87,9 +87,6 @@ function MoreMenuContent({ username, onNavigate }: { username: string | null; on
         </span>
       </Link>
 
-      <Link href="/settings/profile" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
-        <Settings className="h-4 w-4 text-muted" /> Settings
-      </Link>
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <ShieldCheck className="h-4 w-4 text-muted" /> Community guidelines
       </Link>
