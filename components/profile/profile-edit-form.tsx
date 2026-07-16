@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { MajorStep } from "@/components/onboarding/major-step";
@@ -10,7 +11,7 @@ import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
 import { applicationYearOptions, type GksUEmbassyPath, type Track } from "@/lib/constants";
 
-export interface EditProfileInitialData {
+export interface ProfileEditInitialData {
   track: Track;
   gksUEmbassyPath: GksUEmbassyPath | null;
   major: string;
@@ -20,9 +21,11 @@ export interface EditProfileInitialData {
   universities: SelectedUniversity[];
 }
 
-export function EditProfileForm({ initial }: { initial: EditProfileInitialData }) {
+// Track is intentionally not part of this form's editable state -- it's
+// fixed at onboarding (see app/api/profile/update/route.ts, which ignores
+// any track value a client might send and always re-reads the stored one).
+export function ProfileEditForm({ initial }: { initial: ProfileEditInitialData }) {
   const router = useRouter();
-  const [track, setTrack] = useState<Track>(initial.track);
   const [gksUEmbassyPath, setGksUEmbassyPath] = useState<GksUEmbassyPath | null>(initial.gksUEmbassyPath);
   const [major, setMajor] = useState(initial.major);
   const [universities, setUniversities] = useState<SelectedUniversity[]>(initial.universities);
@@ -44,7 +47,6 @@ export function EditProfileForm({ initial }: { initial: EditProfileInitialData }
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          track,
           gksUEmbassyPath,
           major,
           applicationYear,
@@ -76,18 +78,13 @@ export function EditProfileForm({ initial }: { initial: EditProfileInitialData }
     <div className="flex flex-col gap-6">
       <div>
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Track</p>
-        <div className="mt-2 flex items-center gap-3">
-          <TrackBadge track={track} />
-          <select
-            value={track}
-            onChange={(e) => setTrack(e.target.value as Track)}
-            className="h-9 rounded-lg border border-border bg-white px-2 text-[13px] text-ink"
-          >
-            <option value="gks_u">GKS-U</option>
-            <option value="gks_g">GKS-G</option>
-          </select>
+        <div className="mt-2 flex items-center gap-2">
+          <TrackBadge track={initial.track} />
+          <span className="inline-flex items-center gap-1 rounded-full bg-canvas px-2.5 py-1 text-[12px] text-muted">
+            <Lock className="h-3 w-3" /> Set at sign-up, can&apos;t be changed
+          </span>
         </div>
-        {track === "gks_u" && (
+        {initial.track === "gks_u" && (
           <div className="mt-2 flex flex-col gap-1.5">
             {(
               [
@@ -121,7 +118,7 @@ export function EditProfileForm({ initial }: { initial: EditProfileInitialData }
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Universities</p>
         <div className="mt-2">
           <UniversityPicker
-            track={track}
+            track={initial.track}
             gksUEmbassyPath={gksUEmbassyPath}
             selected={universities}
             onChange={setUniversities}
@@ -150,11 +147,7 @@ export function EditProfileForm({ initial }: { initial: EditProfileInitialData }
       <div>
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Username</p>
         <div className="mt-2">
-          <UsernameField
-            value={username}
-            onChange={setUsername}
-            onAvailabilityChange={setUsernameAvailable}
-          />
+          <UsernameField value={username} onChange={setUsername} onAvailabilityChange={setUsernameAvailable} />
         </div>
       </div>
 
@@ -169,10 +162,7 @@ export function EditProfileForm({ initial }: { initial: EditProfileInitialData }
       {saved && <p className="text-[13px] text-success">Saved.</p>}
 
       <div>
-        <Button
-          onClick={save}
-          disabled={saving || (usernameChanged && !usernameAvailable)}
-        >
+        <Button onClick={save} disabled={saving || (usernameChanged && !usernameAvailable)}>
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </div>

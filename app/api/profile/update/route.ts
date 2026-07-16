@@ -6,8 +6,10 @@ import { validateUniversityChoices } from "@/lib/validation/university-eligibili
 import { TRACKS, GKS_U_EMBASSY_PATHS } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rate-limit";
 
+// track is deliberately NOT part of this body -- it's fixed at onboarding
+// and this route always re-reads the stored value from the DB (see below),
+// so there's no field here for a client to even attempt to send it through.
 interface UpdateProfileBody {
-  track: string;
   gksUEmbassyPath?: string | null;
   major: string;
   applicationYear: number;
@@ -26,11 +28,30 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as UpdateProfileBody;
-  const { track, gksUEmbassyPath, major, applicationYear, username, bio, universityChoices } = body;
+  const { gksUEmbassyPath, major, applicationYear, username, bio, universityChoices } = body;
 
-  if (!TRACKS.includes(track as (typeof TRACKS)[number])) {
-    return NextResponse.json({ error: "invalid_track" }, { status: 400 });
+  const admin = getSupabaseAdmin();
+
+  // Track can't be changed through this route, full stop -- always use
+  // whatever is already on file, regardless of what a client sends (or
+  // doesn't send). This isn't just "ignore the field if present"; there is
+  // no client-suppliable value that reaches complete_onboarding at all.
+  //
+  // A missing/invalid track here means this account hasn't finished
+  // onboarding yet (track and onboarding_completed_at are only ever set
+  // together, atomically, by complete_onboarding's RPC -- there's no path
+  // where an already-onboarded profile loses its track). This route isn't
+  // reachable from the UI pre-onboarding (the profile page that hosts this
+  // form requires a username, which doesn't exist until onboarding
+  // completes) -- so a request landing here with no track is someone
+  // calling the wrong endpoint directly for their account's current state,
+  // not a server-side failure. 400, not 500.
+  const { data: currentProfile } = await admin.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const track = currentProfile?.track as (typeof TRACKS)[number] | undefined;
+  if (!track || !TRACKS.includes(track)) {
+    return NextResponse.json({ error: "onboarding_incomplete" }, { status: 400 });
   }
+
   if (
     gksUEmbassyPath &&
     !GKS_U_EMBASSY_PATHS.includes(gksUEmbassyPath as (typeof GKS_U_EMBASSY_PATHS)[number])
@@ -52,8 +73,6 @@ export async function POST(request: Request) {
   if (!Array.isArray(universityChoices)) {
     return NextResponse.json({ error: "invalid_universities" }, { status: 400 });
   }
-
-  const admin = getSupabaseAdmin();
 
   const { data: existing } = await admin
     .from("profiles")
@@ -87,7 +106,7 @@ export async function POST(request: Request) {
   // Fetch current contacts so this update doesn't wipe the contact vault --
   // complete_onboarding replaces contact_methods wholesale, and this route
   // only edits profile/major/universities, not the contact vault (that's
-  // /settings/contacts' job).
+  // the Contact vault tab's job -- see app/profile/[username]/page.tsx).
   const { data: currentContacts } = await admin
     .from("contact_methods")
     .select("type, value")

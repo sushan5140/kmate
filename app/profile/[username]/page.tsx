@@ -9,10 +9,19 @@ import {
   type ConnectionStatus,
 } from "@/components/connections/connection-request-button";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
+import { OwnProfileTabBar, type OwnProfileTab } from "@/components/profile/own-profile-tab-bar";
+import { ProfileEditForm, type ProfileEditInitialData } from "@/components/profile/profile-edit-form";
+import { EditContactsForm } from "@/components/settings/edit-contacts-form";
+import { DeleteAccountButton } from "@/components/settings/delete-account-button";
+import type { ContactValue } from "@/components/onboarding/contacts-step";
+import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 interface UniversityChoiceRow {
   priority: number;
+  university_id: string;
+  eligibility_id: string | null;
   university: { id: string; name: string } | null;
+  eligibility: { category: string; embassy_type: "type_a" | "type_b" | null } | null;
 }
 
 export async function generateMetadata({
@@ -24,7 +33,13 @@ export async function generateMetadata({
   return { title: `@${username} — KMate` };
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function ProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const { username } = await params;
   const viewer = await getAuthenticatedUser();
   const admin = getSupabaseAdmin();
@@ -35,8 +50,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const { data: profile } = await admin
     .from("profiles")
     .select(
-      `id, username, bio, avatar_url, track, major, application_year,
-       university_choices ( priority, university:universities ( id, name ) )`
+      `id, username, bio, avatar_url, track, gks_u_embassy_path, major, application_year,
+       university_choices ( priority, university_id, eligibility_id,
+         university:universities ( id, name ),
+         eligibility:university_eligibility ( category, embassy_type ) )`
     )
     .not("username", "is", null)
     .ilike("username", username)
@@ -45,11 +62,80 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   if (!profile) notFound();
 
   const isSelf = viewer?.id === profile.id;
+
+  const universities = ((profile.university_choices ?? []) as unknown as UniversityChoiceRow[]).sort(
+    (a, b) => a.priority - b.priority
+  );
+
+  // --- Own profile: tabbed edit view, no public-view/connection logic needed ---
+  if (isSelf) {
+    const { tab: rawTab } = await searchParams;
+    const tab: OwnProfileTab = rawTab === "contacts" ? "contacts" : "profile";
+
+    const contactsInitial: ContactValue[] =
+      tab === "contacts"
+        ? ((
+            await admin.from("contact_methods").select("type, value").eq("user_id", profile.id)
+          ).data as ContactValue[] | null) ?? []
+        : [];
+
+    return (
+      <main className="mx-auto max-w-2xl px-6 py-10">
+        <h1 className="text-[22px] font-semibold text-ink">@{profile.username}</h1>
+        <div className="mt-4">
+          <OwnProfileTabBar active={tab} />
+        </div>
+
+        <div className="mt-6">
+          {tab === "profile" ? (
+            <>
+              <ProfileEditForm
+                initial={
+                  {
+                    track: profile.track as Track,
+                    gksUEmbassyPath: profile.gks_u_embassy_path as GksUEmbassyPath | null,
+                    major: profile.major ?? "",
+                    applicationYear: profile.application_year ?? new Date().getFullYear(),
+                    username: profile.username ?? "",
+                    bio: profile.bio ?? "",
+                    universities: universities.map((u) => ({
+                      universityId: u.university_id,
+                      name: u.university?.name ?? "",
+                      eligibilityId: u.eligibility_id,
+                      embassyType: u.eligibility?.embassy_type ?? null,
+                      category: u.eligibility?.category ?? null,
+                    })),
+                  } satisfies ProfileEditInitialData
+                }
+              />
+              <div className="mt-10 border-t border-border pt-6">
+                <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Danger zone</p>
+                <div className="mt-2">
+                  <DeleteAccountButton />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-[13.5px] text-muted">
+                Private -- only visible to people once you accept a connection request from them.
+              </p>
+              <div className="mt-4">
+                <EditContactsForm initial={contactsInitial} />
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+    );
+  }
+
+  // --- Someone else's profile: unchanged public view + connection flow ---
   let connectionStatus: ConnectionStatus = "none";
   let pendingRequestId: string | null = null;
   let contacts: { type: string; value: string }[] = [];
 
-  if (viewer && !isSelf) {
+  if (viewer) {
     const { data: connection } = await admin
       .from("connection_requests")
       .select("id, from_user_id, to_user_id, status")
@@ -73,9 +159,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     }
   }
 
-  const universities = ((profile.university_choices ?? []) as unknown as UniversityChoiceRow[])
-    .filter((u) => u.university)
-    .sort((a, b) => a.priority - b.priority);
+  const publicUniversities = universities.filter((u) => u.university);
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
@@ -86,10 +170,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             {profile.bio && <p className="mt-1 text-[14px] text-muted">{profile.bio}</p>}
           </div>
           <div className="flex items-center gap-2">
-            {profile.track && <TrackBadge track={profile.track} />}
-            {viewer && !isSelf && (
-              <ReportBlockMenu targetType="profile" targetId={profile.id} blockedUserId={profile.id} />
-            )}
+            {profile.track && <TrackBadge track={profile.track as Track} />}
+            {viewer && <ReportBlockMenu targetType="profile" targetId={profile.id} blockedUserId={profile.id} />}
           </div>
         </div>
 
@@ -104,11 +186,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           </div>
         </div>
 
-        {universities.length > 0 && (
+        {publicUniversities.length > 0 && (
           <div className="mt-5">
             <MicroLabel>Universities</MicroLabel>
             <ol className="mt-1.5 flex flex-col gap-1">
-              {universities.map((u) => (
+              {publicUniversities.map((u) => (
                 <li key={u.university!.id} className="flex items-center gap-2 text-[14px] text-ink">
                   <span className="text-[12px] text-muted">#{u.priority}</span>
                   {u.university!.name}
@@ -118,7 +200,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           </div>
         )}
 
-        {viewer && !isSelf && (
+        {viewer && (
           <div className="mt-6 border-t border-border pt-5">
             <ConnectionRequestButton
               targetUserId={profile.id}

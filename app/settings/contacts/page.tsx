@@ -1,30 +1,12 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { EditContactsForm } from "@/components/settings/edit-contacts-form";
-import type { ContactValue } from "@/components/onboarding/contacts-step";
 
-export const metadata: Metadata = {
-  title: "Contact vault — KMate",
-};
-
-export default async function SettingsContactsPage() {
+// Contact vault moved to the profile page's "Contact vault" tab -- this
+// route only exists so old links/bookmarks still land somewhere real
+// instead of 404ing.
+export default async function SettingsContactsRedirect() {
   const user = await requireOnboarded("/settings/contacts");
-
-  const { data } = await getSupabaseAdmin()
-    .from("contact_methods")
-    .select("type, value")
-    .eq("user_id", user.id);
-
-  return (
-    <div>
-      <p className="text-[13.5px] text-muted">
-        Private -- only visible to people once you accept a connection request from
-        them.
-      </p>
-      <div className="mt-4">
-        <EditContactsForm initial={(data ?? []) as ContactValue[]} />
-      </div>
-    </div>
-  );
+  const { data: profile } = await getSupabaseAdmin().from("profiles").select("username").eq("id", user.id).maybeSingle();
+  redirect(profile?.username ? `/profile/${profile.username}?tab=contacts` : "/home");
 }
