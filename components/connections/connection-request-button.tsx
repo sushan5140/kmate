@@ -27,16 +27,22 @@ export function ConnectionRequestButton({
   const [error, setError] = useState<string | null>(null);
 
   async function sendRequest() {
-    setLoading(true);
+    const sentNote = note;
     setError(null);
+    // Optimistic -- flip to "sent" immediately; rolled back below on failure.
+    setStatus("pending_outgoing");
+    setShowNote(false);
+    setLoading(true);
     try {
       const res = await fetch("/api/connections/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toUserId: targetUserId, note: note || undefined }),
+        body: JSON.stringify({ toUserId: targetUserId, note: sentNote || undefined }),
       });
-      const data = await res.json();
       if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setStatus("none");
+        setShowNote(true);
         setError(
           data.error === "blocked"
             ? "You can't send a request to this person."
@@ -44,12 +50,10 @@ export function ConnectionRequestButton({
             ? "A request is already pending."
             : "Couldn't send the request. Try again."
         );
-        setLoading(false);
-        return;
       }
-      setStatus("pending_outgoing");
-      setShowNote(false);
     } catch {
+      setStatus("none");
+      setShowNote(true);
       setError("Couldn't reach the server.");
     } finally {
       setLoading(false);
@@ -58,14 +62,23 @@ export function ConnectionRequestButton({
 
   async function revoke() {
     if (!pendingRequestId) return;
+    setError(null);
+    const prevStatus = status;
+    setStatus("none"); // optimistic
     setLoading(true);
     try {
-      await fetch("/api/connections/revoke", {
+      const res = await fetch("/api/connections/revoke", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId: pendingRequestId }),
       });
-      setStatus("none");
+      if (!res.ok) {
+        setStatus(prevStatus);
+        setError("Couldn't revoke. Try again.");
+      }
+    } catch {
+      setStatus(prevStatus);
+      setError("Couldn't reach the server.");
     } finally {
       setLoading(false);
     }
@@ -73,15 +86,18 @@ export function ConnectionRequestButton({
 
   if (status === "accepted") {
     return (
-      <div className="flex items-center gap-2">
-        <span className="rounded-full bg-success/10 px-3 py-1 text-[13px] font-medium text-success">
-          Connected
-        </span>
-        {pendingRequestId && (
-          <Button variant="ghost" size="sm" onClick={revoke} disabled={loading}>
-            Revoke
-          </Button>
-        )}
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-success/10 px-3 py-1 text-[13px] font-medium text-success">
+            Connected
+          </span>
+          {pendingRequestId && (
+            <Button variant="ghost" size="sm" onClick={revoke} disabled={loading}>
+              Revoke
+            </Button>
+          )}
+        </div>
+        {error && <p className="mt-1.5 text-[12.5px] text-red-600">{error}</p>}
       </div>
     );
   }

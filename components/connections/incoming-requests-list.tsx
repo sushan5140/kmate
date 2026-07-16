@@ -14,18 +14,27 @@ export interface IncomingRequestRow {
 export function IncomingRequestsList({ items: initial }: { items: IncomingRequestRow[] }) {
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
 
   async function respond(id: string, action: "accept" | "decline") {
+    const snapshot = items;
+    setErrorId(null);
     setBusyId(id);
+    // Optimistic -- remove immediately, restore + show an error on failure.
+    setItems((rows) => rows.filter((r) => r.id !== id));
     try {
       const res = await fetch("/api/connections/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId: id, action }),
       });
-      if (res.ok) {
-        setItems((rows) => rows.filter((r) => r.id !== id));
+      if (!res.ok) {
+        setItems(snapshot);
+        setErrorId(id);
       }
+    } catch {
+      setItems(snapshot);
+      setErrorId(id);
     } finally {
       setBusyId(null);
     }
@@ -44,6 +53,7 @@ export function IncomingRequestsList({ items: initial }: { items: IncomingReques
               @{r.otherUser.username}
             </Link>
             {r.note && <p className="mt-0.5 text-[13px] text-muted">&quot;{r.note}&quot;</p>}
+            {errorId === r.id && <p className="mt-0.5 text-[12.5px] text-red-600">Couldn&apos;t respond. Try again.</p>}
           </div>
           <div className="flex shrink-0 gap-2">
             <Button size="sm" onClick={() => respond(r.id, "accept")} disabled={busyId === r.id}>

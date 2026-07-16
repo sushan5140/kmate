@@ -20,18 +20,27 @@ export interface ConnectedPerson {
 export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) {
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [errorId, setErrorId] = useState<string | null>(null);
 
   async function revoke(requestId: string) {
+    const snapshot = items;
+    setErrorId(null);
     setBusyId(requestId);
+    // Optimistic -- remove immediately, restore + show an error on failure.
+    setItems((rows) => rows.filter((r) => r.requestId !== requestId));
     try {
       const res = await fetch("/api/connections/revoke", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId }),
       });
-      if (res.ok) {
-        setItems((rows) => rows.filter((r) => r.requestId !== requestId));
+      if (!res.ok) {
+        setItems(snapshot);
+        setErrorId(requestId);
       }
+    } catch {
+      setItems(snapshot);
+      setErrorId(requestId);
     } finally {
       setBusyId(null);
     }
@@ -86,6 +95,9 @@ export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) 
           >
             Revoke connection
           </Button>
+          {errorId === person.requestId && (
+            <p className="text-[12.5px] text-red-600">Couldn&apos;t revoke. Try again.</p>
+          )}
         </Card>
       ))}
     </div>
