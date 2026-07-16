@@ -33,6 +33,16 @@ export const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
   other: "Other",
 };
 
+/** Verb-first phrasing for an already-unlocked contact method, e.g. on a Connected card. */
+export const CONTACT_TYPE_ACTION_LABELS: Record<ContactType, string> = {
+  instagram: "View Instagram",
+  tiktok: "View TikTok",
+  whatsapp: "Message on WhatsApp",
+  telegram: "Message on Telegram",
+  discord: "Add on Discord",
+  other: "Contact",
+};
+
 export const QUESTION_CATEGORIES = [
   "motivation",
   "academic_background",

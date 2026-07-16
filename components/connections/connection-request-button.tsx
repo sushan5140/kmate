@@ -92,7 +92,7 @@ export function ConnectionRequestButton({
 
   if (status === "pending_incoming") {
     return (
-      <Link href="/requests" className="text-[13px] font-medium text-primary hover:underline">
+      <Link href="/requests?tab=received" className="text-[13px] font-medium text-primary hover:underline">
         They sent you a request — respond in Requests
       </Link>
     );

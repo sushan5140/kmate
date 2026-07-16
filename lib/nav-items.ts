@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Users, MessageSquare, ListChecks, Award, AlertTriangle, Inbox } from "lucide-react";
+import { Home, Users, MessageSquare, ListChecks, Award, AlertTriangle } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -11,12 +11,14 @@ export interface NavItem {
 
 // Single source of truth for the primary nav -- both the desktop sidebar and
 // the mobile top bar read from this array rather than duplicating the list.
+// "Connections" (still /requests -- the route people already have linked
+// and bookmarked) now covers what used to be two separate destinations,
+// Discover and Requests, as tabs on one page.
 export const NAV_ITEMS: NavItem[] = [
   { href: "/home", label: "Home", icon: Home },
-  { href: "/discover", label: "Discover", icon: Users },
   { href: "/interview-db", label: "Interview DB", icon: MessageSquare },
   { href: "/timeline", label: "Timeline", icon: ListChecks },
   { href: "/eca", label: "Extracurriculars", icon: Award },
   { href: "/mistakes", label: "Mistakes", icon: AlertTriangle },
-  { href: "/requests", label: "Requests", icon: Inbox, badgeKey: "requests" },
+  { href: "/requests", label: "Connections", icon: Users, badgeKey: "requests" },
 ];

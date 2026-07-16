@@ -41,7 +41,11 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
   function pushParams(mutate: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams.toString());
     mutate(params);
-    router.push(`/discover?${params.toString()}`);
+    // Discover now lives as a tab on /requests rather than its own page --
+    // keep tab=discover on every filter change or a mutation would bounce
+    // back to whichever tab is the default.
+    params.set("tab", "discover");
+    router.push(`/requests?${params.toString()}`);
   }
 
   function toggleTrack(track: Track) {

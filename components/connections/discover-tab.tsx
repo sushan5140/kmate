@@ -1,13 +1,7 @@
-import type { Metadata } from "next";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { DiscoverFilters } from "@/components/discover/discover-filters";
 import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-card";
 import type { Track } from "@/lib/constants";
-
-export const metadata: Metadata = {
-  title: "Discover — KMate",
-};
 
 interface UniversityChoiceEmbed {
   priority: number;
@@ -24,16 +18,21 @@ interface DiscoverProfileRow {
   university_choices: UniversityChoiceEmbed[];
 }
 
-export default async function DiscoverPage({
-  searchParams,
+/**
+ * Unchanged in behavior from the standalone /discover page it replaced --
+ * same query, same filters, just relocated under the "Discover new" tab of
+ * the consolidated Connections page (app/requests/page.tsx).
+ */
+export async function DiscoverTab({
+  userId,
+  params,
 }: {
-  searchParams: Promise<{ track?: string | string[]; major?: string; year?: string; university?: string }>;
+  userId: string;
+  params: { track?: string | string[]; major?: string; year?: string; university?: string };
 }) {
-  const user = await requireOnboarded("/discover");
-  const params = await searchParams;
   const admin = getSupabaseAdmin();
 
-  const { data: me } = await admin.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const { data: me } = await admin.from("profiles").select("track").eq("id", userId).maybeSingle();
   const ownTrack: Track = (me?.track as Track) ?? "gks_u";
 
   const requestedTracks = Array.isArray(params.track) ? params.track : params.track ? [params.track] : [];
@@ -55,7 +54,7 @@ export default async function DiscoverPage({
     .from("profiles")
     .select(selectClause)
     .not("username", "is", null)
-    .neq("id", user.id)
+    .neq("id", userId)
     .in("track", tracks)
     .limit(60);
 
@@ -67,15 +66,8 @@ export default async function DiscoverPage({
   const profiles = (data ?? []) as unknown as DiscoverProfileRow[];
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Discover</h1>
-      <p className="mt-1 text-[13.5px] text-muted">
-        Find other applicants preparing for the same major and universities.
-      </p>
-
-      <div className="mt-6">
-        <DiscoverFilters ownTrack={ownTrack} />
-      </div>
+    <div>
+      <DiscoverFilters ownTrack={ownTrack} />
 
       {profiles.length === 0 ? (
         <p className="mt-10 text-[14px] text-muted">No applicants match these filters yet.</p>
@@ -98,6 +90,6 @@ export default async function DiscoverPage({
           })}
         </div>
       )}
-    </main>
+    </div>
   );
 }
