@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validation/username";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_EMBASSY_PATHS, CONTACT_TYPES } from "@/lib/constants";
+import { validApplicationYears } from "@/lib/timeline/deadline";
 
 interface CompleteOnboardingBody {
   track: string;
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
   if (!major || typeof major !== "string" || major.length > 100) {
     return NextResponse.json({ error: "invalid_major" }, { status: 400 });
   }
-  if (!Number.isInteger(applicationYear)) {
+  if (!Number.isInteger(applicationYear) || !validApplicationYears(track as (typeof TRACKS)[number]).includes(applicationYear)) {
     return NextResponse.json({ error: "invalid_year" }, { status: 400 });
   }
   if (!isValidUsernameFormat(username)) {

@@ -5,6 +5,7 @@ import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validat
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_EMBASSY_PATHS } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { validApplicationYears } from "@/lib/timeline/deadline";
 
 // track is deliberately NOT part of this body -- it's fixed at onboarding
 // and this route always re-reads the stored value from the DB (see below),
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
   if (!major || typeof major !== "string" || major.length > 100) {
     return NextResponse.json({ error: "invalid_major" }, { status: 400 });
   }
-  if (!Number.isInteger(applicationYear)) {
+  if (!Number.isInteger(applicationYear) || !validApplicationYears(track).includes(applicationYear)) {
     return NextResponse.json({ error: "invalid_year" }, { status: 400 });
   }
   if (!isValidUsernameFormat(username)) {
