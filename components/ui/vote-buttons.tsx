@@ -6,13 +6,14 @@ import { cn } from "@/lib/cn";
 
 type VoteType = "up" | "down" | null;
 
-export function QuestionVoteButtons({
-  questionId,
+export function VoteButtons({
+  endpoint,
   initialUpvotes,
   initialDownvotes,
   initialVoteType,
 }: {
-  questionId: string;
+  /** e.g. `/api/questions/${id}`, `/api/eca/${id}`, `/api/mistakes/${id}` -- `/upvote` or `/downvote` is appended. */
+  endpoint: string;
   initialUpvotes: number;
   initialDownvotes: number;
   initialVoteType: VoteType;
@@ -45,7 +46,7 @@ export function QuestionVoteButtons({
     setDownvotes(nextDownvotes);
 
     try {
-      const res = await fetch(`/api/questions/${questionId}/${direction}vote`, { method: "POST" });
+      const res = await fetch(`${endpoint}/${direction}vote`, { method: "POST" });
       if (!res.ok) {
         setVoteType(prevVoteType);
         setUpvotes(prevUpvotes);

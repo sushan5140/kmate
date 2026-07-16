@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { QuestionVoteButtons } from "@/components/interview-db/question-vote-buttons";
+import { VoteButtons } from "@/components/ui/vote-buttons";
 import { QuestionReportMenu } from "@/components/interview-db/question-report-menu";
 import { DraftAnswerEditor } from "@/components/interview-db/draft-answer-editor";
 import { cn } from "@/lib/cn";
@@ -58,8 +58,8 @@ export function QuestionCard({
         />
 
         <div className="flex items-center gap-2 border-t border-hairline pt-3">
-          <QuestionVoteButtons
-            questionId={question.id}
+          <VoteButtons
+            endpoint={`/api/questions/${question.id}`}
             initialUpvotes={question.upvotesCount}
             initialDownvotes={question.downvotesCount}
             initialVoteType={question.voteType}

@@ -15,11 +15,12 @@ interface EcaRow {
   description: string | null;
   track: EcaTrack;
   upvotes_count: number;
+  downvotes_count: number;
   activity_type: EcaActivityType | null;
   impact_area: EcaImpactArea | null;
   confidence: Confidence | null;
   source_url: string | null;
-  eca_upvotes: { user_id: string }[];
+  eca_upvotes: { user_id: string; vote_type: "up" | "down" }[];
 }
 
 export default async function EcaPage() {
@@ -39,23 +40,27 @@ export default async function EcaPage() {
   const { data } = await supabase
     .from("eca_entries")
     .select(
-      "id, title, description, track, upvotes_count, activity_type, impact_area, confidence, source_url, eca_upvotes ( user_id )"
+      "id, title, description, track, upvotes_count, downvotes_count, activity_type, impact_area, confidence, source_url, eca_upvotes ( user_id, vote_type )"
     )
     .or(`track.eq.${userTrack},track.eq.both`)
     .order("upvotes_count", { ascending: false });
 
-  const entries: EcaEntryData[] = ((data ?? []) as unknown as EcaRow[]).map((e) => ({
-    id: e.id,
-    title: e.title,
-    description: e.description,
-    track: e.track,
-    upvotesCount: e.upvotes_count,
-    upvotedByMe: e.eca_upvotes.some((u) => u.user_id === user.id),
-    activityType: e.activity_type,
-    impactArea: e.impact_area,
-    confidence: e.confidence,
-    sourceUrl: e.source_url,
-  }));
+  const entries: EcaEntryData[] = ((data ?? []) as unknown as EcaRow[]).map((e) => {
+    const myVote = e.eca_upvotes.find((u) => u.user_id === user.id);
+    return {
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      track: e.track,
+      upvotesCount: e.upvotes_count,
+      downvotesCount: e.downvotes_count,
+      voteType: myVote?.vote_type ?? null,
+      activityType: e.activity_type,
+      impactArea: e.impact_area,
+      confidence: e.confidence,
+      sourceUrl: e.source_url,
+    };
+  });
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">

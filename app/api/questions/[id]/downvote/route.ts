@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { castQuestionVote } from "@/lib/question-vote";
+import { castVote, QUESTION_VOTES } from "@/lib/vote";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
@@ -15,7 +15,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id: questionId } = await params;
-  const { voteType } = await castQuestionVote(getSupabaseAdmin(), questionId, user.id, "down");
+  const { voteType } = await castVote(getSupabaseAdmin(), QUESTION_VOTES, questionId, user.id, "down");
 
   return NextResponse.json({ voteType });
 }

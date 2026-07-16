@@ -208,6 +208,7 @@ create table if not exists public.eca_entries (
   track text not null default 'both' check (track in ('gks_u', 'gks_g', 'both')),
   submitted_by uuid references public.profiles(id) on delete set null,
   upvotes_count int not null default 0,
+  downvotes_count int not null default 0,
   status text not null default 'pending' check (status in ('approved', 'pending', 'rejected')),
   created_at timestamptz not null default now(),
   -- Populated only for research-seeded entries (data/gks-extracurriculars-seed-data.md);
@@ -250,13 +251,20 @@ alter table public.eca_entries add column if not exists confidence text;
 alter table public.eca_entries drop constraint if exists eca_entries_confidence_check;
 alter table public.eca_entries add constraint eca_entries_confidence_check
   check (confidence in ('recurring_theme', 'single_anecdote'));
+alter table public.eca_entries add column if not exists downvotes_count int not null default 0;
 
+-- Same shape/semantics as question_upvotes -- see comment above that table.
 create table if not exists public.eca_upvotes (
   entry_id uuid not null references public.eca_entries(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
+  vote_type text not null default 'up' check (vote_type in ('up', 'down')),
   primary key (entry_id, user_id)
 );
+
+alter table public.eca_upvotes add column if not exists vote_type text not null default 'up';
+alter table public.eca_upvotes drop constraint if exists eca_upvotes_vote_type_check;
+alter table public.eca_upvotes add constraint eca_upvotes_vote_type_check check (vote_type in ('up', 'down'));
 
 -- PRD §12.2 Application Mistakes & Rejection Reasons (merged, searchable by
 -- either dimension).
@@ -272,6 +280,7 @@ create table if not exists public.mistake_entries (
   ),
   submitted_by uuid references public.profiles(id) on delete set null,
   upvotes_count int not null default 0,
+  downvotes_count int not null default 0,
   status text not null default 'pending' check (status in ('approved', 'pending', 'rejected')),
   created_at timestamptz not null default now(),
   -- Populated only for research-seeded entries (data/gks-mistakes-seed-data.md);
@@ -290,13 +299,20 @@ alter table public.mistake_entries add column if not exists confidence text;
 alter table public.mistake_entries drop constraint if exists mistake_entries_confidence_check;
 alter table public.mistake_entries add constraint mistake_entries_confidence_check
   check (confidence in ('recurring_theme', 'single_anecdote'));
+alter table public.mistake_entries add column if not exists downvotes_count int not null default 0;
 
+-- Same shape/semantics as question_upvotes -- see comment above that table.
 create table if not exists public.mistake_upvotes (
   entry_id uuid not null references public.mistake_entries(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
+  vote_type text not null default 'up' check (vote_type in ('up', 'down')),
   primary key (entry_id, user_id)
 );
+
+alter table public.mistake_upvotes add column if not exists vote_type text not null default 'up';
+alter table public.mistake_upvotes drop constraint if exists mistake_upvotes_vote_type_check;
+alter table public.mistake_upvotes add constraint mistake_upvotes_vote_type_check check (vote_type in ('up', 'down'));
 
 -- PRD §12.3 AI Interview Feedback. Scoped strictly to clarity/confidence/
 -- repetition/length -- never content correctness (see app/api call site).
@@ -497,11 +513,33 @@ create or replace function public.handle_eca_upvote_change() returns trigger
 language plpgsql as $$
 begin
   if (tg_op = 'INSERT') then
-    update public.eca_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    if new.vote_type = 'up' then
+      update public.eca_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    else
+      update public.eca_entries set downvotes_count = downvotes_count + 1 where id = new.entry_id;
+    end if;
     return new;
   elsif (tg_op = 'DELETE') then
-    update public.eca_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+    if old.vote_type = 'up' then
+      update public.eca_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+    else
+      update public.eca_entries set downvotes_count = greatest(0, downvotes_count - 1) where id = old.entry_id;
+    end if;
     return old;
+  elsif (tg_op = 'UPDATE') then
+    if new.vote_type is distinct from old.vote_type then
+      if old.vote_type = 'up' then
+        update public.eca_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+      else
+        update public.eca_entries set downvotes_count = greatest(0, downvotes_count - 1) where id = old.entry_id;
+      end if;
+      if new.vote_type = 'up' then
+        update public.eca_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+      else
+        update public.eca_entries set downvotes_count = downvotes_count + 1 where id = new.entry_id;
+      end if;
+    end if;
+    return new;
   end if;
   return null;
 end;
@@ -511,11 +549,33 @@ create or replace function public.handle_mistake_upvote_change() returns trigger
 language plpgsql as $$
 begin
   if (tg_op = 'INSERT') then
-    update public.mistake_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    if new.vote_type = 'up' then
+      update public.mistake_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+    else
+      update public.mistake_entries set downvotes_count = downvotes_count + 1 where id = new.entry_id;
+    end if;
     return new;
   elsif (tg_op = 'DELETE') then
-    update public.mistake_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+    if old.vote_type = 'up' then
+      update public.mistake_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+    else
+      update public.mistake_entries set downvotes_count = greatest(0, downvotes_count - 1) where id = old.entry_id;
+    end if;
     return old;
+  elsif (tg_op = 'UPDATE') then
+    if new.vote_type is distinct from old.vote_type then
+      if old.vote_type = 'up' then
+        update public.mistake_entries set upvotes_count = greatest(0, upvotes_count - 1) where id = old.entry_id;
+      else
+        update public.mistake_entries set downvotes_count = greatest(0, downvotes_count - 1) where id = old.entry_id;
+      end if;
+      if new.vote_type = 'up' then
+        update public.mistake_entries set upvotes_count = upvotes_count + 1 where id = new.entry_id;
+      else
+        update public.mistake_entries set downvotes_count = downvotes_count + 1 where id = new.entry_id;
+      end if;
+    end if;
+    return new;
   end if;
   return null;
 end;
@@ -724,6 +784,9 @@ drop policy if exists "eca_upvotes_insert_own" on public.eca_upvotes;
 create policy "eca_upvotes_insert_own" on public.eca_upvotes for insert with check (auth.uid() = user_id);
 drop policy if exists "eca_upvotes_delete_own" on public.eca_upvotes;
 create policy "eca_upvotes_delete_own" on public.eca_upvotes for delete using (auth.uid() = user_id);
+drop policy if exists "eca_upvotes_update_own" on public.eca_upvotes;
+create policy "eca_upvotes_update_own" on public.eca_upvotes for update
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 alter table public.mistake_entries enable row level security;
 drop policy if exists "mistake_entries_select" on public.mistake_entries;
@@ -743,6 +806,9 @@ drop policy if exists "mistake_upvotes_insert_own" on public.mistake_upvotes;
 create policy "mistake_upvotes_insert_own" on public.mistake_upvotes for insert with check (auth.uid() = user_id);
 drop policy if exists "mistake_upvotes_delete_own" on public.mistake_upvotes;
 create policy "mistake_upvotes_delete_own" on public.mistake_upvotes for delete using (auth.uid() = user_id);
+drop policy if exists "mistake_upvotes_update_own" on public.mistake_upvotes;
+create policy "mistake_upvotes_update_own" on public.mistake_upvotes for update
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 alter table public.answer_feedback enable row level security;
 drop policy if exists "answer_feedback_all_own" on public.answer_feedback;
@@ -790,12 +856,20 @@ drop trigger if exists on_eca_upvote_delete on public.eca_upvotes;
 create trigger on_eca_upvote_delete after delete on public.eca_upvotes
   for each row execute function public.handle_eca_upvote_change();
 
+drop trigger if exists on_eca_upvote_update on public.eca_upvotes;
+create trigger on_eca_upvote_update after update on public.eca_upvotes
+  for each row execute function public.handle_eca_upvote_change();
+
 drop trigger if exists on_mistake_upvote_insert on public.mistake_upvotes;
 create trigger on_mistake_upvote_insert after insert on public.mistake_upvotes
   for each row execute function public.handle_mistake_upvote_change();
 
 drop trigger if exists on_mistake_upvote_delete on public.mistake_upvotes;
 create trigger on_mistake_upvote_delete after delete on public.mistake_upvotes
+  for each row execute function public.handle_mistake_upvote_change();
+
+drop trigger if exists on_mistake_upvote_update on public.mistake_upvotes;
+create trigger on_mistake_upvote_update after update on public.mistake_upvotes
   for each row execute function public.handle_mistake_upvote_change();
 
 -- Curated starter questions, published directly as 'approved'. Cleaned,

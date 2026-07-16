@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { UpvoteButton } from "@/components/interview-db/upvote-button";
+import { VoteButtons } from "@/components/ui/vote-buttons";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { cn } from "@/lib/cn";
@@ -24,7 +24,8 @@ export interface EcaEntryData {
   description: string | null;
   track: EcaTrack;
   upvotesCount: number;
-  upvotedByMe: boolean;
+  downvotesCount: number;
+  voteType: "up" | "down" | null;
   activityType: EcaActivityType | null;
   impactArea: EcaImpactArea | null;
   confidence: Confidence | null;
@@ -118,7 +119,12 @@ export function EcaList({ entries }: { entries: EcaEntryData[] }) {
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <UpvoteButton questionId={entry.id} initialCount={entry.upvotesCount} initialUpvoted={entry.upvotedByMe} endpoint="/api/eca" />
+                <VoteButtons
+                  endpoint={`/api/eca/${entry.id}`}
+                  initialUpvotes={entry.upvotesCount}
+                  initialDownvotes={entry.downvotesCount}
+                  initialVoteType={entry.voteType}
+                />
                 <ReportBlockMenu targetType="eca" targetId={entry.id} />
               </div>
             </Card>

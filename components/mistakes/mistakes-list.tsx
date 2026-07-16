@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Search, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { UpvoteButton } from "@/components/interview-db/upvote-button";
+import { VoteButtons } from "@/components/ui/vote-buttons";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
 import { cn } from "@/lib/cn";
 import {
@@ -24,7 +24,8 @@ export interface MistakeEntryData {
   documentType: MistakeDocumentType;
   reasonCategory: MistakeReasonCategory;
   upvotesCount: number;
-  upvotedByMe: boolean;
+  downvotesCount: number;
+  voteType: "up" | "down" | null;
   confidence: Confidence | null;
   sourceUrl: string | null;
 }
@@ -139,7 +140,12 @@ export function MistakesList({ entries }: { entries: MistakeEntryData[] }) {
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <UpvoteButton questionId={entry.id} initialCount={entry.upvotesCount} initialUpvoted={entry.upvotedByMe} endpoint="/api/mistakes" />
+                <VoteButtons
+                  endpoint={`/api/mistakes/${entry.id}`}
+                  initialUpvotes={entry.upvotesCount}
+                  initialDownvotes={entry.downvotesCount}
+                  initialVoteType={entry.voteType}
+                />
                 <ReportBlockMenu targetType="mistake" targetId={entry.id} />
               </div>
             </Card>
