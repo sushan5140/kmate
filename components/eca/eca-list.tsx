@@ -5,9 +5,9 @@ import { ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { UpvoteButton } from "@/components/interview-db/upvote-button";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
+import { TrackBadge } from "@/components/ui/track-badge";
 import { cn } from "@/lib/cn";
 import {
-  ECA_TRACK_LABELS,
   ECA_ACTIVITY_TYPES,
   ECA_ACTIVITY_TYPE_LABELS,
   ECA_IMPACT_AREA_LABELS,
@@ -83,9 +83,8 @@ export function EcaList({ entries }: { entries: EcaEntryData[] }) {
             <Card key={entry.id} className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-primary">
-                    {ECA_TRACK_LABELS[entry.track]}
-                  </span>
+                  {/* No badge at all for 'both' -- not a different label, just omitted. */}
+                  {entry.track !== "both" && <TrackBadge track={entry.track} />}
                   {entry.activityType && (
                     <span className="rounded-full bg-ink/[0.06] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wide text-muted">
                       {ECA_ACTIVITY_TYPE_LABELS[entry.activityType]}
