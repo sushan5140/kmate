@@ -7,7 +7,6 @@ import { UpvoteButton } from "@/components/interview-db/upvote-button";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
 import { cn } from "@/lib/cn";
 import {
-  ECA_TRACKS,
   ECA_TRACK_LABELS,
   ECA_ACTIVITY_TYPES,
   ECA_ACTIVITY_TYPE_LABELS,
@@ -48,34 +47,21 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
 }
 
 export function EcaList({ entries }: { entries: EcaEntryData[] }) {
-  const [track, setTrack] = useState<EcaTrack | "all">("all");
   const [activityType, setActivityType] = useState<EcaActivityType | "all">("all");
 
+  // Track is no longer filtered here -- the entries this component receives
+  // are already server-side scoped to the viewer's own track (or 'both'),
+  // see app/eca/page.tsx.
   const filtered = useMemo(() => {
     return entries.filter((e) => {
-      if (track !== "all" && e.track !== track && e.track !== "both") return false;
       if (activityType !== "all" && e.activityType !== activityType) return false;
       return true;
     });
-  }, [entries, track, activityType]);
+  }, [entries, activityType]);
 
   return (
     <div>
       <div>
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted">Track</p>
-        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-          <Chip active={track === "all"} onClick={() => setTrack("all")}>
-            All
-          </Chip>
-          {ECA_TRACKS.map((t) => (
-            <Chip key={t} active={track === t} onClick={() => setTrack(t)}>
-              {ECA_TRACK_LABELS[t]}
-            </Chip>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-3">
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted">Activity type</p>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <Chip active={activityType === "all"} onClick={() => setActivityType("all")}>

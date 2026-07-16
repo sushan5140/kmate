@@ -3,7 +3,7 @@ import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { EcaList, type EcaEntryData } from "@/components/eca/eca-list";
 import { SubmitEcaForm } from "@/components/eca/submit-eca-form";
 import { Card } from "@/components/ui/card";
-import type { EcaTrack, EcaActivityType, EcaImpactArea, Confidence } from "@/lib/constants";
+import { ECA_TRACK_LABELS, type EcaTrack, type EcaActivityType, type EcaImpactArea, type Confidence } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Extracurriculars — KMate",
@@ -26,11 +26,22 @@ export default async function EcaPage() {
   const user = await requireOnboarded("/eca");
   const supabase = await createClient();
 
+  // The entries query's filter depends on the resolved track, so these
+  // can't be parallelized -- a genuine dependency, not the redundant kind of
+  // sequential await worth merging.
+  const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const userTrack = (profile?.track as EcaTrack | null) ?? "gks_u";
+
+  // Server-side filtered to the viewer's own track (or entries tagged
+  // 'both') -- a GKS-G user's response never includes GKS-U-only rows in
+  // the first place, rather than fetching everything and hiding some
+  // client-side.
   const { data } = await supabase
     .from("eca_entries")
     .select(
       "id, title, description, track, upvotes_count, activity_type, impact_area, confidence, source_url, eca_upvotes ( user_id )"
     )
+    .or(`track.eq.${userTrack},track.eq.both`)
     .order("upvotes_count", { ascending: false });
 
   const entries: EcaEntryData[] = ((data ?? []) as unknown as EcaRow[]).map((e) => ({
@@ -52,8 +63,8 @@ export default async function EcaPage() {
 
       <Card className="mt-4">
         <p className="text-[13.5px] leading-relaxed text-muted">
-          Crowdsourced extracurriculars and experiences applicants believe help a GKS application --
-          ranked by upvotes, filterable by track since what matters differs between GKS-U and GKS-G.
+          Crowdsourced extracurriculars and experiences applicants believe help a GKS application.
+          Showing results for {ECA_TRACK_LABELS[userTrack]}, based on your profile.
         </p>
       </Card>
 
