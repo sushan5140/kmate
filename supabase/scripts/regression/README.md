@@ -15,6 +15,9 @@ All scripts read Supabase credentials from `.env.local`.
 | `fix5-6-rate-limits-unit.ts` | Medium/Low: rate limiting (429 + window recovery) | No (imports `lib/rate-limit.ts` directly) |
 | `fix6-rate-limits-http.ts` | Medium: rate limiting on admin moderate + account/delete, over real HTTP | Yes, production build |
 | `fix-admin-bootstrap.ts` | Admin-bootstrap mechanism (`admin_bootstrap_promote()`) -- wrong secret rejected + logged, right secret promotes + logs, normal trigger unaffected | No (hits Supabase directly) |
+| `fix7-batch5-audit.ts` | Batch-5 audit (ECA badge / ECA+Mistakes downvote / Discover filter / computed application years / Timeline banner): RLS on `eca_upvotes`/`mistake_upvotes` rejects cross-user writes, `castVote()`'s table config ignores request bodies, `application_year` is validated server-side against `validApplicationYears(track)` on both profile-update and onboarding-complete (bypass values rejected, real values still accepted), `vote-eca`/`vote-mistake` rate limits enforced, Ask-the-Interviewer regression, `eca_upvotes`/`mistake_upvotes` count-integrity check | Yes, production build |
+| `fix7b-onboarding-timeline-e2e.ts` | Batch-5 audit, browser-driven: onboarding year-step gating (`applicationYear` starts unselected, blocks Next) and shown years for both tracks, full onboarding completion with a valid year, stale `application_year` account's "cycle closed" messaging on Home/Timeline | Yes, production build |
+| `fix7c-discover-initial-state.ts` | Batch-5 audit: Discover tab renders sensibly (defaults to viewer's own track) before any track filter pill has ever been clicked | Yes, production build |
 
 ## Running
 
@@ -40,7 +43,15 @@ KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix2-he
 KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix4-security-headers.ts
 KMATE_BASE_URL=http://localhost:3901 KMATE_ADMIN_EMAIL=you@example.com \
   npx tsx supabase/scripts/regression/fix6-rate-limits-http.ts
+KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7-batch5-audit.ts
+KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7b-onboarding-timeline-e2e.ts
+KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7c-discover-initial-state.ts
 ```
+
+`fix7b-onboarding-timeline-e2e.ts` drives a real Chromium browser via
+`playwright` (a real devDependency, not a throwaway install -- browsers are
+fetched separately: `npx playwright install chromium` if `~/.cache/ms-playwright`
+or `%LOCALAPPDATA%\ms-playwright` doesn't already have one).
 
 `fix6-rate-limits-http.ts`'s admin-moderate check needs `KMATE_ADMIN_EMAIL`
 pointing at an account that is *already* `is_admin = true` -- promote one
