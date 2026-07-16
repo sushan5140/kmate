@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
-import { AnswerFeedback } from "@/components/interview-db/answer-feedback";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -91,9 +90,6 @@ export function DraftAnswerEditor({
         )}
         {status === "idle" && "Autosaves as you type."}
       </p>
-      <div className="mt-2">
-        <AnswerFeedback questionId={questionId} answer={content} />
-      </div>
     </div>
   );
 }

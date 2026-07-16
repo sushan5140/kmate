@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
@@ -15,8 +14,9 @@ interface QuestionRow {
   text: string;
   category: QuestionCardData["category"];
   upvotes_count: number;
+  downvotes_count: number;
   status: QuestionCardData["status"];
-  question_upvotes: { user_id: string }[];
+  question_upvotes: { user_id: string; vote_type: "up" | "down" }[];
 }
 
 export default async function InterviewDbPage() {
@@ -26,7 +26,7 @@ export default async function InterviewDbPage() {
   const [{ data: questionRows }, { data: draftRows }] = await Promise.all([
     supabase
       .from("interview_questions")
-      .select("id, text, category, upvotes_count, status, question_upvotes ( user_id )")
+      .select("id, text, category, upvotes_count, downvotes_count, status, question_upvotes ( user_id, vote_type )")
       .eq("kind", "interview")
       .order("upvotes_count", { ascending: false }),
     supabase.from("draft_answers").select("question_id, content").eq("user_id", user.id),
@@ -34,15 +34,19 @@ export default async function InterviewDbPage() {
 
   const draftsByQuestionId = new Map((draftRows ?? []).map((d) => [d.question_id, d.content]));
 
-  const questions: QuestionCardData[] = ((questionRows ?? []) as unknown as QuestionRow[]).map((q) => ({
-    id: q.id,
-    text: q.text,
-    category: q.category,
-    upvotesCount: q.upvotes_count,
-    upvotedByMe: q.question_upvotes.some((u) => u.user_id === user.id),
-    status: q.status,
-    draftContent: draftsByQuestionId.get(q.id) ?? "",
-  }));
+  const questions: QuestionCardData[] = ((questionRows ?? []) as unknown as QuestionRow[]).map((q) => {
+    const myVote = q.question_upvotes.find((u) => u.user_id === user.id);
+    return {
+      id: q.id,
+      text: q.text,
+      category: q.category,
+      upvotesCount: q.upvotes_count,
+      downvotesCount: q.downvotes_count,
+      voteType: myVote?.vote_type ?? null,
+      status: q.status,
+      draftContent: draftsByQuestionId.get(q.id) ?? "",
+    };
+  });
 
   const totalApproved = questions.filter((q) => q.status === "approved").length;
   const initialDraftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
@@ -64,10 +68,7 @@ export default async function InterviewDbPage() {
         </p>
       </Card>
 
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <Link href="/interview-db/ask" className="text-[13.5px] font-medium text-primary hover:underline">
-          Ask the Interviewer questions →
-        </Link>
+      <div className="mt-6 flex items-center justify-end gap-3">
         <SubmitQuestionForm />
       </div>
 

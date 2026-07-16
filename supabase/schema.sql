@@ -122,7 +122,8 @@ create table if not exists public.interview_questions (
   -- 'interview' = questions applicants get asked; 'interviewer' = the
   -- separate Ask-the-Interviewer bank (PRD §4.4) -- same shape/tagging/
   -- upvote pattern, so it's a flag on this table rather than a duplicate one.
-  kind text not null default 'interview' check (kind in ('interview', 'interviewer'))
+  kind text not null default 'interview' check (kind in ('interview', 'interviewer')),
+  downvotes_count int not null default 0
 );
 
 -- Idempotent column add for databases that already ran an earlier version of
@@ -130,13 +131,24 @@ create table if not exists public.interview_questions (
 alter table public.interview_questions add column if not exists kind text not null default 'interview';
 alter table public.interview_questions drop constraint if exists interview_questions_kind_check;
 alter table public.interview_questions add constraint interview_questions_kind_check check (kind in ('interview', 'interviewer'));
+alter table public.interview_questions add column if not exists downvotes_count int not null default 0;
 
+-- Despite the name (kept for backward compatibility -- this table predates
+-- downvoting), this now stores either direction of vote, one row per
+-- (question, user), distinguished by vote_type. A user can hold at most one
+-- vote per question; switching direction updates the row rather than adding
+-- a second one.
 create table if not exists public.question_upvotes (
   question_id uuid not null references public.interview_questions(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
+  vote_type text not null default 'up' check (vote_type in ('up', 'down')),
   primary key (question_id, user_id)
 );
+
+alter table public.question_upvotes add column if not exists vote_type text not null default 'up';
+alter table public.question_upvotes drop constraint if exists question_upvotes_vote_type_check;
+alter table public.question_upvotes add constraint question_upvotes_vote_type_check check (vote_type in ('up', 'down'));
 
 create table if not exists public.draft_answers (
   user_id uuid not null references public.profiles(id) on delete cascade,
@@ -446,11 +458,36 @@ create or replace function public.handle_question_upvote_change() returns trigge
 language plpgsql as $$
 begin
   if (tg_op = 'INSERT') then
-    update public.interview_questions set upvotes_count = upvotes_count + 1 where id = new.question_id;
+    if new.vote_type = 'up' then
+      update public.interview_questions set upvotes_count = upvotes_count + 1 where id = new.question_id;
+    else
+      update public.interview_questions set downvotes_count = downvotes_count + 1 where id = new.question_id;
+    end if;
     return new;
   elsif (tg_op = 'DELETE') then
-    update public.interview_questions set upvotes_count = greatest(0, upvotes_count - 1) where id = old.question_id;
+    if old.vote_type = 'up' then
+      update public.interview_questions set upvotes_count = greatest(0, upvotes_count - 1) where id = old.question_id;
+    else
+      update public.interview_questions set downvotes_count = greatest(0, downvotes_count - 1) where id = old.question_id;
+    end if;
     return old;
+  elsif (tg_op = 'UPDATE') then
+    -- Switching direction (up<->down) on the same row, e.g. clicking
+    -- downvote while already upvoted -- move the count from one column to
+    -- the other rather than treating it as a fresh vote.
+    if new.vote_type is distinct from old.vote_type then
+      if old.vote_type = 'up' then
+        update public.interview_questions set upvotes_count = greatest(0, upvotes_count - 1) where id = old.question_id;
+      else
+        update public.interview_questions set downvotes_count = greatest(0, downvotes_count - 1) where id = old.question_id;
+      end if;
+      if new.vote_type = 'up' then
+        update public.interview_questions set upvotes_count = upvotes_count + 1 where id = new.question_id;
+      else
+        update public.interview_questions set downvotes_count = downvotes_count + 1 where id = new.question_id;
+      end if;
+    end if;
+    return new;
   end if;
   return null;
 end;
@@ -639,6 +676,9 @@ drop policy if exists "question_upvotes_insert_own" on public.question_upvotes;
 create policy "question_upvotes_insert_own" on public.question_upvotes for insert with check (auth.uid() = user_id);
 drop policy if exists "question_upvotes_delete_own" on public.question_upvotes;
 create policy "question_upvotes_delete_own" on public.question_upvotes for delete using (auth.uid() = user_id);
+drop policy if exists "question_upvotes_update_own" on public.question_upvotes;
+create policy "question_upvotes_update_own" on public.question_upvotes for update
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 alter table public.draft_answers enable row level security;
 drop policy if exists "draft_answers_all_own" on public.draft_answers;
@@ -736,6 +776,10 @@ create trigger on_question_upvote_insert after insert on public.question_upvotes
 
 drop trigger if exists on_question_upvote_delete on public.question_upvotes;
 create trigger on_question_upvote_delete after delete on public.question_upvotes
+  for each row execute function public.handle_question_upvote_change();
+
+drop trigger if exists on_question_upvote_update on public.question_upvotes;
+create trigger on_question_upvote_update after update on public.question_upvotes
   for each row execute function public.handle_question_upvote_change();
 
 drop trigger if exists on_eca_upvote_insert on public.eca_upvotes;
