@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   UserRoundCheck,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { ConnectionGraph } from "@/components/marketing/connection-graph";
 import { DiscoverMockup } from "@/components/marketing/discover-mockup";
 import { InterviewMockup } from "@/components/marketing/interview-mockup";
@@ -92,11 +92,7 @@ const PRIVACY_PILLARS = [
 ];
 
 export default async function LandingPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getAuthenticatedUser();
   if (user) {
     redirect("/home");
   }

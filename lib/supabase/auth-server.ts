@@ -1,7 +1,6 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
-import type { User } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
@@ -39,17 +38,29 @@ export async function createClient() {
 }
 
 /**
- * Reads the authenticated user from the request's session cookie, for use
- * at the top of API route handlers. Returns null rather than throwing --
- * callers should return a 401 themselves so the response shape matches the
- * rest of that route's error handling.
+ * Minimal shape every current caller actually needs -- just `.id`. Was
+ * previously the full Supabase `User` object; see getAuthenticatedUser()'s
+ * comment for why that required a network round-trip this no longer does.
  */
-export async function getAuthenticatedUser(): Promise<User | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+export interface AuthenticatedUser {
+  id: string;
+}
+
+/**
+ * Reads the already-validated user id proxy.ts forwards via the
+ * x-kmate-user-id header, instead of independently calling
+ * supabase.auth.getUser() again. proxy.ts already made that exact call for
+ * this request and redirected unauthenticated visitors away from every
+ * non-public path (which is every path this function is ever called from --
+ * see PUBLIC_PATHS in proxy.ts) before this code runs, so re-validating here
+ * repeated that same network round-trip for no reason. proxy.ts also
+ * unconditionally strips any client-supplied value for this header before
+ * ever setting it itself, so trusting it here is the same trust boundary
+ * AppShell/AuthedNav already rely on, not a new one.
+ */
+export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+  const userId = (await headers()).get("x-kmate-user-id");
+  return userId ? { id: userId } : null;
 }
 
 /**
@@ -58,7 +69,7 @@ export async function getAuthenticatedUser(): Promise<User | null> {
  * Server Component page that requires a fully set-up profile (/home,
  * /discover, /requests, etc).
  */
-export async function requireOnboarded(nextPath: string): Promise<User> {
+export async function requireOnboarded(nextPath: string): Promise<AuthenticatedUser> {
   const user = await getAuthenticatedUser();
   if (!user) {
     redirect(`/login?next=${encodeURIComponent(nextPath)}`);

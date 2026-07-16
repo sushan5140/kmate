@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import GoogleSignInButton from "@/components/auth/google-sign-in-button";
 import { Card } from "@/components/ui/card";
 
@@ -15,11 +15,7 @@ export default async function LoginPage({
 }) {
   const { next, error } = await searchParams;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const user = await getAuthenticatedUser();
   if (user) {
     redirect(next && next.startsWith("/") ? next : "/home");
   }
