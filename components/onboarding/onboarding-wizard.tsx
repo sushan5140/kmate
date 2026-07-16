@@ -14,7 +14,8 @@ import { ContactsStep, type ContactValue } from "@/components/onboarding/contact
 import { ReviewStep } from "@/components/onboarding/review-step";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { isValidUsernameFormat } from "@/lib/validation/username";
-import { applicationYearOptions, type GksUEmbassyPath, type Track } from "@/lib/constants";
+import { validApplicationYears } from "@/lib/timeline/deadline";
+import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 const STEPS = ["username", "bio", "track", "major", "universities", "year", "contacts", "review"] as const;
 type Step = (typeof STEPS)[number];
@@ -61,7 +62,10 @@ export function OnboardingWizard() {
 
   const [major, setMajor] = useState("");
   const [universities, setUniversities] = useState<SelectedUniversity[]>([]);
-  const [applicationYear, setApplicationYear] = useState<number>(applicationYearOptions()[0]);
+  // No valid default until track is chosen (a couple steps earlier in this
+  // same wizard) -- 0 is falsy, so canAdvance's "year" case correctly blocks
+  // advancing until the user actively picks one of the track-appropriate years.
+  const [applicationYear, setApplicationYear] = useState<number>(0);
   const [contacts, setContacts] = useState<ContactValue[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
@@ -274,7 +278,7 @@ export function OnboardingWizard() {
         <div className="mt-3">
           <h2 className="text-[18px] font-semibold text-ink">Which intake are you applying for?</h2>
           <div className="mt-4 flex gap-2">
-            {applicationYearOptions().map((year) => (
+            {validApplicationYears(track!).map((year) => (
               <button
                 key={year}
                 type="button"

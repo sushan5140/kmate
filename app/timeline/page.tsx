@@ -34,18 +34,33 @@ export default async function TimelinePage() {
       ? estimateApplicationDeadline(profile.track as Track, profile.application_year)
       : null;
 
+  // If the stored application_year's deadline has already passed, per-item
+  // due dates would all be nonsensically in the past -- suppress them (items
+  // fall back to their offset-only text) and surface a clear "cycle closed"
+  // message instead, rather than auto-changing the user's stored year.
+  const cycleClosed = deadline !== null && deadline.getTime() < new Date().getTime();
+  const effectiveDeadline = cycleClosed ? null : deadline;
+
   const items: TimelineItemData[] = (templateItems ?? []).map((t) => ({
     id: t.id,
     label: t.item_label,
     description: t.item_description,
     offsetDays: t.typical_deadline_offset_days,
-    dueDate: deadline ? computeStartByDate(deadline, t.typical_deadline_offset_days) : null,
+    dueDate: effectiveDeadline ? computeStartByDate(effectiveDeadline, t.typical_deadline_offset_days) : null,
     completed: completedIds.has(t.id),
   }));
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Applicant Timeline</h1>
+
+      {cycleClosed && (
+        <Card className="mt-4 bg-gold/5 ring-gold/30">
+          <p className="text-[13.5px] font-medium text-ink">
+            This application cycle&apos;s deadline has passed -- update your application year in your profile.
+          </p>
+        </Card>
+      )}
 
       <Card className="mt-4">
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Prep checklist</p>

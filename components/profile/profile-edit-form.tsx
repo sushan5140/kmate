@@ -9,7 +9,8 @@ import { MajorStep } from "@/components/onboarding/major-step";
 import { UniversityPicker, type SelectedUniversity } from "@/components/onboarding/university-picker";
 import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
-import { applicationYearOptions, type GksUEmbassyPath, type Track } from "@/lib/constants";
+import { validApplicationYears } from "@/lib/timeline/deadline";
+import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 export interface ProfileEditInitialData {
   track: Track;
@@ -129,7 +130,7 @@ export function ProfileEditForm({ initial }: { initial: ProfileEditInitialData }
       <div>
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Application year</p>
         <div className="mt-2 flex gap-2">
-          {applicationYearOptions().map((year) => (
+          {validApplicationYears(initial.track).map((year) => (
             <button
               key={year}
               type="button"

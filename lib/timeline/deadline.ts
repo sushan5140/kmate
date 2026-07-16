@@ -22,3 +22,19 @@ export function computeStartByDate(deadline: Date, offsetDays: number | null): D
   startBy.setDate(startBy.getDate() - (offsetDays ?? 0));
   return startBy;
 }
+
+/**
+ * Application years a user could reasonably still pick for `track`, i.e.
+ * ones whose estimated deadline hasn't already passed. Replaces a flat
+ * [currentYear, +1, +2] list that didn't account for GKS-G's deadline
+ * (~Feb) or GKS-U's (~Sept of the PRIOR year) already having passed for the
+ * nearest intake -- see estimateApplicationDeadline above. A 4-year
+ * candidate window is generous headroom so this doesn't come back empty
+ * even late in a cycle.
+ */
+export function validApplicationYears(track: Track): number[] {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const candidates = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
+  return candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
+}

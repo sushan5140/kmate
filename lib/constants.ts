@@ -202,8 +202,3 @@ export const CONNECTION_REQUEST_STATUSES = [
   "revoked",
 ] as const;
 export type ConnectionRequestStatus = (typeof CONNECTION_REQUEST_STATUSES)[number];
-
-export function applicationYearOptions(): number[] {
-  const currentYear = new Date().getFullYear();
-  return [currentYear, currentYear + 1, currentYear + 2];
-}
