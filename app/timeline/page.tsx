@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { TimelineChecklist, type TimelineItemData } from "@/components/timeline/timeline-checklist";
 import { Card } from "@/components/ui/card";
+import { estimateApplicationDeadline, computeStartByDate } from "@/lib/timeline/deadline";
+import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Timeline — KMate",
@@ -11,7 +13,8 @@ export default async function TimelinePage() {
   const user = await requireOnboarded("/timeline");
   const supabase = await createClient();
 
-  const [{ data: templateItems }, { data: progressRows }] = await Promise.all([
+  const [{ data: profile }, { data: templateItems }, { data: progressRows }] = await Promise.all([
+    supabase.from("profiles").select("track, application_year").eq("id", user.id).maybeSingle(),
     supabase
       .from("timeline_templates")
       .select("id, item_label, item_description, typical_deadline_offset_days")
@@ -23,11 +26,20 @@ export default async function TimelinePage() {
 
   const completedIds = new Set((progressRows ?? []).filter((p) => p.completed).map((p) => p.timeline_template_item_id));
 
+  // Only computable once track + application_year are both set (always true
+  // post-onboarding, but this page doesn't hard-require it) -- falls back to
+  // just the offset-days text otherwise, same as before this change.
+  const deadline =
+    profile?.track && profile?.application_year
+      ? estimateApplicationDeadline(profile.track as Track, profile.application_year)
+      : null;
+
   const items: TimelineItemData[] = (templateItems ?? []).map((t) => ({
     id: t.id,
     label: t.item_label,
     description: t.item_description,
     offsetDays: t.typical_deadline_offset_days,
+    dueDate: deadline ? computeStartByDate(deadline, t.typical_deadline_offset_days) : null,
     completed: completedIds.has(t.id),
   }));
 

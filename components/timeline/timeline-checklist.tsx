@@ -10,19 +10,29 @@ export interface TimelineItemData {
   label: string;
   description: string | null;
   offsetDays: number | null;
+  /** null when the viewer's track/application_year isn't set yet -- falls back to offset-only text. */
+  dueDate: Date | null;
   completed: boolean;
 }
 
+const dueDateFormatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+
 export function TimelineChecklist({ items: initial }: { items: TimelineItemData[] }) {
   const [items, setItems] = useState(initial);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  // Per-item in-flight tracking -- was previously a single `busyId: string |
+  // null`, which blocked clicks on every OTHER item while any one item's
+  // request was in flight (reproduced: rapid-clicking two different items
+  // back to back silently dropped the second click entirely -- no request,
+  // no optimistic update, nothing). A Set lets each item's write proceed
+  // independently.
+  const [busyIds, setBusyIds] = useState<Set<string>>(new Set());
 
   const completedCount = items.filter((i) => i.completed).length;
   const progressPct = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
   async function toggle(item: TimelineItemData) {
-    if (busyId) return;
-    setBusyId(item.id);
+    if (busyIds.has(item.id)) return;
+    setBusyIds((prev) => new Set(prev).add(item.id));
     const nextCompleted = !item.completed;
     setItems((rows) => rows.map((r) => (r.id === item.id ? { ...r, completed: nextCompleted } : r)));
     try {
@@ -37,7 +47,11 @@ export function TimelineChecklist({ items: initial }: { items: TimelineItemData[
     } catch {
       setItems((rows) => rows.map((r) => (r.id === item.id ? { ...r, completed: !nextCompleted } : r)));
     } finally {
-      setBusyId(null);
+      setBusyIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
     }
   }
 
@@ -59,7 +73,7 @@ export function TimelineChecklist({ items: initial }: { items: TimelineItemData[
             <button
               type="button"
               onClick={() => toggle(item)}
-              disabled={busyId === item.id}
+              disabled={busyIds.has(item.id)}
               aria-pressed={item.completed}
               aria-label={item.completed ? `Mark "${item.label}" as not done` : `Mark "${item.label}" as done`}
               className={cn(
@@ -74,10 +88,17 @@ export function TimelineChecklist({ items: initial }: { items: TimelineItemData[
                 {item.label}
               </p>
               {item.description && <p className="mt-0.5 text-[13px] leading-relaxed text-muted">{item.description}</p>}
-              {item.offsetDays !== null && (
+              {item.dueDate ? (
                 <p className="mt-1 text-[11.5px] font-medium uppercase tracking-wide text-muted">
-                  Start ~{item.offsetDays} days before applying
+                  Due {dueDateFormatter.format(item.dueDate)}
+                  {item.offsetDays !== null && ` · ~${item.offsetDays} days lead time`}
                 </p>
+              ) : (
+                item.offsetDays !== null && (
+                  <p className="mt-1 text-[11.5px] font-medium uppercase tracking-wide text-muted">
+                    Start ~{item.offsetDays} days before applying
+                  </p>
+                )
               )}
             </div>
           </Card>

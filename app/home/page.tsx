@@ -5,21 +5,12 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
+import { estimateApplicationDeadline, computeStartByDate } from "@/lib/timeline/deadline";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Home — KMate",
 };
-
-// Onboarding only collects an intake year, not a real GKS notice/deadline
-// date -- these are rough historical-cycle approximations (GKS-G notices
-// typically open ~Feb-Mar, GKS-U ~Sept-Oct the prior year), NOT an official
-// deadline. Isolated here, clearly labeled "estimated" in the UI, so it's a
-// contained fix if NIIED's actual cycle differs.
-function estimateApplicationDeadline(track: Track, applicationYear: number): Date {
-  if (track === "gks_g") return new Date(applicationYear, 1, 15); // ~Feb 15 of the intake year
-  return new Date(applicationYear - 1, 8, 15); // gks_u: ~Sept 15 of the prior year
-}
 
 export default async function HomePage() {
   const user = await requireOnboarded("/home");
@@ -90,11 +81,7 @@ export default async function HomePage() {
     const deadline = estimateApplicationDeadline(profile.track as Track, profile.application_year);
     const incomplete = (templateItems ?? [])
       .filter((t) => !completedIds.has(t.id))
-      .map((t) => {
-        const startBy = new Date(deadline);
-        startBy.setDate(startBy.getDate() - (t.typical_deadline_offset_days ?? 0));
-        return { label: t.item_label, startBy };
-      })
+      .map((t) => ({ label: t.item_label, startBy: computeStartByDate(deadline, t.typical_deadline_offset_days) }))
       .sort((a, b) => a.startBy.getTime() - b.startBy.getTime());
     if (incomplete.length > 0) {
       nextUpLabel = incomplete[0].label;
@@ -143,7 +130,7 @@ export default async function HomePage() {
       </Card>
 
       <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <Link href="/discover">
+        <Link href="/requests?tab=discover">
           <Card interactive className="h-full">
             <Users className="h-4 w-4 text-muted" />
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Discover</h2>
@@ -177,7 +164,7 @@ export default async function HomePage() {
             <p className="mt-1 text-[13px] leading-relaxed text-muted">Browse ranked activities</p>
           </Card>
         </Link>
-        <Link href="/requests">
+        <Link href="/requests?tab=received">
           <Card interactive className="h-full">
             <Inbox className="h-4 w-4 text-muted" />
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Requests</h2>
