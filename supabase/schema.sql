@@ -70,6 +70,56 @@ create table if not exists public.university_choices (
   unique (user_id, university_id)
 );
 
+-- Staging area for the "University Insights" web-research pass (structured,
+-- sourced facts pulled per university -- QS rankings, majors, language of
+-- instruction, cost of living, post-arrival support, degree-timeline quirks).
+-- Deliberately separate from `universities`: nothing here is shown in the app
+-- or treated as verified until a manual spot-check pass promotes it. RLS below
+-- has no select/write policies at all, so it's service-role-only by design.
+create table if not exists public.university_insights_staging (
+  id uuid primary key default gen_random_uuid(),
+  university_id uuid not null references public.universities(id) on delete cascade,
+  university_name text not null,
+
+  qs_overall_rank text,
+  qs_overall_rank_year int,
+  qs_overall_rank_source_url text,
+
+  -- one row per relevant subject: [{ subject, rank, year, source_url }], or
+  -- [{ subject, rank: "not ranked", source_url }] when no subject ranking exists
+  qs_subject_rankings jsonb not null default '[]'::jsonb,
+
+  -- [{ major, source_url }]
+  majors_offered jsonb not null default '[]'::jsonb,
+
+  -- [{ program, language, source_url }] -- language is 'english' | 'korean' | 'not stated'
+  language_of_instruction jsonb not null default '[]'::jsonb,
+
+  city text,
+  campus_location_source_url text,
+  cost_of_living_note text,
+  cost_of_living_source_url text,
+
+  dorm_guarantee_gks text check (dorm_guarantee_gks in ('yes', 'no', 'conditional', 'not stated')),
+  dorm_guarantee_source_url text,
+  mentor_buddy_program text check (mentor_buddy_program in ('yes', 'no', 'not stated')),
+  mentor_buddy_source_url text,
+  international_student_office text check (international_student_office in ('yes', 'no', 'not stated')),
+  international_student_office_source_url text,
+
+  mandatory_korean_prep_year text check (mandatory_korean_prep_year in ('yes', 'no', 'conditional', 'not stated')),
+  mandatory_korean_prep_source_url text,
+  thesis_track_options text,
+  thesis_track_source_url text,
+
+  research_status text not null default 'partial' check (research_status in ('complete', 'partial', 'failed')),
+  research_notes text,
+  last_checked_date date not null default current_date,
+  created_at timestamptz not null default now(),
+
+  unique (university_id)
+);
+
 -- Never joined into any public profile query; only visible to the owner or
 -- an accepted connection (RLS below), and structurally the app never
 -- selects this table on the public profile render path at all -- see
@@ -657,6 +707,9 @@ create policy "university_choices_select_all" on public.university_choices for s
 drop policy if exists "university_choices_write_own" on public.university_choices;
 create policy "university_choices_write_own" on public.university_choices for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- No policies at all -- service-role only, by design, until spot-checked and promoted.
+alter table public.university_insights_staging enable row level security;
 
 alter table public.contact_methods enable row level security;
 drop policy if exists "contact_methods_select" on public.contact_methods;
