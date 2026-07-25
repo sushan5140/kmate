@@ -120,6 +120,48 @@ create table if not exists public.university_insights_staging (
   unique (university_id)
 );
 
+-- AI Mock Interview: per-session record + per-question results. Ported from
+-- a standalone prototype (mock-interview-prototype.html) -- deliberately
+-- persists ONLY transcript text, computed metrics, and the final feedback
+-- text. No frame/video/image column exists anywhere here, on purpose: raw
+-- camera data and captured frames are used transiently in the browser for
+-- the single end-of-interview Gemini call and never sent to or stored by
+-- this backend. Gemini access is BYOK (user's own key, client-side only),
+-- so there's no API-key column here either.
+create table if not exists public.interview_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  category text not null check (
+    category in ('all', 'motivation', 'academic', 'korea', 'behavioral', 'curveball')
+  ),
+  question_count int not null check (question_count > 0),
+  -- getMaxMidInterviewPauses(question_count) from the prototype, stored at
+  -- session start rather than recomputed later so a future change to that
+  -- scaling function can't retroactively alter what an old session allowed.
+  max_mid_pauses int not null,
+  mid_pauses_used int not null default 0,
+  status text not null default 'in_progress' check (status in ('in_progress', 'completed', 'abandoned')),
+  final_feedback_text text,
+  started_at timestamptz not null default now(),
+  ended_at timestamptz
+);
+
+create table if not exists public.interview_session_questions (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.interview_sessions(id) on delete cascade,
+  question_index int not null check (question_index >= 0),
+  question_text text not null,
+  transcript text not null default '',
+  eye_contact_pct int,
+  wpm int,
+  filler_count int,
+  long_pause_count int,
+  longest_pause_sec numeric,
+  posture_stability int,
+  duration_sec int,
+  unique (session_id, question_index)
+);
+
 -- Never joined into any public profile query; only visible to the owner or
 -- an accepted connection (RLS below), and structurally the app never
 -- selects this table on the public profile render path at all -- see
@@ -710,6 +752,25 @@ create policy "university_choices_write_own" on public.university_choices for al
 
 -- No policies at all -- service-role only, by design, until spot-checked and promoted.
 alter table public.university_insights_staging enable row level security;
+
+-- Private practice data, unlike university_choices -- no public "select_all"
+-- policy. Only the owner can ever see their own mock-interview sessions.
+alter table public.interview_sessions enable row level security;
+drop policy if exists "interview_sessions_owner_all" on public.interview_sessions;
+create policy "interview_sessions_owner_all" on public.interview_sessions for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table public.interview_session_questions enable row level security;
+drop policy if exists "interview_session_questions_owner_all" on public.interview_session_questions;
+create policy "interview_session_questions_owner_all" on public.interview_session_questions for all
+  using (exists (
+    select 1 from public.interview_sessions s
+    where s.id = interview_session_questions.session_id and s.user_id = auth.uid()
+  ))
+  with check (exists (
+    select 1 from public.interview_sessions s
+    where s.id = interview_session_questions.session_id and s.user_id = auth.uid()
+  ));
 
 alter table public.contact_methods enable row level security;
 drop policy if exists "contact_methods_select" on public.contact_methods;

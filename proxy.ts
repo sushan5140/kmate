@@ -32,14 +32,34 @@ const SUPABASE_ORIGIN = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin;
 // transitions and the admin pages' action menus. Inline-style injection is
 // a materially lower-severity class than script injection, so this trades
 // away a secondary protection to keep the primary one (script-src) strict.
-function buildCsp(nonce: string, isDev: boolean) {
+// AI Mock Interview loads MediaPipe Tasks Vision from jsDelivr at runtime
+// (see lib/mock-interview/mediapipe.ts) and fetches its WASM runtime + model
+// files from storage.googleapis.com -- both need an explicit connect-src
+// allowance, since MediaPipe isn't a bundled dependency the default 'self'
+// origin would cover. Its WASM runtime also needs 'wasm-unsafe-eval' to
+// instantiate at all in production (dev already has the broader
+// 'unsafe-eval'). Scoped to exactly this path rather than loosened
+// app-wide, same reasoning as the Permissions-Policy exception in
+// next.config.ts.
+// Stage 3 adds the Gemini API-key-validation call (and Stage 4 will add the
+// end-of-interview feedback call) -- both are plain client-side fetch()
+// calls straight to Google's Generative Language API (BYOK: the user's own
+// key, never proxied through KMate's backend), so this origin needs the
+// same connect-src allowance as the MediaPipe origins above.
+const MOCK_INTERVIEW_PATH = "/interview-db/mock-interview";
+const MEDIAPIPE_CDN_ORIGIN = "https://cdn.jsdelivr.net";
+const MEDIAPIPE_MODELS_ORIGIN = "https://storage.googleapis.com";
+const GEMINI_API_ORIGIN = "https://generativelanguage.googleapis.com";
+
+function buildCsp(nonce: string, isDev: boolean, pathname: string) {
+  const isMockInterview = pathname === MOCK_INTERVIEW_PATH;
   return [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : isMockInterview ? " 'wasm-unsafe-eval'" : ""}`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' blob: data:`,
     `font-src 'self'`,
-    `connect-src 'self' ${SUPABASE_ORIGIN}`,
+    `connect-src 'self' ${SUPABASE_ORIGIN}${isMockInterview ? ` ${MEDIAPIPE_CDN_ORIGIN} ${MEDIAPIPE_MODELS_ORIGIN} ${GEMINI_API_ORIGIN}` : ""}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
@@ -62,7 +82,7 @@ export async function proxy(request: NextRequest) {
   // automatically tags its own framework/page scripts with it.
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
-  const csp = buildCsp(nonce, isDev);
+  const csp = buildCsp(nonce, isDev, request.nextUrl.pathname);
   request.headers.set("x-nonce", nonce);
   request.headers.set("Content-Security-Policy", csp);
 

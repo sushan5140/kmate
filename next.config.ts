@@ -19,7 +19,24 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      // AI Mock Interview needs real getUserMedia access -- the blanket
+      // camera=()/microphone=() above blocks it app-wide by default. Scope
+      // the exception to exactly this route (self only, not any origin)
+      // rather than loosening the global policy. Next.js applies a later
+      // matching entry's same-key header over an earlier one for the same
+      // path, so this must come after the blanket rule above.
+      {
+        source: "/interview-db/mock-interview",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self), microphone=(self), geolocation=(), payment=(), usb=()",
+          },
+        ],
+      },
+    ];
   },
 };
 

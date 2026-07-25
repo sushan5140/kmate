@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { getCachedApprovedQuestions } from "@/lib/cached-content";
 import { QuestionBrowser } from "@/components/interview-db/question-browser";
@@ -119,6 +120,17 @@ export default async function InterviewDbPage() {
           with clear, honest answers rather than memorized scripts, and prepare 1-2
           questions of your own to ask at the end.
         </p>
+      </Card>
+
+      <Card interactive className="mt-4">
+        <Link href="/interview-db/mock-interview" className="block">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-muted">New</p>
+          <h2 className="mt-1 text-[16px] font-semibold text-ink">Try an AI mock interview</h2>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
+            Practice out loud with your camera on. Get delivery-mechanics feedback -- eye
+            contact, pace, filler words, posture -- never on what you said.
+          </p>
+        </Link>
       </Card>
 
       <div className="mt-6 flex items-center justify-end gap-3">

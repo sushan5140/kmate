@@ -31,3 +31,4 @@ npm-debug.log*
 /.claude/
 /videos/
 skills-lock.json
+.env*
