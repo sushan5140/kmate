@@ -1,12 +1,14 @@
 /**
  * Stage 4 functional check: drives the full remaining pipeline in a real
- * (headless) browser -- interview finish -> frame selection -> Gemini
- * feedback call -> results screen -> session persisted to Supabase. The
- * Gemini network calls (key validation + feedback) are intercepted via
- * page.route and answered with canned responses, since there's no real
- * Gemini key available in this environment; this still exercises the real
- * CSP allowance, the real fetch/parsing code, and the real persistence API
- * route end to end -- only the far side of the network call is faked.
+ * (headless) browser -- interview finish -> frame selection -> the two
+ * parallel Gemini calls (delivery feedback + refined answers) -> results
+ * screen -> session persisted to Supabase. The Gemini network calls (key
+ * validation, feedback, refine) are intercepted via page.route and answered
+ * with canned responses, since there's no real Gemini key available in this
+ * environment; this still exercises the real CSP allowance, the real
+ * fetch/parsing code (including JSON-schema response parsing for the refine
+ * call), and the real persistence API route end to end -- only the far side
+ * of the network call is faked.
  *
  * Run: npx tsx supabase/scripts/regression/mock-interview-stage4.ts
  */
@@ -23,6 +25,12 @@ const { check, summarize } = makeChecker();
 
 const CANNED_FEEDBACK =
   "1. Overall you spoke clearly with steady pacing.\n2. During Q2 your eye contact dipped after a pause.\n3. Consider brief pauses before answering to reduce filler words.";
+
+const CANNED_REFINED_ANSWERS = [
+  { questionIndex: 0, refinedAnswer: "REFINED_ANSWER_FOR_Q1_TEXT" },
+  { questionIndex: 1, refinedAnswer: "REFINED_ANSWER_FOR_Q2_TEXT" },
+  { questionIndex: 2, refinedAnswer: "REFINED_ANSWER_FOR_Q3_TEXT" },
+];
 
 function b64(str: string) {
   return Buffer.from(str, "utf-8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -57,18 +65,33 @@ async function main() {
     const consoleErrors: string[] = [];
     page.on("pageerror", (err) => consoleErrors.push(`pageerror: ${err.message}`));
 
-    // Fakes both Gemini calls this feature makes (key validation, then the
-    // real feedback call) so the test doesn't need a real API key --
-    // distinguished by request body content since both hit the same URL.
+    // Fakes all three Gemini calls this feature makes (key validation, the
+    // delivery-feedback call, and the refine-answers call) so the test
+    // doesn't need a real API key -- distinguished by request body content
+    // since all three hit the same URL. The refine call is identified by its
+    // JSON-schema generationConfig, not by prompt text, matching how the
+    // real client actually marks it.
     let sawFeedbackCall = false;
+    let sawRefineCall = false;
     await page.route("https://generativelanguage.googleapis.com/**", async (route) => {
-      const postData = route.request().postDataJSON() as { contents?: { parts?: { text?: string }[] }[] };
+      const postData = route.request().postDataJSON() as {
+        contents?: { parts?: { text?: string }[] }[];
+        generationConfig?: { responseMimeType?: string };
+      };
       const text = postData?.contents?.[0]?.parts?.[0]?.text ?? "";
+      const isJsonMode = postData?.generationConfig?.responseMimeType === "application/json";
       if (text.includes("Reply with just: OK")) {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({ candidates: [{ content: { parts: [{ text: "OK" }] } }] }),
+        });
+      } else if (isJsonMode) {
+        sawRefineCall = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(CANNED_REFINED_ANSWERS) }] } }] }),
         });
       } else {
         sawFeedbackCall = true;
@@ -119,12 +142,18 @@ async function main() {
     await page.waitForSelector("text=Delivery feedback", { timeout: 20000 });
     check("Reached results stage (processing screen was transient and resolved)", true);
     check("Feedback call was actually made (not skipped)", sawFeedbackCall);
+    check("Refine-answers call was actually made (not skipped)", sawRefineCall);
 
     const resultsBody = await page.textContent("body");
     check("Canned feedback text rendered on results screen", (resultsBody ?? "").includes("steady pacing"));
     check(
       "Per-question metrics rendered on results screen",
       (resultsBody ?? "").includes("Eye contact") && (resultsBody ?? "").includes("Duration")
+    );
+    check("Refined-answer heading rendered on results screen", (resultsBody ?? "").includes("A clearer way to say it"));
+    check(
+      "All 3 refined answers rendered, in the right order",
+      CANNED_REFINED_ANSWERS.every((a) => (resultsBody ?? "").includes(a.refinedAnswer))
     );
 
     await page.waitForSelector("text=Saved to your interview history.", { timeout: 15000 });
@@ -155,6 +184,12 @@ async function main() {
       check(
         "Question rows have real question text and non-negative metrics",
         (questionRows ?? []).every((q) => q.question_text?.length > 0 && q.wpm >= 0 && q.eye_contact_pct >= 0)
+      );
+      check(
+        "Persisted refined_answer matches the mocked response, per question index",
+        (questionRows ?? []).every(
+          (q) => q.refined_answer === CANNED_REFINED_ANSWERS.find((a) => a.questionIndex === q.question_index)?.refinedAnswer
+        )
       );
     }
 

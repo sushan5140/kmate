@@ -8,6 +8,7 @@ import { ProcessingStage } from "@/components/mock-interview/processing-stage";
 import { ResultsStage } from "@/components/mock-interview/results-stage";
 import { QUESTION_BANK, getMaxMidInterviewPauses, type MockInterviewCategory } from "@/lib/mock-interview/constants";
 import type { FeedbackResult } from "@/lib/mock-interview/gemini-feedback";
+import type { RefineResult } from "@/lib/mock-interview/refine-answers";
 import type { QuestionResult } from "@/lib/mock-interview/types";
 
 type Stage = "apikey" | "setup" | "interview" | "processing" | "results";
@@ -43,6 +44,7 @@ export function MockInterviewApp() {
   const [initialPrepSecs, setInitialPrepSecs] = useState(30);
   const [finishedResults, setFinishedResults] = useState<QuestionResult[] | null>(null);
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null);
+  const [refine, setRefine] = useState<RefineResult | null>(null);
   const [saveState, setSaveState] = useState<"saving" | "saved" | "error">("saving");
 
   async function handleContinue(choices: SetupChoices) {
@@ -103,10 +105,18 @@ export function MockInterviewApp() {
     setStage("processing");
   }
 
-  async function handleFeedbackComplete(result: FeedbackResult, results: QuestionResult[], usedPauses: number) {
+  async function handleFeedbackComplete(
+    result: FeedbackResult,
+    refineResult: RefineResult,
+    results: QuestionResult[],
+    usedPauses: number
+  ) {
     setFeedback(result);
+    setRefine(refineResult);
     setStage("results");
     setSaveState("saving");
+
+    const refinedByIndex = new Map(refineResult.ok ? refineResult.answers.map((a) => [a.questionIndex, a.refinedAnswer]) : []);
 
     try {
       const res = await fetch("/api/mock-interview/session", {
@@ -123,6 +133,7 @@ export function MockInterviewApp() {
             questionIndex: i,
             questionText: r.question,
             transcript: r.transcript,
+            refinedAnswer: refinedByIndex.get(i) ?? null,
             eyeContactPct: r.metrics.eyeContactPct,
             wpm: r.metrics.wpm,
             fillerCount: r.metrics.fillerCount,
@@ -156,7 +167,7 @@ export function MockInterviewApp() {
       <ProcessingStage
         apiKey={apiKey}
         results={finishedResults}
-        onComplete={(result) => handleFeedbackComplete(result, finishedResults, midPausesUsed)}
+        onComplete={(result, refineResult) => handleFeedbackComplete(result, refineResult, finishedResults, midPausesUsed)}
       />
     );
   }
@@ -166,11 +177,13 @@ export function MockInterviewApp() {
       <ResultsStage
         feedbackText={feedback?.ok ? feedback.text : null}
         feedbackError={feedback && !feedback.ok ? feedback.message : null}
+        refine={refine}
         results={finishedResults}
         saveState={saveState}
         onRestart={() => {
           setFinishedResults(null);
           setFeedback(null);
+          setRefine(null);
           setStage("setup");
         }}
       />

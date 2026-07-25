@@ -8,6 +8,7 @@ interface QuestionPayload {
   questionIndex: number;
   questionText: string;
   transcript: string;
+  refinedAnswer: string | null;
   eyeContactPct: number;
   wpm: number;
   fillerCount: number;
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
       question_index: q.questionIndex,
       question_text: q.questionText,
       transcript: q.transcript,
+      refined_answer: q.refinedAnswer,
       eye_contact_pct: q.eyeContactPct,
       wpm: q.wpm,
       filler_count: q.fillerCount,

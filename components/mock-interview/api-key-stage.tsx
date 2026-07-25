@@ -69,8 +69,8 @@ export function ApiKeyStage({ onValidated }: { onValidated: (key: string) => voi
       </span>
       <h3 className="mt-2.5 text-[15px] font-semibold text-ink">Paste your free Gemini API key</h3>
       <p className="mt-1 text-[13.5px] text-muted">
-        Used only for this one feedback call, at the end of your interview. Free, no billing required. Not sure how
-        to get one? Follow the steps below.
+        Used only at the end of your interview, for delivery feedback and a rewritten version of your answers. Free,
+        no billing required. Not sure how to get one? Follow the steps below.
       </p>
 
       <button

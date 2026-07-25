@@ -25,9 +25,10 @@ export default async function MockInterviewPage() {
         <p className="text-[13.5px] leading-relaxed text-muted">
           Practice with your camera and mic on. On-device tracking (no video ever leaves your
           browser) measures delivery mechanics -- eye contact, pace, filler words, pauses, and
-          posture -- across a short set of questions. At the end, one feedback pass comments only
-          on how you delivered your answers, never on what you said. You&apos;ll need your own
-          free Gemini API key to run the feedback step.
+          posture -- across a short set of questions. At the end, you&apos;ll get delivery
+          feedback (never judging what you said, only how) plus a rewritten, more natural-sounding
+          version of each answer you gave. You&apos;ll need your own free Gemini API key to run
+          the feedback step.
         </p>
       </Card>
 

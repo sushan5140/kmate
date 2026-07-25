@@ -161,6 +161,7 @@ create table if not exists public.interview_session_questions (
   duration_sec int,
   unique (session_id, question_index)
 );
+alter table public.interview_session_questions add column if not exists refined_answer text;
 
 -- Never joined into any public profile query; only visible to the owner or
 -- an accepted connection (RLS below), and structurally the app never

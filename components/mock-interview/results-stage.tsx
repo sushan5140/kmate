@@ -1,21 +1,26 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import type { RefineResult } from "@/lib/mock-interview/refine-answers";
 import type { QuestionResult } from "@/lib/mock-interview/types";
 
 export function ResultsStage({
   feedbackText,
   feedbackError,
+  refine,
   results,
   saveState,
   onRestart,
 }: {
   feedbackText: string | null;
   feedbackError: string | null;
+  refine: RefineResult | null;
   results: QuestionResult[];
   saveState: "saving" | "saved" | "error";
   onRestart: () => void;
 }) {
+  const refinedByIndex = new Map(refine?.ok ? refine.answers.map((a) => [a.questionIndex, a.refinedAnswer]) : []);
+
   return (
     <div className="mx-auto mt-4 flex max-w-[760px] flex-col gap-4">
       <Card>
@@ -41,6 +46,11 @@ export function ResultsStage({
           {saveState === "error" &&
             "Couldn't save this session to your history — your feedback above is still valid, it just won't appear in past sessions."}
         </p>
+        {refine && !refine.ok && (
+          <p className="mt-1.5 text-[12px] text-muted">
+            Couldn&apos;t generate refined answers for this session — your delivery feedback above is unaffected.
+          </p>
+        )}
       </Card>
 
       {results.map((r, i) => (
@@ -51,6 +61,12 @@ export function ResultsStage({
           <div className="mt-2 max-h-[100px] overflow-y-auto rounded-lg border border-hairline bg-canvas px-3 py-2.5 text-[13px] text-muted">
             {r.transcript || "(no speech captured)"}
           </div>
+          {refinedByIndex.has(i) && (
+            <div className="mt-2.5 rounded-lg bg-primary-soft px-3.5 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">A clearer way to say it</p>
+              <p className="mt-1 text-[13.5px] leading-relaxed text-ink">{refinedByIndex.get(i)}</p>
+            </div>
+          )}
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             <MetricChip label="Eye contact" value={`${r.metrics.eyeContactPct}%`} />
             <MetricChip label="Pace" value={r.metrics.wpm ? `${r.metrics.wpm} wpm` : "—"} />
