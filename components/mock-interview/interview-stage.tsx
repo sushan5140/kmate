@@ -101,6 +101,14 @@ export function InterviewStage({
   const [trackingStatus, setTrackingStatus] = useState("Loading tracking…");
   const [elapsed, setElapsed] = useState("00:00");
   const [transcriptText, setTranscriptText] = useState("Listening…");
+  // Surfaced in the UI, not just console.warn -- a user who finishes a whole
+  // interview with zero transcript (because their browser doesn't support
+  // Web Speech, or recognition is erroring out) previously had no way to
+  // know until the results screen showed empty word/pace metrics and no
+  // refined answers, with nothing explaining why.
+  const [speechWarning, setSpeechWarning] = useState<string | null>(null);
+  const gotFinalTranscriptRef = useRef(false);
+  const consecutiveSpeechErrorsRef = useRef(0);
   const [liveMetrics, setLiveMetrics] = useState<LiveMetrics>({
     eyeContactPct: 0,
     blinkEvents: 0,
@@ -117,6 +125,9 @@ export function InterviewStage({
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionCtor) {
       console.warn("Web Speech API not supported in this browser -- transcript will be empty. Try Chrome.");
+      setSpeechWarning(
+        "Your browser doesn't support speech-to-text, so your words won't be captured -- camera-based metrics (eye contact, posture) still will be. Try Chrome for full results."
+      );
       return;
     }
     const recognition: SpeechRecognition = new SpeechRecognitionCtor();
@@ -131,6 +142,9 @@ export function InterviewStage({
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcriptChunk = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
+          gotFinalTranscriptRef.current = true;
+          consecutiveSpeechErrorsRef.current = 0;
+          setSpeechWarning(null);
           rt.transcriptFinal += transcriptChunk + " ";
           const now = performance.now();
           if (rt.lastSpeechTs && (now - rt.lastSpeechTs) / 1000 > 1.5) {
@@ -149,7 +163,30 @@ export function InterviewStage({
       setTranscriptText((rt.transcriptFinal + " " + interim).trim() || "Listening…");
     };
 
-    recognition.onerror = (e) => console.warn("Speech recognition error:", e.error);
+    recognition.onerror = (e) => {
+      console.warn("Speech recognition error:", e.error);
+      // "no-speech" (recognition timed out waiting for audio) and "aborted"
+      // (we or the browser stopped it deliberately, e.g. on a pause) are
+      // routine -- they don't mean anything is actually broken, and
+      // recognition auto-restarts via onend below either way. Only warn on
+      // errors that mean speech genuinely can't be captured this session.
+      const BLOCKING_ERRORS = ["audio-capture", "network", "not-allowed", "service-not-allowed"];
+      if (!BLOCKING_ERRORS.includes(e.error)) return;
+      consecutiveSpeechErrorsRef.current += 1;
+      // Two in a row with never a single successful transcript -- a lone
+      // blip (e.g. a momentary network hiccup) shouldn't trigger this.
+      if (!gotFinalTranscriptRef.current && consecutiveSpeechErrorsRef.current >= 2) {
+        const REASON_TEXT: Record<string, string> = {
+          "audio-capture": "no microphone could be found",
+          network: "the speech-recognition service couldn't be reached (check your network/firewall)",
+          "not-allowed": "microphone access for speech-to-text was denied",
+          "service-not-allowed": "speech-to-text is blocked in this browser",
+        };
+        setSpeechWarning(
+          `Your words aren't being captured (${REASON_TEXT[e.error] ?? e.error}) -- camera-based metrics still are. Try Chrome with an active network connection, or check mic permissions.`
+        );
+      }
+    };
     recognition.onend = () => {
       // auto-restart while this component (the interview stage) is still mounted
       if (!isPausedRef.current) {
@@ -660,6 +697,11 @@ export function InterviewStage({
               />
             </div>
 
+            {speechWarning && (
+              <div className="mt-3.5 rounded-lg bg-gold-soft px-3.5 py-2.5 text-[12.5px] leading-relaxed text-gold">
+                {speechWarning}
+              </div>
+            )}
             <div className="mt-3.5 max-h-[120px] min-h-[40px] overflow-y-auto rounded-lg border border-hairline bg-canvas px-3.5 py-3 text-[13px] text-muted">
               {transcriptText}
             </div>

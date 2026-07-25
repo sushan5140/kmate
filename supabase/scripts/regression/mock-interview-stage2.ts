@@ -159,6 +159,38 @@ async function main() {
     if (consoleErrors.length) console.log("    page errors:", consoleErrors.slice(0, 5));
 
     await context.close();
+
+    // Second scenario, same session: simulate a browser with no Web Speech
+    // API support (e.g. Safari/Firefox) and confirm the user actually sees
+    // a warning instead of silently getting an empty transcript with no
+    // explanation -- the real bug this regression case exists for.
+    const noSpeechContext = await browser.newContext({ permissions: ["camera", "microphone"], baseURL: BASE_URL });
+    await noSpeechContext.addCookies([{ name: COOKIE_KEY, value: encoded, url: BASE_URL }]);
+    await noSpeechContext.addInitScript(() => {
+      delete window.SpeechRecognition;
+      delete window.webkitSpeechRecognition;
+    });
+    const noSpeechPage = await noSpeechContext.newPage();
+    await noSpeechPage.route("https://generativelanguage.googleapis.com/**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ candidates: [{ content: { parts: [{ text: "OK" }] } }] }),
+      });
+    });
+    await noSpeechPage.goto("/interview-db/mock-interview", { waitUntil: "domcontentloaded" });
+    await noSpeechPage.waitForTimeout(800);
+    await noSpeechPage.click("text=Hide guide ↑");
+    await noSpeechPage.waitForSelector("text=Show me how to get a key ↓", { timeout: 10000 });
+    await noSpeechPage.fill('input[placeholder="AIza..."]', "AIzaFAKE_MOCKED_KEY_00000000000000000");
+    await noSpeechPage.click("text=Validate & continue");
+    await noSpeechPage.waitForSelector("text=Set up your interview", { timeout: 15000 });
+    await noSpeechPage.click("text=Skip");
+    await noSpeechPage.click("text=Continue → enable camera");
+    await noSpeechPage.waitForSelector("text=Question 1 of 5", { timeout: 45000 });
+    await noSpeechPage.waitForSelector("text=doesn't support speech-to-text", { timeout: 10000 });
+    check("Unsupported-browser speech warning shown to the user (not just console.warn)", true);
+    await noSpeechContext.close();
   } finally {
     await browser.close();
     await admin.from("interview_sessions").delete().eq("user_id", user.userId);
