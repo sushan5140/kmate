@@ -70,6 +70,55 @@ create table if not exists public.university_choices (
   unique (user_id, university_id)
 );
 
+-- GKS scholar placement statistics for the 2026 Final Round -- which
+-- universities and countries GKS-G/GKS-U scholars actually ended up at,
+-- sourced from NIIED's official successful-candidate PDFs (Embassy track,
+-- University track, and the combined Final Round list), cross-matched by
+-- Candidate Number and validated row-for-row. Plain text university/country
+-- columns rather than a foreign key into `universities` -- this dataset's
+-- coverage of institution names isn't guaranteed to line up with that
+-- table's, and nothing here needs to join against a user's saved choices.
+-- Read-only reference data (like `universities`), not staging -- loaded once
+-- via a one-off script, not meant to be re-verified before showing to users.
+create table if not exists public.gks_university_stats (
+  id uuid primary key default gen_random_uuid(),
+  track text not null check (track in ('gks_g', 'gks_u')),
+  university text not null,
+  total_selected_count int not null,
+  embassy_track_count int not null,
+  university_track_count int not null,
+  distinct_country_count int not null,
+  degree_level_breakdown text not null,
+  unique (track, university)
+);
+
+create table if not exists public.gks_country_stats (
+  id uuid primary key default gen_random_uuid(),
+  track text not null check (track in ('gks_g', 'gks_u')),
+  country text not null,
+  total_selected_count int not null,
+  embassy_track_count int not null,
+  university_track_count int not null,
+  distinct_university_count int not null,
+  degree_level_breakdown text not null,
+  unique (track, country)
+);
+
+-- One row per (university, country) pair that actually has at least one
+-- seat -- the cross-tab that gks_university_stats/gks_country_stats' marginal
+-- totals alone can't answer (e.g. "at Korea University, which countries got
+-- the most seats, and what share of that country's total seats is that?").
+create table if not exists public.gks_university_country_stats (
+  id uuid primary key default gen_random_uuid(),
+  track text not null check (track in ('gks_g', 'gks_u')),
+  university text not null,
+  country text not null,
+  seat_count int not null,
+  pct_of_university_seats numeric not null,
+  pct_of_country_seats numeric not null,
+  unique (track, university, country)
+);
+
 -- Staging area for the "University Insights" web-research pass (structured,
 -- sourced facts pulled per university -- QS rankings, majors, language of
 -- instruction, cost of living, post-arrival support, degree-timeline quirks).
@@ -750,6 +799,18 @@ create policy "university_choices_select_all" on public.university_choices for s
 drop policy if exists "university_choices_write_own" on public.university_choices;
 create policy "university_choices_write_own" on public.university_choices for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table public.gks_university_stats enable row level security;
+drop policy if exists "gks_university_stats_select_all" on public.gks_university_stats;
+create policy "gks_university_stats_select_all" on public.gks_university_stats for select using (true);
+
+alter table public.gks_country_stats enable row level security;
+drop policy if exists "gks_country_stats_select_all" on public.gks_country_stats;
+create policy "gks_country_stats_select_all" on public.gks_country_stats for select using (true);
+
+alter table public.gks_university_country_stats enable row level security;
+drop policy if exists "gks_university_country_stats_select_all" on public.gks_university_country_stats;
+create policy "gks_university_country_stats_select_all" on public.gks_university_country_stats for select using (true);
 
 -- No policies at all -- service-role only, by design, until spot-checked and promoted.
 alter table public.university_insights_staging enable row level security;

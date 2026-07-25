@@ -188,6 +188,84 @@ export const getCachedUniversitySearch = unstable_cache(
   { revalidate: 60 * 60 * 24, tags: ["universities"] }
 );
 
+export type GksTrack = "gks_g" | "gks_u";
+
+export interface CachedGksUniversityStat {
+  university: string;
+  total_selected_count: number;
+  embassy_track_count: number;
+  university_track_count: number;
+  distinct_country_count: number;
+  degree_level_breakdown: string;
+}
+
+export interface CachedGksCountryStat {
+  country: string;
+  total_selected_count: number;
+  embassy_track_count: number;
+  university_track_count: number;
+  distinct_university_count: number;
+  degree_level_breakdown: string;
+}
+
+/**
+ * A one-off load from NIIED's official 2026 Final Round PDFs (see
+ * supabase/scripts/load-gks-scholar-stats.ts) -- there's no re-import path
+ * to hook a revalidateTag() into until next year's lists exist, same
+ * reasoning as getCachedUniversitySearch above.
+ */
+export const getCachedGksScholarStats = unstable_cache(
+  async (track: GksTrack): Promise<{ universities: CachedGksUniversityStat[]; countries: CachedGksCountryStat[] }> => {
+    const admin = getSupabaseAdmin();
+    const [{ data: universities, error: uniError }, { data: countries, error: countryError }] = await Promise.all([
+      admin
+        .from("gks_university_stats")
+        .select("university,total_selected_count,embassy_track_count,university_track_count,distinct_country_count,degree_level_breakdown")
+        .eq("track", track)
+        .order("total_selected_count", { ascending: false }),
+      admin
+        .from("gks_country_stats")
+        .select("country,total_selected_count,embassy_track_count,university_track_count,distinct_university_count,degree_level_breakdown")
+        .eq("track", track)
+        .order("total_selected_count", { ascending: false }),
+    ]);
+    if (uniError) throw new Error(`gks_university_stats query failed: ${uniError.message}`);
+    if (countryError) throw new Error(`gks_country_stats query failed: ${countryError.message}`);
+    return { universities: universities ?? [], countries: countries ?? [] };
+  },
+  ["gks-scholar-stats"],
+  { revalidate: 60 * 60 * 24, tags: ["gks-scholar-stats"] }
+);
+
+export interface CachedGksCrossTabRow {
+  university: string;
+  country: string;
+  seat_count: number;
+  pct_of_university_seats: number;
+  pct_of_country_seats: number;
+}
+
+/**
+ * The university<->country breakdown for one specific university OR one
+ * specific country (never both) -- fetched on demand when a row is expanded
+ * rather than shipping all ~1,186 cross-tab rows on initial page load.
+ */
+export const getCachedGksBreakdown = unstable_cache(
+  async (track: GksTrack, university: string | null, country: string | null): Promise<CachedGksCrossTabRow[]> => {
+    const admin = getSupabaseAdmin();
+    let query = admin
+      .from("gks_university_country_stats")
+      .select("university,country,seat_count,pct_of_university_seats,pct_of_country_seats")
+      .eq("track", track);
+    query = university ? query.eq("university", university) : query.eq("country", country!);
+    const { data, error } = await query.order("seat_count", { ascending: false });
+    if (error) throw new Error(`gks_university_country_stats query failed: ${error.message}`);
+    return data ?? [];
+  },
+  ["gks-scholar-breakdown"],
+  { revalidate: 60 * 60 * 24, tags: ["gks-scholar-stats"] }
+);
+
 export const getCachedApprovedMistakeEntries = unstable_cache(
   async (): Promise<CachedMistakeEntry[]> => {
     const { data } = await getSupabaseAdmin()
