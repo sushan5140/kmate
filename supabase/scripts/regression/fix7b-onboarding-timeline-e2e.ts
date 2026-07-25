@@ -73,7 +73,12 @@ function expectedValidYears(track: "gks_u" | "gks_g"): number[] {
   const now = new Date();
   const currentYear = now.getFullYear();
   const candidates = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
-  return candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
+  const years = candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
+  // Mirrors the same one-off 2026/gks_u carve-out in lib/timeline/deadline.ts
+  // (GKS-U 2026 is still open past this estimate's cutoff) -- kept in sync
+  // by hand since this is a deliberately independent reimplementation.
+  if (track === "gks_u" && !years.includes(2026)) years.unshift(2026);
+  return years;
 }
 
 async function runOnboardingToYearStep(browser: Browser, email: string, trackButtonName: string, username: string) {
@@ -178,14 +183,15 @@ async function testC7StaleAccount(browser: Browser) {
   const userId = created.user.id;
 
   try {
-    // Simulate an account onboarded before this batch, when 2026 was still
-    // a selectable GKS-U year.
+    // Simulate an account onboarded a prior cycle, back when 2025 was still
+    // a selectable GKS-U year (2026 no longer works for this -- it's a
+    // currently-valid year again per the carve-out in deadline.ts).
     const { error: upsertErr } = await admin.from("profiles").upsert({
       id: userId,
       username: `e2ec7stale${Date.now() % 100000}`,
       track: "gks_u",
       major: "Computer Science",
-      application_year: 2026,
+      application_year: 2025,
       onboarding_completed_at: new Date().toISOString(),
     });
     if (upsertErr) throw new Error(`profile upsert failed: ${upsertErr.message}`);
@@ -200,7 +206,7 @@ async function testC7StaleAccount(browser: Browser) {
     const homeRes = await page.goto(`${BASE_URL}/home`, { waitUntil: "networkidle" });
     const homeBody = await page.content();
     check(
-      "Home page for stale application_year=2026 (gks_u) account: loads (200), no client-side error, shows 'cycle has passed' messaging",
+      "Home page for stale application_year=2025 (gks_u) account: loads (200), no client-side error, shows 'cycle has passed' messaging",
       (homeRes?.status() ?? 0) === 200 &&
         homeErrors.length === 0 &&
         homeBody.includes("This application cycle") &&
@@ -213,7 +219,7 @@ async function testC7StaleAccount(browser: Browser) {
     const timelineRes = await page.goto(`${BASE_URL}/timeline`, { waitUntil: "networkidle" });
     const timelineBody = await page.content();
     check(
-      "Timeline page for stale application_year=2026 (gks_u) account: loads (200), no client-side error, shows the 'update your application year' nudge",
+      "Timeline page for stale application_year=2025 (gks_u) account: loads (200), no client-side error, shows the 'update your application year' nudge",
       (timelineRes?.status() ?? 0) === 200 && timelineErrors.length === 0 && timelineBody.includes("saved application year") && timelineBody.includes("deadline has passed")
     );
     check(

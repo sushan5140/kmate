@@ -279,16 +279,19 @@ async function testA3ApplicationYearBypass(userGksG: { userId: string; email: st
       body: JSON.stringify({
         track: "gks_u",
         major: "Computer Science",
-        applicationYear: 2026, // invalid for gks_u too (deadline ~Sept 30 2025, already passed)
+        // 2025 (not 2026 -- 2026 is a deliberate carve-out valid year for
+        // gks_u now, see lib/timeline/deadline.ts) is still genuinely
+        // invalid: deadline ~Sept 30 2024, long passed.
+        applicationYear: 2025,
         username: `e2ea3onb${Date.now() % 100000}`,
         universityChoices: validChoices,
       }),
     });
     const respBody = await res.json().catch(() => ({}));
     const { data: newProfile } = await admin.from("profiles").select("application_year, track").eq("id", created.user.id).maybeSingle();
-    const accepted = res.status === 200 && newProfile?.application_year === 2026;
+    const accepted = res.status === 200 && newProfile?.application_year === 2025;
     check(
-      `/api/onboarding/complete: applicationYear=2026 (invalid for gks_u) -- status=${res.status} body=${JSON.stringify(respBody)} stored=${newProfile?.application_year} -- ${accepted ? "ACCEPTED (finding)" : "rejected"}`,
+      `/api/onboarding/complete: applicationYear=2025 (invalid for gks_u) -- status=${res.status} body=${JSON.stringify(respBody)} stored=${newProfile?.application_year} -- ${accepted ? "ACCEPTED (finding)" : "rejected"}`,
       !accepted
     );
 

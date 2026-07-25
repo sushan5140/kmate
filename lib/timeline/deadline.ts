@@ -64,5 +64,15 @@ export function validApplicationYears(track: Track): number[] {
   const now = new Date();
   const currentYear = now.getFullYear();
   const candidates = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
-  return candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
+  const years = candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
+
+  // GKS-U 2026 is still open past this estimate's cutoff -- the ~Sept-of-
+  // prior-year heuristic above is too conservative for this specific cycle.
+  // One-off carve-out for the current cycle, not a change to the deadline
+  // math itself: revisit (and likely drop) at the start of the next cycle.
+  if (track === "gks_u" && !years.includes(2026)) {
+    years.unshift(2026);
+  }
+
+  return years;
 }
