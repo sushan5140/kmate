@@ -5,21 +5,16 @@ import { Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { ExpandableStatTable, type StatRow } from "./expandable-stat-table";
-import type { GksTrack, CachedGksUniversityStat, CachedGksCountryStat } from "@/lib/cached-content";
+import type { CachedGksUniversityStat, CachedGksCountryStat } from "@/lib/cached-content";
 
 export interface TrackData {
   universities: CachedGksUniversityStat[];
   countries: CachedGksCountryStat[];
 }
 
-const TRACK_LABELS: Record<GksTrack, string> = { gks_g: "GKS-G (Graduate)", gks_u: "GKS-U (Undergrad)" };
-
-export function ScholarStatsApp({ gksG, gksU }: { gksG: TrackData; gksU: TrackData }) {
-  const [track, setTrack] = useState<GksTrack>("gks_g");
+export function ScholarStatsApp({ data }: { data: TrackData }) {
   const [view, setView] = useState<"university" | "country">("university");
   const [search, setSearch] = useState("");
-
-  const data = track === "gks_g" ? gksG : gksU;
 
   const universityRows: StatRow[] = useMemo(
     () =>
@@ -51,27 +46,7 @@ export function ScholarStatsApp({ gksG, gksU }: { gksG: TrackData; gksU: TrackDa
 
   return (
     <div className="mt-5">
-      <div className="flex flex-wrap items-center gap-2">
-        {(["gks_g", "gks_u"] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTrack(t)}
-            className={cn(
-              "rounded-full border px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors",
-              track === t
-                ? t === "gks_g"
-                  ? "border-gks-g bg-gks-g/10 text-gks-g"
-                  : "border-gks-u bg-gks-u/10 text-gks-u"
-                : "border-hairline-strong text-muted hover:text-ink"
-            )}
-          >
-            {TRACK_LABELS[t]}
-          </button>
-        ))}
-      </div>
-
-      <Card className="mt-4">
+      <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-1.5">
             <button
@@ -114,7 +89,7 @@ export function ScholarStatsApp({ gksG, gksU }: { gksG: TrackData; gksU: TrackDa
         </p>
 
         <div className="mt-3.5">
-          <ExpandableStatTable mode={view} track={track} rows={filteredRows} />
+          <ExpandableStatTable mode={view} rows={filteredRows} />
         </div>
       </Card>
     </div>

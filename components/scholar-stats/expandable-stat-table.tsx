@@ -3,7 +3,7 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
-import type { GksTrack, CachedGksCrossTabRow } from "@/lib/cached-content";
+import type { CachedGksCrossTabRow } from "@/lib/cached-content";
 
 export interface StatRow {
   name: string;
@@ -18,7 +18,7 @@ export interface StatRow {
 // countries its scholars came from. "country" mode is the mirror image.
 type Mode = "university" | "country";
 
-export function ExpandableStatTable({ mode, track, rows }: { mode: Mode; track: GksTrack; rows: StatRow[] }) {
+export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[] }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [breakdowns, setBreakdowns] = useState<Record<string, CachedGksCrossTabRow[] | "loading" | "error">>({});
 
@@ -33,7 +33,7 @@ export function ExpandableStatTable({ mode, track, rows }: { mode: Mode; track: 
     setBreakdowns((prev) => ({ ...prev, [name]: "loading" }));
     try {
       const param = mode === "university" ? `university=${encodeURIComponent(name)}` : `country=${encodeURIComponent(name)}`;
-      const res = await fetch(`/api/scholar-stats/breakdown?track=${track}&${param}`);
+      const res = await fetch(`/api/scholar-stats/breakdown?${param}`);
       if (!res.ok) throw new Error("fetch failed");
       const data = (await res.json()) as { rows: CachedGksCrossTabRow[] };
       setBreakdowns((prev) => ({ ...prev, [name]: data.rows }));
