@@ -14,9 +14,14 @@ export const MOCK_INTERVIEW_CATEGORY_LABELS: Record<MockInterviewCategory, strin
   curveball: "Curveball",
 };
 
-// Single source of truth for the model name -- see the port plan for why
-// this is gemini-2.5-flash specifically and not 2.0-flash/flash-lite/pro/3.x.
-export const GEMINI_MODEL = "gemini-2.5-flash";
+// Single source of truth for the model name. Was gemini-2.5-flash (the
+// prototype's original choice) until Google cut off new users from it --
+// generateContent started returning 404 "no longer available to new users"
+// for any key created after the cutoff. gemini-2.0-flash/2.0-flash-lite and
+// all 1.0/1.5 models are fully shut down (404 for everyone), so this isn't a
+// one-off, it's Google routinely retiring older Gemini versions -- expect to
+// revisit this constant again later.
+export const GEMINI_MODEL = "gemini-3.6-flash";
 
 // Grab a candidate frame every ~4s during the tracking loop.
 export const FRAME_SAMPLE_INTERVAL_MS = 4000;

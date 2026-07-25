@@ -82,7 +82,7 @@ async function main() {
         })
       );
     });
-    check("All 6 guide screenshots present", imgResults.length === 6);
+    check("All 8 guide screenshots present", imgResults.length === 8);
     check("All guide screenshots actually loaded (no 404s)", imgResults.every((r) => r.ok));
     if (!imgResults.every((r) => r.ok)) console.log("    broken images:", imgResults.filter((r) => !r.ok));
 

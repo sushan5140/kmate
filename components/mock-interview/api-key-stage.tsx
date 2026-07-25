@@ -94,10 +94,11 @@ export function ApiKeyStage({ onValidated }: { onValidated: (key: string) => voi
                 <Image
                   src={step.screenshotSrc}
                   alt={step.title}
-                  width={1200}
-                  height={750}
+                  width={step.width}
+                  height={step.height}
                   className="mt-2.5 w-full rounded-lg border border-hairline"
                   unoptimized
+                  loading="eager"
                 />
               </div>
             </div>
