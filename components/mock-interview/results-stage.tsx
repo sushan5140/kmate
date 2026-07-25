@@ -1,8 +1,39 @@
 "use client";
 
+import type { ReactNode } from "react";
+import ReactMarkdown from "react-markdown";
 import { Card } from "@/components/ui/card";
 import type { RefineResult } from "@/lib/mock-interview/refine-answers";
 import type { QuestionResult } from "@/lib/mock-interview/types";
+
+// Gemini's delivery feedback is prompted to come back structured (headers,
+// bold, numbered lists) and it reliably uses markdown syntax to do that --
+// rendering it as plain whitespace-pre-wrap text left the literal ###/**/---
+// characters visible instead of actual formatting. Component overrides here
+// match the app's existing compact typography scale rather than pulling in
+// a generic prose/typography plugin.
+const FEEDBACK_MARKDOWN_COMPONENTS = {
+  h1: ({ children }: { children?: ReactNode }) => (
+    <p className="mt-4 text-[12px] font-bold uppercase tracking-wide text-primary first:mt-0">{children}</p>
+  ),
+  h2: ({ children }: { children?: ReactNode }) => (
+    <p className="mt-4 text-[12px] font-bold uppercase tracking-wide text-primary first:mt-0">{children}</p>
+  ),
+  h3: ({ children }: { children?: ReactNode }) => (
+    <p className="mt-4 text-[12px] font-bold uppercase tracking-wide text-primary first:mt-0">{children}</p>
+  ),
+  p: ({ children }: { children?: ReactNode }) => (
+    <p className="mt-2 text-[13.5px] leading-relaxed text-ink first:mt-0">{children}</p>
+  ),
+  strong: ({ children }: { children?: ReactNode }) => <strong className="font-semibold text-ink">{children}</strong>,
+  ul: ({ children }: { children?: ReactNode }) => (
+    <ul className="mt-2 list-disc space-y-1.5 pl-5 text-[13.5px] leading-relaxed text-ink">{children}</ul>
+  ),
+  ol: ({ children }: { children?: ReactNode }) => (
+    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[13.5px] leading-relaxed text-ink">{children}</ol>
+  ),
+  hr: () => <hr className="my-3 border-hairline" />,
+};
 
 export function ResultsStage({
   feedbackText,
@@ -35,8 +66,8 @@ export function ResultsStage({
           </div>
         )}
         {feedbackText && (
-          <div className="mt-3 whitespace-pre-wrap rounded-lg border border-hairline bg-canvas px-4 py-3.5 text-[13.5px] leading-relaxed text-ink">
-            {feedbackText}
+          <div className="mt-3 rounded-lg border border-hairline bg-canvas px-4 py-3.5">
+            <ReactMarkdown components={FEEDBACK_MARKDOWN_COMPONENTS}>{feedbackText}</ReactMarkdown>
           </div>
         )}
 

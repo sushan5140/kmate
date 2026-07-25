@@ -24,14 +24,15 @@ export function ProcessingStage({
     startedRef.current = true;
     (async () => {
       const frames = selectFeedbackFrames(results);
-      setStatusText("Getting feedback from Gemini…");
-      // Two independent calls, run in parallel -- a failure in either one
-      // (e.g. the refine call returning malformed JSON) shouldn't block or
-      // corrupt the other.
-      const [feedback, refine] = await Promise.all([
-        getInterviewFeedback(apiKey, results, frames),
-        getRefinedAnswers(apiKey, results),
-      ]);
+      // Two independent calls, run sequentially rather than in parallel --
+      // free-tier Gemini keys can have tight per-minute rate limits, and
+      // firing both at once risked one of them coming back 429'd. A failure
+      // in either one still can't block or corrupt the other; this only
+      // changes the timing, not the independence.
+      setStatusText("Getting delivery feedback from Gemini…");
+      const feedback = await getInterviewFeedback(apiKey, results, frames);
+      setStatusText("Getting a refined version of your answers…");
+      const refine = await getRefinedAnswers(apiKey, results);
       onComplete(feedback, refine, frames);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

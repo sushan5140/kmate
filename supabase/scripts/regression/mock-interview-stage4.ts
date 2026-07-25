@@ -23,8 +23,11 @@ const COOKIE_KEY = `sb-${PROJECT_REF}-auth-token`;
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 const { check, summarize } = makeChecker();
 
+// Includes markdown syntax deliberately -- Gemini reliably formats delivery
+// feedback this way, and the regression case here is that it must render as
+// actual formatting (headings, bold), not show literal ###/** characters.
 const CANNED_FEEDBACK =
-  "1. Overall you spoke clearly with steady pacing.\n2. During Q2 your eye contact dipped after a pause.\n3. Consider brief pauses before answering to reduce filler words.";
+  "### Overall Summary\n\nYou spoke clearly with **steady pacing** throughout.\n\n1. During Q2 your eye contact dipped after a pause.\n2. Consider brief pauses before answering to reduce filler words.";
 
 const CANNED_REFINED_ANSWERS = [
   { questionIndex: 0, refinedAnswer: "REFINED_ANSWER_FOR_Q1_TEXT" },
@@ -146,6 +149,9 @@ async function main() {
 
     const resultsBody = await page.textContent("body");
     check("Canned feedback text rendered on results screen", (resultsBody ?? "").includes("steady pacing"));
+    check("Feedback markdown was actually rendered, not shown as literal syntax", !(resultsBody ?? "").includes("###") && !(resultsBody ?? "").includes("**"));
+    check("Feedback heading rendered as a real element", (await page.locator("text=Overall Summary").count()) > 0);
+    check("Feedback bold text rendered as a real <strong> element", (await page.locator("strong", { hasText: "steady pacing" }).count()) > 0);
     check(
       "Per-question metrics rendered on results screen",
       (resultsBody ?? "").includes("Eye contact") && (resultsBody ?? "").includes("Duration")
