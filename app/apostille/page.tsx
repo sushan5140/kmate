@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { Card } from "@/components/ui/card";
 import { DisclaimerBanner } from "@/components/apostille/disclaimer-banner";
-import { ApostilleTabs } from "@/components/apostille/apostille-tabs";
+import { GeneralDefaultSection } from "@/components/apostille/general-default-section";
 import { CountryOverrideCard } from "@/components/apostille/country-override-card";
-import { APOSTILLE_COUNTRY_OVERRIDES } from "@/lib/apostille-requirements";
-import type { Track } from "@/lib/constants";
+import { APOSTILLE_GENERAL_DEFAULT, APOSTILLE_COUNTRY_OVERRIDES } from "@/lib/apostille-requirements";
+import { TRACK_LABELS, type Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Apostille Guide — KMate",
@@ -14,20 +14,24 @@ export const metadata: Metadata = {
 export default async function ApostillePage() {
   const user = await requireOnboarded("/apostille");
   const supabase = await createClient();
+  // Scoped to the user's own track -- onboarding requires picking one before
+  // onboarding_completed_at is ever set, so requireOnboarded() already
+  // guarantees this is present. Same scoping precedent as Scholar Stats.
   const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
-  const defaultTrack = (profile?.track as Track | null) ?? "gks_g";
+  const track = (profile?.track as Track | null) ?? "gks_g";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Documents to Apostille</h1>
       <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-        Which application documents need an apostille or Korean-embassy consular confirmation, per NIIED&apos;s official
-        guidelines — plus the handful of countries with a confirmed, different local process.
+        Which {TRACK_LABELS[track]} application documents need an apostille or Korean-embassy consular confirmation,
+        per NIIED&apos;s official guidelines — plus the handful of countries with a confirmed, different local
+        process.
       </p>
 
       <DisclaimerBanner />
 
-      <ApostilleTabs defaultTrack={defaultTrack} />
+      <GeneralDefaultSection data={APOSTILLE_GENERAL_DEFAULT[track]} />
 
       <h2 className="mt-8 text-[16px] font-semibold text-ink">Confirmed country-specific differences</h2>
       <p className="mt-1 text-[13px] leading-relaxed text-muted">
