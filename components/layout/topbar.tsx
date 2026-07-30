@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Home, Bell } from "lucide-react";
 import { MoreMenu } from "@/components/layout/more-menu";
 
-export function TopBar({ username }: { username: string | null }) {
+export function TopBar({ username, isAdmin }: { username: string | null; isAdmin: boolean }) {
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export function TopBar({ username }: { username: string | null }) {
           <Bell className="h-[19px] w-[19px]" />
           {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />}
         </Link>
-        <MoreMenu username={username} />
+        <MoreMenu username={username} isAdmin={isAdmin} />
       </div>
     </header>
   );

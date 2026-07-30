@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  if (!(await isAuthorizedAdmin(user))) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
   const admin = getSupabaseAdmin();
-
-  const { data: profile } = await admin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
-  if (!profile?.is_admin) {
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  }
 
   // Tighter than the user-facing rate limits -- a compromised admin session
   // hammering approve/reject is a distinct, higher-stakes risk than a normal

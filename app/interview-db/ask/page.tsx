@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
+import { requireOnboarded, createClient, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getCachedApprovedQuestions } from "@/lib/cached-content";
 import { AskInterviewerList, type AskQuestionData } from "@/components/interview-db/ask-interviewer-list";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
@@ -23,11 +23,11 @@ export default async function AskInterviewerPage() {
   const user = await requireOnboarded("/interview-db/ask");
   const supabase = await createClient();
 
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+  const isAdmin = await isAuthorizedAdmin(user);
 
   let questions: AskQuestionData[];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     // See app/interview-db/page.tsx for why admins are left on the
     // original, uncached, fully-RLS-scoped path.
     const { data } = await supabase

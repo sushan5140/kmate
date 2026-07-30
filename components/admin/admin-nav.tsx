@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 const ADMIN_LINKS = [
+  { href: "/admin", label: "Overview" },
   { href: "/admin/questions", label: "Questions" },
   { href: "/admin/eca", label: "Extracurriculars" },
   { href: "/admin/mistakes", label: "Mistakes" },
+  { href: "/admin/users", label: "Users" },
 ];
 
 export function AdminNav({ active }: { active: string }) {

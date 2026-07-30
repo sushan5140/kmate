@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
+import { requireOnboarded, createClient, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getCachedApprovedMistakeEntries } from "@/lib/cached-content";
 import { MistakesList, type MistakeEntryData } from "@/components/mistakes/mistakes-list";
 import { SubmitMistakeForm } from "@/components/mistakes/submit-mistake-form";
@@ -27,11 +27,11 @@ export default async function MistakesPage() {
   const user = await requireOnboarded("/mistakes");
   const supabase = await createClient();
 
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+  const isAdmin = await isAuthorizedAdmin(user);
 
   let entries: MistakeEntryData[];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     // See app/interview-db/page.tsx for why admins are left on the
     // original, uncached, fully-RLS-scoped path.
     const { data } = await supabase

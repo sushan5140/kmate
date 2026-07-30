@@ -37,6 +37,12 @@ create unique index profiles_username_lower_idx
   on public.profiles (lower(username))
   where username is not null;
 
+-- Admin-only override: when true, track-scoped pages (Scholar Stats,
+-- Apostille Guide) show both GKS-G and GKS-U content to this user instead of
+-- scoping to their own `track`. Never user-settable -- see
+-- guard_profiles_locked_fields() below, mirroring how is_admin is locked.
+alter table public.profiles add column if not exists dual_track_access boolean not null default false;
+
 -- Universities + eligibility as a many-rows-per-university join table, since
 -- one school can appear under several track/category combinations -- e.g.
 -- Ajou University is GKS-U embassy Type A, GKS-U UIC bachelor's, AND GKS-G
@@ -537,6 +543,33 @@ begin
 end;
 $$;
 
+-- Locks `track` (once set) and `dual_track_access` against a normal user's
+-- own direct REST call -- same shape of gap as guard_profiles_is_admin
+-- guards against (profiles_update_own's RLS policy has no per-column WITH
+-- CHECK, so without this a user could PATCH either field on their own row
+-- directly). auth.uid() is only non-null when the request carries an actual
+-- end-user session; both legitimate write paths for these two columns --
+-- complete_onboarding (sets track for the first time, old.track is null)
+-- and the admin user-management route (app/api/admin/users/[id]/update,
+-- which checks is_admin in application code before ever reaching the DB) --
+-- use the service-role client, which has no session and so skips this
+-- guard entirely. dual_track_access has no legitimate self-service path at
+-- all, onboarding included, so it's always locked once auth.uid() is set.
+create or replace function public.guard_profiles_locked_fields() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.dual_track_access is distinct from old.dual_track_access and auth.uid() is not null then
+    new.dual_track_access := old.dual_track_access;
+  end if;
+
+  if new.track is distinct from old.track and old.track is not null and auth.uid() is not null then
+    new.track := old.track;
+  end if;
+
+  return new;
+end;
+$$;
+
 -- One-time admin-bootstrap ceremony (see supabase/scripts/bootstrap-admin.ts
 -- and SECURITY.md "Admin bootstrap"). This is the ONLY code path allowed to
 -- bypass guard_profiles_is_admin()'s normal restriction when no admin
@@ -1011,6 +1044,10 @@ create trigger on_auth_user_created after insert on auth.users
 drop trigger if exists on_profiles_update_guard_admin on public.profiles;
 create trigger on_profiles_update_guard_admin before update on public.profiles
   for each row execute function public.guard_profiles_is_admin();
+
+drop trigger if exists on_profiles_update_guard_locked_fields on public.profiles;
+create trigger on_profiles_update_guard_locked_fields before update on public.profiles
+  for each row execute function public.guard_profiles_locked_fields();
 
 drop trigger if exists on_question_upvote_insert on public.question_upvotes;
 create trigger on_question_upvote_insert after insert on public.question_upvotes

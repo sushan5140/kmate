@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
+import { requireOnboarded, createClient, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getCachedApprovedQuestions } from "@/lib/cached-content";
 import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
@@ -25,12 +25,12 @@ export default async function InterviewDbPage() {
   const user = await requireOnboarded("/interview-db");
   const supabase = await createClient(); // RLS-respecting, for the personalized queries below
 
-  const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+  const isAdmin = await isAuthorizedAdmin(user);
 
   let questions: QuestionCardData[];
   let draftRowsForCount: { content: string }[];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     // Admins see every submission regardless of status/owner on this page
     // today (an RLS side-effect, not a deliberate feature -- there's a
     // dedicated /admin/questions moderation queue for reviewing others'

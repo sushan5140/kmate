@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { requireAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ModerationQueue, type ModerationItem } from "@/components/admin/moderation-queue";
 import { AdminNav } from "@/components/admin/admin-nav";
@@ -16,13 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminMistakesPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) notFound();
+  await requireAdmin();
 
   const admin = getSupabaseAdmin();
-  const { data: profile } = await admin.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
-  if (!profile?.is_admin) notFound();
-
   const { data: pending } = await admin
     .from("mistake_entries")
     .select("id, title, description, document_type, reason_category")

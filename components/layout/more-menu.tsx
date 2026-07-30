@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, ShieldCheck, Flag, Info, LogOut } from "lucide-react";
+import { MoreHorizontal, ShieldCheck, LockKeyhole, Flag, Info, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import { Button } from "@/components/ui/button";
 
@@ -54,7 +54,15 @@ function ReportProblemForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-function MoreMenuContent({ username, onNavigate }: { username: string | null; onNavigate: () => void }) {
+function MoreMenuContent({
+  username,
+  isAdmin,
+  onNavigate,
+}: {
+  username: string | null;
+  isAdmin: boolean;
+  onNavigate: () => void;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<"menu" | "report">("menu");
 
@@ -90,6 +98,11 @@ function MoreMenuContent({ username, onNavigate }: { username: string | null; on
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <ShieldCheck className="h-4 w-4 text-muted" /> Community guidelines
       </Link>
+      {isAdmin && (
+        <Link href="/admin" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
+          <LockKeyhole className="h-4 w-4 text-muted" /> Admin panel
+        </Link>
+      )}
       <button
         type="button"
         onClick={() => setMode("report")}
@@ -114,7 +127,7 @@ function MoreMenuContent({ username, onNavigate }: { username: string | null; on
   );
 }
 
-export function MoreMenu({ username }: { username: string | null }) {
+export function MoreMenu({ username, isAdmin = false }: { username: string | null; isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -144,7 +157,7 @@ export function MoreMenu({ username }: { username: string | null }) {
                 onClick={(e) => e.stopPropagation()}
                 className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-card"
               >
-                <MoreMenuContent username={username} onNavigate={() => setOpen(false)} />
+                <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
               </div>
             </div>,
             document.body
@@ -152,7 +165,7 @@ export function MoreMenu({ username }: { username: string | null }) {
 
           {/* Desktop: anchored dropdown, top-right of the trigger (not portaled -- its trigger isn't inside a backdrop-filter ancestor) */}
           <div className="absolute right-0 top-full z-50 mt-2 hidden w-[220px] rounded-xl border border-border bg-white shadow-card md:block">
-            <MoreMenuContent username={username} onNavigate={() => setOpen(false)} />
+            <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
           </div>
 
           {/* Desktop click-outside catcher (invisible, no backdrop dimming) */}

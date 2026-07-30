@@ -76,6 +76,10 @@ export async function proxy(request: NextRequest) {
   // x-kmate-user-id header already attached and have that spoofed value pass
   // straight through untouched to Server Components on every public path.
   request.headers.delete("x-kmate-user-id");
+  // Same spoofing risk, same fix -- requireAdmin()/isAuthorizedAdmin() (see
+  // lib/supabase/auth-server.ts) gate every admin route on this header
+  // matching ADMIN_EMAIL, so it must never be client-settable.
+  request.headers.delete("x-kmate-user-email");
 
   // Generated fresh per-request -- Next.js reads this off the CSP header (on
   // the request, for rendering; on the response, for the browser) and
@@ -128,6 +132,7 @@ export async function proxy(request: NextRequest) {
   // header instead is free.
   if (user) {
     request.headers.set("x-kmate-user-id", user.id);
+    if (user.email) request.headers.set("x-kmate-user-email", user.email);
   }
 
   const response = NextResponse.next({ request });

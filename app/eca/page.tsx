@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
+import { requireOnboarded, createClient, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getCachedApprovedEcaEntries } from "@/lib/cached-content";
 import { EcaList, type EcaEntryData } from "@/components/eca/eca-list";
 import { SubmitEcaForm } from "@/components/eca/submit-eca-form";
@@ -31,12 +31,13 @@ export default async function EcaPage() {
   // The entries query's filter depends on the resolved track, so these
   // can't be parallelized -- a genuine dependency, not the redundant kind of
   // sequential await worth merging.
-  const { data: profile } = await supabase.from("profiles").select("track, is_admin").eq("id", user.id).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
   const userTrack = (profile?.track as EcaTrack | null) ?? "gks_u";
+  const isAdmin = await isAuthorizedAdmin(user);
 
   let entries: EcaEntryData[];
 
-  if (profile?.is_admin) {
+  if (isAdmin) {
     // See app/interview-db/page.tsx for why admins are left on the
     // original, uncached, fully-RLS-scoped path (they currently see every
     // submission regardless of status/owner here -- an RLS side-effect,

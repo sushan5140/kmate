@@ -3,6 +3,7 @@ import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { Card } from "@/components/ui/card";
 import { DisclaimerBanner } from "@/components/apostille/disclaimer-banner";
 import { GeneralDefaultSection } from "@/components/apostille/general-default-section";
+import { ApostilleTrackToggle } from "@/components/apostille/track-toggle";
 import { CountryOverrideCard } from "@/components/apostille/country-override-card";
 import { APOSTILLE_GENERAL_DEFAULT, APOSTILLE_COUNTRY_OVERRIDES } from "@/lib/apostille-requirements";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
@@ -16,22 +17,34 @@ export default async function ApostillePage() {
   const supabase = await createClient();
   // Scoped to the user's own track -- onboarding requires picking one before
   // onboarding_completed_at is ever set, so requireOnboarded() already
-  // guarantees this is present. Same scoping precedent as Scholar Stats.
-  const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  // guarantees this is present. dual_track_access is an admin-granted
+  // override (see /admin/users) for selected applicants who legitimately
+  // need both tracks' requirements -- everyone else stays hard-scoped to
+  // their own. Same precedent as Scholar Stats.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("track, dual_track_access")
+    .eq("id", user.id)
+    .maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_g";
+  const dualTrackAccess = profile?.dual_track_access ?? false;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Documents to Apostille</h1>
       <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-        Which {TRACK_LABELS[track]} application documents need an apostille or Korean-embassy consular confirmation,
-        per NIIED&apos;s official guidelines — plus the handful of countries with a confirmed, different local
-        process.
+        Which {dualTrackAccess ? "" : `${TRACK_LABELS[track]} `}application documents need an apostille or
+        Korean-embassy consular confirmation, per NIIED&apos;s official guidelines — plus the handful of countries
+        with a confirmed, different local process.
       </p>
 
       <DisclaimerBanner />
 
-      <GeneralDefaultSection data={APOSTILLE_GENERAL_DEFAULT[track]} />
+      {dualTrackAccess ? (
+        <ApostilleTrackToggle defaultTrack={track} />
+      ) : (
+        <GeneralDefaultSection data={APOSTILLE_GENERAL_DEFAULT[track]} />
+      )}
 
       <h2 className="mt-8 text-[16px] font-semibold text-ink">Confirmed country-specific differences</h2>
       <p className="mt-1 text-[13px] leading-relaxed text-muted">
