@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ShieldCheck } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Search, ShieldCheck, Lock } from "lucide-react";
+import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
-import { TRACK_LABELS, type Track } from "@/lib/constants";
+import { TRACK_LABELS, CONTACT_TYPE_ACTION_LABELS, type Track, type ContactType } from "@/lib/constants";
 
 interface AdminUserRow {
   id: string;
@@ -17,12 +17,15 @@ interface AdminUserRow {
   onboarding_completed_at: string | null;
 }
 
+type ContactsState = "unloaded" | "loading" | { contacts: { type: ContactType; value: string }[] };
+
 export function UserManagement() {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [searching, setSearching] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [contactsById, setContactsById] = useState<Record<string, ContactsState>>({});
 
   async function search(q: string) {
     setQuery(q);
@@ -39,6 +42,27 @@ export function UserManagement() {
       setSearched(true);
     } finally {
       setSearching(false);
+    }
+  }
+
+  async function toggleContactVault(id: string) {
+    const current = contactsById[id];
+    if (current && current !== "unloaded") {
+      // Already loaded -- collapse rather than re-fetch (and re-log) on
+      // every click.
+      setContactsById((m) => ({ ...m, [id]: "unloaded" }));
+      return;
+    }
+    setContactsById((m) => ({ ...m, [id]: "loading" }));
+    try {
+      const res = await fetch(`/api/admin/users/${id}/contacts`);
+      const data = await res.json();
+      setContactsById((m) => ({
+        ...m,
+        [id]: res.ok ? { contacts: data.contacts } : "unloaded",
+      }));
+    } catch {
+      setContactsById((m) => ({ ...m, [id]: "unloaded" }));
     }
   }
 
@@ -77,6 +101,8 @@ export function UserManagement() {
           Changing a user&apos;s track updates which track-scoped content (university eligibility, Scholar Stats,
           Apostille Guide) their account applies to going forward. Granting &quot;both tracks&quot; lets them view
           both GKS-G and GKS-U content on Scholar Stats and the Apostille Guide, without changing their actual track.
+          &quot;View contact vault&quot; shows a user&apos;s contact methods the same way a connection they&apos;ve
+          accepted would see them -- every view is logged.
         </p>
 
         <div className="mt-4 flex flex-col gap-3">
@@ -144,6 +170,39 @@ export function UserManagement() {
 
                 {busyId === u.id && <span className="text-[12px] text-muted">Saving…</span>}
               </div>
+
+              <button
+                type="button"
+                onClick={() => toggleContactVault(u.id)}
+                className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-ink"
+              >
+                <Lock className="h-3.5 w-3.5" />
+                {contactsById[u.id] && contactsById[u.id] !== "unloaded" ? "Hide contact vault" : "View contact vault"}
+              </button>
+
+              {contactsById[u.id] === "loading" && <p className="mt-2 text-[12px] text-muted">Loading…</p>}
+
+              {(() => {
+                const state = contactsById[u.id];
+                if (!state || state === "unloaded" || state === "loading") return null;
+                return (
+                  <div className="mt-2 rounded-xl border border-border bg-canvas/60 p-3">
+                    <MicroLabel>Contact</MicroLabel>
+                    {state.contacts.length === 0 ? (
+                      <p className="mt-1.5 text-[13px] text-muted">No contact methods on file.</p>
+                    ) : (
+                      <ul className="mt-1.5 flex flex-col gap-1">
+                        {state.contacts.map((c) => (
+                          <li key={c.type} className="text-[13px] text-ink">
+                            <span className="font-medium">{CONTACT_TYPE_ACTION_LABELS[c.type]}</span>{" "}
+                            <span className="text-muted">· {c.value}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>
