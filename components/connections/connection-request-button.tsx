@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ConnectButton } from "@/components/ui/connect-button";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function ConnectionRequestButton({
   initialStatus,
   connectionId = null,
 }: ConnectionRequestButtonProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<ConnectionStatus>(initialStatus);
   const [showNote, setShowNote] = useState(false);
   const [note, setNote] = useState("");
@@ -50,6 +52,11 @@ export function ConnectionRequestButton({
             ? "A request is already pending."
             : "Couldn't send the request. Try again."
         );
+      } else {
+        // Same stale-count issue as the /requests page's own lists -- the
+        // "Requests sent" tab count there is a server-computed prop that
+        // won't reflect this until something refreshes it.
+        router.refresh();
       }
     } catch {
       setStatus("none");
@@ -75,6 +82,8 @@ export function ConnectionRequestButton({
       if (!res.ok) {
         setStatus(prevStatus);
         setError("Couldn't revoke. Try again.");
+      } else {
+        router.refresh();
       }
     } catch {
       setStatus(prevStatus);

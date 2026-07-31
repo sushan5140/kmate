@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export interface ConnectedPerson {
 }
 
 export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) {
+  const router = useRouter();
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errorId, setErrorId] = useState<string | null>(null);
@@ -37,6 +39,11 @@ export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) 
       if (!res.ok) {
         setItems(snapshot);
         setErrorId(requestId);
+      } else {
+        // Same stale-count issue as IncomingRequestsList's respond() --
+        // this page's "Connected" tab count is a server-computed prop that
+        // doesn't know a revoke just happened.
+        router.refresh();
       }
     } catch {
       setItems(snapshot);

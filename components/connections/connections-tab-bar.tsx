@@ -12,15 +12,21 @@ const TABS: { key: ConnectionsTab; label: string }[] = [
 
 export function ConnectionsTabBar({
   active,
-  counts,
+  receivedCount,
 }: {
   active: ConnectionsTab;
-  counts: { received: number; connected: number; sent: number };
+  /**
+   * Only "Requests received" ever badges -- a badge signals something needs
+   * your action, and received is the only tab where that's true ("sent" is
+   * waiting on the other person; "connected" and "discover" aren't tasks at
+   * all).
+   */
+  receivedCount: number;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5 border-b border-hairline pb-3">
       {TABS.map((t) => {
-        const count = t.key === "discover" ? null : counts[t.key];
+        const count = t.key === "received" ? receivedCount : null;
         return (
           <Link
             key={t.key}

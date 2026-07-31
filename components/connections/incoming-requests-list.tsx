@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ export interface IncomingRequestRow {
 }
 
 export function IncomingRequestsList({ items: initial }: { items: IncomingRequestRow[] }) {
+  const router = useRouter();
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errorId, setErrorId] = useState<string | null>(null);
@@ -31,6 +33,14 @@ export function IncomingRequestsList({ items: initial }: { items: IncomingReques
       if (!res.ok) {
         setItems(snapshot);
         setErrorId(id);
+      } else {
+        // This list's own optimistic removal above is correct on its own,
+        // but the sidebar's "Connections" badge count and this page's own
+        // tab-bar counts (ConnectionsTabBar) are server-computed props that
+        // don't know this just happened -- router.refresh() re-runs those
+        // Server Components (including the root layout's AuthedNav) without
+        // resetting this component's own already-correct local state.
+        router.refresh();
       }
     } catch {
       setItems(snapshot);

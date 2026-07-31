@@ -109,10 +109,7 @@ export default async function ConnectionsPage({
       </p>
 
       <div className="mt-6">
-        <ConnectionsTabBar
-          active={tab}
-          counts={{ received: received.length, connected: connected.length || connectedRequests.length, sent: sent.length }}
-        />
+        <ConnectionsTabBar active={tab} receivedCount={received.length} />
       </div>
 
       <div className="mt-6">
