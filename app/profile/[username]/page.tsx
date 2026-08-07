@@ -50,7 +50,7 @@ export default async function ProfilePage({
   const { data: profile } = await admin
     .from("profiles")
     .select(
-      `id, username, bio, avatar_url, track, gks_u_embassy_path, major, application_year,
+      `id, username, bio, avatar_url, track, gks_u_embassy_path, major, application_year, dual_track_access,
        university_choices ( priority, university_id, eligibility_id,
          university:universities ( id, name ),
          eligibility:university_eligibility ( category, embassy_type ) )`
@@ -90,6 +90,7 @@ export default async function ProfilePage({
           {tab === "profile" ? (
             <>
               <ProfileEditForm
+                dualTrackAccess={profile.dual_track_access ?? false}
                 initial={
                   {
                     track: profile.track as Track,
