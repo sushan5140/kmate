@@ -276,7 +276,7 @@ export function OnboardingWizard() {
 
       {step === "year" && (
         <div className="mt-3">
-          <h2 className="text-[18px] font-semibold text-ink">Which intake are you applying for?</h2>
+          <h2 className="text-[18px] font-semibold text-ink">Which application year are you applying for?</h2>
           <div className="mt-4 flex gap-2">
             {validApplicationYears(track!).map((year) => (
               <button

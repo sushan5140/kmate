@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { DeadlineBannerText } from "@/components/timeline/deadline-banner";
+import { WarningBanner } from "@/components/notifications/warning-banner";
+import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
 import { estimateApplicationDeadline } from "@/lib/timeline/deadline";
 import type { Track } from "@/lib/constants";
 
@@ -33,6 +35,7 @@ export default async function HomePage() {
     { count: totalApprovedQuestions },
     { data: topMistake },
     { count: pendingRequestsCount },
+    { count: contactMethodsCount },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
     admin.from("timeline_templates").select("id").is("route", null).is("country", null),
@@ -51,6 +54,7 @@ export default async function HomePage() {
       .select("id", { count: "exact", head: true })
       .eq("to_user_id", user.id)
       .eq("status", "pending"),
+    admin.from("contact_methods").select("id", { count: "exact", head: true }).eq("user_id", user.id),
   ]);
 
   // Discover: count of other applicants sharing >=1 major or university.
@@ -97,6 +101,11 @@ export default async function HomePage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3">
+        <WarningBanner />
+        <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
       </div>
 
       <Card className="mt-8 bg-primary text-white">

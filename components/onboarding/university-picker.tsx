@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import { X, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
-import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
+import { validateUniversityChoices, describeUniversityQuota } from "@/lib/validation/university-eligibility";
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 interface EligibilityRow {
@@ -188,7 +188,7 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
       )}
 
       <p className="mt-2 text-[12.5px] text-muted">
-        Drag, or use the arrows, to reorder by priority. Pick 1-4 universities.
+        Drag, or use the arrows, to reorder by priority. {describeUniversityQuota(track, gksUEmbassyPath)}
       </p>
       {!validation.valid && (
         <p className="mt-1 text-[12.5px] text-red-600">{validation.message}</p>

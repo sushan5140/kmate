@@ -63,7 +63,7 @@ export function ReviewStep({
             ))}
           </span>
         </Row>
-        <Row label="Applying for">{applicationYear} intake</Row>
+        <Row label="Application year">{applicationYear}</Row>
         <Row label="Contacts">
           {contacts.length > 0 ? (
             <span className="flex flex-col items-end gap-0.5">

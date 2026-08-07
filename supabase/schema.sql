@@ -257,6 +257,21 @@ create table if not exists public.notifications (
   created_at timestamptz not null default now()
 );
 
+-- 'admin_warning' added post-creation -- the inline check above only
+-- applies at table creation, so this widens it for already-existing
+-- databases too. Sent via the admin moderation queue's "Warn" action (see
+-- app/api/admin/users/[id]/warn) -- payload carries { reason, warnedBy }.
+--
+-- 'contact_wallet_empty' added later still -- fired once per sign-in (see
+-- app/auth/callback/route.ts) for an onboarded user with zero
+-- contact_methods rows, so the notification bell reflects that KMate has no
+-- in-app messaging and the user hasn't given anyone a way to reach them yet.
+-- Auto-resolved (marked read) the moment they save >=1 contact via
+-- /api/contacts -- see that route -- there's no manual dismiss for this type.
+alter table public.notifications drop constraint if exists notifications_type_check;
+alter table public.notifications add constraint notifications_type_check
+  check (type = ANY (ARRAY['connection_request'::text, 'connection_accepted'::text, 'admin_warning'::text, 'contact_wallet_empty'::text]));
+
 create table if not exists public.interview_questions (
   id uuid primary key default gen_random_uuid(),
   text text not null,

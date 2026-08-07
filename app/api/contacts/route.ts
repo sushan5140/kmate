@@ -42,6 +42,16 @@ export async function POST(request: Request) {
   if (rows.length) {
     const { error } = await admin.from("contact_methods").insert(rows);
     if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
+
+    // The contact wallet is no longer empty -- clear the sign-in nag (see
+    // app/auth/callback/route.ts) so the notification bell doesn't keep
+    // flagging an already-resolved "add a contact" reminder.
+    await admin
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .eq("type", "contact_wallet_empty")
+      .is("read_at", null);
   }
 
   return NextResponse.json({ ok: true });
