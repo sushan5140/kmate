@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ModerationQueue, type ModerationItem } from "@/components/admin/moderation-queue";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { getSubmitterInfoMap } from "@/lib/admin/submitter-info";
 import {
   MISTAKE_DOCUMENT_TYPE_LABELS,
   MISTAKE_REASON_CATEGORY_LABELS,
@@ -20,14 +21,17 @@ export default async function AdminMistakesPage() {
   const admin = getSupabaseAdmin();
   const { data: pending } = await admin
     .from("mistake_entries")
-    .select("id, title, description, document_type, reason_category")
+    .select("id, title, description, document_type, reason_category, submitted_by")
     .eq("status", "pending")
     .order("created_at", { ascending: true });
+
+  const submitterInfo = await getSubmitterInfoMap(admin, "mistake_entries", (pending ?? []).map((m) => m.submitted_by));
 
   const items: ModerationItem[] = (pending ?? []).map((m) => ({
     id: m.id,
     primaryText: m.description ? `${m.title} — ${m.description}` : m.title,
     secondaryText: `${MISTAKE_DOCUMENT_TYPE_LABELS[m.document_type as MistakeDocumentType]} · ${MISTAKE_REASON_CATEGORY_LABELS[m.reason_category as MistakeReasonCategory]}`,
+    submitter: m.submitted_by ? submitterInfo.get(m.submitted_by) ?? null : null,
   }));
 
   return (

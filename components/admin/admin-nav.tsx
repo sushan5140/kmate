@@ -5,6 +5,7 @@ const ADMIN_LINKS = [
   { href: "/admin/questions", label: "Questions" },
   { href: "/admin/eca", label: "Extracurriculars" },
   { href: "/admin/mistakes", label: "Mistakes" },
+  { href: "/admin/reports", label: "Reports" },
   { href: "/admin/users", label: "Users" },
 ];
 

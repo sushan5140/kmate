@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ModerationQueue, type ModerationItem } from "@/components/admin/moderation-queue";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { getSubmitterInfoMap } from "@/lib/admin/submitter-info";
 import { ECA_TRACK_LABELS, type EcaTrack } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -15,14 +16,17 @@ export default async function AdminEcaPage() {
   const admin = getSupabaseAdmin();
   const { data: pending } = await admin
     .from("eca_entries")
-    .select("id, title, description, track")
+    .select("id, title, description, track, submitted_by")
     .eq("status", "pending")
     .order("created_at", { ascending: true });
+
+  const submitterInfo = await getSubmitterInfoMap(admin, "eca_entries", (pending ?? []).map((e) => e.submitted_by));
 
   const items: ModerationItem[] = (pending ?? []).map((e) => ({
     id: e.id,
     primaryText: e.description ? `${e.title} — ${e.description}` : e.title,
     secondaryText: ECA_TRACK_LABELS[e.track as EcaTrack],
+    submitter: e.submitted_by ? submitterInfo.get(e.submitted_by) ?? null : null,
   }));
 
   return (

@@ -13,16 +13,18 @@ export default async function AdminOverviewPage() {
   await requireAdmin();
 
   const admin = getSupabaseAdmin();
-  const [{ count: questionsCount }, { count: ecaCount }, { count: mistakesCount }] = await Promise.all([
+  const [{ count: questionsCount }, { count: ecaCount }, { count: mistakesCount }, { count: reportsCount }] = await Promise.all([
     admin.from("interview_questions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("eca_entries").select("id", { count: "exact", head: true }).eq("status", "pending"),
     admin.from("mistake_entries").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    admin.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
   ]);
 
   const sections = [
     { href: "/admin/questions", label: "Questions", description: "Interview question moderation queue.", pending: questionsCount ?? 0 },
     { href: "/admin/eca", label: "Extracurriculars", description: "ECA submission moderation queue.", pending: ecaCount ?? 0 },
     { href: "/admin/mistakes", label: "Mistakes", description: "Mistake-entry moderation queue.", pending: mistakesCount ?? 0 },
+    { href: "/admin/reports", label: "Reports", description: "Open user reports awaiting review.", pending: reportsCount ?? 0 },
   ];
 
   return (
