@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { MoreHorizontal, ShieldCheck, LockKeyhole, Flag, Info, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import { Button } from "@/components/ui/button";
+import { NAV_ITEMS } from "@/lib/nav-items";
 
 function ReportProblemForm({ onDone }: { onDone: () => void }) {
   const [reason, setReason] = useState("");
@@ -94,6 +95,27 @@ function MoreMenuContent({
           {username ? `@${username}` : "Your profile"}
         </span>
       </Link>
+
+      {/*
+        Fallback nav list -- mobile has no persistent sidebar (see
+        components/layout/sidebar.tsx, md:flex only), so the "..." menu is
+        the only place every feature is guaranteed reachable regardless of
+        how many cards fit on /home for a given screen size. md:hidden here
+        so the desktop dropdown (already redundant with the always-visible
+        Sidebar) stays exactly as it was.
+      */}
+      <div className="border-y border-hairline py-1 md:hidden">
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas"
+          >
+            <item.icon className="h-4 w-4 text-muted" /> {item.label}
+          </Link>
+        ))}
+      </div>
 
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <ShieldCheck className="h-4 w-4 text-muted" /> Community guidelines

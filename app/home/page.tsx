@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Users, MessageSquare, AlertTriangle, Award, Inbox, UserRound, ArrowDown } from "lucide-react";
+import {
+  Users,
+  MessageSquare,
+  AlertTriangle,
+  Award,
+  Inbox,
+  UserRound,
+  ArrowDown,
+  ListChecks,
+  FileText,
+  Stamp,
+  BarChart3,
+  UserCheck,
+} from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
@@ -36,6 +49,7 @@ export default async function HomePage() {
     { data: topMistake },
     { count: pendingRequestsCount },
     { count: contactMethodsCount },
+    { count: connectedCount },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
     admin.from("timeline_templates").select("id").is("route", null).is("country", null),
@@ -55,6 +69,11 @@ export default async function HomePage() {
       .eq("to_user_id", user.id)
       .eq("status", "pending"),
     admin.from("contact_methods").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+    admin
+      .from("connection_requests")
+      .select("id", { count: "exact", head: true })
+      .or(`from_user_id.eq.${user.id},to_user_id.eq.${user.id}`)
+      .eq("status", "accepted"),
   ]);
 
   // Discover: count of other applicants sharing >=1 major or university.
@@ -182,10 +201,49 @@ export default async function HomePage() {
             <p className="mt-1 text-[13px] leading-relaxed text-muted">See what others see</p>
           </Card>
         </Link>
+        <Link href="/timeline">
+          <Card interactive className="h-full">
+            <ListChecks className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Timeline</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              {doneTimelineItems} of {totalTimelineItems} steps done
+            </p>
+          </Card>
+        </Link>
+        <Link href="/official-guidelines">
+          <Card interactive className="h-full">
+            <FileText className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Official Guidelines</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Official GKS notices and guideline PDFs</p>
+          </Card>
+        </Link>
+        <Link href="/apostille">
+          <Card interactive className="h-full">
+            <Stamp className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Apostille Guide</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Which documents need an apostille</p>
+          </Card>
+        </Link>
+        <Link href="/scholar-stats">
+          <Card interactive className="h-full">
+            <BarChart3 className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Scholar Stats</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Where past scholars placed</p>
+          </Card>
+        </Link>
+        <Link href="/requests?tab=connected">
+          <Card interactive className="h-full">
+            <UserCheck className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Connections</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              {connectedCount ?? 0} connected applicant{connectedCount === 1 ? "" : "s"}
+            </p>
+          </Card>
+        </Link>
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 border-t border-hairline pt-6">
-        <p className="text-[12.5px] text-muted">7 features, all reachable from home or the ••• menu</p>
+        <p className="text-[12.5px] text-muted">10 features, all reachable from home or the ••• menu</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted">
           <ArrowDown className="h-3.5 w-3.5" />
         </span>
