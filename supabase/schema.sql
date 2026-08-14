@@ -1222,3 +1222,90 @@ from (values
 where not exists (
   select 1 from public.eca_entries e where e.title = v.title
 );
+
+-- =========================================================================
+-- Study in Korea notice monitoring -- PHASE 1 ONLY
+--
+-- Scope guard: this phase proves ONE discover -> verify -> store -> display
+-- -> dedupe loop against exactly ONE source. Deliberately NOT built yet
+-- (later phases): scholarships table, deadline-based expiry, additional
+-- sources/universities, headless-browser or Crawl4AI retrieval, RAG, admin UI.
+--
+-- Core principle enforced throughout: KMate only indexes content from
+-- sources explicitly registered as official and verified here, and never
+-- fabricates a missing field -- anything absent from the source stays NULL
+-- and renders as "Not specified in the official source".
+-- =========================================================================
+
+create table if not exists public.sources (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  -- Phase 1 is single-type by design. Deliberately NOT pre-seeding the
+  -- later values ('university', 'university_admissions',
+  -- 'university_scholarship') -- forward-compatible (widen the check when
+  -- that phase lands) without shipping unused paths now.
+  source_type text not null check (source_type in ('study_in_korea')),
+  base_url text not null,
+  notice_url text not null,
+  -- The domain allow-listed as officially verified for this source. The
+  -- discovery job refuses to store any notice whose URL falls outside it.
+  official_domain text not null,
+  -- Phase 1 retrieval is plain HTTP + HTML parsing only (no headless
+  -- browser). Recorded per-source so a later phase can add methods without
+  -- guessing what an existing row used.
+  scraping_method text not null check (scraping_method in ('http_html')),
+  active boolean not null default true,
+  -- Minutes between checks.
+  check_interval integer not null default 180 check (check_interval > 0),
+  last_checked_at timestamptz,
+  last_successful_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (notice_url)
+);
+
+create table if not exists public.notices (
+  id uuid primary key default gen_random_uuid(),
+  source_id uuid not null references public.sources(id) on delete cascade,
+  title text not null,
+  -- Dedupe key for the whole discovery loop: one row per official notice
+  -- URL, enforced by the DB rather than only by application logic.
+  source_url text not null,
+  -- NULL whenever the source doesn't state one -- never inferred.
+  published_date date,
+  discovered_at timestamptz not null default now(),
+  summary text,
+  original_text text,
+  clean_text text,
+  language text,
+  -- Phase 1 lifecycle: 'new' on first insert, 'current' while within the
+  -- 30-day publication window, 'archived' once older. No deadline-based
+  -- expiry yet -- that arrives with scholarships in Phase 2.
+  status text not null default 'new' check (status in ('new', 'current', 'archived')),
+  is_active boolean not null default true,
+  -- SHA-256 of clean_text. Same URL + same hash = unchanged (no write);
+  -- same URL + different hash = the official notice was edited in place.
+  content_hash text,
+  last_verified_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (source_url)
+);
+
+create index if not exists notices_status_published_idx
+  on public.notices (status, published_date desc nulls last);
+create index if not exists notices_source_id_idx on public.notices (source_id);
+
+alter table public.sources enable row level security;
+alter table public.notices enable row level security;
+
+-- Official public-record content -- readable by anyone. Writes are
+-- service-role only (the discovery job); no insert/update policy exists,
+-- so RLS-respecting clients can read but never write.
+drop policy if exists "notices_select_all" on public.notices;
+create policy "notices_select_all" on public.notices for select using (true);
+
+-- sources gets NO policy on purpose: it holds retrieval configuration
+-- (method, interval, allow-listed domain), which is operator config rather
+-- than user-facing content. Service-role only, same posture as
+-- university_insights_staging above.

@@ -6,7 +6,12 @@ import { NextResponse, type NextRequest } from "next/server";
 // the public marketing/legal/auth surface, and this function redirects
 // signed-out visitors to /login. (Next.js 16 renamed middleware.ts ->
 // proxy.ts, exporting `proxy()` not `middleware()` -- see AGENTS.md.)
-const PUBLIC_PATHS = ["/", "/login", "/auth", "/about", "/guidelines"];
+// "/api/cron" is public *to the proxy* only -- it has no user session to
+// check (Vercel Cron calls it unauthenticated), so redirecting it to /login
+// would break the schedule. The route itself is guarded by a
+// CRON_SECRET bearer token / admin check and fails closed -- see
+// app/api/cron/notices/route.ts.
+const PUBLIC_PATHS = ["/", "/login", "/auth", "/about", "/guidelines", "/api/cron"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));

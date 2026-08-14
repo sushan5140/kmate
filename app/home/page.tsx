@@ -13,6 +13,7 @@ import {
   Stamp,
   BarChart3,
   UserCheck,
+  Megaphone,
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -50,6 +51,7 @@ export default async function HomePage() {
     { count: pendingRequestsCount },
     { count: contactMethodsCount },
     { count: connectedCount },
+    { count: currentNoticesCount },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
     admin.from("timeline_templates").select("id").is("route", null).is("country", null),
@@ -74,6 +76,11 @@ export default async function HomePage() {
       .select("id", { count: "exact", head: true })
       .or(`from_user_id.eq.${user.id},to_user_id.eq.${user.id}`)
       .eq("status", "accepted"),
+    admin
+      .from("notices")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["new", "current"])
+      .eq("is_active", true),
   ]);
 
   // Discover: count of other applicants sharing >=1 major or university.
@@ -210,6 +217,15 @@ export default async function HomePage() {
             </p>
           </Card>
         </Link>
+        <Link href="/notices">
+          <Card interactive className="h-full">
+            <Megaphone className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Official Notices</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              {currentNoticesCount ?? 0} current announcement{currentNoticesCount === 1 ? "" : "s"}
+            </p>
+          </Card>
+        </Link>
         <Link href="/official-guidelines">
           <Card interactive className="h-full">
             <FileText className="h-4 w-4 text-muted" />
@@ -243,7 +259,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 border-t border-hairline pt-6">
-        <p className="text-[12.5px] text-muted">10 features, all reachable from home or the ••• menu</p>
+        <p className="text-[12.5px] text-muted">11 features, all reachable from home or the ••• menu</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted">
           <ArrowDown className="h-3.5 w-3.5" />
         </span>
