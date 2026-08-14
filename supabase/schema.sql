@@ -1309,3 +1309,60 @@ create policy "notices_select_all" on public.notices for select using (true);
 -- (method, interval, allow-listed domain), which is operator config rather
 -- than user-facing content. Service-role only, same posture as
 -- university_insights_staging above.
+
+-- =========================================================================
+-- University scholarship monitoring -- PHASE 2
+--
+-- Adds a second content type on top of Phase 1's notice monitoring, with a
+-- real deadline lifecycle. Phase 1's sources/notices tables and cron are
+-- untouched by this block apart from widening source_type below.
+--
+-- Still NOT built (later phases): Crawl4AI, headless browsers, RAG, admin UI.
+-- =========================================================================
+
+-- Phase 1 shipped source_type constrained to just 'study_in_korea'; Phase 2
+-- widens it rather than pre-seeding unused values back then.
+alter table public.sources drop constraint if exists sources_source_type_check;
+alter table public.sources add constraint sources_source_type_check
+  check (source_type in ('study_in_korea', 'university_admissions', 'university_scholarship'));
+
+create table if not exists public.scholarships (
+  id uuid primary key default gen_random_uuid(),
+  university_name text not null,
+  source_id uuid not null references public.sources(id) on delete cascade,
+  scholarship_name text not null,
+  -- Every column below is NULL unless the source page states it outright --
+  -- no value is ever inferred from context or from what a peer university
+  -- typically offers.
+  scholarship_type text,
+  degree_level text check (degree_level in ('undergraduate', 'graduate')),
+  benefit_type text,
+  tuition_coverage text,
+  gpa_requirement text,
+  topik_requirement text,
+  application_required boolean,
+  automatic_consideration boolean,
+  -- 'fixed' = the page gives a real date. 'admission_schedule' = award
+  -- follows the admission cycle. 'automatic' = granted without application.
+  -- deadline is only ever populated for 'fixed', enforced in the DB below so
+  -- an admission-cycle mention can never be silently turned into a date.
+  deadline date,
+  deadline_type text check (deadline_type in ('fixed', 'admission_schedule', 'automatic')),
+  status text not null default 'active' check (status in ('active', 'expiring_soon', 'expired')),
+  is_active boolean not null default true,
+  source_url text not null,
+  content_hash text,
+  last_verified_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (source_id, scholarship_name, source_url),
+  constraint scholarships_deadline_only_when_fixed
+    check (deadline is null or deadline_type = 'fixed')
+);
+
+create index if not exists scholarships_status_idx on public.scholarships (status, deadline nulls last);
+create index if not exists scholarships_source_id_idx on public.scholarships (source_id);
+
+alter table public.scholarships enable row level security;
+drop policy if exists "scholarships_select_all" on public.scholarships;
+create policy "scholarships_select_all" on public.scholarships for select using (true);
