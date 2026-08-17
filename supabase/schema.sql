@@ -1366,3 +1366,230 @@ create index if not exists scholarships_source_id_idx on public.scholarships (so
 alter table public.scholarships enable row level security;
 drop policy if exists "scholarships_select_all" on public.scholarships;
 create policy "scholarships_select_all" on public.scholarships for select using (true);
+
+-- =========================================================================
+-- Text-only 1:1 chat -- v1 (SCHEMA ONLY; no UI/API routes yet)
+--
+-- Gated on the EXISTING Connections feature: a conversation may only exist
+-- between two users with an 'accepted' row in connection_requests. Blocking
+-- reuses the EXISTING public.blocks table rather than introducing a second
+-- blocklist -- a block made anywhere in the app must apply to chat, and vice
+-- versa, or chat becomes a way around the block button.
+--
+-- Deliberately absent (product decisions, not omissions): group chat,
+-- media/file attachments, voice/video. There are no columns for any of them.
+-- =========================================================================
+
+-- security definer on all three: blocks and conversations carry their own
+-- RLS, so a policy asking "did the OTHER party block me?" or "is this
+-- conversation mine?" would otherwise run under the caller's RLS, see
+-- nothing, and fail OPEN on exactly the check that matters. Same reasoning
+-- as public.is_admin().
+create or replace function public.has_accepted_connection(u1 uuid, u2 uuid)
+returns boolean language sql security definer stable set search_path = public as $$
+  select exists (
+    select 1 from public.connection_requests cr
+    where cr.status = 'accepted'
+      and ((cr.from_user_id = u1 and cr.to_user_id = u2)
+        or (cr.from_user_id = u2 and cr.to_user_id = u1))
+  );
+$$;
+
+create or replace function public.is_blocked_between(u1 uuid, u2 uuid)
+returns boolean language sql security definer stable set search_path = public as $$
+  select exists (
+    select 1 from public.blocks b
+    where (b.blocker_id = u1 and b.blocked_id = u2)
+       or (b.blocker_id = u2 and b.blocked_id = u1)
+  );
+$$;
+
+create table if not exists public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_a_id uuid not null references public.profiles(id) on delete cascade,
+  user_b_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  -- Denormalised so a conversation list sorts by recent activity without
+  -- joining messages. Maintained by trigger, never written by clients.
+  last_message_at timestamptz,
+  -- Canonical ordering: the same pair can never produce two rows in reverse
+  -- order. Also implies user_a_id <> user_b_id.
+  constraint conversations_canonical_order check (user_a_id < user_b_id),
+  constraint conversations_unique_pair unique (user_a_id, user_b_id)
+);
+
+create index if not exists conversations_user_a_idx on public.conversations (user_a_id);
+create index if not exists conversations_user_b_idx on public.conversations (user_b_id);
+create index if not exists conversations_last_message_idx on public.conversations (last_message_at desc nulls last);
+
+create or replace function public.is_conversation_participant(conv_id uuid, uid uuid)
+returns boolean language sql security definer stable set search_path = public as $$
+  select exists (
+    select 1 from public.conversations c
+    where c.id = conv_id and (c.user_a_id = uid or c.user_b_id = uid)
+  );
+$$;
+
+-- Independent of RLS on purpose: RLS constrains end users, this also holds
+-- for service-role writes (every server route in this app uses the service
+-- role), so a backend bug cannot open a conversation between strangers.
+create or replace function public.guard_conversation_participants() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.has_accepted_connection(new.user_a_id, new.user_b_id) then
+    raise exception 'conversation requires an accepted connection between the two users';
+  end if;
+  if public.is_blocked_between(new.user_a_id, new.user_b_id) then
+    raise exception 'conversation cannot be created while a block exists between the two users';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_conversations_guard on public.conversations;
+create trigger on_conversations_guard before insert on public.conversations
+  for each row execute function public.guard_conversation_participants();
+
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  sender_id uuid not null references public.profiles(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 5000),
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+
+create index if not exists messages_conversation_created_idx
+  on public.messages (conversation_id, created_at desc);
+create index if not exists messages_unread_idx
+  on public.messages (conversation_id, sender_id) where read_at is null;
+
+create or replace function public.handle_message_insert() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.conversations
+     set last_message_at = new.created_at
+   where id = new.conversation_id;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_messages_touch_conversation on public.messages;
+create trigger on_messages_touch_conversation after insert on public.messages
+  for each row execute function public.handle_message_insert();
+
+create or replace function public.guard_message_insert() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  other_id uuid;
+begin
+  select case when c.user_a_id = new.sender_id then c.user_b_id else c.user_a_id end
+    into other_id
+    from public.conversations c
+   where c.id = new.conversation_id
+     and (c.user_a_id = new.sender_id or c.user_b_id = new.sender_id);
+
+  if other_id is null then
+    raise exception 'sender is not a participant in this conversation';
+  end if;
+  if public.is_blocked_between(new.sender_id, other_id) then
+    raise exception 'cannot send a message while a block exists between the two users';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_messages_guard on public.messages;
+create trigger on_messages_guard before insert on public.messages
+  for each row execute function public.guard_message_insert();
+
+-- read_at is the only mutable column; a body is never editable. Mirrors the
+-- existing guard_profiles_locked_fields pattern.
+create or replace function public.guard_message_immutable_fields() returns trigger
+language plpgsql as $$
+begin
+  if new.id is distinct from old.id
+     or new.conversation_id is distinct from old.conversation_id
+     or new.sender_id is distinct from old.sender_id
+     or new.body is distinct from old.body
+     or new.created_at is distinct from old.created_at then
+    raise exception 'only read_at may be updated on a message';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_messages_guard_immutable on public.messages;
+create trigger on_messages_guard_immutable before update on public.messages
+  for each row execute function public.guard_message_immutable_fields();
+
+create table if not exists public.message_reports (
+  id uuid primary key default gen_random_uuid(),
+  message_id uuid not null references public.messages(id) on delete cascade,
+  reporter_id uuid not null references public.profiles(id) on delete cascade,
+  reason text check (char_length(reason) <= 1000),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists message_reports_message_idx on public.message_reports (message_id);
+create index if not exists message_reports_created_idx on public.message_reports (created_at desc);
+
+alter table public.conversations enable row level security;
+alter table public.messages enable row level security;
+alter table public.message_reports enable row level security;
+
+drop policy if exists "conversations_select_own" on public.conversations;
+create policy "conversations_select_own" on public.conversations for select
+  using (auth.uid() = user_a_id or auth.uid() = user_b_id);
+
+drop policy if exists "conversations_insert_connected_unblocked" on public.conversations;
+create policy "conversations_insert_connected_unblocked" on public.conversations for insert
+  with check (
+    (auth.uid() = user_a_id or auth.uid() = user_b_id)
+    and public.has_accepted_connection(user_a_id, user_b_id)
+    and not public.is_blocked_between(user_a_id, user_b_id)
+  );
+
+drop policy if exists "messages_select_participant" on public.messages;
+create policy "messages_select_participant" on public.messages for select
+  using (public.is_conversation_participant(conversation_id, auth.uid()));
+
+drop policy if exists "messages_insert_participant_unblocked" on public.messages;
+create policy "messages_insert_participant_unblocked" on public.messages for insert
+  with check (
+    auth.uid() = sender_id
+    and public.is_conversation_participant(conversation_id, auth.uid())
+    and not exists (
+      select 1 from public.conversations c
+      where c.id = conversation_id
+        and public.is_blocked_between(c.user_a_id, c.user_b_id)
+    )
+  );
+
+-- Without this, read_at could never be set by anyone. Restricted to the
+-- RECIPIENT; the immutability trigger means it can only ever change read_at.
+drop policy if exists "messages_update_read_receipt" on public.messages;
+create policy "messages_update_read_receipt" on public.messages for update
+  using (
+    public.is_conversation_participant(conversation_id, auth.uid())
+    and sender_id <> auth.uid()
+  )
+  with check (
+    public.is_conversation_participant(conversation_id, auth.uid())
+    and sender_id <> auth.uid()
+  );
+
+drop policy if exists "message_reports_insert_own" on public.message_reports;
+create policy "message_reports_insert_own" on public.message_reports for insert
+  with check (
+    auth.uid() = reporter_id
+    and exists (
+      select 1 from public.messages m
+      where m.id = message_id
+        and public.is_conversation_participant(m.conversation_id, auth.uid())
+    )
+  );
+
+drop policy if exists "message_reports_select_own_or_admin" on public.message_reports;
+create policy "message_reports_select_own_or_admin" on public.message_reports for select
+  using (public.is_admin() or auth.uid() = reporter_id);
