@@ -98,8 +98,20 @@ export function htmlToCleanText(html: string): string {
     html
       .replace(/<script\b[\s\S]*?<\/script>/gi, "")
       .replace(/<style\b[\s\S]*?<\/style>/gi, "")
+      // Drop a trailing unterminated tag. When a caller slices HTML on a
+      // marker (the SNU adapter cuts sections at the next heading widget),
+      // the slice can end mid-tag; with no closing ">" the tag-stripper below
+      // can't match it and it would leak into the text as literal markup.
+      .replace(/<[^>]*$/, "")
       .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/(p|div|li|tr|h[1-6])>/gi, "\n")
+      // Break on OPENING block tags as well as closing ones. A nested list
+      // ("<li>Amount of Scholarship<ul><li>Liberal Arts...") emits no closing
+      // tag between the parent's label and its first child, so closing-tag
+      // handling alone fuses them into "Amount of ScholarshipLiberal Arts" --
+      // text the source never shows.
+      .replace(/<(ul|ol|li|tr|td|th|dt|dd|table|h[1-6])\b[^>]*>/gi, "\n$&")
+      // Cell/term-level closing tags break too, not just row-level ones.
+      .replace(/<\/(p|div|li|tr|td|th|dt|dd|h[1-6])>/gi, "\n")
       .replace(/<[^>]+>/g, "")
   )
     .replace(/\r/g, "")

@@ -5,7 +5,12 @@ import {
   parseKaistScholarshipPage,
   parseKaistProseScholarshipPage,
   parseKoreaUniversityScholarshipPage,
+  parseSnuOgaListing,
+  parseSnuOgaScholarshipPage,
+  degreeLevelFromSnuCategories,
+  groupLabelFromSnuCategories,
   mapSections,
+  type MappedScholarship,
 } from "@/lib/scholarships/extract";
 
 /** Days before a fixed deadline at which a scholarship becomes 'expiring_soon'. */
@@ -25,7 +30,7 @@ export interface ScholarshipSourceConfig {
   universityName: string;
   officialDomain: string;
   degreeLevel: "undergraduate" | "graduate";
-  adapter: "kaist" | "korea_university";
+  adapter: "kaist" | "korea_university" | "snu_oga";
   /** Used only when a page names no scholarship of its own. */
   fallbackName: string;
 }
@@ -46,6 +51,16 @@ export const SCHOLARSHIP_SOURCES: ScholarshipSourceConfig[] = [
     degreeLevel: "graduate",
     adapter: "kaist",
     fallbackName: "KAIST Scholarship",
+  },
+  {
+    noticeUrl: "https://oga.snu.ac.kr/students/incoming/degree-program/scholarship/",
+    universityName: "Seoul National University",
+    officialDomain: "oga.snu.ac.kr",
+    // Per-scholarship level comes from SNU's own taxonomy; this is only the
+    // fallback for an entry the site leaves untagged.
+    degreeLevel: "graduate",
+    adapter: "snu_oga",
+    fallbackName: "SNU Scholarship",
   },
   {
     noticeUrl: "https://oia.korea.ac.kr/oia2026/KU-Scholarships.do",
@@ -88,6 +103,31 @@ async function fetchText(url: string): Promise<string> {
   });
   if (!res.ok) throw new Error(`fetch ${url} failed: HTTP ${res.status}`);
   return res.text();
+}
+
+/**
+ * SNU publishes an index page plus one page per scholarship, so this adapter
+ * fans out: parse the listing, then fetch each detail page. Every detail URL
+ * is re-checked against the registered official_domain before it is fetched,
+ * so a stray off-site link in the listing can never pull in third-party
+ * content.
+ */
+async function collectSnuOga(config: ScholarshipSourceConfig, listingHtml: string): Promise<MappedScholarship[]> {
+  const entries = parseSnuOgaListing(listingHtml);
+  const out: MappedScholarship[] = [];
+  for (const entry of entries) {
+    if (!isWithinOfficialDomain(entry.url, config.officialDomain)) continue;
+    const detailHtml = await fetchText(entry.url);
+    const raws = parseSnuOgaScholarshipPage(
+      detailHtml,
+      entry.name,
+      groupLabelFromSnuCategories(entry.categories),
+      degreeLevelFromSnuCategories(entry.categories),
+      entry.url
+    );
+    out.push(...raws.map(mapSections));
+  }
+  return out;
 }
 
 function parseFor(config: ScholarshipSourceConfig, html: string) {
@@ -147,19 +187,27 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
       }
 
       const html = await fetchText(source.notice_url);
-      const mapped = parseFor(config, html);
+      const mapped =
+        config.adapter === "snu_oga" ? await collectSnuOga(config, html) : parseFor(config, html);
       result.found = mapped.length;
       if (mapped.length === 0) throw new Error("page parsed to 0 scholarships -- markup may have changed");
 
       const { data: existingRows } = await admin
         .from("scholarships")
-        .select("id, scholarship_name, content_hash")
+        .select("id, scholarship_name, source_url, content_hash")
         .eq("source_id", source.id);
-      const existingByName = new Map((existingRows ?? []).map((r) => [r.scholarship_name, r]));
+      // Keyed on name + URL, matching the table's own unique constraint. SNU
+      // lists "Global Korea Scholarship (GKS)" twice -- once for degree
+      // students, once for exchange -- as two separate pages, so name alone
+      // would collapse them into one row.
+      const existingByKey = new Map(
+        (existingRows ?? []).map((r) => [`${r.scholarship_name}\u0000${r.source_url}`, r])
+      );
 
       for (const s of mapped) {
         const hash = sha256(JSON.stringify({ name: s.name, sections: s.sections }));
-        const existing = existingByName.get(s.name);
+        const rowUrl = s.sourceUrl ?? source.notice_url;
+        const existing = existingByKey.get(`${s.name}\u0000${rowUrl}`);
         const now = new Date().toISOString();
 
         const payload: Record<string, unknown> = {
@@ -167,7 +215,9 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
           source_id: source.id,
           scholarship_name: s.name,
           scholarship_type: s.groupLabel,
-          degree_level: config.degreeLevel,
+          // SNU states a level per scholarship; the others state it once for
+          // the whole page, via the registered source config.
+          degree_level: s.degreeLevel !== undefined ? s.degreeLevel : config.degreeLevel,
           benefit_type: s.benefitType,
           tuition_coverage: s.tuitionCoverage,
           gpa_requirement: s.gpaRequirement,
@@ -176,7 +226,7 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
           automatic_consideration: s.automaticConsideration,
           deadline: s.deadline,
           deadline_type: s.deadlineType,
-          source_url: source.notice_url,
+          source_url: rowUrl,
           content_hash: hash,
           last_verified_at: now,
         };

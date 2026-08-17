@@ -24,6 +24,14 @@ export interface RawScholarship {
   groupLabel: string | null;
   /** label -> verbatim lines, exactly as listed under that label. */
   sections: Record<string, string[]>;
+  /**
+   * Set only by adapters whose source states a per-scholarship degree level
+   * (SNU tags each entry in its own taxonomy). Left undefined when the level
+   * comes from the registered source config instead.
+   */
+  degreeLevel?: "undergraduate" | "graduate" | null;
+  /** Set when each scholarship has its own page, so the row links to that page. */
+  sourceUrl?: string;
 }
 
 export interface MappedScholarship extends RawScholarship {
@@ -170,13 +178,115 @@ export function parseKoreaUniversityScholarshipPage(html: string): RawScholarshi
   return out;
 }
 
+/**
+ * SNU Office of Global Affairs (oga.snu.ac.kr). One scholarship per page,
+ * built in Elementor: each section is a heading widget carrying the
+ * site-specific `scholarship-tit` class, followed by the widgets holding
+ * that section's content until the next such heading.
+ *
+ * Because it's one scholarship per page, the ambiguous-boundary problem that
+ * forced a refusal on KAIST's graduate page cannot arise here -- there is
+ * never more than one programme competing for the same section labels.
+ *
+ * Tables inside a section (SPF's tuition/stipend grid, GT's award tiers)
+ * flatten to their text content. That is still a verbatim transcription of
+ * what the page shows, just without the grid layout.
+ */
+export function parseSnuOgaScholarshipPage(
+  html: string,
+  name: string,
+  groupLabel: string | null,
+  degreeLevel: "undergraduate" | "graduate" | null,
+  sourceUrl: string
+): RawScholarship[] {
+  const headingRe = /scholarship-tit[^>]*>\s*<div class="elementor-widget-container">\s*<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g;
+
+  const marks: { label: string; start: number }[] = [];
+  for (const m of html.matchAll(headingRe)) {
+    const label = stripTags(m[1]).replace(/\s+/g, " ").trim();
+    if (label && label !== "&nbsp;") marks.push({ label, start: m.index! + m[0].length });
+  }
+  if (marks.length === 0) return [];
+
+  const sections: Record<string, string[]> = {};
+  for (let i = 0; i < marks.length; i++) {
+    const end = i + 1 < marks.length ? html.lastIndexOf("scholarship-tit", marks[i + 1].start) : html.length;
+    const chunk = html.slice(marks[i].start, end > marks[i].start ? end : html.length);
+    const lines = stripTags(chunk)
+      .split("\n")
+      .map((l) => l.replace(/\s+/g, " ").trim())
+      .filter(Boolean);
+    if (lines.length) sections[marks[i].label] = lines;
+  }
+  if (Object.keys(sections).length === 0) return [];
+
+  return [{ name, groupLabel, sections, degreeLevel, sourceUrl }];
+}
+
+/** Scholarship entries on the OGA listing page, with the taxonomy the site tags each with. */
+export interface SnuListingEntry {
+  name: string;
+  url: string;
+  categories: string[];
+}
+
+/**
+ * Parses the OGA scholarship index. Each entry is a WordPress custom-post
+ * `scholarship` article whose class list carries the site's own taxonomy
+ * (scholarship_cate-graduate-students, -undergraduate-students,
+ * -snu-scholarships, -external-scholarships, -exchange-program).
+ */
+export function parseSnuOgaListing(html: string): SnuListingEntry[] {
+  const out: SnuListingEntry[] = [];
+  const seen = new Set<string>();
+  const re = /<article[^>]*class="([^"]*\bscholarship\b[^"]*)"[\s\S]*?<h4[^>]*><a href="([^"]+)">([\s\S]*?)<\/a><\/h4>/g;
+  for (const m of html.matchAll(re)) {
+    const [, cls, url, rawName] = m;
+    const name = stripTags(rawName).replace(/\s+/g, " ").trim();
+    if (!name || seen.has(url)) continue;
+    seen.add(url);
+    out.push({ name, url, categories: [...cls.matchAll(/scholarship_cate-([a-z0-9-]+)/g)].map((c) => c[1]) });
+  }
+  return out;
+}
+
+/**
+ * Degree level from SNU's own taxonomy tags. Deliberately returns null when
+ * the site tags an entry as BOTH graduate and undergraduate (several
+ * external scholarships are), or as neither (exchange-program): the column
+ * holds a single value and inventing one would misstate the source.
+ */
+export function degreeLevelFromSnuCategories(categories: string[]): "undergraduate" | "graduate" | null {
+  const grad = categories.includes("graduate-students");
+  const under = categories.includes("undergraduate-students");
+  if (grad && !under) return "graduate";
+  if (under && !grad) return "undergraduate";
+  return null;
+}
+
+/**
+ * The two group headings the listing page itself prints above these entries
+ * ("SNU Scholarships" / "External Scholarships"), keyed by the taxonomy slug
+ * the same page attaches. Not a description invented here.
+ */
+export function groupLabelFromSnuCategories(categories: string[]): string | null {
+  if (categories.includes("snu-scholarships")) return "SNU Scholarships";
+  if (categories.includes("external-scholarships")) return "External Scholarships";
+  if (categories.includes("exchange-program")) return "Exchange Program";
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Verbatim buckets -> typed columns (literal rules only)
 // ---------------------------------------------------------------------------
 
-const BENEFIT_LABELS = /^(subsidies|benefits?)$/i;
-const APPLY_LABELS = /^(application period|how to apply)$/i;
-const REQUIREMENT_LABELS = /^(requirements?|note\(s\)|evaluation criteria|eligibility)$/i;
+// Each alternative below is a heading string actually printed by one of the
+// registered sources -- KAIST ("Subsidies"), Korea University ("Benefits"),
+// SNU OGA ("Details of the Award" / "Details for Scholarship" /
+// "Details of the GKS"). Nothing here is a guessed synonym.
+const BENEFIT_LABELS = /^(subsidies|benefits?|details of the award|details for scholarship|details of the gks)$/i;
+const APPLY_LABELS = /^(application period|how to apply|application)$/i;
+const REQUIREMENT_LABELS = /^(requirements?|note\(s\)|notes|evaluation criteria|eligibility|priority)$/i;
 
 function findSection(sections: Record<string, string[]>, re: RegExp): string[] {
   for (const [label, lines] of Object.entries(sections)) if (re.test(label.trim())) return lines;
@@ -232,7 +342,14 @@ export function mapSections(raw: RawScholarship): MappedScholarship {
       .flatMap(([, v]) => v),
   ];
   const allLines = Object.values(raw.sections).flat();
-  const applyText = applyLines.join(" ");
+
+  // Several SNU pages put the application timing on an explicitly labelled
+  // "Application Period : ..." LINE inside a wider section (e.g. "Details of
+  // the Award") rather than under a heading of its own. Reading that line is
+  // still transcription -- the page labels it -- so it counts as apply text
+  // alongside any dedicated section.
+  const labelledApplyLines = allLines.filter((l) => /^\s*application period\s*[:：]/i.test(l));
+  const applyText = [...applyLines, ...labelledApplyLines].join(" ");
 
   // A date is only a deadline if it appears in the section about applying.
   const explicitDate = applyText ? findExplicitDate(applyText) : null;
@@ -243,7 +360,12 @@ export function mapSections(raw: RawScholarship): MappedScholarship {
   // of, say, a benefits footnote and calling the whole award automatic would
   // be inference, not transcription.
   const saysNoSeparateApplication = /\bno separate (?:process|application)\b/i.test(applyText);
-  const saysSameAsAdmission = /\bsame as (?:the )?admission\b/i.test(applyText);
+  // Both phrasings are printed verbatim by registered sources: KAIST says
+  // "Same as Admission Application"; SNU says "Within/During the
+  // admission(s) application period". Neither is a paraphrase.
+  const saysSameAsAdmission =
+    /\bsame as (?:the )?admission\b/i.test(applyText) ||
+    /\badmissions?\s+application\s+period\b/i.test(applyText);
   const saysAutomatic = /\bautomatic(?:ally)?\b/i.test(applyText);
 
   let deadlineType: MappedScholarship["deadlineType"] = null;
