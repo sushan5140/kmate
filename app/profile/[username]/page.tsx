@@ -10,12 +10,34 @@ import {
 } from "@/components/connections/connection-request-button";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
 import { MessageButton } from "@/components/chat/message-button";
+import { BackLink } from "@/components/ui/back-link";
 import { OwnProfileTabBar, type OwnProfileTab } from "@/components/profile/own-profile-tab-bar";
 import { ProfileEditForm, type ProfileEditInitialData } from "@/components/profile/profile-edit-form";
 import { EditContactsForm } from "@/components/settings/edit-contacts-form";
 import { DeleteAccountButton } from "@/components/settings/delete-account-button";
 import type { ContactValue } from "@/components/onboarding/contacts-step";
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
+
+/**
+ * `from` is an attacker-influencable query param (a shared link could carry
+ * any value), so it's only ever used as a same-origin path -- never as an
+ * absolute URL or protocol-relative "//host" that could redirect off-site.
+ */
+function isSafeInternalPath(value: string | undefined): value is string {
+  return !!value && value.startsWith("/") && !value.startsWith("//") && !value.includes("://");
+}
+
+const BACK_LABELS: Record<string, string> = {
+  discover: "Back to Discover",
+  connected: "Back to your connections",
+  received: "Back to requests",
+  sent: "Back to sent requests",
+};
+
+function backLabelFor(from: string): string {
+  const tab = new URL(from, "http://internal").searchParams.get("tab");
+  return (tab && BACK_LABELS[tab]) || "Back";
+}
 
 interface UniversityChoiceRow {
   priority: number;
@@ -39,9 +61,11 @@ export default async function ProfilePage({
   searchParams,
 }: {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; from?: string }>;
 }) {
   const { username } = await params;
+  const { tab: rawTab, from: rawFrom } = await searchParams;
+  const from = isSafeInternalPath(rawFrom) ? rawFrom : null;
   const viewer = await getAuthenticatedUser();
   const admin = getSupabaseAdmin();
 
@@ -70,7 +94,6 @@ export default async function ProfilePage({
 
   // --- Own profile: tabbed edit view, no public-view/connection logic needed ---
   if (isSelf) {
-    const { tab: rawTab } = await searchParams;
     const tab: OwnProfileTab = rawTab === "contacts" ? "contacts" : "profile";
 
     const contactsInitial: ContactValue[] =
@@ -159,6 +182,11 @@ export default async function ProfilePage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
+      {from && (
+        <div className="mb-4">
+          <BackLink href={from} label={backLabelFor(from)} />
+        </div>
+      )}
       <Card>
         <div className="flex items-start justify-between gap-4">
           <div>

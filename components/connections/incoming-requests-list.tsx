@@ -12,7 +12,14 @@ export interface IncomingRequestRow {
   otherUser: { id: string; username: string | null };
 }
 
-export function IncomingRequestsList({ items: initial }: { items: IncomingRequestRow[] }) {
+export function IncomingRequestsList({
+  items: initial,
+  fromUrl,
+}: {
+  items: IncomingRequestRow[];
+  /** Appended as ?from= on each profile link so the destination can link back here. */
+  fromUrl: string;
+}) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -59,7 +66,10 @@ export function IncomingRequestsList({ items: initial }: { items: IncomingReques
       {items.map((r) => (
         <Card key={r.id} className="flex items-center justify-between gap-3">
           <div>
-            <Link href={`/profile/${r.otherUser.username}`} className="font-medium text-ink hover:underline">
+            <Link
+              href={`/profile/${r.otherUser.username}?from=${encodeURIComponent(fromUrl)}`}
+              className="font-medium text-ink hover:underline"
+            >
               @{r.otherUser.username}
             </Link>
             {r.note && <p className="mt-0.5 text-[13px] text-muted">&quot;{r.note}&quot;</p>}

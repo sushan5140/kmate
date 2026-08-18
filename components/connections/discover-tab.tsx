@@ -26,9 +26,11 @@ interface DiscoverProfileRow {
 export async function DiscoverTab({
   userId,
   params,
+  fromUrl,
 }: {
   userId: string;
   params: { track?: string | string[]; major?: string; year?: string; university?: string };
+  fromUrl: string;
 }) {
   const admin = getSupabaseAdmin();
 
@@ -86,7 +88,7 @@ export async function DiscoverTab({
               applicationYear: profile.application_year,
               priorityBadge: priorityMatch?.priority ?? null,
             };
-            return <ProfileCard key={profile.id} profile={cardData} />;
+            return <ProfileCard key={profile.id} profile={cardData} fromUrl={fromUrl} />;
           })}
         </div>
       )}

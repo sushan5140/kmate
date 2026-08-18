@@ -7,7 +7,7 @@ export interface SentRequestRow {
   otherUser: { id: string; username: string | null };
 }
 
-export function SentRequestsList({ items }: { items: SentRequestRow[] }) {
+export function SentRequestsList({ items, fromUrl }: { items: SentRequestRow[]; fromUrl: string }) {
   if (items.length === 0) {
     return <p className="text-[13.5px] text-muted">You haven&apos;t sent any requests yet.</p>;
   }
@@ -16,7 +16,10 @@ export function SentRequestsList({ items }: { items: SentRequestRow[] }) {
     <div className="flex flex-col gap-3">
       {items.map((r) => (
         <Card key={r.id} className="flex items-center justify-between gap-3">
-          <Link href={`/profile/${r.otherUser.username}`} className="font-medium text-ink hover:underline">
+          <Link
+            href={`/profile/${r.otherUser.username}?from=${encodeURIComponent(fromUrl)}`}
+            className="font-medium text-ink hover:underline"
+          >
             @{r.otherUser.username}
           </Link>
           <span className="text-[13px] text-muted">Waiting for a reply</span>

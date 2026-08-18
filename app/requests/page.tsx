@@ -33,10 +33,38 @@ interface ConnectionRequestRow {
 
 const VALID_TABS: ConnectionsTab[] = ["received", "connected", "sent", "discover"];
 
+interface ConnectionsSearchParams {
+  tab?: string;
+  track?: string | string[];
+  major?: string;
+  year?: string;
+  university?: string;
+}
+
+/**
+ * Reconstructs the exact URL for the tab currently being viewed, including
+ * Discover's active filters -- passed down to every card as `?from=` so
+ * /profile/[username] can render a back link that returns to precisely this
+ * view rather than a reset tab. Only Discover carries filters, so other tabs
+ * just get `?tab=`.
+ */
+function buildFromUrl(tab: ConnectionsTab, params: ConnectionsSearchParams): string {
+  const sp = new URLSearchParams();
+  sp.set("tab", tab);
+  if (tab === "discover") {
+    const tracks = Array.isArray(params.track) ? params.track : params.track ? [params.track] : [];
+    for (const t of tracks) sp.append("track", t);
+    if (params.major) sp.set("major", params.major);
+    if (params.year) sp.set("year", params.year);
+    if (params.university) sp.set("university", params.university);
+  }
+  return `/requests?${sp.toString()}`;
+}
+
 export default async function ConnectionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; track?: string | string[]; major?: string; year?: string; university?: string }>;
+  searchParams: Promise<ConnectionsSearchParams>;
 }) {
   const user = await requireOnboarded("/requests");
   const params = await searchParams;
@@ -67,6 +95,7 @@ export default async function ConnectionsPage({
   const requestedTab = params.tab as ConnectionsTab | undefined;
   const defaultTab: ConnectionsTab = received.length > 0 ? "received" : "connected";
   const tab: ConnectionsTab = requestedTab && VALID_TABS.includes(requestedTab) ? requestedTab : defaultTab;
+  const fromUrl = buildFromUrl(tab, params);
 
   // Only the active tab's own data gets fetched -- Discover's query (up to
   // 60 profiles with university joins) and the contact-methods lookup are
@@ -113,10 +142,10 @@ export default async function ConnectionsPage({
       </div>
 
       <div className="mt-6">
-        {tab === "received" && <IncomingRequestsList items={received} />}
-        {tab === "connected" && <ConnectedList items={connected} />}
-        {tab === "sent" && <SentRequestsList items={sent} />}
-        {tab === "discover" && <DiscoverTab userId={user.id} params={params} />}
+        {tab === "received" && <IncomingRequestsList items={received} fromUrl={fromUrl} />}
+        {tab === "connected" && <ConnectedList items={connected} fromUrl={fromUrl} />}
+        {tab === "sent" && <SentRequestsList items={sent} fromUrl={fromUrl} />}
+        {tab === "discover" && <DiscoverTab userId={user.id} params={params} fromUrl={fromUrl} />}
       </div>
     </main>
   );

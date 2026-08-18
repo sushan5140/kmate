@@ -19,7 +19,7 @@ export interface ConnectedPerson {
   contacts: { type: ContactType; value: string }[];
 }
 
-export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) {
+export function ConnectedList({ items: initial, fromUrl }: { items: ConnectedPerson[]; fromUrl: string }) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -63,7 +63,10 @@ export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) 
       {items.map((person) => (
         <Card key={person.id} className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-2">
-            <Link href={`/profile/${person.username}`} className="font-semibold text-ink hover:underline">
+            <Link
+              href={`/profile/${person.username}?from=${encodeURIComponent(fromUrl)}`}
+              className="font-semibold text-ink hover:underline"
+            >
               @{person.username}
             </Link>
             <TrackBadge track={person.track} />

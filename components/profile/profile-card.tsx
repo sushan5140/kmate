@@ -14,7 +14,9 @@ export interface ProfileCardData {
   priorityBadge?: number | null;
 }
 
-export function ProfileCard({ profile }: { profile: ProfileCardData }) {
+export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fromUrl?: string }) {
+  const href = fromUrl ? `/profile/${profile.username}?from=${encodeURIComponent(fromUrl)}` : `/profile/${profile.username}`;
+
   return (
     <Card interactive className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
@@ -27,7 +29,7 @@ export function ProfileCard({ profile }: { profile: ProfileCardData }) {
           >
             {profile.username.slice(0, 1).toUpperCase()}
           </div>
-          <Link href={`/profile/${profile.username}`} className="font-semibold text-ink hover:underline">
+          <Link href={href} className="font-semibold text-ink hover:underline">
             @{profile.username}
           </Link>
         </div>
@@ -53,7 +55,7 @@ export function ProfileCard({ profile }: { profile: ProfileCardData }) {
         </span>
       )}
 
-      <Link href={`/profile/${profile.username}`}>
+      <Link href={href}>
         <ConnectButton className="w-full" />
       </Link>
     </Card>
