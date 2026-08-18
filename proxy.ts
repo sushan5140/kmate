@@ -22,6 +22,13 @@ function isPublicPath(pathname: string) {
 // alongside 'self'.
 const SUPABASE_ORIGIN = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).origin;
 
+// Chat's realtime subscriptions open a WebSocket to the same host over wss://.
+// CSP matches scheme-qualified sources exactly, so the https:// origin above
+// does NOT cover wss:// -- without this the socket is blocked and the channel
+// fails with a bare "transport failure", while every ordinary HTTP query keeps
+// working, which makes it look like a subscription bug rather than a CSP one.
+const SUPABASE_WS_ORIGIN = SUPABASE_ORIGIN.replace(/^https:/, "wss:");
+
 // Nonce-based CSP per https://nextjs.org/docs/app/guides/content-security-policy
 // -- chosen over `script-src 'unsafe-inline'` because it costs nothing here:
 // every route in this app already reads headers()/cookies() in AppShell, so
@@ -64,7 +71,7 @@ function buildCsp(nonce: string, isDev: boolean, pathname: string) {
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' blob: data:`,
     `font-src 'self'`,
-    `connect-src 'self' ${SUPABASE_ORIGIN}${isMockInterview ? ` ${MEDIAPIPE_CDN_ORIGIN} ${MEDIAPIPE_MODELS_ORIGIN} ${GEMINI_API_ORIGIN}` : ""}`,
+    `connect-src 'self' ${SUPABASE_ORIGIN} ${SUPABASE_WS_ORIGIN}${isMockInterview ? ` ${MEDIAPIPE_CDN_ORIGIN} ${MEDIAPIPE_MODELS_ORIGIN} ${GEMINI_API_ORIGIN}` : ""}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

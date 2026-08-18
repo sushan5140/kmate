@@ -7,8 +7,10 @@ import { UserRound, X } from "lucide-react";
 import { ContactsStep, type ContactValue } from "@/components/onboarding/contacts-step";
 import { Button } from "@/components/ui/button";
 
-// KMate has no in-app messaging -- a connection is only actually reachable
-// through a contact method they've saved here. `hasContacts` is computed
+// KMate now has in-app 1:1 chat, so a contact method is no longer the ONLY
+// way to be reached -- this nudge is about staying reachable OUTSIDE KMate
+// (after the application cycle, or if someone stops using the app). The copy
+// below must not claim messaging doesn't exist. `hasContacts` is computed
 // server-side (see app/home/page.tsx) rather than read from the
 // notifications table, so this stays accurate even if the sign-in nag (see
 // app/auth/callback/route.ts) was already dismissed/read: the banner and
@@ -58,10 +60,10 @@ export function ContactWalletNudge({ hasContacts, username }: { hasContacts: boo
         <div className="flex items-start gap-3 rounded-2xl bg-primary/5 px-5 py-4 ring-1 ring-primary/20">
           <UserRound className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
           <div className="flex-1">
-            <p className="text-[13px] font-semibold uppercase tracking-wide text-primary">Your contact wallet is empty</p>
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-primary">Add a contact method</p>
             <p className="mt-1 text-[13.5px] leading-relaxed text-ink">
-              KMate doesn&apos;t have in-app messaging -- when you connect with another applicant, a saved
-              contact method is the only way they can actually reach you. Add at least one.
+              You can chat with your connections right here on KMate. Adding a contact method also lets
+              them reach you outside the app — useful once the application cycle ends.
             </p>
             <Link
               href={contactsTabHref}
@@ -87,9 +89,9 @@ export function ContactWalletNudge({ hasContacts, username }: { hasContacts: boo
             <p className="text-[12px] font-medium uppercase tracking-wide text-primary">Before you continue</p>
             <h3 className="mt-2 text-[16px] font-semibold text-ink">Add a way for people to reach you</h3>
             <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
-              KMate doesn&apos;t provide messaging between applicants -- once you connect with someone,
-              they&apos;ll only be able to reach you through a contact method you add here. Even a single
-              one is fine.
+              Connections can message you directly on KMate. Adding a contact method is optional, but it
+              lets people reach you outside the app too — handy once the application cycle is over. Even a
+              single one is fine.
             </p>
 
             <div className="mt-4">

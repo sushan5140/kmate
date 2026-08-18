@@ -9,6 +9,7 @@ import {
   type ConnectionStatus,
 } from "@/components/connections/connection-request-button";
 import { ReportBlockMenu } from "@/components/profile/report-block-menu";
+import { MessageButton } from "@/components/chat/message-button";
 import { OwnProfileTabBar, type OwnProfileTab } from "@/components/profile/own-profile-tab-bar";
 import { ProfileEditForm, type ProfileEditInitialData } from "@/components/profile/profile-edit-form";
 import { EditContactsForm } from "@/components/settings/edit-contacts-form";
@@ -134,7 +135,6 @@ export default async function ProfilePage({
   // --- Someone else's profile: unchanged public view + connection flow ---
   let connectionStatus: ConnectionStatus = "none";
   let pendingRequestId: string | null = null;
-  let contacts: { type: string; value: string }[] = [];
 
   if (viewer) {
     const { data: connection } = await admin
@@ -150,11 +150,6 @@ export default async function ProfilePage({
     if (connection?.status === "accepted") {
       connectionStatus = "accepted";
       pendingRequestId = connection.id;
-      const { data: contactRows } = await admin
-        .from("contact_methods")
-        .select("type, value")
-        .eq("user_id", profile.id);
-      contacts = contactRows ?? [];
     } else if (connection?.status === "pending") {
       connectionStatus = connection.from_user_id === viewer.id ? "pending_outgoing" : "pending_incoming";
     }
@@ -211,20 +206,19 @@ export default async function ProfilePage({
           </div>
         )}
 
-        {connectionStatus === "accepted" && contacts.length > 0 && (
+        {/* Connected users now reach each other through in-app chat rather than
+            the old Instagram/Discord box. The contact methods themselves are
+            untouched in the DB and still editable in the owner's Contact
+            vault -- they are just no longer surfaced to other users here. */}
+        {connectionStatus === "accepted" && (
           <div className="mt-5 rounded-xl border border-border bg-canvas p-4">
             <MicroLabel>Contact</MicroLabel>
-            <ul className="mt-2 flex flex-col gap-1">
-              {contacts.map((c) => (
-                <li key={c.type} className="text-[14px] text-ink">
-                  <span className="capitalize text-muted">{c.type}:</span> {c.value}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[12px] text-muted">
-              Revoking removes each other&apos;s access to contact info going forward. It can&apos;t
-              retract anything already seen or saved.
+            <p className="mt-1.5 text-[13.5px] text-muted">
+              You&apos;re connected — message @{profile.username} directly on KMate.
             </p>
+            <div className="mt-3">
+              <MessageButton otherUserId={profile.id} variant="primary" />
+            </div>
           </div>
         )}
       </Card>

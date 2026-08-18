@@ -6,7 +6,8 @@ import Link from "next/link";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrackBadge } from "@/components/ui/track-badge";
-import { CONTACT_TYPE_ACTION_LABELS, type Track, type ContactType } from "@/lib/constants";
+import { MessageButton } from "@/components/chat/message-button";
+import type { Track, ContactType } from "@/lib/constants";
 
 export interface ConnectedPerson {
   requestId: string;
@@ -79,19 +80,13 @@ export function ConnectedList({ items: initial }: { items: ConnectedPerson[] }) 
             </div>
           </div>
 
-          {person.contacts.length > 0 && (
-            <div className="rounded-xl border border-border bg-canvas/60 p-3">
-              <MicroLabel>Contact</MicroLabel>
-              <ul className="mt-1.5 flex flex-col gap-1">
-                {person.contacts.map((c) => (
-                  <li key={c.type} className="text-[13px] text-ink">
-                    <span className="font-medium">{CONTACT_TYPE_ACTION_LABELS[c.type]}</span>{" "}
-                    <span className="text-muted">· {c.value}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {/* In-app chat replaces the old Instagram/Discord contact box as the
+              way connected users reach each other. The underlying contact
+              methods still exist (profile Contact vault) -- they are simply no
+              longer the primary contact surface here. */}
+          <div className="flex items-center gap-2">
+            <MessageButton otherUserId={person.id} />
+          </div>
 
           <Button
             variant="ghost"
