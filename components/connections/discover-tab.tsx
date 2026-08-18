@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { DiscoverFilters } from "@/components/discover/discover-filters";
+import { DiscoverScrollRestore } from "@/components/discover/discover-scroll-restore";
 import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-card";
 import type { Track } from "@/lib/constants";
 
@@ -69,6 +70,7 @@ export async function DiscoverTab({
 
   return (
     <div>
+      <DiscoverScrollRestore />
       <DiscoverFilters ownTrack={ownTrack} />
 
       {profiles.length === 0 ? (

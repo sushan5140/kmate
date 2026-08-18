@@ -1,11 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
+import { useState } from "react";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
 import { MAJORS } from "@/data/majors";
-import { SearchableSelect } from "@/components/ui/searchable-select";
+import { SearchableSelect, type SearchableRemoteOption } from "@/components/ui/searchable-select";
 
 interface UniversityOption {
   id: string;
@@ -17,26 +16,22 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
   const searchParams = useSearchParams();
   const [majorQuery, setMajorQuery] = useState(searchParams.get("major") ?? "");
   const [uniQuery, setUniQuery] = useState(searchParams.get("universityName") ?? "");
-  const [uniResults, setUniResults] = useState<UniversityOption[]>([]);
-  const [uniOpen, setUniOpen] = useState(false);
 
   const activeTracks = searchParams.getAll("track");
   const effectiveTracks = activeTracks.length ? activeTracks : [ownTrack];
 
-  const { debounced: searchUniversities } = useDebouncedCallback(async (q: string) => {
-    if (!q) {
-      setUniResults([]);
-      return;
-    }
-    const res = await fetch(`/api/universities/search?q=${encodeURIComponent(q)}`);
+  // Same seeded universities table the onboarding/profile university picker
+  // already searches -- no separate/hardcoded list. Scoped to the currently
+  // active track so, e.g., a GKS-U Discover view doesn't suggest GKS-G-only
+  // universities (the API already supported this `track` param; the old
+  // hand-rolled version here just never passed it).
+  async function loadUniversities(q: string): Promise<SearchableRemoteOption[]> {
+    const params = new URLSearchParams({ q });
+    if (effectiveTracks[0]) params.set("track", effectiveTracks[0]);
+    const res = await fetch(`/api/universities/search?${params.toString()}`);
     const data = await res.json();
-    setUniResults((data.universities ?? []).map((u: { id: string; name: string }) => ({ id: u.id, name: u.name })));
-  }, 250);
-
-  useEffect(() => {
-    searchUniversities(uniQuery);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uniQuery]);
+    return (data.universities ?? []).map((u: { id: string; name: string }) => ({ id: u.id, label: u.name }));
+  }
 
   function pushParams(mutate: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams.toString());
@@ -77,7 +72,6 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
 
   function selectUniversity(uni: UniversityOption) {
     setUniQuery(uni.name);
-    setUniOpen(false);
     pushParams((params) => {
       params.set("university", uni.id);
       params.set("universityName", uni.name);
@@ -119,37 +113,17 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
         className="w-48"
       />
 
-      <div className="relative w-56">
-        <input
-          type="text"
-          value={uniQuery}
-          onChange={(e) => {
-            setUniQuery(e.target.value);
-            setUniOpen(true);
-            if (!e.target.value) clearUniversity();
-          }}
-          onFocus={() => setUniOpen(true)}
-          onBlur={() => setTimeout(() => setUniOpen(false), 120)}
-          placeholder="Filter by university"
-          className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[14px] text-ink outline-none focus:border-primary"
-        />
-        {uniOpen && uniResults.length > 0 && (
-          <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-border bg-white shadow-card">
-            {uniResults.map((uni) => (
-              <li key={uni.id}>
-                <button
-                  type="button"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => selectUniversity(uni)}
-                  className="block w-full px-3 py-2 text-left text-[14px] text-ink hover:bg-canvas"
-                >
-                  {uni.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <SearchableSelect
+        loadOptions={loadUniversities}
+        value={uniQuery}
+        onChange={(v) => {
+          setUniQuery(v);
+          if (!v) clearUniversity();
+        }}
+        onSelect={(opt) => selectUniversity({ id: opt.id, name: opt.label })}
+        placeholder="Filter by university"
+        className="w-56"
+      />
 
       <select
         defaultValue={searchParams.get("year") ?? ""}
