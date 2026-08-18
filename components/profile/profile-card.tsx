@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { ConnectButton } from "@/components/ui/connect-button";
+import type { ConnectionStatus } from "@/components/connections/connection-request-button";
 import type { Track } from "@/lib/constants";
 
 export interface ProfileCardData {
@@ -12,6 +13,40 @@ export interface ProfileCardData {
   major: string | null;
   applicationYear: number | null;
   priorityBadge?: number | null;
+  /** Defaults to "none" for callers (e.g. tests) that don't compute it. */
+  connectionStatus?: ConnectionStatus;
+}
+
+/**
+ * Card footer only ever links through to the profile page -- it never sends
+ * a request itself -- so this just reflects whatever's already true rather
+ * than offering the same actions as `ConnectionRequestButton`. Someone who
+ * already has a pending/accepted connection shouldn't see the same "Connect"
+ * CTA as someone they've never interacted with.
+ */
+function ConnectionStateLabel({ status }: { status: ConnectionStatus }) {
+  if (status === "accepted") {
+    return (
+      <span className="block w-full rounded-full bg-success/10 px-3 py-1.5 text-center text-[13px] font-medium text-success">
+        Connected
+      </span>
+    );
+  }
+  if (status === "pending_outgoing") {
+    return (
+      <span className="block w-full rounded-full bg-canvas px-3 py-1.5 text-center text-[13px] font-medium text-muted">
+        Request sent
+      </span>
+    );
+  }
+  if (status === "pending_incoming") {
+    return (
+      <span className="block w-full rounded-full bg-primary/10 px-3 py-1.5 text-center text-[13px] font-medium text-primary">
+        Respond to request
+      </span>
+    );
+  }
+  return <ConnectButton className="w-full" />;
 }
 
 export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fromUrl?: string }) {
@@ -56,7 +91,7 @@ export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fr
       )}
 
       <Link href={href}>
-        <ConnectButton className="w-full" />
+        <ConnectionStateLabel status={profile.connectionStatus ?? "none"} />
       </Link>
     </Card>
   );

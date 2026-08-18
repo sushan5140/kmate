@@ -2,6 +2,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { DiscoverFilters } from "@/components/discover/discover-filters";
 import { DiscoverScrollRestore } from "@/components/discover/discover-scroll-restore";
 import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-card";
+import type { ConnectionStatus } from "@/components/connections/connection-request-button";
 import type { Track } from "@/lib/constants";
 
 interface UniversityChoiceEmbed {
@@ -68,6 +69,36 @@ export async function DiscoverTab({
   const { data } = await query;
   const profiles = (data ?? []) as unknown as DiscoverProfileRow[];
 
+  // Same connection-status lookup the profile page does for a single user,
+  // batched here so cards don't all say "Connect" even after a request was
+  // already sent/accepted -- that mismatch only becomes visible once you
+  // click through, since the card itself never checked.
+  const connectionStatusByProfileId = new Map<string, ConnectionStatus>();
+  if (profiles.length) {
+    const idList = profiles.map((p) => p.id).join(",");
+    const { data: connections } = await admin
+      .from("connection_requests")
+      .select("id, from_user_id, to_user_id, status, created_at")
+      .or(`and(from_user_id.eq.${userId},to_user_id.in.(${idList})),and(to_user_id.eq.${userId},from_user_id.in.(${idList}))`)
+      .order("created_at", { ascending: false });
+
+    const seenCounterparts = new Set<string>();
+    for (const c of connections ?? []) {
+      const otherId = c.from_user_id === userId ? c.to_user_id : c.from_user_id;
+      // Rows are newest-first, so the first one seen per counterpart is the
+      // current state -- an older "accepted" row from before a later
+      // decline/revoke must not resurface just because this row's status
+      // doesn't map to anything shown on the card.
+      if (seenCounterparts.has(otherId)) continue;
+      seenCounterparts.add(otherId);
+      if (c.status === "accepted") {
+        connectionStatusByProfileId.set(otherId, "accepted");
+      } else if (c.status === "pending") {
+        connectionStatusByProfileId.set(otherId, c.from_user_id === userId ? "pending_outgoing" : "pending_incoming");
+      }
+    }
+  }
+
   return (
     <div>
       <DiscoverScrollRestore />
@@ -89,6 +120,7 @@ export async function DiscoverTab({
               major: profile.major,
               applicationYear: profile.application_year,
               priorityBadge: priorityMatch?.priority ?? null,
+              connectionStatus: connectionStatusByProfileId.get(profile.id) ?? "none",
             };
             return <ProfileCard key={profile.id} profile={cardData} fromUrl={fromUrl} />;
           })}
