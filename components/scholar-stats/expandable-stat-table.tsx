@@ -3,6 +3,7 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/cn";
+import type { Track } from "@/lib/constants";
 import type { CachedGksCrossTabRow } from "@/lib/cached-content";
 
 export interface StatRow {
@@ -18,9 +19,14 @@ export interface StatRow {
 // countries its scholars came from. "country" mode is the mirror image.
 type Mode = "university" | "country";
 
-export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[] }) {
+export function ExpandableStatTable({ mode, rows, track }: { mode: Mode; rows: StatRow[]; track: Track }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [breakdowns, setBreakdowns] = useState<Record<string, CachedGksCrossTabRow[] | "loading" | "error">>({});
+
+  // Keyed by track as well as name: for a dual_track_access viewer this
+  // component stays mounted across the GKS-G/GKS-U toggle, so a name-only key
+  // would serve one track's cached breakdown while the other track is showing.
+  const cacheKey = (name: string) => `${track}::${mode}::${name}`;
 
   async function toggleRow(name: string) {
     if (expanded === name) {
@@ -28,17 +34,18 @@ export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[
       return;
     }
     setExpanded(name);
-    if (breakdowns[name]) return; // already fetched (or in flight)
+    const key = cacheKey(name);
+    if (breakdowns[key]) return; // already fetched (or in flight)
 
-    setBreakdowns((prev) => ({ ...prev, [name]: "loading" }));
+    setBreakdowns((prev) => ({ ...prev, [key]: "loading" }));
     try {
       const param = mode === "university" ? `university=${encodeURIComponent(name)}` : `country=${encodeURIComponent(name)}`;
-      const res = await fetch(`/api/scholar-stats/breakdown?${param}`);
+      const res = await fetch(`/api/scholar-stats/breakdown?${param}&track=${track}`);
       if (!res.ok) throw new Error("fetch failed");
       const data = (await res.json()) as { rows: CachedGksCrossTabRow[] };
-      setBreakdowns((prev) => ({ ...prev, [name]: data.rows }));
+      setBreakdowns((prev) => ({ ...prev, [key]: data.rows }));
     } catch {
-      setBreakdowns((prev) => ({ ...prev, [name]: "error" }));
+      setBreakdowns((prev) => ({ ...prev, [key]: "error" }));
     }
   }
 
@@ -54,7 +61,7 @@ export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[
           <tr className="border-b border-hairline bg-surface">
             <th className="w-6 px-2 py-2"></th>
             <th className="px-3 py-2 font-semibold text-ink">{mode === "university" ? "University" : "Country"}</th>
-            <th className="px-3 py-2 font-semibold text-ink">Seats</th>
+            <th className="px-3 py-2 font-semibold text-ink">Recorded scholars</th>
             <th className="px-3 py-2 font-semibold text-ink">Embassy / Uni-track</th>
             <th className="px-3 py-2 font-semibold text-ink">{otherLabel}</th>
             <th className="px-3 py-2 font-semibold text-ink">Degree levels</th>
@@ -63,7 +70,7 @@ export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[
         <tbody>
           {rows.map((r) => {
             const isOpen = expanded === r.name;
-            const breakdown = breakdowns[r.name];
+            const breakdown = breakdowns[cacheKey(r.name)];
             return (
               <Fragment key={r.name}>
                 <tr
@@ -90,8 +97,8 @@ export function ExpandableStatTable({ mode, rows }: { mode: Mode; rows: StatRow[
                         <div className="max-w-[520px]">
                           <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 text-[12px]">
                             <span className="font-semibold uppercase tracking-wide text-muted">{breakdownOtherLabel}</span>
-                            <span className="font-semibold uppercase tracking-wide text-muted">Seats</span>
-                            <span className="font-semibold uppercase tracking-wide text-muted">% of {r.name}&apos;s seats</span>
+                            <span className="font-semibold uppercase tracking-wide text-muted">Recorded scholars</span>
+                            <span className="font-semibold uppercase tracking-wide text-muted">% of {r.name}&apos;s records</span>
                             {breakdown.map((b) => (
                               <Fragment key={`${b.university}-${b.country}`}>
                                 <span className="text-ink">{b[otherField]}</span>

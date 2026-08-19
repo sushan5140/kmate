@@ -11,6 +11,20 @@ export const TRACK_BADGE_CLASS: Record<Track, string> = {
   gks_g: "bg-gks-g/10 text-gks-g",
 };
 
+/**
+ * NIIED splits embassy-quota universities into Type A and Type B. Stored per
+ * (university, track) on university_eligibility.embassy_type -- a school can
+ * be Type A in one track and Type B in the other, so it is never a property
+ * of the university on its own.
+ */
+export const EMBASSY_TYPES = ["type_a", "type_b"] as const;
+export type EmbassyType = (typeof EMBASSY_TYPES)[number];
+
+export const EMBASSY_TYPE_LABELS: Record<EmbassyType, string> = {
+  type_a: "Type A",
+  type_b: "Type B",
+};
+
 export const GKS_U_EMBASSY_PATHS = ["general_overseas", "r_gks"] as const;
 export type GksUEmbassyPath = (typeof GKS_U_EMBASSY_PATHS)[number];
 

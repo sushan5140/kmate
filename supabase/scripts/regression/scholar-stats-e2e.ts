@@ -66,7 +66,7 @@ async function main() {
     // is 37 (per the trusted aggregate), vs 19 for GKS-U -- a real
     // scoping check, not just "some percentage rendered".
     await page.click("text=Pusan National University");
-    await page.waitForSelector("text=% of Pusan National University's seats", { timeout: 10000 });
+    await page.waitForSelector("text=% of Pusan National University's records", { timeout: 10000 });
     await page.waitForFunction(() => !document.body.textContent?.includes("Loading breakdown"), { timeout: 10000 });
     // The breakdown itself renders as one <tr colSpan> containing a CSS grid
     // (not one <tr> per country), so this only proves a breakdown row
@@ -105,10 +105,13 @@ async function main() {
 
     // Direct API-level enforcement check, from inside the authenticated
     // browser context (real session cookie): even if the client tries to
-    // pass a different track, the server derives it from the user's own
-    // profile and ignores the request entirely -- confirmed by requesting
-    // Pusan National University's breakdown with a tampered track=gks_u and
-    // getting back the GKS-G count (37 countries) instead of GKS-U's (19).
+    // pass a different track, the server ignores it for a user without
+    // dual_track_access and answers for their own profile track -- confirmed
+    // by requesting Pusan National University's breakdown with a tampered
+    // track=gks_u and getting back the GKS-G count (37 countries) instead of
+    // GKS-U's (19). The dual_track_access counterpart -- where ?track= IS
+    // honoured, because those users have a legitimate in-page toggle -- is
+    // the separate scenario at the end of this file.
     const tamperedResult = await page.evaluate(async () => {
       const res = await fetch("/api/scholar-stats/breakdown?university=" + encodeURIComponent("Pusan National University") + "&track=gks_u");
       const body = await res.json();
@@ -139,6 +142,37 @@ async function main() {
     const uBody = await uPage.textContent("body");
     check("GKS-U page does NOT show the GKS-G-only intro copy", !(uBody ?? "").includes("Where GKS-G"));
     await uContext.close();
+
+    // dual_track_access scenario: these users get an in-page GKS-G/GKS-U
+    // toggle, so the breakdown API has to follow the track they switched to
+    // rather than the one on their profile -- while still refusing to honour
+    // ?track= for everyone else (asserted above). Kookmin University is the
+    // probe because it exists in both tracks with different country counts:
+    // 21 in GKS-G, 7 in GKS-U, so the row count alone identifies the track.
+    await admin.from("profiles").update({ track: "gks_g", dual_track_access: true }).eq("id", user.userId);
+    const dualContext = await browser.newContext({ baseURL: BASE_URL });
+    await dualContext.addCookies([{ name: COOKIE_KEY, value: encoded, url: BASE_URL }]);
+    const dualPage = await dualContext.newPage();
+    await dualPage.goto("/scholar-stats", { waitUntil: "domcontentloaded" });
+    await dualPage.waitForSelector("tbody tr", { timeout: 15000 });
+    check("dual_track_access viewer gets the track switcher", (await dualPage.getByRole("button", { name: "GKS-U" }).count()) > 0);
+
+    // No inner named function/const here: tsx compiles those with an esbuild
+    // `__name` helper that doesn't exist in the page, so the evaluate would
+    // die with "__name is not defined".
+    const dualCounts = await dualPage.evaluate(async () => {
+      const base = "/api/scholar-stats/breakdown?university=" + encodeURIComponent("Kookmin University") + "&track=";
+      const gBody = await (await fetch(base + "gks_g")).json();
+      const uBody = await (await fetch(base + "gks_u")).json();
+      return {
+        g: Array.isArray(gBody.rows) ? gBody.rows.length : null,
+        u: Array.isArray(uBody.rows) ? uBody.rows.length : null,
+      };
+    });
+    check("dual_track_access viewer can fetch GKS-G breakdowns (21 countries)", dualCounts.g === 21);
+    check("dual_track_access viewer can fetch GKS-U breakdowns (7 countries)", dualCounts.u === 7);
+    await dualContext.close();
+    await admin.from("profiles").update({ dual_track_access: false }).eq("id", user.userId);
 
     // Cross-check a rendered number directly against the database, not just
     // against the trusted CSVs -- confirms what's actually loaded matches
