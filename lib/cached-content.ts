@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type {
+  EmbassyType,
   QuestionCategory,
   EcaTrack,
   EcaActivityType,
@@ -235,6 +236,33 @@ export const getCachedGksScholarStats = unstable_cache(
   },
   ["gks-scholar-stats"],
   { revalidate: 60 * 60 * 24, tags: ["gks-scholar-stats"] }
+);
+
+/**
+ * Type A / Type B for every university that carries one in a given track,
+ * straight from `university_eligibility` -- the same source of truth the
+ * onboarding university picker uses. Not derived, not duplicated: the
+ * Scholar Stats comparison badges read this and nothing else.
+ *
+ * Same 24h window as getCachedUniversitySearch for the same reason -- the
+ * university list only changes on an admin re-import, and there is no
+ * in-app route to hook a revalidateTag() into.
+ */
+export const getCachedUniversityEmbassyTypes = unstable_cache(
+  async (track: GksTrack): Promise<{ name: string; embassyType: EmbassyType }[]> => {
+    const { data, error } = await getSupabaseAdmin()
+      .from("university_eligibility")
+      .select("embassy_type, university:universities!inner ( name )")
+      .eq("track", track)
+      .not("embassy_type", "is", null);
+    if (error) throw new Error(`university_eligibility query failed: ${error.message}`);
+    const rows = (data ?? []) as unknown as { embassy_type: EmbassyType; university: { name: string } | null }[];
+    return rows
+      .filter((row) => row.university?.name)
+      .map((row) => ({ name: row.university!.name, embassyType: row.embassy_type }));
+  },
+  ["university-embassy-types"],
+  { revalidate: 60 * 60 * 24, tags: ["universities"] }
 );
 
 export interface CachedGksCrossTabRow {

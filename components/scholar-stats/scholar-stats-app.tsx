@@ -1,20 +1,34 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Columns2, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import type { EmbassyType, Track } from "@/lib/constants";
 import { ExpandableStatTable, type StatRow } from "./expandable-stat-table";
+import { UniversityComparison } from "./university-comparison";
 import type { CachedGksUniversityStat, CachedGksCountryStat } from "@/lib/cached-content";
 
 export interface TrackData {
   universities: CachedGksUniversityStat[];
   countries: CachedGksCountryStat[];
+  /** Type A/Type B per university name, resolved server-side. Absent = not listed. */
+  embassyTypes: Record<string, EmbassyType>;
 }
 
-export function ScholarStatsApp({ data }: { data: TrackData }) {
+export function ScholarStatsApp({
+  data,
+  track,
+  initialCompare,
+}: {
+  data: TrackData;
+  track: Track;
+  /** Non-null when the page was opened with a ?compare= link, already resolved to names. */
+  initialCompare: [string | null, string | null] | null;
+}) {
   const [view, setView] = useState<"university" | "country">("university");
   const [search, setSearch] = useState("");
+  const [comparing, setComparing] = useState(initialCompare !== null);
 
   const universityRows: StatRow[] = useMemo(
     () =>
@@ -70,26 +84,58 @@ export function ScholarStatsApp({ data }: { data: TrackData }) {
               By country
             </button>
           </div>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-muted" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={view === "university" ? "Search universities…" : "Search countries…"}
-              className="rounded-lg border border-hairline-strong bg-surface py-1.5 pl-8 pr-3 text-[13px] text-ink"
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            {/*
+              Sits with the view/search controls rather than on a route of its
+              own: the comparison reads the same rows this card already holds,
+              so a dedicated page would have to re-fetch them for no gain.
+            */}
+            <button
+              type="button"
+              onClick={() => setComparing((open) => !open)}
+              aria-expanded={comparing}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-medium",
+                comparing
+                  ? "border-primary bg-primary-soft text-primary"
+                  : "border-hairline-strong text-muted hover:text-ink"
+              )}
+            >
+              <Columns2 className="h-[15px] w-[15px]" />
+              Compare universities
+            </button>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-muted" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={view === "university" ? "Search universities…" : "Search countries…"}
+                className="rounded-lg border border-hairline-strong bg-surface py-1.5 pl-8 pr-3 text-[13px] text-ink"
+              />
+            </div>
           </div>
         </div>
 
+        {comparing && (
+          <UniversityComparison
+            track={track}
+            universities={data.universities}
+            embassyTypes={data.embassyTypes}
+            initialFirst={initialCompare?.[0] ?? null}
+            initialSecond={initialCompare?.[1] ?? null}
+            onClose={() => setComparing(false)}
+          />
+        )}
+
         <p className="mt-2 text-[12px] text-muted">
           {view === "university"
-            ? "Click a university to see which countries its scholars came from, and what share of that university's seats each country got."
-            : "Click a country to see which universities its scholars went to, and what share of that country's total seats each university got."}
+            ? "Click a university to see which countries its scholars came from, and what share of that university's recorded scholars each country accounts for."
+            : "Click a country to see which universities its scholars went to, and what share of that country's recorded scholars each university accounts for."}
         </p>
 
         <div className="mt-3.5">
-          <ExpandableStatTable mode={view} rows={filteredRows} />
+          <ExpandableStatTable mode={view} rows={filteredRows} track={track} />
         </div>
       </Card>
     </div>

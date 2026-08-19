@@ -14,15 +14,30 @@ export async function GET(request: Request) {
   // Track is derived from the user's own profile, never taken from the
   // request -- a GKS-U applicant should only ever be able to fetch GKS-U
   // breakdown data, not just have it hidden from them in the UI.
-  const { data: profile } = await getSupabaseAdmin().from("profiles").select("track").eq("id", user.id).maybeSingle();
-  const track = profile?.track as GksTrack | undefined;
-  if (track !== "gks_g" && track !== "gks_u") {
+  const { data: profile } = await getSupabaseAdmin()
+    .from("profiles")
+    .select("track, dual_track_access")
+    .eq("id", user.id)
+    .maybeSingle();
+  const ownTrack = profile?.track as GksTrack | undefined;
+  if (ownTrack !== "gks_g" && ownTrack !== "gks_u") {
     return NextResponse.json({ error: "no_track_on_profile" }, { status: 400 });
   }
 
   const { searchParams } = new URL(request.url);
   const university = searchParams.get("university");
   const country = searchParams.get("country");
+
+  // The one exception to the rule above: a dual_track_access viewer can flip
+  // the on-page track toggle, and until now this route ignored that and kept
+  // answering for their profile track -- so the expanded row showed the wrong
+  // track's countries. Honour ?track= for them and them only; for everyone
+  // else it stays ignored, so the parameter grants no access it shouldn't.
+  const requestedTrack = searchParams.get("track");
+  const track: GksTrack =
+    profile?.dual_track_access && (requestedTrack === "gks_g" || requestedTrack === "gks_u")
+      ? requestedTrack
+      : ownTrack;
 
   if ((!university && !country) || (university && country)) {
     return NextResponse.json({ error: "provide_exactly_one_of_university_or_country" }, { status: 400 });

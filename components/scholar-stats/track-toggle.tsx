@@ -13,10 +13,12 @@ export function ScholarStatsTrackToggle({
   defaultTrack,
   gksG,
   gksU,
+  initialCompare,
 }: {
   defaultTrack: Track;
   gksG: TrackData;
   gksU: TrackData;
+  initialCompare: [string | null, string | null] | null;
 }) {
   const [track, setTrack] = useState<Track>(defaultTrack);
   const data = track === "gks_g" ? gksG : gksU;
@@ -42,7 +44,7 @@ export function ScholarStatsTrackToggle({
           </button>
         ))}
       </div>
-      <ScholarStatsApp data={data} />
+      <ScholarStatsApp data={data} track={track} initialCompare={initialCompare} />
     </div>
   );
 }
