@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   Users,
   MessageSquare,
+  MessageCircle,
   AlertTriangle,
   Award,
   Inbox,
@@ -54,6 +55,7 @@ export default async function HomePage() {
     { count: connectedCount },
     { count: currentNoticesCount },
     { count: activeScholarshipsCount },
+    { data: conversationRows },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
     admin.from("timeline_templates").select("id").is("route", null).is("country", null),
@@ -88,19 +90,37 @@ export default async function HomePage() {
       .select("id", { count: "exact", head: true })
       .in("status", ["active", "expiring_soon"])
       .eq("is_active", true),
+    admin
+      .from("conversations")
+      .select("id")
+      .or(`user_a_id.eq.${user.id},user_b_id.eq.${user.id}`),
   ]);
+
+  const conversationIds = (conversationRows ?? []).map((c) => c.id);
 
   // Discover: count of other applicants sharing >=1 major or university.
   const ownUniversityIds = (ownUniversityChoices ?? []).map((c) => c.university_id);
   const sharedIds = new Set<string>();
-  const [majorMatches, universityMatches] = await Promise.all([
+  const [majorMatches, universityMatches, unreadMessages] = await Promise.all([
     profile?.major
       ? admin.from("profiles").select("id").eq("major", profile.major).not("username", "is", null).neq("id", user.id)
       : Promise.resolve({ data: [] as { id: string }[] }),
     ownUniversityIds.length > 0
       ? admin.from("university_choices").select("user_id").in("university_id", ownUniversityIds).neq("user_id", user.id)
       : Promise.resolve({ data: [] as { user_id: string }[] }),
+    // Unread = a message in one of my conversations, sent by the other person,
+    // that I haven't opened yet -- same rule /messages uses per-thread.
+    conversationIds.length > 0
+      ? admin
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .in("conversation_id", conversationIds)
+          .neq("sender_id", user.id)
+          .is("read_at", null)
+      : Promise.resolve({ count: 0 }),
   ]);
+
+  const unreadMessageCount = unreadMessages.count ?? 0;
   for (const row of majorMatches.data ?? []) sharedIds.add(row.id);
   for (const row of universityMatches.data ?? []) sharedIds.add((row as { user_id: string }).user_id);
 
@@ -171,6 +191,17 @@ export default async function HomePage() {
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Discover</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
               {sharedIds.size} applicant{sharedIds.size === 1 ? "" : "s"} share your major or universities
+            </p>
+          </Card>
+        </Link>
+        <Link href="/messages">
+          <Card interactive className="h-full">
+            <MessageCircle className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Messages</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              {unreadMessageCount > 0
+                ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
+                : "Chat with your connections"}
             </p>
           </Card>
         </Link>
@@ -275,7 +306,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 border-t border-hairline pt-6">
-        <p className="text-[12.5px] text-muted">12 features, all reachable from home or the ••• menu</p>
+        <p className="text-[12.5px] text-muted">14 features, all reachable from home or the ••• menu</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted">
           <ArrowDown className="h-3.5 w-3.5" />
         </span>
