@@ -9,6 +9,7 @@ export const MAJORS = [
   "Materials Science and Engineering",
   "Architecture",
   "Economics",
+  "International Development Studies",
   "International Relations",
   "Political Science",
   "Public Administration",
