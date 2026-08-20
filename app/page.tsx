@@ -12,7 +12,6 @@ import { ConnectionGraph } from "@/components/marketing/connection-graph";
 import { DiscoverMockup } from "@/components/marketing/discover-mockup";
 import { InterviewMockup } from "@/components/marketing/interview-mockup";
 import { ConnectMockup } from "@/components/marketing/connect-mockup";
-import { ScholarMockup } from "@/components/marketing/scholar-mockup";
 import { GksTimeline } from "@/components/marketing/gks-timeline";
 import { Reveal } from "@/components/marketing/reveal";
 
@@ -243,38 +242,6 @@ export default async function LandingPage() {
               <div className="glow-wash pointer-events-none absolute -inset-8" aria-hidden />
               <div className="relative">
                 <DiscoverMockup />
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Scholar database                                                  */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="border-y border-hairline bg-surface/60">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <Reveal className="max-w-2xl">
-            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-              Scholar database
-            </p>
-            <h2 className="text-balance mt-3 text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-              Research the applications that{" "}
-              <em className="font-serif font-normal italic text-primary">actually worked.</em>
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              Past scholars publish their full profile: GPA, TOPIK level,
-              extracurriculars, awards — and both columns of the results.
-              Where they got in, where they didn&apos;t, and which choice became
-              their final placement. Filter by your track and major, and stop
-              guessing what a winning application looks like.
-            </p>
-          </Reveal>
-          <Reveal delay={0.15} className="mt-10">
-            <div className="relative">
-              <div className="glow-wash pointer-events-none absolute -inset-8" aria-hidden />
-              <div className="relative">
-                <ScholarMockup />
               </div>
             </div>
           </Reveal>
