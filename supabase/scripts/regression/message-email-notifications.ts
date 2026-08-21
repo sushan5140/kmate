@@ -76,6 +76,28 @@ async function main() {
   const b = await createThrowawayUser(admin, "notifyB");
   const outsider = await createThrowawayUser(admin, "notifyC");
 
+  // createThrowawayUser gives everyone an @example.com address, which
+  // Resend correctly refuses to send to (422, "use our testing email
+  // address instead"). That's a real provider rejection -- the notify route
+  // releases the claim on it exactly as designed for a genuine failure,
+  // which is correct behaviour but defeats every streak/dedupe test below
+  // (each "failure" makes the next message look like a fresh streak rather
+  // than a skip). Point both real participants at Resend's documented
+  // testing address so real accept/deliver outcomes flow through instead.
+  if (env.RESEND_API_KEY) {
+    // Supabase enforces unique emails per user, so A and B need distinct
+    // addresses -- Resend's testing domain supports +sub-addressing (both
+    // still simulate a real "delivered" outcome), confirmed directly against
+    // the live API before relying on it here.
+    await admin.auth.admin.updateUserById(a.userId, { email: "delivered+a@resend.dev" });
+    await admin.auth.admin.updateUserById(b.userId, { email: "delivered+b@resend.dev" });
+    // sessionCookieFor/signedInClient generate a magic link by email, so the
+    // local copies need to track the DB change too -- otherwise they'd look
+    // up a login link for an address that's no longer this user's.
+    a.email = "delivered+a@resend.dev";
+    b.email = "delivered+b@resend.dev";
+  }
+
   try {
     // --- setup: A and B connected, sharing a conversation --------------------
     await admin.from("connection_requests").insert({ from_user_id: a.userId, to_user_id: b.userId, status: "accepted" });
@@ -201,10 +223,18 @@ async function main() {
       const { error: rpcErr } = await clientB.rpc("clear_own_message_notification", { conv_id: conv.id });
       check(`clear_own_message_notification succeeds for a real participant (err=${rpcErr?.message ?? "none"})`, !rpcErr);
 
+      // Postgres round-trips timestamptz as "...+00:00" rather than the
+      // "...Z" a JS Date produces -- same instant, different string, so
+      // compare as timestamps, not strings.
+      const sameInstant = (value: unknown) => typeof value === "string" && new Date(value).getTime() === new Date(sentinel).getTime();
+
       const { data: afterB } = await admin.from("conversations").select(aColumn + "," + bColumn).eq("id", conv.id).single();
       const afterBRow = afterB as Record<string, unknown> | null;
       check("B's own RPC call clears B's column", afterBRow?.[bColumn] == null);
-      check("B's own RPC call does NOT touch A's column", afterBRow?.[aColumn] === sentinel);
+      check(
+        `B's own RPC call does NOT touch A's column (expected ${sentinel}, got ${JSON.stringify(afterBRow?.[aColumn])})`,
+        sameInstant(afterBRow?.[aColumn])
+      );
 
       // An outsider with no stake in this conversation: harmless no-op, not
       // an error, and definitely no effect on either real participant's state.
@@ -213,7 +243,7 @@ async function main() {
       const { data: afterOutsider } = await admin.from("conversations").select(aColumn).eq("id", conv.id).single();
       check(
         `a non-participant's RPC call is a no-op, not an error (err=${outsiderRpcErr?.message ?? "none"})`,
-        !outsiderRpcErr && (afterOutsider as Record<string, unknown> | null)?.[aColumn] === sentinel
+        !outsiderRpcErr && sameInstant((afterOutsider as Record<string, unknown> | null)?.[aColumn])
       );
 
       // Clean the sentinel back to null so the rest of the script sees a
