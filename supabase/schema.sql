@@ -1422,12 +1422,43 @@ create index if not exists conversations_user_a_idx on public.conversations (use
 create index if not exists conversations_user_b_idx on public.conversations (user_b_id);
 create index if not exists conversations_last_message_idx on public.conversations (last_message_at desc nulls last);
 
+-- Email-notification state for the current unread streak, one column per
+-- side. Non-null = "a notification email has already gone out to this user
+-- for the messages they haven't read yet -- don't send another until they
+-- read". Set by /api/messages/notify (service role only, via an atomic
+-- `where user_x_notified_at is null` claim -- see that route for the
+-- race-safety argument), cleared by clear_own_message_notification() below
+-- when that user reads the conversation. Deliberately NOT derived from
+-- messages.read_at at query time: that would need a slower correlated
+-- subquery on every notify attempt and still wouldn't be atomically
+-- claimable the way a single UPDATE ... WHERE col IS NULL is.
+alter table public.conversations add column if not exists user_a_notified_at timestamptz;
+alter table public.conversations add column if not exists user_b_notified_at timestamptz;
+
 create or replace function public.is_conversation_participant(conv_id uuid, uid uuid)
 returns boolean language sql security definer stable set search_path = public as $$
   select exists (
     select 1 from public.conversations c
     where c.id = conv_id and (c.user_a_id = uid or c.user_b_id = uid)
   );
+$$;
+
+-- Called by the client the moment it marks a conversation's messages read
+-- (see markRead() in components/chat/message-thread.tsx), right alongside
+-- the existing messages.read_at update. security definer + the auth.uid()
+-- guards below mean an end user can only ever null out their OWN column for
+-- a conversation they're actually in -- never the other participant's, and
+-- never set it to anything but null -- so this needs no new RLS UPDATE
+-- policy on conversations at all.
+create or replace function public.clear_own_message_notification(conv_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update public.conversations
+     set user_a_notified_at = case when user_a_id = auth.uid() then null else user_a_notified_at end,
+         user_b_notified_at = case when user_b_id = auth.uid() then null else user_b_notified_at end
+   where id = conv_id
+     and (user_a_id = auth.uid() or user_b_id = auth.uid());
+end;
 $$;
 
 -- Independent of RLS on purpose: RLS constrains end users, this also holds

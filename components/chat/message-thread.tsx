@@ -65,14 +65,37 @@ export function MessageThread({
   const markRead = useCallback(async () => {
     // messages_update_read_receipt only permits the RECIPIENT to update,
     // hence the sender_id filter -- a blanket update would be rejected.
-    await supabase
-      .from("messages")
-      .update({ read_at: new Date().toISOString() })
-      .eq("conversation_id", conversationId)
-      .neq("sender_id", currentUserId)
-      .is("read_at", null);
+    await Promise.all([
+      supabase
+        .from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .eq("conversation_id", conversationId)
+        .neq("sender_id", currentUserId)
+        .is("read_at", null),
+      // Resets this conversation's email-notification state on my side (see
+      // clear_own_message_notification in supabase/schema.sql), so the next
+      // incoming message starts a new unread streak and can notify again.
+      supabase.rpc("clear_own_message_notification", { conv_id: conversationId }),
+    ]);
     onReadAll(conversationId);
   }, [supabase, conversationId, currentUserId, onReadAll]);
+
+  /**
+   * Fire-and-forget: the message is already saved and already in the UI by
+   * the time this runs, so nothing here can affect whether the send
+   * succeeded. `keepalive` lets the request survive the tab closing/
+   * navigating away right after hitting send, which a plain fetch wouldn't.
+   */
+  function notifyRecipient(messageId: string) {
+    fetch("/api/messages/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messageId }),
+      keepalive: true,
+    }).catch(() => {
+      // Best-effort -- a failed notify request never surfaces to the sender.
+    });
+  }
 
   // Initial load.
   useEffect(() => {
@@ -165,6 +188,7 @@ export function MessageThread({
       setDraft("");
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
       onLocalActivity(msg);
+      notifyRecipient(msg.id);
     }
     setSending(false);
   }
