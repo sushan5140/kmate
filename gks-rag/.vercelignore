@@ -1,0 +1,19 @@
+# The deployed function needs app/ + index/ only. Everything below is build-time
+# or local-only, and keeping it out is what holds the bundle under Vercel's
+# 250 MB unzipped limit.
+.venv
+**/__pycache__
+*.py[cod]
+
+# Source corpora + PDFs are inputs to the index build, not to serving it.
+# The index is shipped prebuilt (see DEPLOYMENT.md).
+data/
+
+# Test suites and their fixtures/results.
+tests/
+
+Dockerfile
+DEPLOYMENT.md
+README.md
+.env
+.env.*

@@ -18,6 +18,7 @@ All scripts read Supabase credentials from `.env.local`.
 | `fix7-batch5-audit.ts` | Batch-5 audit (ECA badge / ECA+Mistakes downvote / Discover filter / computed application years / Timeline banner): RLS on `eca_upvotes`/`mistake_upvotes` rejects cross-user writes, `castVote()`'s table config ignores request bodies, `application_year` is validated server-side against `validApplicationYears(track)` on both profile-update and onboarding-complete (bypass values rejected, real values still accepted), `vote-eca`/`vote-mistake` rate limits enforced, Ask-the-Interviewer regression, `eca_upvotes`/`mistake_upvotes` count-integrity check | Yes, production build |
 | `fix7b-onboarding-timeline-e2e.ts` | Batch-5 audit, browser-driven: onboarding year-step gating (`applicationYear` starts unselected, blocks Next) and shown years for both tracks, full onboarding completion with a valid year, stale `application_year` account's "cycle closed" messaging on Home/Timeline | Yes, production build |
 | `fix7c-discover-initial-state.ts` | Batch-5 audit: Discover tab renders sensibly (defaults to viewer's own track) before any track filter pill has ever been clicked | Yes, production build |
+| `gks-assistant-e2e.ts` | GKS Assistant structured answers: asking persists a thread and materialises imported answers (always `origin='community_import'` with a null `author_id`), imported contributors get a stable generated alias and never leak their raw `sender_alias` or a fabricated timestamp, re-asking joins the same deduped thread, upvotes are one-per-user and toggle, a KMate answer stores `origin='kmate_user'` with a real `author_id`, save-question is private and toggles, discussion threads stay one level deep and can't be grafted across questions, anonymous callers are turned away and write nothing | Yes, production build **and** a reachable `GKS_RAG_URL` |
 
 ## Running
 
@@ -46,6 +47,10 @@ KMATE_BASE_URL=http://localhost:3901 KMATE_ADMIN_EMAIL=you@example.com \
 KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7-batch5-audit.ts
 KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7b-onboarding-timeline-e2e.ts
 KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/fix7c-discover-initial-state.ts
+
+# Also needs the GKS RAG service reachable at GKS_RAG_URL (see gks-rag/README.md);
+# locally: cd gks-rag && .venv/Scripts/python -m uvicorn app.main:app --port 8000
+KMATE_BASE_URL=http://localhost:3901 npx tsx supabase/scripts/regression/gks-assistant-e2e.ts
 ```
 
 `fix7b-onboarding-timeline-e2e.ts` drives a real Chromium browser via

@@ -1,0 +1,320 @@
+import "server-only";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { normalizeQuestion, communityAnswerKey } from "@/lib/gks/question";
+import { communityAliases } from "@/lib/gks/alias";
+
+export type Program = "UG" | "G";
+export type AnswerOrigin = "kmate_user" | "community_import";
+
+/** One community answer as the UI should render it -- identity already resolved. */
+export interface AnswerView {
+  id: string;
+  origin: AnswerOrigin;
+  /** A real KMate username, or a generated alias. Which one is decided by `origin`. */
+  authorName: string;
+  /** "GKS-U · Chemistry · 2027" -- only ever built from a real profile. */
+  authorMeta: string | null;
+  body: string;
+  /**
+   * Null for imports. The corpus carries no trustworthy per-message time (the
+   * export timestamps are stripped by the sanitizer), and the row's own
+   * created_at is when KMate first materialised it, not when the person wrote
+   * it -- rendering that as "2d ago" would be a fabricated fact.
+   */
+  createdAt: string | null;
+  upvotes: number;
+  hasUpvoted: boolean;
+}
+
+export interface DiscussionView {
+  id: string;
+  authorName: string;
+  authorMeta: string | null;
+  body: string;
+  createdAt: string;
+  upvotes: number;
+  hasUpvoted: boolean;
+  replies: DiscussionView[];
+}
+
+/** The shape the RAG service returns for one community cluster. */
+interface RagCommunityCase {
+  cluster_id: string;
+  answers: { text: string; sender_alias?: string | null }[];
+}
+
+interface ProfileRow {
+  id: string;
+  username: string | null;
+  track: string | null;
+  major: string | null;
+  application_year: number | null;
+}
+
+const TRACK_LABELS: Record<string, string> = { gks_u: "GKS-U", gks_g: "GKS-G" };
+
+function profileMeta(profile: ProfileRow | undefined): string | null {
+  if (!profile) return null;
+  const parts = [
+    profile.track ? TRACK_LABELS[profile.track] : null,
+    profile.major,
+    profile.application_year ? String(profile.application_year) : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+/**
+ * Finds or creates the thread for a question.
+ *
+ * Deduped on (program, normalised text) so re-asking joins the existing
+ * thread and its accumulated votes and discussion. The official snapshot is
+ * only written on first creation: overwriting it on every ask would silently
+ * rewrite what earlier readers were shown.
+ */
+export async function upsertQuestion(
+  admin: SupabaseClient,
+  input: {
+    program: Program;
+    question: string;
+    userId: string;
+    officialAnswer: string | null;
+    officialSources: unknown[];
+  }
+): Promise<{ id: string; askCount: number }> {
+  const questionNorm = normalizeQuestion(input.question);
+
+  const existing = await admin
+    .from("gks_questions")
+    .select("id, ask_count")
+    .eq("program", input.program)
+    .eq("question_norm", questionNorm)
+    .maybeSingle();
+
+  if (existing.data) {
+    const askCount = (existing.data.ask_count ?? 1) + 1;
+    await admin
+      .from("gks_questions")
+      .update({ ask_count: askCount, last_asked_at: new Date().toISOString() })
+      .eq("id", existing.data.id);
+    return { id: existing.data.id, askCount };
+  }
+
+  const inserted = await admin
+    .from("gks_questions")
+    .insert({
+      program: input.program,
+      question: input.question,
+      question_norm: questionNorm,
+      asked_by: input.userId,
+      official_answer: input.officialAnswer,
+      official_sources: input.officialSources,
+    })
+    .select("id, ask_count")
+    .maybeSingle();
+
+  if (inserted.data) return { id: inserted.data.id, askCount: inserted.data.ask_count ?? 1 };
+
+  // Lost a race with a concurrent ask of the same question -- the unique index
+  // did its job, so just join the thread the other request created.
+  const raced = await admin
+    .from("gks_questions")
+    .select("id, ask_count")
+    .eq("program", input.program)
+    .eq("question_norm", questionNorm)
+    .maybeSingle();
+  if (!raced.data) throw new Error("could not create or find question thread");
+  return { id: raced.data.id, askCount: raced.data.ask_count ?? 1 };
+}
+
+/**
+ * Persists the imported answers the RAG returned for this question.
+ *
+ * Idempotent on (question, external_key), so re-asking re-attaches to the
+ * existing rows and their votes rather than inserting duplicates. Returns the
+ * RAG's ordering (which is its usefulness ranking) so the caller can use it
+ * as the tiebreak when vote counts are equal.
+ */
+export async function syncCommunityAnswers(
+  admin: SupabaseClient,
+  questionId: string,
+  cases: RagCommunityCase[]
+): Promise<Map<string, number>> {
+  const ragRank = new Map<string, number>();
+  const rows: Record<string, unknown>[] = [];
+
+  for (const c of cases) {
+    for (const answer of c.answers ?? []) {
+      const text = (answer.text ?? "").trim();
+      if (!text) continue;
+      const key = communityAnswerKey(c.cluster_id, text);
+      if (ragRank.has(key)) continue; // same reply surfaced under two clusters
+      ragRank.set(key, ragRank.size);
+      rows.push({
+        question_id: questionId,
+        origin: "community_import",
+        body: text,
+        sender_alias: answer.sender_alias ?? null,
+        external_key: key,
+      });
+    }
+  }
+
+  if (rows.length) {
+    await admin.from("gks_answers").upsert(rows, {
+      onConflict: "question_id,external_key",
+      ignoreDuplicates: true,
+    });
+  }
+
+  return ragRank;
+}
+
+/**
+ * Loads every answer on a question with identity and vote state resolved.
+ *
+ * Ordering: upvotes first, because a vote is the clearest signal an applicant
+ * found something useful. At equal votes, KMate answers come before imports
+ * (newest first) -- someone who wrote an answer here is responding to *this*
+ * question, whereas an import merely matched it -- and imports fall back to
+ * the RAG's own usefulness ranking.
+ */
+export async function loadAnswers(
+  admin: SupabaseClient,
+  questionId: string,
+  userId: string,
+  ragRank?: Map<string, number>
+): Promise<AnswerView[]> {
+  const { data: rows } = await admin
+    .from("gks_answers")
+    .select("id, origin, author_id, sender_alias, body, external_key, upvotes_count, created_at")
+    .eq("question_id", questionId);
+
+  if (!rows?.length) return [];
+
+  const { data: myVotes } = await admin
+    .from("gks_answer_upvotes")
+    .select("answer_id")
+    .eq("user_id", userId)
+    .in("answer_id", rows.map((r) => r.id));
+  const voted = new Set((myVotes ?? []).map((v) => v.answer_id));
+
+  const profiles = await loadProfiles(admin, rows.map((r) => r.author_id));
+
+  // Aliases are assigned over the whole set at once so two different
+  // contributors can never collide onto the same display name in one thread.
+  const senders = rows
+    .filter((r) => r.origin === "community_import" && r.sender_alias)
+    .map((r) => r.sender_alias as string);
+  const aliases = communityAliases(senders);
+
+  const views: AnswerView[] = rows.map((r) => {
+    const profile = r.author_id ? profiles.get(r.author_id) : undefined;
+    const isImport = r.origin === "community_import";
+    return {
+      id: r.id,
+      origin: r.origin as AnswerOrigin,
+      authorName: isImport
+        ? (r.sender_alias ? aliases.get(r.sender_alias) ?? "Community member" : "Community member")
+        : profile?.username ?? "KMate member",
+      authorMeta: isImport ? null : profileMeta(profile),
+      body: r.body,
+      createdAt: isImport ? null : r.created_at,
+      upvotes: r.upvotes_count ?? 0,
+      hasUpvoted: voted.has(r.id),
+    };
+  });
+
+  const rankOf = (r: (typeof rows)[number]) =>
+    r.external_key ? ragRank?.get(r.external_key) ?? Number.MAX_SAFE_INTEGER : -1;
+  const byId = new Map(rows.map((r) => [r.id, r]));
+
+  return views.sort((a, b) => {
+    if (b.upvotes !== a.upvotes) return b.upvotes - a.upvotes;
+    if (a.origin !== b.origin) return a.origin === "kmate_user" ? -1 : 1;
+    if (a.origin === "kmate_user") {
+      return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
+    }
+    return rankOf(byId.get(a.id)!) - rankOf(byId.get(b.id)!);
+  });
+}
+
+/** Discussion for a question, nested one level and ordered oldest-first. */
+export async function loadDiscussion(
+  admin: SupabaseClient,
+  questionId: string,
+  userId: string
+): Promise<DiscussionView[]> {
+  const { data: rows } = await admin
+    .from("gks_discussion_posts")
+    .select("id, parent_id, author_id, body, upvotes_count, created_at")
+    .eq("question_id", questionId)
+    .order("created_at", { ascending: true });
+
+  if (!rows?.length) return [];
+
+  const { data: myVotes } = await admin
+    .from("gks_discussion_upvotes")
+    .select("post_id")
+    .eq("user_id", userId)
+    .in("post_id", rows.map((r) => r.id));
+  const voted = new Set((myVotes ?? []).map((v) => v.post_id));
+
+  const profiles = await loadProfiles(admin, rows.map((r) => r.author_id));
+
+  const toView = (r: (typeof rows)[number]): DiscussionView => {
+    const profile = r.author_id ? profiles.get(r.author_id) : undefined;
+    return {
+      id: r.id,
+      // Discussion is KMate-only -- nothing is imported into it -- so a
+      // missing profile means a deleted account, not an anonymous import.
+      authorName: profile?.username ?? "Former member",
+      authorMeta: profileMeta(profile),
+      body: r.body,
+      createdAt: r.created_at,
+      upvotes: r.upvotes_count ?? 0,
+      hasUpvoted: voted.has(r.id),
+      replies: [],
+    };
+  };
+
+  const roots: DiscussionView[] = [];
+  const byId = new Map<string, DiscussionView>();
+  for (const r of rows) {
+    const view = toView(r);
+    byId.set(r.id, view);
+    if (!r.parent_id) roots.push(view);
+  }
+  for (const r of rows) {
+    if (!r.parent_id) continue;
+    // A reply whose parent is missing would otherwise vanish from the thread.
+    (byId.get(r.parent_id)?.replies ?? roots).push(byId.get(r.id)!);
+  }
+  return roots;
+}
+
+export async function isQuestionSaved(
+  admin: SupabaseClient,
+  questionId: string,
+  userId: string
+): Promise<boolean> {
+  const { data } = await admin
+    .from("gks_saved_questions")
+    .select("question_id")
+    .eq("question_id", questionId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return Boolean(data);
+}
+
+async function loadProfiles(
+  admin: SupabaseClient,
+  ids: (string | null)[]
+): Promise<Map<string, ProfileRow>> {
+  const unique = [...new Set(ids.filter((id): id is string => Boolean(id)))];
+  if (!unique.length) return new Map();
+  const { data } = await admin
+    .from("profiles")
+    .select("id, username, track, major, application_year")
+    .in("id", unique);
+  return new Map((data ?? []).map((p) => [p.id, p as ProfileRow]));
+}

@@ -32,3 +32,19 @@ npm-debug.log*
 /videos/
 skills-lock.json
 .env*
+
+# gks-rag (Python service): venv, caches and generated build artifacts.
+# Everything below is rebuilt deterministically from committed sources by
+# `python -m app.rebuild` -- see gks-rag/DEPLOYMENT.md.
+/gks-rag/.venv/
+/gks-rag/**/__pycache__/
+*.py[cod]
+/gks-rag/index/
+/gks-rag/.pytest_cache/
+# Generated knowledge layers: official chunks come from the committed PDFs,
+# community chunks from the committed raw export.
+/gks-rag/data/official/official_knowledge.jsonl
+/gks-rag/data/community/community_knowledge.jsonl
+# The broad `.env*` rule above would otherwise swallow this template, which
+# DEPLOYMENT.md points at for the annotated variable list. It holds no secrets.
+!/gks-rag/.env.example

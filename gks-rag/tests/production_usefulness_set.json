@@ -1,0 +1,60 @@
+{
+  "_comment": [
+    "Realistic applicant questions run against the DEPLOYED service to audit answer",
+    "usefulness (not retrieval score). Run: python -m tests.run_production_usefulness",
+    "Set GKS_RAG_BASE to override the target (default https://gks-rag.vercel.app).",
+    "expect_official: true = guideline should answer, false = must not, null = either.",
+    "expect_clarification: the question is too vague to answer."
+  ],
+  "questions": [
+    {"id":"p01","topic":"transcript","programs":["UG","G"],"expect_official":true,"q":"My university does not issue a transcript. Can I submit marksheets?"},
+    {"id":"p02","topic":"transcript","programs":["UG"],"expect_official":true,"q":"my clg dont give transcript what i do"},
+    {"id":"p03","topic":"marksheet","programs":["UG"],"expect_official":true,"q":"marksheet chalega instead transcript?"},
+    {"id":"p04","topic":"transcript","programs":["UG","G"],"expect_official":true,"q":"My transcript has no CGPA. What should I submit?"},
+    {"id":"p05","topic":"stamp","programs":["UG"],"expect_official":null,"expect_unsupported":"stamp_signature","q":"i am ug but my school refuses stamp"},
+    {"id":"p06","topic":"stamp","programs":["G"],"expect_official":null,"expect_unsupported":"stamp_signature","q":"Does my transcript need a school stamp or signature?"},
+
+    {"id":"p07","topic":"apostille","programs":["UG","G"],"expect_official":true,"q":"Do I need apostille for every document?"},
+    {"id":"p08","topic":"apostille","programs":["UG"],"expect_official":true,"q":"apostille karwana zaroori hai kya sab documents ka"},
+    {"id":"p09","topic":"apostille","programs":["UG","G"],"expect_official":true,"q":"My country is not in the Apostille Convention. What do I do?"},
+    {"id":"p10","topic":"apostille","programs":["UG"],"expect_official":true,"q":"aposttile needed for trancript?"},
+    {"id":"p11","topic":"apostille","programs":["G"],"expect_official":true,"q":"Should the apostille be on the original or the translation?"},
+
+    {"id":"p12","topic":"recommendation","programs":["UG","G"],"expect_official":true,"q":"Who should write my recommendation letter?"},
+    {"id":"p13","topic":"recommendation","programs":["UG"],"expect_official":true,"q":"lor principal se le sakta hu?"},
+    {"id":"p14","topic":"sealed LOR","programs":["UG","G"],"expect_official":true,"q":"Does the recommendation letter need to be sealed in an envelope?"},
+    {"id":"p15","topic":"recommendation","programs":["UG","G"],"expect_official":true,"q":"How many recommendation letters do I need?"},
+
+    {"id":"p16","topic":"tracks","programs":["UG","G"],"expect_official":true,"q":"Can I apply through University Track after Embassy Track rejection?"},
+    {"id":"p17","topic":"tracks","programs":["UG","G"],"expect_official":true,"q":"can i apply both track same time"},
+    {"id":"p18","topic":"tracks","programs":["UG"],"expect_official":true,"q":"bro can i apply uni track if embassy reject me"},
+
+    {"id":"p19","topic":"gpa","programs":["UG","G"],"expect_official":true,"q":"What is the minimum GPA required?"},
+    {"id":"p20","topic":"gpa","programs":["UG"],"expect_official":true,"q":"My CGPA is below 80 percent. Can I still apply?"},
+    {"id":"p21","topic":"gpa","programs":["UG"],"expect_official":true,"q":"percentage system how to convert to 4.5 scale"},
+
+    {"id":"p22","topic":"graduation","programs":["UG","G"],"expect_official":true,"q":"I have not graduated yet. Can I apply with expected graduation?"},
+    {"id":"p23","topic":"graduation","programs":["UG"],"expect_official":true,"q":"provisional certificate chalega ya nahi"},
+
+    {"id":"p24","topic":"topik","programs":["UG","G"],"expect_official":true,"q":"Do I need TOPIK to apply?"},
+    {"id":"p25","topic":"topik","programs":["UG"],"expect_official":true,"q":"if i have topik 5 do i skip korean language year"},
+    {"id":"p26","topic":"ielts","programs":["UG","G"],"expect_official":true,"q":"Is IELTS accepted as English proficiency?"},
+
+    {"id":"p27","topic":"forms","programs":["UG"],"expect_official":true,"q":"What is Form 4 and do I need it?"},
+    {"id":"p28","topic":"forms","programs":["UG","G"],"expect_official":true,"q":"do i need to sign the forms by hand"},
+    {"id":"p29","topic":"personal statement","programs":["UG","G"],"expect_official":true,"q":"What should I write in my personal statement?"},
+
+    {"id":"p30","topic":"university choices","programs":["UG","G"],"expect_official":true,"q":"How many universities can I choose?"},
+    {"id":"p31","topic":"university choices","programs":["UG"],"expect_official":true,"q":"must i choose type b university?"},
+    {"id":"p32","topic":"university choices","programs":["G"],"expect_official":true,"q":"can i choose 2 department in same university"},
+
+    {"id":"p33","topic":"document copies","programs":["UG","G"],"expect_official":true,"q":"How many sets of documents do I need to send?"},
+    {"id":"p34","topic":"document copies","programs":["UG"],"expect_official":true,"q":"original bhejna hai ya photocopy"},
+    {"id":"p35","topic":"document copies","programs":["UG","G"],"expect_official":true,"q":"My documents are not in English. What should I do?"},
+
+    {"id":"p36","topic":"vague","programs":["UG"],"expect_clarification":true,"expect_official":null,"q":"can i do this?"},
+    {"id":"p37","topic":"vague","programs":["G"],"expect_clarification":true,"expect_official":null,"q":"what about mine"},
+    {"id":"p38","topic":"off-topic","programs":["UG"],"expect_official":false,"q":"can i bring my pet dog to korea"},
+    {"id":"p39","topic":"off-topic","programs":["G"],"expect_official":false,"q":"best korean drama to learn language"}
+  ]
+}

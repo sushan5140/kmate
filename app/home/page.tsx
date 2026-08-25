@@ -4,6 +4,7 @@ import {
   Users,
   MessageSquare,
   MessageCircle,
+  Bot,
   AlertTriangle,
   Award,
   Inbox,
@@ -214,6 +215,13 @@ export default async function HomePage() {
             </p>
           </Card>
         </Link>
+        <Link href="/gks">
+          <Card interactive className="h-full">
+            <Bot className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">GKS Assistant</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Ask about the official GKS guidelines</p>
+          </Card>
+        </Link>
         <Link href="/mistakes">
           <Card interactive className="h-full">
             <AlertTriangle className="h-4 w-4 text-muted" />
@@ -306,7 +314,7 @@ export default async function HomePage() {
       </div>
 
       <div className="mt-8 flex flex-col items-center gap-3 border-t border-hairline pt-6">
-        <p className="text-[12.5px] text-muted">14 features, all reachable from home or the ••• menu</p>
+        <p className="text-[12.5px] text-muted">15 features, all reachable from home or the ••• menu</p>
         <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted">
           <ArrowDown className="h-3.5 w-3.5" />
         </span>

@@ -1593,3 +1593,205 @@ create policy "message_reports_insert_own" on public.message_reports for insert
 drop policy if exists "message_reports_select_own_or_admin" on public.message_reports;
 create policy "message_reports_select_own_or_admin" on public.message_reports for select
   using (public.is_admin() or auth.uid() = reporter_id);
+
+-- ============================================================================
+-- GKS Assistant
+--
+-- The RAG service (gks-rag/) is stateless: it retrieves official guideline
+-- text and community experience per request and forgets both. Everything a
+-- user can *act on* -- upvote, discuss, save -- has to outlive the request,
+-- so asking a question materialises it here.
+--
+-- The origin of every response is preserved explicitly: the official layer is
+-- snapshotted on gks_questions, and every other response carries
+-- 'kmate_user' or 'community_import' on gks_answers. That flag -- not a guess
+-- at render time -- decides whether the UI may show a real KMate username, a
+-- generated alias, or an official badge.
+-- ============================================================================
+
+create table if not exists public.gks_questions (
+  id uuid primary key default gen_random_uuid(),
+  program text not null check (program in ('UG', 'G')),
+  question text not null,
+  -- Lowercased, punctuation-stripped, whitespace-collapsed form, used only
+  -- for dedup: two applicants asking the same thing should land on ONE
+  -- thread so discussion and upvotes accumulate instead of scattering over
+  -- near-identical copies. Also what the upcoming FAQ Trends / Saved
+  -- Questions feature will aggregate on, which is why ask_count lives here
+  -- rather than being derived from a log table that doesn't exist yet.
+  question_norm text not null,
+  asked_by uuid references public.profiles(id) on delete set null,
+  -- Snapshot of the official layer as it read when first asked, so a saved
+  -- question still shows what the applicant actually saw. The live official
+  -- answer is re-retrieved on every ask and may legitimately differ once a
+  -- newer guideline edition is ingested.
+  official_answer text,
+  official_sources jsonb not null default '[]'::jsonb,
+  ask_count int not null default 1,
+  created_at timestamptz not null default now(),
+  last_asked_at timestamptz not null default now()
+);
+
+create unique index if not exists gks_questions_program_norm_idx
+  on public.gks_questions (program, question_norm);
+create index if not exists gks_questions_last_asked_idx
+  on public.gks_questions (last_asked_at desc);
+
+create table if not exists public.gks_answers (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.gks_questions(id) on delete cascade,
+  -- Drives the entire identity decision in the UI:
+  --   'kmate_user'       -> show that account's real KMate username
+  --   'community_import' -> show a generated alias, never anything else
+  origin text not null check (origin in ('kmate_user', 'community_import')),
+  author_id uuid references public.profiles(id) on delete set null,
+  -- Stable per-contributor pseudonym from the community corpus, assigned at
+  -- ingestion -- no phone number, handle or real name ever entered the data.
+  -- The same contributor keeps the same alias across answers.
+  sender_alias text,
+  body text not null,
+  -- Deterministic identity of an imported answer (cluster id + digest of its
+  -- text), so re-asking a question re-attaches to the existing row and its
+  -- votes instead of inserting a duplicate.
+  external_key text,
+  upvotes_count int not null default 0,
+  created_at timestamptz not null default now(),
+  -- Makes the two origins structurally exclusive: an imported answer can
+  -- never carry an author_id (which would let the UI print a real username
+  -- next to scraped text), and a KMate answer can never carry an external_key.
+  constraint gks_answers_origin_shape check (
+    (origin = 'kmate_user' and author_id is not null and external_key is null)
+    or (origin = 'community_import' and author_id is null and external_key is not null)
+  )
+);
+
+-- Not partial: kmate_user rows carry a null external_key, and Postgres treats
+-- nulls as distinct, so they never collide here. A partial index would be
+-- unusable as an ON CONFLICT target from the client library.
+create unique index if not exists gks_answers_question_external_idx
+  on public.gks_answers (question_id, external_key);
+create index if not exists gks_answers_question_idx
+  on public.gks_answers (question_id, upvotes_count desc, created_at desc);
+
+create table if not exists public.gks_answer_upvotes (
+  answer_id uuid not null references public.gks_answers(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (answer_id, user_id)
+);
+
+-- Discussion is deliberately separate from answers: an answer claims to
+-- resolve the question, a discussion post continues the conversation. Mixing
+-- them would make "sort answers by usefulness" meaningless.
+create table if not exists public.gks_discussion_posts (
+  id uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.gks_questions(id) on delete cascade,
+  -- One level of nesting: null = a top-level thread, set = a reply to one.
+  -- Replies to replies are re-parented to the thread root by the API so the
+  -- thread stays readable on a phone instead of marching off the screen.
+  parent_id uuid references public.gks_discussion_posts(id) on delete cascade,
+  author_id uuid references public.profiles(id) on delete set null,
+  body text not null,
+  upvotes_count int not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists gks_discussion_question_idx
+  on public.gks_discussion_posts (question_id, created_at);
+
+create table if not exists public.gks_discussion_upvotes (
+  post_id uuid not null references public.gks_discussion_posts(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (post_id, user_id)
+);
+
+create table if not exists public.gks_saved_questions (
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  question_id uuid not null references public.gks_questions(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, question_id)
+);
+
+-- Upvote-only, so these are simpler than handle_question_upvote_change():
+-- there is no direction to switch, only insert and delete.
+create or replace function public.handle_gks_answer_upvote_change() returns trigger
+language plpgsql as $fn$
+begin
+  if (tg_op = 'INSERT') then
+    update public.gks_answers set upvotes_count = upvotes_count + 1 where id = new.answer_id;
+    return new;
+  elsif (tg_op = 'DELETE') then
+    update public.gks_answers set upvotes_count = greatest(0, upvotes_count - 1) where id = old.answer_id;
+    return old;
+  end if;
+  return null;
+end;
+$fn$;
+
+create or replace function public.handle_gks_discussion_upvote_change() returns trigger
+language plpgsql as $fn$
+begin
+  if (tg_op = 'INSERT') then
+    update public.gks_discussion_posts set upvotes_count = upvotes_count + 1 where id = new.post_id;
+    return new;
+  elsif (tg_op = 'DELETE') then
+    update public.gks_discussion_posts set upvotes_count = greatest(0, upvotes_count - 1) where id = old.post_id;
+    return old;
+  end if;
+  return null;
+end;
+$fn$;
+
+drop trigger if exists on_gks_answer_upvote_insert on public.gks_answer_upvotes;
+create trigger on_gks_answer_upvote_insert after insert on public.gks_answer_upvotes
+  for each row execute function public.handle_gks_answer_upvote_change();
+drop trigger if exists on_gks_answer_upvote_delete on public.gks_answer_upvotes;
+create trigger on_gks_answer_upvote_delete after delete on public.gks_answer_upvotes
+  for each row execute function public.handle_gks_answer_upvote_change();
+
+drop trigger if exists on_gks_discussion_upvote_insert on public.gks_discussion_upvotes;
+create trigger on_gks_discussion_upvote_insert after insert on public.gks_discussion_upvotes
+  for each row execute function public.handle_gks_discussion_upvote_change();
+drop trigger if exists on_gks_discussion_upvote_delete on public.gks_discussion_upvotes;
+create trigger on_gks_discussion_upvote_delete after delete on public.gks_discussion_upvotes
+  for each row execute function public.handle_gks_discussion_upvote_change();
+
+alter table public.gks_questions enable row level security;
+alter table public.gks_answers enable row level security;
+alter table public.gks_answer_upvotes enable row level security;
+alter table public.gks_discussion_posts enable row level security;
+alter table public.gks_discussion_upvotes enable row level security;
+alter table public.gks_saved_questions enable row level security;
+
+-- Questions, answers and discussion are readable by any signed-in applicant
+-- (that is the point of a shared knowledge layer). Writes go through the
+-- service-role API routes, which is why there is no broad insert policy here.
+drop policy if exists "gks_questions_select_all" on public.gks_questions;
+create policy "gks_questions_select_all" on public.gks_questions for select using (true);
+drop policy if exists "gks_answers_select_all" on public.gks_answers;
+create policy "gks_answers_select_all" on public.gks_answers for select using (true);
+drop policy if exists "gks_discussion_select_all" on public.gks_discussion_posts;
+create policy "gks_discussion_select_all" on public.gks_discussion_posts for select using (true);
+
+drop policy if exists "gks_answer_upvotes_select_all" on public.gks_answer_upvotes;
+create policy "gks_answer_upvotes_select_all" on public.gks_answer_upvotes for select using (true);
+drop policy if exists "gks_answer_upvotes_insert_own" on public.gks_answer_upvotes;
+create policy "gks_answer_upvotes_insert_own" on public.gks_answer_upvotes for insert with check (auth.uid() = user_id);
+drop policy if exists "gks_answer_upvotes_delete_own" on public.gks_answer_upvotes;
+create policy "gks_answer_upvotes_delete_own" on public.gks_answer_upvotes for delete using (auth.uid() = user_id);
+
+drop policy if exists "gks_discussion_upvotes_select_all" on public.gks_discussion_upvotes;
+create policy "gks_discussion_upvotes_select_all" on public.gks_discussion_upvotes for select using (true);
+drop policy if exists "gks_discussion_upvotes_insert_own" on public.gks_discussion_upvotes;
+create policy "gks_discussion_upvotes_insert_own" on public.gks_discussion_upvotes for insert with check (auth.uid() = user_id);
+drop policy if exists "gks_discussion_upvotes_delete_own" on public.gks_discussion_upvotes;
+create policy "gks_discussion_upvotes_delete_own" on public.gks_discussion_upvotes for delete using (auth.uid() = user_id);
+
+-- A saved question is private to the person who saved it.
+drop policy if exists "gks_saved_select_own" on public.gks_saved_questions;
+create policy "gks_saved_select_own" on public.gks_saved_questions for select using (auth.uid() = user_id);
+drop policy if exists "gks_saved_insert_own" on public.gks_saved_questions;
+create policy "gks_saved_insert_own" on public.gks_saved_questions for insert with check (auth.uid() = user_id);
+drop policy if exists "gks_saved_delete_own" on public.gks_saved_questions;
+create policy "gks_saved_delete_own" on public.gks_saved_questions for delete using (auth.uid() = user_id);
