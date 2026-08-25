@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from app.sanitize import clean_answers, clean_text
 from app.official_text import clean_official_text
+from app.query_normalize import normalize_query
 from app.usefulness import select_answers
 from app.settings import (
     CATEGORY_BOOST,
@@ -16,6 +17,8 @@ from app.settings import (
     COMMUNITY_RERANK_POOL,
     COMMUNITY_USEFULNESS_WEIGHT,
     COMMUNITY_MIN_SCORE,
+    COMMUNITY_RELATIVE_FLOOR,
+    COMMUNITY_REQUIRE_CONCEPT,
     COMMUNITY_PROGRAM_MATCH_BOOST,
     COMMUNITY_PROGRAM_MISMATCH_PENALTY,
     COMMUNITY_PROGRAM_MIXED_BOOST,
@@ -307,6 +310,12 @@ class Retriever:
         ranked lower: the two programs' rules must never sit side by side as if
         both were "the" official answer.
         """
+        # Retrieval runs on the normalised text ("ietls" -> "ielts", "english
+        # test" -> also "ielts toefl"); the caller keeps the original for
+        # display. Without this the concept gate below never engages on a
+        # misspelling, which is how "ietls" returned apostille threads.
+        query = normalize_query(query)
+
         qw = self.q_word_vec.transform([query])
         qc = self.q_char_vec.transform([query])
         aw = self.a_word_vec.transform([query])
@@ -362,6 +371,13 @@ class Retriever:
                         score -= COMMUNITY_PROGRAM_MISMATCH_PENALTY
                 if score < COMMUNITY_MIN_SCORE:
                     continue
+                # Topic gate, mirroring the official layer. A thread that
+                # shares no concept with a focused question is off-topic
+                # however well it scores lexically -- this is what stopped
+                # "ielts" returning transcript and apostille threads that
+                # merely used similar conversational wording.
+                if COMMUNITY_REQUIRE_CONCEPT and q_concepts and not overlap:
+                    continue
 
             boosted.append((score, i))
 
@@ -382,12 +398,39 @@ class Retriever:
             )
             if not selected:
                 continue  # thread matched the question but says nothing usable
-            reranked.append((base_score + COMMUNITY_USEFULNESS_WEIGHT * best, i, selected))
 
-        reranked.sort(key=lambda t: (-t[0], t[1]))
+            # Ranking priority, in the order it is applied below:
+            #   1. how much of the asked topic this thread actually covers
+            #   2. whether it is the applicant's own GKS program
+            #   3. how useful its best reply is (first-hand experience, sources)
+            #   4. lexical similarity, as the final tie-break only
+            # Conversational similarity therefore cannot outrank topic match --
+            # which was the whole failure: threads full of generic GKS chatter
+            # scored well against short questions like "ielts".
+            overlap = q_concepts & self.record_concepts[i]
+            topic = len(overlap) / len(q_concepts) if q_concepts else 0.0
+            rec_program = self.record_programs[i] or "unknown"
+            program_match = 1.0 if (program and rec_program == program) else (
+                0.5 if rec_program == "mixed" else 0.0
+            )
+            combined = base_score + COMMUNITY_USEFULNESS_WEIGHT * best
+            reranked.append((topic, program_match, best, combined, base_score, i, selected))
+
+        if not reranked:
+            return []
+
+        reranked.sort(key=lambda t: (-t[0], -t[1], -t[2], -t[3], t[5]))
+
+        # Relative floor: once the best match is known, anything far below it is
+        # padding. Showing two strong experiences beats showing six where four
+        # are only loosely on topic.
+        best_relevance = max(t[4] for t in reranked)
+        floor = best_relevance * COMMUNITY_RELATIVE_FLOOR
+        kept = [t for t in reranked if t[4] >= floor]
+
         return [
-            self._format(self.records[i], s, selected_answers=sel)
-            for s, i, sel in reranked[:top_k]
+            self._format(self.records[i], combined, selected_answers=sel)
+            for _t, _p, _b, combined, _base, i, sel in kept[:top_k]
         ]
 
     @staticmethod

@@ -55,13 +55,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 1
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -105,25 +105,25 @@
       ],
       "top_community": [
         {
-          "score": 1.4946,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "So, is the transcript not important?"
-        },
-        {
-          "score": 1.3924,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Can anyone explain about how to get transcript from school"
-        },
-        {
           "score": 1.3747,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Separately in each class it should be 80 or above And average of all which is transcript should also be 80 or above or in the CGPA which is given in the guidelines"
+        },
+        {
+          "score": 1.2883,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "For Pakistani if anybody here The thing is is our marksheet which is known as transcript board give us 6 months after exams or maybe earlier but the main problem is degree which can't be given before 3 years in Sindh especially what should we do in this situation"
+        },
+        {
+          "score": 1.4466,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "I have appostiled my 10 transcript and certificate for 12 I didn't get results yet so I'm providing my attested 11 transcript, is it okay?"
         }
       ],
       "checks": {
@@ -152,7 +152,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -196,25 +197,25 @@
       ],
       "top_community": [
         {
+          "score": 1.3116,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "For Pakistani if anybody here The thing is is our marksheet which is known as transcript board give us 6 months after exams or maybe earlier but the main problem is degree which can't be given before 3 years in Sindh especially what should we do in this situation"
+        },
+        {
+          "score": 1.4435,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "So, is the transcript not important?"
+        },
+        {
           "score": 1.6408,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "I haven't received transcript from my college..can I use my marksheet instead.."
-        },
-        {
-          "score": 1.5091,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I think i can use marksheet ."
-        },
-        {
-          "score": 1.5031,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Otherwise you can also go with marksheet"
         }
       ],
       "checks": {
@@ -243,7 +244,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 5,
+        "mixed": 1
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -254,62 +256,65 @@
         ],
         "covered": [
           "embassy_track",
-          "university_choice",
           "university_track"
         ],
-        "unsupported": [],
-        "unsupported_labels": []
+        "unsupported": [
+          "university_choice"
+        ],
+        "unsupported_labels": [
+          "how many universities you may choose"
+        ]
       },
       "top_official": [
         {
-          "score": 0.8615,
-          "page": 4,
+          "score": 1.0338,
+          "page": 9,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "For the R-GKS program of the Embassy Track, applicants can choose up to TWO different universities from Type B universities."
+          "claim": "Embassy track applicants who passed the first round of selection (including backup candidates) cannot apply again through a university track"
         },
         {
-          "score": 0.8545,
-          "page": 4,
+          "score": 0.9699,
+          "page": 24,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "For the General and Overseas Koreans program of the Embassy Track, applicants choose up to THREE different universities in any order of preference and MUST apply to at least one of the universities from Type B."
+          "claim": "Appendix B. Contacts of Universities Staff (Embassy Track)"
         },
         {
-          "score": 0.8464,
-          "page": 19,
+          "score": 0.9697,
+          "page": 17,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Embassy track applicants who pass the 3rd round of selection cannot change their university choice after final admission is confirmed"
+          "claim": "Things to check when submitting application documents [Both Embassy and University Track]"
         }
       ],
       "top_community": [
         {
-          "score": 1.8305,
-          "program": "mixed",
+          "score": 1.6861,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
+          "question": "Bro in the evening I saw Anjali in korea video and she also said that Eg. Your major is International Relations so you cannot apply to university track bcz that is only for STEM majors"
         },
         {
-          "score": 1.6964,
-          "program": "mixed",
+          "score": 1.5961,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.6561,
-          "program": "mixed",
+          "score": 1.5538,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "But there is not much uni that is focused in the major i want in uni track"
+          "question": "Like anybody can apply with university track but with university type b"
         }
       ],
       "checks": {
@@ -338,8 +343,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 5,
-        "G": 1
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -358,7 +363,7 @@
       },
       "top_official": [
         {
-          "score": 0.9098,
+          "score": 1.0308,
           "page": 14,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
@@ -367,45 +372,45 @@
           "claim": "Embassy track candidates (including reserve candidates) who passed the first round of selection cannot apply again through a university track"
         },
         {
-          "score": 0.8855,
-          "page": 5,
+          "score": 0.9712,
+          "page": 24,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Embassy Track applicant may choose up to THREE different universities from Type A and B and MUST apply to at least one of the universities from Type B"
+          "claim": "The University Track schedule has been adjusted to allow unsuccessful first-round Embassy Track applicants to apply again"
         },
         {
-          "score": 0.8394,
-          "page": 27,
+          "score": 0.9704,
+          "page": 26,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Embassy track applicants must check the following when filling in desired universities · Applicants can select up to THREE different universities * Applicants may NOT apply to multiple departments within the same university[N4] · At least one of the selected u"
+          "claim": "Applicants who did not pass the first round of embassy track* may apply to a university track** * Successful candidates (including reserve candidate) of the embassy track cannot reapply to a university track ** Such applicants must check if they can meet the a"
         }
       ],
       "top_community": [
         {
-          "score": 1.8305,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
-        },
-        {
-          "score": 1.7028,
+          "score": 1.6395,
           "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Did she pass second round uni track"
         },
         {
-          "score": 1.6964,
+          "score": 1.449,
+          "program": "G",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Unfortunately you will have to search for each of the universities available and look at the majors that you would like, are you applying embassy or university track?"
+        },
+        {
+          "score": 1.741,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "If you are applying through uni track that will be best"
         }
       ],
       "checks": {
@@ -434,8 +439,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 1,
       "coverage": {
@@ -479,6 +483,13 @@
       ],
       "top_community": [
         {
+          "score": 1.4062,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "How many recommendation letter do we need"
+        },
+        {
           "score": 1.3922,
           "program": "mixed",
           "confidence": "medium",
@@ -486,18 +497,11 @@
           "question": "Oh I understand LOR on 4 number on gks scholarship from right?"
         },
         {
-          "score": 1.369,
-          "program": "mixed",
-          "confidence": "review",
-          "possible_conflict": true,
-          "question": "For applying GKS. I have made 2 letter of recommendation one from principal and one from maths teacher .very hardly For applying first round. Can I send those LOR directly???"
-        },
-        {
-          "score": 1.2842,
+          "score": 1.3189,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Hello guys.. Does anyone got finished with Personal statement, LOR & study plan?"
+          "question": "Some say they just need the recommenders info while some say your recommender should scan the recommendation letter and send it to you then you forward it online"
         }
       ],
       "checks": {
@@ -526,8 +530,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -571,6 +575,13 @@
       ],
       "top_community": [
         {
+          "score": 1.5278,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Did u Apostille ur dc guys?"
+        },
+        {
           "score": 1.7261,
           "program": "mixed",
           "confidence": "medium",
@@ -578,18 +589,11 @@
           "question": "The translate need to apostille also?"
         },
         {
-          "score": 1.6775,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "What document we need to apostille?"
-        },
-        {
-          "score": 1.5825,
+          "score": 1.5444,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Wait I am more confused now 😭..don't we have to photocopy the document by scanning then apostille that document and send it to nied ?"
+          "question": "orignal apostilled document is necesarry as it is verfies you graduate certificated is valid outside ur country"
         }
       ],
       "checks": {
@@ -669,18 +673,18 @@
           "question": "The translate need to apostille also?"
         },
         {
-          "score": 1.6775,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "What document we need to apostille?"
-        },
-        {
-          "score": 1.5825,
+          "score": 1.5444,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Wait I am more confused now 😭..don't we have to photocopy the document by scanning then apostille that document and send it to nied ?"
+          "question": "orignal apostilled document is necesarry as it is verfies you graduate certificated is valid outside ur country"
+        },
+        {
+          "score": 1.533,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
         }
       ],
       "checks": {
@@ -707,8 +711,8 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -726,13 +730,6 @@
       "top_official": [],
       "top_community": [
         {
-          "score": 1.5081,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "stamp is required"
-        },
-        {
           "score": 1.4499,
           "program": "UG",
           "confidence": "medium",
@@ -740,11 +737,18 @@
           "question": "That’s what I’m saying is gks going to accept me having a different school name on my waec certificate and graduation certificate"
         },
         {
-          "score": 1.3374,
+          "score": 1.4138,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I m getting confused. Someone tell me stamp is not important"
+          "question": "You can use those copies but why did you send your original documents 🫣"
+        },
+        {
+          "score": 1.3179,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "but whatever you prev uni is requesting and if they wont give you any final documentation, you might be in trouble ngl."
         }
       ],
       "checks": {
@@ -773,8 +777,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -789,54 +793,54 @@
       },
       "top_official": [
         {
-          "score": 0.5403,
+          "score": 0.9173,
           "page": 15,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "transcript",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "If a CGPA is not indicated in one of the acknowledged GPA scales (4.0, 4.3, 4.5, 5.0 or 100 point scale), submit a transcript converted into one of the above GPA scales as a supplementary document Academic Transcript · A converted transcript is only valid when"
+          "claim": "Submit an academic transcript officially issued by the school of previous degree program"
         },
         {
-          "score": 0.5121,
-          "page": 31,
-          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
-          "category": "transcript",
-          "content_type": "prose",
-          "extraction_quality": "clean",
-          "claim": "Q. The grades in my transcript/school report are different from the GPA scales in the guidelines. How should I submit my CGPA? Can I use the scores I converted from a grade conversion website such as scholaro.com? A. If your grades do not belong to any of the "
-        },
-        {
-          "score": 0.5104,
+          "score": 0.9014,
           "page": 16,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "transcript",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "If a transcript indicates CGPA for the entire academic duration, it will be accepted even if it does not indicate GPA per semester/ year · In such case, please provide your CGPA only in your application"
+          "claim": "Without converted transcript, applicants' eligibility and academic ability cannot be evaluated"
+        },
+        {
+          "score": 0.8874,
+          "page": 12,
+          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
+          "category": "transcript",
+          "content_type": "table_row",
+          "extraction_quality": "clean",
+          "claim": "Documents to Submit ○ List of documents to submit | Type No. Application Documents Note | Required certificates * Submit with apostille/ consular confirmation | 11. Academic transcript of associate degree"
         }
       ],
       "top_community": [
         {
-          "score": 1.2907,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "The translate need to apostille also?"
-        },
-        {
-          "score": 1.2357,
+          "score": 1.3767,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+          "question": "Separately in each class it should be 80 or above And average of all which is transcript should also be 80 or above or in the CGPA which is given in the guidelines"
         },
         {
-          "score": 1.2311,
+          "score": 1.4717,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yes That's why they need to see your high school transcript from 10, 11th and 12th grade"
+          "question": "I have appostiled my 10 transcript and certificate for 12 I didn't get results yet so I'm providing my attested 11 transcript, is it okay?"
+        },
+        {
+          "score": 1.5503,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "So, is the transcript not important?"
         }
       ],
       "checks": {
@@ -880,7 +884,16 @@
       },
       "top_official": [
         {
-          "score": 0.5661,
+          "score": 0.9396,
+          "page": 22,
+          "source_title": "GKS-G 2026 Application Guidelines",
+          "category": "transcript",
+          "content_type": "prose",
+          "extraction_quality": "clean",
+          "claim": "Submit an academic transcript officially issued by the graduated university"
+        },
+        {
+          "score": 0.8976,
           "page": 22,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "transcript",
@@ -889,45 +902,36 @@
           "claim": "If a transcript of a transferred student that does not include the grades of the previous semester(s), submit an academic record of the previous university as a supplementary document (need to be apostilled or consular confirmed)"
         },
         {
-          "score": 0.5507,
-          "page": 22,
+          "score": 0.8972,
+          "page": 17,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "transcript",
-          "content_type": "prose",
+          "content_type": "table_row",
           "extraction_quality": "clean",
-          "claim": "If the CGPA is not indicated in one of the acknowledged GPA scales (4.0, 4.3, 4.5, 5.0 or 100 point scale), submit a transcript converted into one of the above GPA scales as a supplementary document · A converted transcript is only valid when the relevant univ"
-        },
-        {
-          "score": 0.518,
-          "page": 22,
-          "source_title": "GKS-G 2026 Application Guidelines",
-          "category": "transcript",
-          "content_type": "prose",
-          "extraction_quality": "clean",
-          "claim": "Submit an academic transcript officially issued by the graduated university"
+          "claim": "University Track | Type No. Application Documents Master's Doctoral Research | Certificates (Required) | 12'. Bachelor's Degree Transcript Required Required Required"
         }
       ],
       "top_community": [
         {
-          "score": 1.2907,
+          "score": 1.4717,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "The translate need to apostille also?"
+          "question": "I have appostiled my 10 transcript and certificate for 12 I didn't get results yet so I'm providing my attested 11 transcript, is it okay?"
         },
         {
-          "score": 1.2311,
+          "score": 1.5503,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Yes That's why they need to see your high school transcript from 10, 11th and 12th grade"
+          "question": "So, is the transcript not important?"
         },
         {
-          "score": 1.1564,
+          "score": 1.4075,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Or I need to attest and submit my enrollment certificate too?"
+          "question": "Please can someone help me to explain, am confused should I summit my converted transcript from scholaro as part of my transcript or as other documents and awards?"
         }
       ],
       "checks": {
@@ -1000,6 +1004,13 @@
       ],
       "top_community": [
         {
+          "score": 1.4271,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "I have appostiled my 10 transcript and certificate for 12 I didn't get results yet so I'm providing my attested 11 transcript, is it okay?"
+        },
+        {
           "score": 1.4678,
           "program": "mixed",
           "confidence": "low",
@@ -1007,18 +1018,11 @@
           "question": "So, is the transcript not important?"
         },
         {
-          "score": 1.3663,
+          "score": 1.3678,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Can anyone explain about how to get transcript from school"
-        },
-        {
-          "score": 1.3369,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Whatever is on ur official transcript"
+          "question": "Please can someone help me to explain, am confused should I summit my converted transcript from scholaro as part of my transcript or as other documents and awards?"
         }
       ],
       "checks": {
@@ -1047,7 +1051,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1091,18 +1096,18 @@
       ],
       "top_community": [
         {
-          "score": 1.592,
-          "program": "mixed",
+          "score": 1.3186,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Otherwise you can also go with marksheet"
+          "question": "For Pakistani if anybody here The thing is is our marksheet which is known as transcript board give us 6 months after exams or maybe earlier but the main problem is degree which can't be given before 3 years in Sindh especially what should we do in this situation"
         },
         {
-          "score": 1.57,
+          "score": 1.453,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I think i can use marksheet ."
+          "question": "So, is the transcript not important?"
         },
         {
           "score": 1.4726,
@@ -1138,8 +1143,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1185,25 +1190,25 @@
       ],
       "top_community": [
         {
-          "score": 1.6105,
-          "program": "mixed",
-          "confidence": "low",
+          "score": 1.4237,
+          "program": "UG",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "if someone transcript show both cgpa and or %age so, in that case what should we do?"
+          "question": "Separately in each class it should be 80 or above And average of all which is transcript should also be 80 or above or in the CGPA which is given in the guidelines"
         },
         {
-          "score": 1.529,
+          "score": 1.4994,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "how's that possible? no cgpa? either percentage or cgpa must be present in the transcript. if none are present then redo it"
+          "question": "Perfect Use S4, S5 and S6 results as transcripts. get them authenticated. because remember as you apply, you are required to tick boxes.the boxes include both certificate and transcripts. If one box is not ticked, your application is automatically rejected"
         },
         {
-          "score": 1.5167,
+          "score": 1.4433,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "I have one more question, if anyone knows then please tell me, in the field of CGPA, we Indian students do not get the transcript, so what should we do where the CGPA of the original transcript has to be mentioned?"
+          "question": "Otherwise you can also go with marksheet"
         }
       ],
       "checks": {
@@ -1278,25 +1283,25 @@
       ],
       "top_community": [
         {
-          "score": 1.6105,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "if someone transcript show both cgpa and or %age so, in that case what should we do?"
-        },
-        {
-          "score": 1.529,
+          "score": 1.4994,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "how's that possible? no cgpa? either percentage or cgpa must be present in the transcript. if none are present then redo it"
+          "question": "Perfect Use S4, S5 and S6 results as transcripts. get them authenticated. because remember as you apply, you are required to tick boxes.the boxes include both certificate and transcripts. If one box is not ticked, your application is automatically rejected"
         },
         {
-          "score": 1.5167,
+          "score": 1.4433,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "I have one more question, if anyone knows then please tell me, in the field of CGPA, we Indian students do not get the transcript, so what should we do where the CGPA of the original transcript has to be mentioned?"
+          "question": "Otherwise you can also go with marksheet"
+        },
+        {
+          "score": 1.4135,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "The marks on my marksheet come to 70%; when I convert them using the WES scale, it works out to 3.60/4.00. What should I do?"
         }
       ],
       "checks": {
@@ -1325,8 +1330,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1372,25 +1377,25 @@
       ],
       "top_community": [
         {
-          "score": 1.4651,
-          "program": "mixed",
+          "score": 1.3422,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Please can someone help me to explain, am confused should I summit my converted transcript from scholaro as part of my transcript or as other documents and awards?"
+          "question": "Separately in each class it should be 80 or above And average of all which is transcript should also be 80 or above or in the CGPA which is given in the guidelines"
         },
         {
-          "score": 1.464,
+          "score": 1.4929,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yeah. On my marksheet shows only marks but on my top 20 class rank certificate shows percentage.. Is it valid or not.then still need the transcript"
+          "question": "Perfect Use S4, S5 and S6 results as transcripts. get them authenticated. because remember as you apply, you are required to tick boxes.the boxes include both certificate and transcripts. If one box is not ticked, your application is automatically rejected"
         },
         {
-          "score": 1.3628,
+          "score": 1.4199,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "I haven't received transcript from my college..can I use my marksheet instead.."
+          "question": "Otherwise you can also go with marksheet"
         }
       ],
       "checks": {
@@ -1419,8 +1424,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 2,
-        "UG": 4
+        "UG": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1437,7 +1442,7 @@
       },
       "top_official": [
         {
-          "score": 0.4865,
+          "score": 0.9245,
           "page": 13,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "transcript",
@@ -1446,7 +1451,7 @@
           "claim": "If your country belongs to one of the member countries for the Apostille Convention, submit your ‘required certificates’ with apostille. However, high school graduation certificate and academic transcript can be submitted with consular confirmation"
         },
         {
-          "score": 0.484,
+          "score": 0.9098,
           "page": 12,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "transcript",
@@ -1455,7 +1460,7 @@
           "claim": "Documents to Submit ○ List of documents to submit | Type No. Application Documents Note | Required certificates * Submit with apostille/ consular confirmation | 11. Academic transcript of associate degree"
         },
         {
-          "score": 0.4833,
+          "score": 0.9085,
           "page": 12,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "transcript",
@@ -1466,25 +1471,25 @@
       ],
       "top_community": [
         {
-          "score": 1.3133,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.311,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "The translate need to apostille also?"
+          "question": "Documents to legalise are Transcript Graduation certificate Birth certificate Go to YouTube an watch videos on legalisation and authentication then you will understand better Rose adoyi Pells diary Efua park Check for these accounts you'll see the videos there"
         },
         {
-          "score": 1.185,
+          "score": 1.3093,
           "program": "UG",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+          "question": "No I am eligible acc to the first ms and I will get the both of the marksheets before sept"
         },
         {
-          "score": 1.1534,
+          "score": 1.4166,
           "program": "UG",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Nuh I'm asking which track is I'm going to apply as a medical they're saying that changes come in this guidelines I didn't understand?"
+          "question": "Your marksheet is the transcript"
         }
       ],
       "checks": {
@@ -1530,7 +1535,7 @@
       },
       "top_official": [
         {
-          "score": 0.4864,
+          "score": 0.9122,
           "page": 20,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "transcript",
@@ -1539,7 +1544,7 @@
           "claim": "Graduation Certificate and Academic Transcript: Applicants who are unable to obtain an apostille or consular confirmation for the required documents, a letter of recommendation issued by UNHCR must be submitted"
         },
         {
-          "score": 0.486,
+          "score": 0.881,
           "page": 17,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "transcript",
@@ -1548,7 +1553,7 @@
           "claim": "University Track | Type No. Application Documents Master's Doctoral Research | Must be Apostilled or Consular confirmed | 13'. Master's Degree Transcript N/A Required Required"
         },
         {
-          "score": 0.4847,
+          "score": 0.8634,
           "page": 22,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "transcript",
@@ -1559,25 +1564,25 @@
       ],
       "top_community": [
         {
-          "score": 1.3133,
+          "score": 1.6072,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Wait wait you mean you sent true copies? Or ORIGINAL like you sent actual Sanad and marksheet?"
+        },
+        {
+          "score": 1.4636,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "The translate need to apostille also?"
         },
         {
-          "score": 1.0503,
+          "score": 1.4183,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Authentication is done only in Abuja Then legalization is done either In Abuja or Lagos. What to legalize: Graduation certificate, transcript, birth certificate, and waec (if needed) or any any other documents like death cert."
-        },
-        {
-          "score": 1.042,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Can anyone help me with making Transcrcript I did contact her for Transcrcript and she said she can make one and it'll cost ₹300 I changed school in 11th So I'm confused if I should make two transcrcripts or single one And can anyone send me a proper format"
+          "question": "It does not metter if the transcript or final diploma changes something, as long as you submit you are already graduated, you are good"
         }
       ],
       "checks": {
@@ -1606,8 +1611,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1651,18 +1656,18 @@
       ],
       "top_community": [
         {
-          "score": 1.6588,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "The translate need to apostille also?"
-        },
-        {
           "score": 1.4636,
           "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
           "question": "Did u Apostille ur dc guys?"
+        },
+        {
+          "score": 1.6588,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "The translate need to apostille also?"
         },
         {
           "score": 1.414,
@@ -1749,18 +1754,18 @@
           "question": "The translate need to apostille also?"
         },
         {
+          "score": 1.475,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
+        },
+        {
           "score": 1.414,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "I still haven't apostilled my documents and it will take almost a week to get other documents first..am I in trouble?"
-        },
-        {
-          "score": 1.3821,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "What's the process of apostille"
         }
       ],
       "checks": {
@@ -1789,8 +1794,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -1834,11 +1839,18 @@
       ],
       "top_community": [
         {
-          "score": 1.7274,
-          "program": "mixed",
+          "score": 1.5115,
+          "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
+          "question": "Did u Apostille ur dc guys?"
+        },
+        {
+          "score": 1.2991,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Good morning guys. Please for the authentication and legalization for Gks,is it compulsory that I authenticate my waec certificate at the ministry of education?"
         },
         {
           "score": 1.7045,
@@ -1846,13 +1858,6 @@
           "confidence": "medium",
           "possible_conflict": false,
           "question": "The translate need to apostille also?"
-        },
-        {
-          "score": 1.5628,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "orignal apostilled document is necesarry as it is verfies you graduate certificated is valid outside ur country"
         }
       ],
       "checks": {
@@ -1925,18 +1930,18 @@
       ],
       "top_community": [
         {
-          "score": 1.7274,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
-        },
-        {
           "score": 1.7045,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "The translate need to apostille also?"
+        },
+        {
+          "score": 1.7274,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
         },
         {
           "score": 1.5628,
@@ -2158,8 +2163,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -2174,7 +2179,7 @@
       },
       "top_official": [
         {
-          "score": 0.9295,
+          "score": 0.8696,
           "page": 13,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "apostille_authentication",
@@ -2183,45 +2188,45 @@
           "claim": "No need to be apostilled or consular confirmed"
         },
         {
-          "score": 0.8805,
-          "page": 35,
+          "score": 0.8431,
+          "page": 12,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "apostille_authentication",
-          "content_type": "prose",
+          "content_type": "table_row",
           "extraction_quality": "clean",
-          "claim": "Q. Can I submit my graduation certificate that was apostilled last year? A. If there is an expiration date on an apostilled or consular confirmed document, the validity of the document will be judged based on the date indicated on the authentication. If there "
+          "claim": "Documents to Submit ○ List of documents to submit | Type No. Application Documents Note | Required certificates * Submit with apostille/ consular confirmation | 12. Proof of Overseas Korean Document Optional"
         },
         {
-          "score": 0.8595,
-          "page": 13,
+          "score": 0.8398,
+          "page": 12,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "apostille_authentication",
-          "content_type": "prose",
+          "content_type": "table_row",
           "extraction_quality": "clean",
-          "claim": "Number of documents to submit · Embassy Track (General, Overseas Koreans): ONE apostilled or consular confirmed document + THREE additional simple photocopies (R-GKS): ONE apostilled or consular confirmed document + TWO additional simple photocopies · Universi"
+          "claim": "Documents to Submit ○ List of documents to submit | Type No. Application Documents Note | Required certificates * Submit with apostille/ consular confirmation | 13. Proof of Korean Citizenship Renunciation Document"
         }
       ],
       "top_community": [
         {
-          "score": 1.5098,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "orignal apostilled document is necesarry as it is verfies you graduate certificated is valid outside ur country"
-        },
-        {
-          "score": 1.4701,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Can I use them this year or do I have to apostille them again?"
-        },
-        {
-          "score": 1.4439,
+          "score": 1.5376,
           "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
           "question": "Did u Apostille ur dc guys?"
+        },
+        {
+          "score": 1.7431,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "The translate need to apostille also?"
+        },
+        {
+          "score": 1.5332,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
         }
       ],
       "checks": {
@@ -2310,11 +2315,11 @@
           "question": "Hello i wanna ask For GKS-U Embassy Track, which procedure is correct? 1.Photocopy of the original document → Notarization → Apostille 2.Translation → Apostille"
         },
         {
-          "score": 1.5353,
+          "score": 1.5102,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "do not apostille"
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
         }
       ],
       "checks": {
@@ -2403,11 +2408,11 @@
           "question": "Hello i wanna ask For GKS-U Embassy Track, which procedure is correct? 1.Photocopy of the original document → Notarization → Apostille 2.Translation → Apostille"
         },
         {
-          "score": 1.5353,
+          "score": 1.5102,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "do not apostille"
+          "question": "Ask your country to sign the Hague Convention then you can also be part of apostille country list."
         }
       ],
       "checks": {
@@ -2431,15 +2436,14 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 5,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 1
+        "mixed": 6
       },
-      "community_conflict_flags": 0,
+      "community_conflict_flags": 1,
       "coverage": {
         "question_concepts": [
           "recommendation"
@@ -2488,18 +2492,18 @@
           "question": "Oh I understand LOR on 4 number on gks scholarship from right?"
         },
         {
-          "score": 1.2937,
-          "program": "UG",
+          "score": 1.2745,
+          "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Guys how many LOR copies r required for the GKS Embassy Track(Rgks)"
+          "question": "Is not must They said a LOR that is not signed sealed and date is not acceptable As long as the letter is dated you can decide to date the envelope or not Just signing and sealing it is enough"
         },
         {
-          "score": 1.2077,
+          "score": 1.2725,
           "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I am very much confused about the recommendation letter. Can someone tell me whether it is necessary to write our major in the recommendation letter or not."
+          "confidence": "review",
+          "possible_conflict": true,
+          "question": "For applying GKS. I have made 2 letter of recommendation one from principal and one from maths teacher .very hardly For applying first round. Can I send those LOR directly???"
         }
       ],
       "checks": {
@@ -2523,14 +2527,14 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 5
+        "mixed": 6
       },
-      "community_conflict_flags": 0,
+      "community_conflict_flags": 1,
       "coverage": {
         "question_concepts": [
           "recommendation"
@@ -2579,18 +2583,18 @@
           "question": "Oh I understand LOR on 4 number on gks scholarship from right?"
         },
         {
-          "score": 1.2077,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I am very much confused about the recommendation letter. Can someone tell me whether it is necessary to write our major in the recommendation letter or not."
-        },
-        {
-          "score": 1.1569,
+          "score": 1.3031,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Guys how we supposed to submit lor this time in online application?"
+          "question": "For recommendation letter. Only Signed by the processor who teach you right on A4 size pepar. Right?"
+        },
+        {
+          "score": 1.2745,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Is not must They said a LOR that is not signed sealed and date is not acceptable As long as the letter is dated you can decide to date the envelope or not Just signing and sealing it is enough"
         }
       ],
       "checks": {
@@ -2665,18 +2669,18 @@
       ],
       "top_community": [
         {
+          "score": 1.2414,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "So in the application am I to print four set of the gks forms Then 1 envelope will contain my originals and the others my photo copies"
+        },
+        {
           "score": 1.4558,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
           "question": "And after filling in the information, do we have to put this also inside the envelope or do we have to put the recommendation letter given by the teacher inside the envelope?"
-        },
-        {
-          "score": 1.4548,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Is not must They said a LOR that is not signed sealed and date is not acceptable As long as the letter is dated you can decide to date the envelope or not Just signing and sealing it is enough"
         },
         {
           "score": 1.3865,
@@ -2777,11 +2781,11 @@
           "question": "I thought that it should be two recommendations letter"
         },
         {
-          "score": 1.4771,
+          "score": 1.4364,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Hey guys Please can my recommendation letter have a stamp"
+          "question": "And after filling in the information, do we have to put this also inside the envelope or do we have to put the recommendation letter given by the teacher inside the envelope?"
         }
       ],
       "checks": {
@@ -2875,11 +2879,11 @@
           "question": "I thought that it should be two recommendations letter"
         },
         {
-          "score": 1.4771,
+          "score": 1.4364,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Hey guys Please can my recommendation letter have a stamp"
+          "question": "And after filling in the information, do we have to put this also inside the envelope or do we have to put the recommendation letter given by the teacher inside the envelope?"
         }
       ],
       "checks": {
@@ -2908,8 +2912,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 1,
       "coverage": {
@@ -2967,11 +2970,11 @@
           "question": "Oh I understand LOR on 4 number on gks scholarship from right?"
         },
         {
-          "score": 1.3636,
-          "program": "UG",
+          "score": 1.3323,
+          "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Guys how many LOR copies r required for the GKS Embassy Track(Rgks)"
+          "question": "Some say they just need the recommenders info while some say your recommender should scan the recommendation letter and send it to you then you forward it online"
         }
       ],
       "checks": {
@@ -3058,11 +3061,11 @@
           "question": "Oh I understand LOR on 4 number on gks scholarship from right?"
         },
         {
-          "score": 1.3312,
+          "score": 1.3323,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Hello guys.. Does anyone got finished with Personal statement, LOR & study plan?"
+          "question": "Some say they just need the recommenders info while some say your recommender should scan the recommendation letter and send it to you then you forward it online"
         }
       ],
       "checks": {
@@ -3142,18 +3145,18 @@
           "question": "How many recommendation letter do we need"
         },
         {
-          "score": 1.4056,
+          "score": 1.4179,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Does the recommendation letter have to be written by my professor or by someone like manager ?"
+          "question": "Some say they just need the recommenders info while some say your recommender should scan the recommendation letter and send it to you then you forward it online"
         },
         {
-          "score": 1.2885,
+          "score": 1.4088,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "I am very much confused about the recommendation letter. Can someone tell me whether it is necessary to write our major in the recommendation letter or not."
+          "question": "For recommendation letter. Only Signed by the processor who teach you right on A4 size pepar. Right?"
         }
       ],
       "checks": {
@@ -3274,8 +3277,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -3319,6 +3322,13 @@
       ],
       "top_community": [
         {
+          "score": 1.053,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Bruh the criteria of 80 percentage Like is it for whole 4 years of high school or just 12th like mext"
+        },
+        {
           "score": 1.4042,
           "program": "mixed",
           "confidence": "medium",
@@ -3326,18 +3336,11 @@
           "question": "Please what is the lowest GPA for all university"
         },
         {
-          "score": 1.3804,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "What's 8 gpa? 80%?"
-        },
-        {
-          "score": 1.2838,
+          "score": 1.3766,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What about your gpa guys"
+          "question": "What if our country don have gpa system and its in percentile score so how to convert"
         }
       ],
       "checks": {
@@ -3417,18 +3420,18 @@
           "question": "Please what is the lowest GPA for all university"
         },
         {
+          "score": 1.3766,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "What if our country don have gpa system and its in percentile score so how to convert"
+        },
+        {
           "score": 1.3804,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
           "question": "What's 8 gpa? 80%?"
-        },
-        {
-          "score": 1.2838,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "What about your gpa guys"
         }
       ],
       "checks": {
@@ -3452,12 +3455,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 5
+        "mixed": 5,
+        "UG": 1
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -3513,18 +3517,18 @@
           "question": "Yeah I'll.. The issue is they only show marks? No percentage or cgpa! According to GKS guidelines Without cgpa or percentage eligibility is not evaluated.."
         },
         {
-          "score": 1.1935,
-          "program": "mixed",
+          "score": 0.8397,
+          "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "What's ur CGPA?"
+          "question": "Bruh the criteria of 80 percentage Like is it for whole 4 years of high school or just 12th like mext"
         },
         {
-          "score": 1.1677,
+          "score": 1.1971,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "CGPA is the average of gpa"
+          "question": "And where our CGPA lies will be our percentile right, we fill percentile box with that value?"
         }
       ],
       "checks": {
@@ -3553,7 +3557,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -3597,6 +3602,13 @@
       ],
       "top_community": [
         {
+          "score": 1.1549,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Bruh the criteria of 80 percentage Like is it for whole 4 years of high school or just 12th like mext"
+        },
+        {
           "score": 1.5464,
           "program": "mixed",
           "confidence": "medium",
@@ -3604,18 +3616,11 @@
           "question": "What if our country don have gpa system and its in percentile score so how to convert"
         },
         {
-          "score": 1.3964,
+          "score": 1.3948,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Wait what ?none of my certificates have percentage"
-        },
-        {
-          "score": 1.3913,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "My score is in percentage"
+          "question": "Mu mean is that at 10 scale alomost 8 gpa"
         }
       ],
       "checks": {
@@ -3644,7 +3649,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -3688,6 +3694,13 @@
       ],
       "top_community": [
         {
+          "score": 1.1485,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Bruh the criteria of 80 percentage Like is it for whole 4 years of high school or just 12th like mext"
+        },
+        {
           "score": 1.4014,
           "program": "mixed",
           "confidence": "low",
@@ -3700,13 +3713,6 @@
           "confidence": "medium",
           "possible_conflict": false,
           "question": "And where our CGPA lies will be our percentile right, we fill percentile box with that value?"
-        },
-        {
-          "score": 1.29,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "According to the GKS guidelines, if your CGPA is 3.6/4.0 then percentage is 91"
         }
       ],
       "checks": {
@@ -3735,10 +3741,10 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 5,
+        "mixed": 1
       },
-      "community_conflict_flags": 0,
+      "community_conflict_flags": 1,
       "coverage": {
         "question_concepts": [],
         "covered": [],
@@ -3776,25 +3782,25 @@
       ],
       "top_community": [
         {
-          "score": 1.0874,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 0.9883,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Use scholaro, many scholars did that"
+          "question": "Yes if you get a one final gpa then that will be your final one"
         },
         {
-          "score": 1.0723,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "But we can convert from scholaro"
+          "score": 0.8723,
+          "program": "UG",
+          "confidence": "review",
+          "possible_conflict": true,
+          "question": "I have a question. Since my university uses a 10-point CGPA grading scale, do I need to obtain an official CGPA-to-GPA conversion certificate from my university for the GKS application?"
         },
         {
-          "score": 1.0279,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 0.856,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Calculate your CGPA using scholaro, then take to your school to stamp to prove it's true, then go to the last appendix A in the GKS guidelines and see where your CGPA lies and it's corresponding percentage. I realised the way my school calculates is not the same way GKS does it. But in the guidelines they say you can use scholaro provided your school stamps"
+          "question": "CU dont verified or sign GPA converted certificate..so what are u doing for this ???"
         }
       ],
       "checks": {
@@ -3818,15 +3824,15 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 4,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 3,
-        "UG": 1
+        "UG": 5,
+        "mixed": 1
       },
-      "community_conflict_flags": 1,
+      "community_conflict_flags": 0,
       "coverage": {
         "question_concepts": [
           "graduation_certificate"
@@ -3868,25 +3874,25 @@
       ],
       "top_community": [
         {
-          "score": 1.1206,
-          "program": "mixed",
-          "confidence": "low",
+          "score": 1.1973,
+          "program": "UG",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Can a 15 year old high school graduate apply for GKS for an undergraduate programme??"
+          "question": "Nuh I'm asking which track is I'm going to apply as a medical they're saying that changes come in this guidelines I didn't understand?"
         },
         {
-          "score": 0.9553,
+          "score": 1.003,
           "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Are you gonna apply this year?"
+          "question": "Really?? So I can apply okayyy thanks"
         },
         {
-          "score": 0.9521,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 0.9939,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Please guys is the university information file the same for undergraduate and graduate"
+          "question": "You can apply . Unless you are 25 years old or completed your degree"
         }
       ],
       "checks": {
@@ -3910,14 +3916,15 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 4,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 4
+        "G": 3,
+        "mixed": 3
       },
-      "community_conflict_flags": 1,
+      "community_conflict_flags": 0,
       "coverage": {
         "question_concepts": [
           "graduation_certificate"
@@ -3959,25 +3966,25 @@
       ],
       "top_community": [
         {
-          "score": 1.1206,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Can a 15 year old high school graduate apply for GKS for an undergraduate programme??"
-        },
-        {
-          "score": 0.9521,
-          "program": "mixed",
+          "score": 0.9616,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Please guys is the university information file the same for undergraduate and graduate"
+          "question": "Anybody is here to apply for masters from India??"
         },
         {
-          "score": 0.9479,
-          "program": "mixed",
-          "confidence": "review",
-          "possible_conflict": true,
-          "question": "All I wanna know is if 15yrs can apply for the undergraduate programme as a high school graduate"
+          "score": 0.9501,
+          "program": "G",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Visit HEC website and create your account and then apply for verification. Now the process of verification is online"
+        },
+        {
+          "score": 0.8888,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Hi everyone, I have a doubt, can anyone help? Due to a national policy change, I can't study B.A in psychology through CC. It requires regular study on campus. So can I do a graduation in human behaviour subjects like sociology, political science, and English literature to later apply for GKS with master's in psychology?"
         }
       ],
       "checks": {
@@ -4006,8 +4013,8 @@
         "UG"
       ],
       "community_programs": {
-        "UG": 2,
-        "mixed": 4
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4058,18 +4065,18 @@
           "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
         },
         {
-          "score": 1.4294,
+          "score": 1.4689,
           "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I heard that we can send a certificate that says we will have the oficial certificate later"
-        },
-        {
-          "score": 1.3469,
-          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "That’s what I’m saying is gks going to accept me having a different school name on my waec certificate and graduation certificate"
+          "question": "The process is online now I’m asking if the ministry sends back the Authenticated documents physically to one’s address."
+        },
+        {
+          "score": 1.46,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Gks authorities will not send your documents back"
         }
       ],
       "checks": {
@@ -4098,8 +4105,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4143,25 +4150,25 @@
       ],
       "top_community": [
         {
-          "score": 1.4127,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I heard that we can send a certificate that says we will have the oficial certificate later"
-        },
-        {
-          "score": 1.3147,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "They said having a certificate of provisional degree certificate can do if it has the date nd year u graduated,as far as there is ur graduation month nd year on it"
-        },
-        {
-          "score": 1.2937,
+          "score": 1.4639,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "That’s what I’m saying is gks going to accept me having a different school name on my waec certificate and graduation certificate"
+          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+        },
+        {
+          "score": 1.0016,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Good morning guys. Please for the authentication and legalization for Gks,is it compulsory that I authenticate my waec certificate at the ministry of education?"
+        },
+        {
+          "score": 0.9725,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "girl, till you find any NGO's go for online courses related to major or any course available online because it's hard to work in NGO's in india, i had hard time finding NGO's and do those work and also there are some NGOs who won't give any certificate or any recommendations so it's better you actually build a skill rather than wasting time on all this, I've experienced it so I'm telling you because it affects mentally too"
         }
       ],
       "checks": {
@@ -4242,18 +4249,18 @@
           "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
         },
         {
-          "score": 1.4125,
-          "program": "mixed",
-          "confidence": "low",
+          "score": 1.0878,
+          "program": "UG",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "I heard that we can send a certificate that says we will have the oficial certificate later"
+          "question": "On less u don't want to add ur associate diploma when applying"
         },
         {
-          "score": 1.3982,
+          "score": 1.468,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Hi guys, I have a question the graduation certificate. which document are you submitting as the graduation certificate?"
+          "question": "The process is online now I’m asking if the ministry sends back the Authenticated documents physically to one’s address."
         }
       ],
       "checks": {
@@ -4282,8 +4289,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 5,
-        "G": 1
+        "G": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4327,25 +4334,25 @@
       ],
       "top_community": [
         {
-          "score": 1.4125,
-          "program": "mixed",
+          "score": 1.2049,
+          "program": "G",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I heard that we can send a certificate that says we will have the oficial certificate later"
+          "question": "Do you know if translation have an expiration date?"
         },
         {
-          "score": 1.3982,
-          "program": "mixed",
+          "score": 1.2034,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Hi guys, I have a question the graduation certificate. which document are you submitting as the graduation certificate?"
+          "question": "The affidavit has a 6 month expiration date. I don't think that translation has such things. I have done a translation of one of my documents and it is valid for a lifetime.'"
         },
         {
-          "score": 1.3535,
-          "program": "mixed",
+          "score": 0.961,
+          "program": "G",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I have question. Should me Need to submit degree to?? we have result. So need to wait for original degree?"
+          "question": "You have to send email to NIIED. They will correct certificate."
         }
       ],
       "checks": {
@@ -4374,8 +4381,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 2
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4419,25 +4426,25 @@
       ],
       "top_community": [
         {
-          "score": 1.1252,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "The GKS guidelines specifically state that recommendation letters must be dated within one year of the . Therefore, if a letter becomes more than one year old by the deadline, it is no longer valid for submission."
-        },
-        {
-          "score": 1.0243,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Can a 15 year old high school graduate apply for GKS for an undergraduate programme??"
-        },
-        {
           "score": 1.0115,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "I think that in my country we could only participate on the embassy track last year :/"
+        },
+        {
+          "score": 0.9409,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Anyone having topik on this 5th prepare well guys"
+        },
+        {
+          "score": 1.1177,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Hi guys anyone applying for marketing"
         }
       ],
       "checks": {
@@ -4466,8 +4473,7 @@
         "UG"
       ],
       "community_programs": {
-        "UG": 1,
-        "mixed": 5
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4507,25 +4513,25 @@
       ],
       "top_community": [
         {
+          "score": 1.0836,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Can anybody guide me in detail about for GKS Bachelor scholarship I am Second year Alevel student and my final result Certificate will only be available in 1 sep"
+        },
+        {
+          "score": 0.9255,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "We don't have to submit a recommendation letter?"
+        },
+        {
           "score": 1.1034,
           "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
           "question": "But if u don't have associate degree u can apply to associate or bachelor's"
-        },
-        {
-          "score": 1.0155,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Are you all applying for a bachelor's degree?"
-        },
-        {
-          "score": 0.9706,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Hii guys Is anyone here applying for a bachelor's degree?"
         }
       ],
       "checks": {
@@ -4549,13 +4555,14 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 3,
+      "community_count": 4,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "UG": 1,
-        "mixed": 2
+        "UG": 2,
+        "mixed": 1,
+        "unknown": 1
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4599,25 +4606,25 @@
       ],
       "top_community": [
         {
-          "score": 1.0915,
+          "score": 0.9749,
           "program": "UG",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Heyyy I wanted to do mechanical engineering undergraduate program through gks I did diploma in mechanical just after 10 and currently doing 12 but didn't choose maths nd physics am i eligible?"
+          "question": "I think that in my country we could only participate on the embassy track last year :/"
         },
         {
-          "score": 1.0742,
+          "score": 0.9431,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Anyone having topik on this 5th prepare well guys"
+        },
+        {
+          "score": 0.7197,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "You can make more research on it, to confirm You don’t have to choose the exact same major at all 3 universities. Just make sure each program is listed as eligible for GKS that year."
-        },
-        {
-          "score": 1.067,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Hello everyone i want to apply for GKS as an undergraduate but my country is not on the list of neiid designed countries am i eligible to apply am from Malawi by the way"
+          "question": "Hello I new to the GKS how to apply"
         }
       ],
       "checks": {
@@ -4641,13 +4648,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 2,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "G": 1,
-        "mixed": 1
+        "G": 4,
+        "mixed": 2
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4691,18 +4698,25 @@
       ],
       "top_community": [
         {
-          "score": 1.2562,
+          "score": 0.6221,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Hi guys i have a question, do we need to complete our visa within a specific period (e.g before august/ will be informed by uni) or can we complete it anytime before the flight to korea?"
+        },
+        {
+          "score": 0.6129,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Is this normal or did you email them?"
+        },
+        {
+          "score": 0.5808,
           "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "I think it happens when the country of citizenship is the same as the country of birth. I don't think its a problem"
-        },
-        {
-          "score": 1.067,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Hello everyone i want to apply for GKS as an undergraduate but my country is not on the list of neiid designed countries am i eligible to apply am from Malawi by the way"
+          "question": "Ewha already received mail from the 3rd round. Do you know anything about PNU?"
         }
       ],
       "checks": {
@@ -4913,8 +4927,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "unknown": 1
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -4958,18 +4972,18 @@
       ],
       "top_community": [
         {
-          "score": 1.2971,
-          "program": "mixed",
+          "score": 0.9739,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yes That's why they need to see your high school transcript from 10, 11th and 12th grade"
+          "question": "I think that in my country we could only participate on the embassy track last year :/"
         },
         {
-          "score": 1.1722,
-          "program": "mixed",
+          "score": 0.9448,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "I got 81.2 in 12 am I eligible"
+          "question": "Anyone having topik on this 5th prepare well guys"
         },
         {
           "score": 1.1001,
@@ -5005,7 +5019,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5051,25 +5066,25 @@
       ],
       "top_community": [
         {
-          "score": 1.7257,
-          "program": "mixed",
+          "score": 1.3624,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Like anybody can apply with university track but with university type b"
         },
         {
-          "score": 1.6111,
-          "program": "mixed",
+          "score": 1.3515,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are you going for embassy track?.if it's embassy track then call your embassy"
+          "question": "I hear on Instagram that there is and UIC in university track too Is it real."
         },
         {
-          "score": 1.5564,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.1255,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "This is the full list for both university track and embassy track"
+          "question": "RGks is under embassy track na not university track uic"
         }
       ],
       "checks": {
@@ -5098,7 +5113,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 6
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5144,25 +5160,25 @@
       ],
       "top_community": [
         {
-          "score": 1.7257,
-          "program": "mixed",
+          "score": 1.5866,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Did she pass second round uni track"
         },
         {
-          "score": 1.6111,
-          "program": "mixed",
+          "score": 1.3738,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are you going for embassy track?.if it's embassy track then call your embassy"
+          "question": "Unfortunately you will have to search for each of the universities available and look at the majors that you would like, are you applying embassy or university track?"
         },
         {
-          "score": 1.5564,
+          "score": 1.6405,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "This is the full list for both university track and embassy track"
+          "question": "Sooooo nobody will go with 2 sky choices for embassy track ?"
         }
       ],
       "checks": {
@@ -5191,8 +5207,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 2
+        "UG": 4,
+        "mixed": 2
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5240,25 +5256,25 @@
       ],
       "top_community": [
         {
-          "score": 1.675,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "So which track embassy track or university track"
-        },
-        {
-          "score": 1.5463,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Yes ,that i can apply to using the university track"
-        },
-        {
           "score": 1.4589,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
+        },
+        {
+          "score": 1.403,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "good afternoon ,kapil here i am confused what tos choose embassy reginol genral or uni track ,i want to study biomedical eng"
+        },
+        {
+          "score": 1.3768,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Like anybody can apply with university track but with university type b"
         }
       ],
       "checks": {
@@ -5287,8 +5303,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 5,
-        "G": 1
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5336,25 +5352,25 @@
       ],
       "top_community": [
         {
-          "score": 1.675,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "So which track embassy track or university track"
-        },
-        {
-          "score": 1.6019,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Sooooo nobody will go with 2 sky choices for embassy track ?"
-        },
-        {
           "score": 1.5674,
           "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Did she pass second round uni track"
+        },
+        {
+          "score": 1.4392,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "`Hi everyone 👋 I'm Asmaa from Egypt. I'll be applying for GKS 2027 for Pusan National University next year InshaAllah. I just joined early to learn from your experience. If there are any Egyptian applicants here, please DM me 🇪🇬 I want to ask about documents, motivation letter, and university track vs embassy track. Good luck to GKS 2026 applicants! You got this 💪`"
+        },
+        {
+          "score": 1.6747,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "If you are applying through uni track that will be best"
         }
       ],
       "checks": {
@@ -5383,7 +5399,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5392,62 +5408,65 @@
           "university_track"
         ],
         "covered": [
-          "university_choice",
           "university_track"
         ],
-        "unsupported": [],
-        "unsupported_labels": []
+        "unsupported": [
+          "university_choice"
+        ],
+        "unsupported_labels": [
+          "how many universities you may choose"
+        ]
       },
       "top_official": [
         {
-          "score": 0.8815,
-          "page": 9,
+          "score": 1.035,
+          "page": 18,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "University track applicants must apply to only one program among UIC, or Associate Degree programs. Each applicant must apply to ONE university and single department · If an applicant applied to more than one track/program/university, his or her application wi"
+          "claim": "University track applicants should fill in ONE university in their application"
         },
         {
-          "score": 0.8718,
-          "page": 11,
+          "score": 0.9723,
+          "page": 27,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "University Track: by November 28 ▶ University will inform the result to successful candidates 2nd Round of Selection individually (NIIED, University) - Embassy Track: announced within November"
+          "claim": "Appendix C. Contacts of Universities Staff (University Track)"
         },
         {
-          "score": 0.871,
-          "page": 4,
+          "score": 0.9265,
+          "page": 17,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "For the R-GKS program of the Embassy Track, applicants can choose up to TWO different universities from Type B universities."
+          "claim": "Things to check when submitting application documents [Both Embassy and University Track]"
         }
       ],
       "top_community": [
         {
-          "score": 1.7998,
-          "program": "mixed",
+          "score": 1.5444,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.7164,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.6389,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "But there is not much uni that is focused in the major i want in uni track"
+          "question": "Do u know something about university track"
         },
         {
-          "score": 1.7109,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.511,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "I am applying through the university track with major microbiology is it safe"
         }
       ],
       "checks": {
@@ -5476,8 +5495,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 5,
-        "G": 1
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5494,50 +5513,50 @@
       },
       "top_official": [
         {
-          "score": 0.9124,
-          "page": 19,
+          "score": 1.0233,
+          "page": 27,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "University Track < Application documents for the FIRST round of selection (University) > Documents to complete* and Required certificates**"
+          "claim": "University track applicants should list ONE university on their application"
         },
         {
-          "score": 0.8932,
-          "page": 14,
+          "score": 1.0113,
+          "page": 26,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Embassy track candidates (including reserve candidates) who passed the first round of selection cannot apply again through a university track"
+          "claim": "University Track: Check the website of each university"
         },
         {
-          "score": 0.8829,
-          "page": 5,
+          "score": 1.0051,
+          "page": 26,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Embassy Track applicant may choose up to THREE different universities from Type A and B and MUST apply to at least one of the universities from Type B"
+          "claim": "Items to Note when filling out the Application Form [Both Embassy Track and University Track]"
         }
       ],
       "top_community": [
         {
-          "score": 1.7998,
-          "program": "mixed",
+          "score": 1.609,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
+          "question": "Did she pass second round uni track"
         },
         {
-          "score": 1.7164,
-          "program": "mixed",
+          "score": 1.4184,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "But there is not much uni that is focused in the major i want in uni track"
+          "question": "Unfortunately you will have to search for each of the universities available and look at the majors that you would like, are you applying embassy or university track?"
         },
         {
-          "score": 1.7109,
+          "score": 1.8432,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
@@ -5570,8 +5589,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 3,
-        "UG": 3
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5615,25 +5633,25 @@
       ],
       "top_community": [
         {
-          "score": 1.2541,
-          "program": "mixed",
+          "score": 1.2295,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yes ,that i can apply to using the university track"
+          "question": "Bro in the evening I saw Anjali in korea video and she also said that Eg. Your major is International Relations so you cannot apply to university track bcz that is only for STEM majors"
         },
         {
-          "score": 1.2473,
-          "program": "mixed",
+          "score": 1.1667,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.2256,
+          "score": 1.1416,
           "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I am confused about the thing that can fashion major students can apply through university track because last time only UIC students can apply through university.?"
+          "question": "Do u know something about university track"
         }
       ],
       "checks": {
@@ -5662,9 +5680,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 3,
-        "G": 2,
-        "unknown": 1
+        "G": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5708,25 +5725,25 @@
       ],
       "top_community": [
         {
-          "score": 1.3795,
-          "program": "mixed",
+          "score": 1.2334,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Will you apply embassy or universal track and which uni"
+          "question": "Did she pass second round uni track"
         },
         {
-          "score": 1.2541,
-          "program": "mixed",
+          "score": 1.2271,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yes ,that i can apply to using the university track"
+          "question": "Anyone here who knows his/her around the application? It's my first time (hopefully my last) so I don't know much."
         },
         {
-          "score": 1.2473,
-          "program": "mixed",
+          "score": 1.0263,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Unfortunately you will have to search for each of the universities available and look at the majors that you would like, are you applying embassy or university track?"
         }
       ],
       "checks": {
@@ -5755,7 +5772,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5772,54 +5789,54 @@
       },
       "top_official": [
         {
-          "score": 0.8513,
-          "page": 4,
+          "score": 1.0168,
+          "page": 18,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "For the R-GKS program of the Embassy Track, applicants can choose up to TWO different universities from Type B universities."
+          "claim": "University track applicants should fill in ONE university in their application"
         },
         {
-          "score": 0.8334,
-          "page": 4,
+          "score": 0.9822,
+          "page": 27,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "For the General and Overseas Koreans program of the Embassy Track, applicants choose up to THREE different universities in any order of preference and MUST apply to at least one of the universities from Type B."
+          "claim": "Appendix C. Contacts of Universities Staff (University Track)"
         },
         {
-          "score": 0.8318,
-          "page": 9,
+          "score": 0.9265,
+          "page": 17,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "University track applicants must apply to only one program among UIC, or Associate Degree programs. Each applicant must apply to ONE university and single department · If an applicant applied to more than one track/program/university, his or her application wi"
+          "claim": "Things to check when submitting application documents [Both Embassy and University Track]"
         }
       ],
       "top_community": [
         {
-          "score": 1.8435,
-          "program": "mixed",
+          "score": 1.5203,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.6721,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.6316,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "But there is not much uni that is focused in the major i want in uni track"
+          "question": "Do u know something about university track"
         },
         {
-          "score": 1.6338,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.5164,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "What university should I consider for uni track ?"
+          "question": "I am applying through the university track with major microbiology is it safe"
         }
       ],
       "checks": {
@@ -5843,13 +5860,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 6,
+      "community_count": 2,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 2
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5893,25 +5909,18 @@
       ],
       "top_community": [
         {
-          "score": 1.1384,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Fr first round is it online???"
-        },
-        {
-          "score": 1.0771,
-          "program": "UG",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
-        },
-        {
           "score": 1.0574,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
           "question": "Is it true that legalization and authentication is not required in the first round"
+        },
+        {
+          "score": 1.0103,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Pls, those applying through embassy track, for the very first round, are we submitting our or to the embassy in our country directly??"
         }
       ],
       "checks": {
@@ -5940,8 +5949,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 2,
-        "G": 4
+        "G": 4,
+        "mixed": 2
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -5985,13 +5994,6 @@
       ],
       "top_community": [
         {
-          "score": 1.1384,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Fr first round is it online???"
-        },
-        {
           "score": 1.1257,
           "program": "G",
           "confidence": "medium",
@@ -5999,11 +6001,18 @@
           "question": "The third round is just in case we were missing any documents, but if nothing was missing, we can say we're already in, right?"
         },
         {
-          "score": 1.098,
+          "score": 0.9904,
           "program": "G",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Did she pass second round uni track"
+          "question": "Hi all, congratulation to everyone who passed the 2nd round 🎉 I would like to ask, does the university will send email to inform us that we passed the 2nd round?"
+        },
+        {
+          "score": 0.863,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Hey! For mexicans who are waiting for results of the 2nd round, I made a whatsapp group, in case you wanna join, and also share it in case you know more mexicans who are in this stage. Here is the link"
         }
       ],
       "checks": {
@@ -6027,13 +6036,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 1
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6048,16 +6056,7 @@
       },
       "top_official": [
         {
-          "score": 0.464,
-          "page": 4,
-          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
-          "category": "embassy_vs_university_track",
-          "content_type": "prose",
-          "extraction_quality": "clean",
-          "claim": "For the R-GKS program of the Embassy Track, applicants can choose up to TWO different universities from Type B universities."
-        },
-        {
-          "score": 0.4626,
+          "score": 0.521,
           "page": 17,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "other",
@@ -6066,36 +6065,45 @@
           "claim": "Of the chosen universities, at least one university must Koreans be from Type B universities R-GKS Type B Applicants can choose up to TWO different universities"
         },
         {
-          "score": 0.4622,
-          "page": 9,
+          "score": 0.5162,
+          "page": 17,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
-          "category": "eligibility",
+          "category": "other",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Please check if there is any additional eligibility set by each university/department · All GKS scholars should achieve TOPIK level 3 to proceed to their degree program. However, some department of degree universities may have additional requirements (e.g., TO"
+          "claim": "Applicants cannot choose three different departments from a single university"
+        },
+        {
+          "score": 0.5147,
+          "page": 17,
+          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
+          "category": "other",
+          "content_type": "prose",
+          "extraction_quality": "clean",
+          "claim": "Applicants must put the official name of the university/department they are applying to"
         }
       ],
       "top_community": [
         {
-          "score": 1.1088,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Still not find any uni?"
-        },
-        {
-          "score": 1.0606,
+          "score": 1.1353,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Like i saw in other post of their and in the pick its written that you can join the instagram channel for link"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.0484,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.1604,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "in which uni.?"
+          "question": "Do u know something about university track"
+        },
+        {
+          "score": 1.1209,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "I am applying through the university track with major microbiology is it safe"
         }
       ],
       "checks": {
@@ -6124,8 +6132,7 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 4,
-        "G": 2
+        "G": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6140,50 +6147,50 @@
       },
       "top_official": [
         {
-          "score": 0.4681,
-          "page": 65,
+          "score": 0.5338,
+          "page": 48,
+          "source_title": "GKS-G 2026 Application Guidelines",
+          "category": "other",
+          "content_type": "table_row",
+          "extraction_quality": "clean",
+          "claim": "Type: A | University: Hanyang University | Department: Office of International Affairs | Phone(+82): -"
+        },
+        {
+          "score": 0.5315,
+          "page": 19,
           "source_title": "GKS-G 2026 Application Guidelines",
           "category": "embassy_vs_university_track",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Q. How many departments and universities can I apply to? A. If you apply through the University Track, you may choose only ONE university and ONE department. If you apply through the Embassy Track, you may choose up to THREE universities under Type A and Type "
+          "claim": "University Track < Application documents for the FIRST round of selection (University) > Documents to complete* and Required certificates**"
         },
         {
-          "score": 0.4623,
-          "page": 15,
+          "score": 0.5315,
+          "page": 49,
           "source_title": "GKS-G 2026 Application Guidelines",
-          "category": "eligibility",
-          "content_type": "prose",
+          "category": "other",
+          "content_type": "table_row",
           "extraction_quality": "clean",
-          "claim": "Please check if there is any additional eligibility set by each university/ department · All GKS scholars should achieve TOPIK level 3 to proceed to their degree program. However, some department of degree universities may have additional requirements (e.g., T"
-        },
-        {
-          "score": 0.4616,
-          "page": 27,
-          "source_title": "GKS-G 2026 Application Guidelines",
-          "category": "embassy_vs_university_track",
-          "content_type": "prose",
-          "extraction_quality": "clean",
-          "claim": "Embassy track applicants must check the following when filling in desired universities · Applicants can select up to THREE different universities * Applicants may NOT apply to multiple departments within the same university[N4] · At least one of the selected u"
+          "claim": "Type: B | University: Pusan National University | Department: Office of International Affairs | Phone(+82):?"
         }
       ],
       "top_community": [
         {
-          "score": 1.2409,
-          "program": "mixed",
+          "score": 1.1221,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "But there is not much uni that is focused in the major i want in uni track"
+          "question": "Hey, has anyone who passed the second round received any email from the university?"
         },
         {
-          "score": 1.2306,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.1082,
+          "program": "G",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "If you are applying through uni track that will be best"
+          "question": "`Hi everyone 👋 I'm Asmaa from Egypt. I'll be applying for GKS 2027 for Pusan National University next year InshaAllah. I just joined early to learn from your experience. If there are any Egyptian applicants here, please DM me 🇪🇬 I want to ask about documents, motivation letter, and university track vs embassy track. Good luck to GKS 2026 applicants! You got this 💪`"
         },
         {
-          "score": 1.1208,
+          "score": 1.1346,
           "program": "G",
           "confidence": "low",
           "possible_conflict": false,
@@ -6216,8 +6223,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 5,
+        "mixed": 1
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6261,18 +6268,18 @@
       ],
       "top_community": [
         {
-          "score": 1.2151,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.1163,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Is it good? type A university?"
+          "question": "Do u know something about university track"
         },
         {
-          "score": 1.1361,
-          "program": "mixed",
+          "score": 1.07,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Yh, They choose those they are more suitable for the program"
+          "question": "good afternoon ,kapil here i am confused what tos choose embassy reginol genral or uni track ,i want to study biomedical eng"
         },
         {
           "score": 1.1204,
@@ -6308,7 +6315,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 6
+        "G": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6352,18 +6360,18 @@
       ],
       "top_community": [
         {
+          "score": 0.6383,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "University track results not gonna be today right?"
+        },
+        {
           "score": 1.1575,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "What about Seokyeong University? I did some research about it. But Later, I emailed them seokeong university to ask about Beauty Arts and Cosmetology, and they said yes, they have related departments under the College of Global Convergence, everything in - Hair Design - Makeup Design - Beauty Therapy & Cosmetics So, Seokyeong University is fine for me, but only for the Embassy Track because that’s the track I’m planning to apply for. I choosing about Daegu University and Sungshin Women’s University. Daegu University offers a related major too. I emailed them, and they told me I could choose the Department of Beauty Style. For Sungshin Women’s University, I’m not sure yet because I haven’t emailed them. I’m still researching it. If you want to know about Sungshin Women’s University, you can email them and ask whether they have a suitable Beauty Arts and Cosmetology-related department."
-        },
-        {
-          "score": 1.1462,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "He is the hod of the business department"
         },
         {
           "score": 1.1266,
@@ -6399,8 +6407,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 3,
-        "UG": 3
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6444,25 +6451,25 @@
       ],
       "top_community": [
         {
-          "score": 1.1403,
-          "program": "mixed",
+          "score": 1.1823,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Is it good? type A university?"
+          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
         },
         {
-          "score": 1.0998,
+          "score": 1.1004,
           "program": "UG",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Do u know something about university track"
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
         },
         {
-          "score": 1.0298,
-          "program": "mixed",
-          "confidence": "low",
+          "score": 1.0873,
+          "program": "UG",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are these universities in type B?"
+          "question": "bruh what 😞🙏🏻💔😭"
         }
       ],
       "checks": {
@@ -6486,13 +6493,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6536,18 +6542,11 @@
       ],
       "top_community": [
         {
-          "score": 1.4149,
+          "score": 1.3159,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Anyone who are waiting for topik test results topik 105th test"
-        },
-        {
-          "score": 1.3654,
-          "program": "UG",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Anyone having topik on this 5th prepare well guys"
+          "question": "Is IELTS Mandatory??"
         },
         {
           "score": 1.3298,
@@ -6555,6 +6554,13 @@
           "confidence": "low",
           "possible_conflict": false,
           "question": "Does anyone have topik? Or is going to give topik exam?"
+        },
+        {
+          "score": 1.2813,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Enough time to prepare Learn Korean and do TOPIK exams"
         }
       ],
       "checks": {
@@ -6583,10 +6589,10 @@
         "G"
       ],
       "community_programs": {
-        "G": 4,
-        "mixed": 2
+        "G": 5,
+        "mixed": 1
       },
-      "community_conflict_flags": 0,
+      "community_conflict_flags": 1,
       "coverage": {
         "question_concepts": [
           "language_test"
@@ -6690,7 +6696,16 @@
       },
       "top_official": [
         {
-          "score": 0.5684,
+          "score": 0.9805,
+          "page": 21,
+          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
+          "category": "language_topik_ielts",
+          "content_type": "prose",
+          "extraction_quality": "clean",
+          "claim": "Applicants who submitted TOPIK level 5 or 6 will be exempt from a Korean language program"
+        },
+        {
+          "score": 0.9567,
           "page": 19,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "language_topik_ielts",
@@ -6699,45 +6714,36 @@
           "claim": "NIIED will classify those who have obtained TOPIK level 5~6 as those who enter degree program. All other successful candidates will be arranged for a Korean language program"
         },
         {
-          "score": 0.5595,
-          "page": 9,
-          "source_title": "GKS-U 2026 Application Guidelines (Revised)",
-          "category": "eligibility",
-          "content_type": "prose",
-          "extraction_quality": "clean",
-          "claim": "Please check if there is any additional eligibility set by each university/department · All GKS scholars should achieve TOPIK level 3 to proceed to their degree program. However, some department of degree universities may have additional requirements (e.g., TO"
-        },
-        {
-          "score": 0.5552,
-          "page": 21,
+          "score": 0.9397,
+          "page": 18,
           "source_title": "GKS-U 2026 Application Guidelines (Revised)",
           "category": "language_topik_ielts",
           "content_type": "prose",
           "extraction_quality": "clean",
-          "claim": "Applicants who submitted TOPIK level 5 or 6 will be exempt from a Korean language program"
+          "claim": "Applicants who hold a TOPIK level 3 or above will be given additional points (10% of the total allocated points)"
         }
       ],
       "top_community": [
         {
-          "score": 1.1143,
+          "score": 1.4168,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
           "question": "Topic Level 2 with IELTS 7 or higher, or Topic Level 3 with IELTS 6? Which is better? I really need someone with experience or information to tell me."
         },
         {
-          "score": 0.9766,
+          "score": 1.2717,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Hii guys Is anyone here applying for a bachelor's degree?"
+          "question": "Does anyone have topik? Or is going to give topik exam?"
         },
         {
-          "score": 0.9647,
+          "score": 1.2451,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "The translator used it sometimes, but my level is B2."
+          "question": "Enough time to prepare Learn Korean and do TOPIK exams"
         }
       ],
       "checks": {
@@ -6761,13 +6767,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 4,
+      "community_count": 5,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "UG": 1,
-        "mixed": 3
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6811,13 +6816,6 @@
       ],
       "top_community": [
         {
-          "score": 1.3941,
-          "program": "UG",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Anyone having topik on this 5th prepare well guys"
-        },
-        {
           "score": 1.3776,
           "program": "mixed",
           "confidence": "medium",
@@ -6830,6 +6828,13 @@
           "confidence": "low",
           "possible_conflict": false,
           "question": "Does anyone have topik? Or is going to give topik exam?"
+        },
+        {
+          "score": 1.3129,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Where should to learn to write korean ? any website or apps any ideas (please help me especially who passed TOPIK Exams)"
         }
       ],
       "checks": {
@@ -6858,8 +6863,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "unknown": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -6910,18 +6914,18 @@
           "question": "Appearing for IELTS?"
         },
         {
-          "score": 1.4413,
+          "score": 1.54,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Is IELTS Mandatory??"
+          "question": "I am Pakistani, and I do not have IELTS, but I do have an English Proficiency Certificate."
         },
         {
-          "score": 1.4148,
+          "score": 1.4054,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Most of the uni don't accept MOI. IELTS is more preferable"
+          "question": "Topic Level 2 with IELTS 7 or higher, or Topic Level 3 with IELTS 6? Which is better? I really need someone with experience or information to tell me."
         }
       ],
       "checks": {
@@ -6950,9 +6954,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 4,
-        "G": 1,
-        "unknown": 1
+        "G": 5,
+        "mixed": 1
       },
       "community_conflict_flags": 1,
       "coverage": {
@@ -6996,25 +6999,25 @@
       ],
       "top_community": [
         {
-          "score": 1.6109,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.4434,
+          "program": "G",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Appearing for IELTS?"
+          "question": "i know we have to take a placement test when we get their, but if we have topik 3 or higher they ask us to send it in by a certain date"
         },
         {
-          "score": 1.4413,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.3824,
+          "program": "G",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Is IELTS Mandatory??"
+          "question": "Do students ask for a TOPIK score at the time of Pusan National University admission before the language program starts ?"
         },
         {
-          "score": 1.4148,
-          "program": "mixed",
+          "score": 1.3426,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Most of the uni don't accept MOI. IELTS is more preferable"
+          "question": "Hi may I know did you get a topik certificate from Coursera?"
         }
       ],
       "checks": {
@@ -7038,13 +7041,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "unknown": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7095,18 +7097,18 @@
           "question": "Appearing for IELTS?"
         },
         {
-          "score": 1.4013,
+          "score": 1.5103,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Is IELTS Mandatory??"
+          "question": "I am Pakistani, and I do not have IELTS, but I do have an English Proficiency Certificate."
         },
         {
-          "score": 1.3426,
+          "score": 1.3819,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "IELTS in naira is not a small money 😅"
+          "question": "Topic Level 2 with IELTS 7 or higher, or Topic Level 3 with IELTS 6? Which is better? I really need someone with experience or information to tell me."
         }
       ],
       "checks": {
@@ -7135,8 +7137,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7180,11 +7182,11 @@
       ],
       "top_community": [
         {
-          "score": 1.7035,
-          "program": "mixed",
+          "score": 1.0752,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What is form 4?"
+          "question": "But they do provide their own format for ug as well?"
         },
         {
           "score": 1.4928,
@@ -7273,11 +7275,11 @@
       ],
       "top_community": [
         {
-          "score": 1.1329,
+          "score": 0.8062,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What is form 4?"
+          "question": "Btw stamp is not imp as high tr does not have any personal stamp btw only principal and supervisor has signature and dated LOR works! If you can take stamp then good but not imp"
         },
         {
           "score": 1.1213,
@@ -7470,11 +7472,11 @@
           "question": "so both the written letter and form 4 goes inside right?"
         },
         {
-          "score": 1.0328,
+          "score": 1.0292,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What is form 4?"
+          "question": "For recommendation letter. Only Signed by the processor who teach you right on A4 size pepar. Right?"
         }
       ],
       "checks": {
@@ -7498,12 +7500,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 5,
-      "community_count": 3,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 3
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7547,25 +7549,25 @@
       ],
       "top_community": [
         {
-          "score": 1.5734,
+          "score": 1.2275,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are u don with ur personal statement"
+          "question": "Like in my PS I mentioned a particular subject from my major,so shall I focus on it or write everything in general about all subjects?"
         },
         {
-          "score": 1.4935,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
-        },
-        {
-          "score": 1.3382,
+          "score": 1.3801,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I'm wondering if I should mention it in my Personal statement."
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
+        },
+        {
+          "score": 1.3199,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "MY GKS PERSONAL STATEMENT My name is Mistura Olamide Adebayo, and I am from Nigeria. My dream of studying in South Korea started from my curiosity and admiration for Korean culture. I became interested in Korea through its music, language, traditions, food, and the respect people show toward one another. Mine is starting like this is this fine @"
         }
       ],
       "checks": {
@@ -7589,12 +7591,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 3,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 3
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7638,25 +7640,25 @@
       ],
       "top_community": [
         {
-          "score": 1.5734,
+          "score": 1.2275,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are u don with ur personal statement"
+          "question": "Like in my PS I mentioned a particular subject from my major,so shall I focus on it or write everything in general about all subjects?"
         },
         {
-          "score": 1.4935,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
-        },
-        {
-          "score": 1.3382,
+          "score": 1.3801,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I'm wondering if I should mention it in my Personal statement."
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
+        },
+        {
+          "score": 1.3199,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "MY GKS PERSONAL STATEMENT My name is Mistura Olamide Adebayo, and I am from Nigeria. My dream of studying in South Korea started from my curiosity and admiration for Korean culture. I became interested in Korea through its music, language, traditions, food, and the respect people show toward one another. Mine is starting like this is this fine @"
         }
       ],
       "checks": {
@@ -7680,13 +7682,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 5,
-      "community_count": 3,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 2,
-        "UG": 1
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7730,25 +7732,25 @@
       ],
       "top_community": [
         {
-          "score": 1.0735,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
-        },
-        {
-          "score": 1.0122,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Do we write the date same as the sealed one"
-        },
-        {
           "score": 1.0008,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Mine is also medical which track should I go?"
+        },
+        {
+          "score": 1.007,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Like in my PS I mentioned a particular subject from my major,so shall I focus on it or write everything in general about all subjects?"
+        },
+        {
+          "score": 0.9604,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
         }
       ],
       "checks": {
@@ -7772,12 +7774,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 2,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 2
+        "G": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7821,18 +7824,25 @@
       ],
       "top_community": [
         {
-          "score": 1.0735,
+          "score": 0.9462,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "He is definitely in this group but they'll use this group to get contacts and a different number to chat them up"
+        },
+        {
+          "score": 1.007,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
+          "question": "Like in my PS I mentioned a particular subject from my major,so shall I focus on it or write everything in general about all subjects?"
         },
         {
-          "score": 1.0122,
+          "score": 0.9604,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Do we write the date same as the sealed one"
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
         }
       ],
       "checks": {
@@ -7856,12 +7866,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 5,
-      "community_count": 3,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 3
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7905,25 +7915,25 @@
       ],
       "top_community": [
         {
-          "score": 1.6142,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Are u don with ur personal statement"
-        },
-        {
-          "score": 1.5316,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
-        },
-        {
-          "score": 1.4116,
+          "score": 1.4075,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I'm wondering if I should mention it in my Personal statement."
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
+        },
+        {
+          "score": 1.3415,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "MY GKS PERSONAL STATEMENT My name is Mistura Olamide Adebayo, and I am from Nigeria. My dream of studying in South Korea started from my curiosity and admiration for Korean culture. I became interested in Korea through its music, language, traditions, food, and the respect people show toward one another. Mine is starting like this is this fine @"
+        },
+        {
+          "score": 1.2103,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "First you gotta make sure abt if you major is available, after choose at least 5 Unis you are intresed on, Type A/B. Afterwards check their curriculum, if fits you, go a head, if not, skip, next. Maybe you will like 2 of the options you liked, i would suggest you to choose another 2 Uni as well and check their curriculum as well. basing on all of that, at least you will be able to manage your PS and SP. Wait until gks announce the available universities and their major. You might see one uni is not longer available or the major as well. Good luck"
         }
       ],
       "checks": {
@@ -7946,12 +7956,12 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 3,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 3
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -7995,25 +8005,25 @@
       ],
       "top_community": [
         {
-          "score": 1.6142,
+          "score": 1.229,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Are u don with ur personal statement"
+          "question": "Like in my PS I mentioned a particular subject from my major,so shall I focus on it or write everything in general about all subjects?"
         },
         {
-          "score": 1.5316,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Wait I can start writing my personal statement and study plan now"
-        },
-        {
-          "score": 1.4116,
+          "score": 1.4075,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "I'm wondering if I should mention it in my Personal statement."
+          "question": "Having a TOPIK or IELTS is not mandatory for the scholarship. As long as your personal statement and study plan is exceptionally great, you are on good side."
+        },
+        {
+          "score": 1.3415,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "MY GKS PERSONAL STATEMENT My name is Mistura Olamide Adebayo, and I am from Nigeria. My dream of studying in South Korea started from my curiosity and admiration for Korean culture. I became interested in Korea through its music, language, traditions, food, and the respect people show toward one another. Mine is starting like this is this fine @"
         }
       ],
       "checks": {
@@ -8041,8 +8051,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8093,18 +8102,18 @@
           "question": "You can use those copies but why did you send your original documents 🫣"
         },
         {
-          "score": 1.4341,
+          "score": 1.4461,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Why do we send originals? Can't we send 3 copies of each"
+          "question": "Ya my country is not in that appostile country list. So what we do is . We verify our documents form Mofa and then from embassy of skorea . And my appointment slot was for October so I clearly missed September intake"
         },
         {
-          "score": 1.406,
-          "program": "UG",
+          "score": 1.3959,
+          "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+          "question": "It is only one copy now after u passed the first round which is the online application"
         }
       ],
       "checks": {
@@ -8133,8 +8142,7 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 5,
-        "G": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8185,18 +8193,18 @@
           "question": "You can use those copies but why did you send your original documents 🫣"
         },
         {
-          "score": 1.4341,
+          "score": 1.4461,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Why do we send originals? Can't we send 3 copies of each"
+          "question": "Ya my country is not in that appostile country list. So what we do is . We verify our documents form Mofa and then from embassy of skorea . And my appointment slot was for October so I clearly missed September intake"
         },
         {
-          "score": 1.3847,
+          "score": 1.3959,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "So in the application am I to print four set of the gks forms Then 1 envelope will contain my originals and the others my photo copies"
+          "question": "It is only one copy now after u passed the first round which is the online application"
         }
       ],
       "checks": {
@@ -8225,8 +8233,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8277,18 +8284,18 @@
           "question": "You can use those copies but why did you send your original documents 🫣"
         },
         {
-          "score": 1.4721,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "There won't be any problem because this is an extracurricular certificate but I have the original so if I send it to them then that is why I asked whether I should send a photocopy or the original."
-        },
-        {
-          "score": 1.4429,
+          "score": 1.4535,
           "program": "mixed",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Can someone please tell me that as I have only one extra curriculum certificate, that is the one given by the school is the original one, so should I send only that or should I get a photocopy of it and send it"
+          "question": "Ya my country is not in that appostile country list. So what we do is . We verify our documents form Mofa and then from embassy of skorea . And my appointment slot was for October so I clearly missed September intake"
+        },
+        {
+          "score": 1.299,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Hello i wanna ask For GKS-U Embassy Track, which procedure is correct? 1.Photocopy of the original document → Notarization → Apostille 2.Translation → Apostille"
         }
       ],
       "checks": {
@@ -8317,10 +8324,9 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 2
+        "UG": 6
       },
-      "community_conflict_flags": 1,
+      "community_conflict_flags": 0,
       "coverage": {
         "question_concepts": [],
         "covered": [],
@@ -8358,11 +8364,18 @@
       ],
       "top_community": [
         {
-          "score": 1.0014,
-          "program": "mixed",
+          "score": 1.0548,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "hapf Indian or i say that have birth certificate in hindi and i want in english then from where i can use it"
+          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+        },
+        {
+          "score": 0.9931,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "That’s what I’m saying is gks going to accept me having a different school name on my waec certificate and graduation certificate"
         },
         {
           "score": 0.9917,
@@ -8370,13 +8383,6 @@
           "confidence": "medium",
           "possible_conflict": false,
           "question": "What academic documents do we need to apostile. And how long does it takes"
-        },
-        {
-          "score": 0.9891,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "I have one more question dear, please tell me, I have many documents which are in both Hindi and English, that is, they are not in proper English, but the line which is written in Hindi above, he has written the same in English, so will I have to get it translated as well or will it work like this"
         }
       ],
       "checks": {
@@ -8405,8 +8411,7 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 3,
-        "G": 3
+        "G": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8446,25 +8451,25 @@
       ],
       "top_community": [
         {
-          "score": 1.0014,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "hapf Indian or i say that have birth certificate in hindi and i want in english then from where i can use it"
-        },
-        {
-          "score": 0.9927,
+          "score": 0.9925,
           "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "??🥲 Hindi"
+          "question": "But I did send them copy of my passport on the 4th of July"
         },
         {
-          "score": 0.9891,
-          "program": "mixed",
+          "score": 0.9752,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "I have one more question dear, please tell me, I have many documents which are in both Hindi and English, that is, they are not in proper English, but the line which is written in Hindi above, he has written the same in English, so will I have to get it translated as well or will it work like this"
+          "question": "The affidavit has a 6 month expiration date. I don't think that translation has such things. I have done a translation of one of my documents and it is valid for a lifetime.'"
+        },
+        {
+          "score": 0.9486,
+          "program": "G",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "The third round is just in case we were missing any documents, but if nothing was missing, we can say we're already in, right?"
         }
       ],
       "checks": {
@@ -8493,8 +8498,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8545,18 +8549,18 @@
           "question": "You can use those copies but why did you send your original documents 🫣"
         },
         {
-          "score": 1.4489,
+          "score": 1.4417,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Ya my country is not in that appostile country list. So what we do is . We verify our documents form Mofa and then from embassy of skorea . And my appointment slot was for October so I clearly missed September intake"
+        },
+        {
+          "score": 1.2848,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "we can just send our original document that we have now,and after got selection we can do authenticate document and send to the embassy"
-        },
-        {
-          "score": 1.3854,
-          "program": "UG",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+          "question": "In the online form too you have to add each and every document that is required in scanned form And after getting selected you have to send your original documents to the embassy if applying through the embassy track and vice versa for the uni track"
         }
       ],
       "checks": {
@@ -8585,7 +8589,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "UG": 1,
+        "mixed": 5
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8616,6 +8621,13 @@
       ],
       "top_community": [
         {
+          "score": 0.7954,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "On less u don't want to add ur associate diploma when applying"
+        },
+        {
           "score": 0.9511,
           "program": "mixed",
           "confidence": "medium",
@@ -8628,13 +8640,6 @@
           "confidence": "low",
           "possible_conflict": false,
           "question": "I did this last year and the courier missed the deadline and i got my documents back 😭🤣but I'm glad i got bec i was so stressed that there were missing pages"
-        },
-        {
-          "score": 0.8913,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Okayy thanks you and the origanal certificat must ne submitted before the deadlines set by the GKS !?"
         }
       ],
       "checks": {
@@ -8663,7 +8668,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 6
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8694,25 +8700,25 @@
       ],
       "top_community": [
         {
+          "score": 0.7415,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "when do we apply for what breakfast we want. i don’t even eat breakfast but if im paying for it i want to make sure to get the later one"
+        },
+        {
+          "score": 0.7016,
+          "program": "G",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "hi so i didn’t receive an email the dorms when you guys did :( idk if anyone else didn’t receive an email too but i’m scared that i’ll end up missing a deadline or something 😭 is the dormitory application on the LEI website the one we use? could i just apply there without getting the email?"
+        },
+        {
           "score": 0.9511,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "But isn't it like impossible?cause we don't have the needed documents ready and the deadline shows 9th July that is too close.."
-        },
-        {
-          "score": 0.9164,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "I did this last year and the courier missed the deadline and i got my documents back 😭🤣but I'm glad i got bec i was so stressed that there were missing pages"
-        },
-        {
-          "score": 0.8913,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Okayy thanks you and the origanal certificat must ne submitted before the deadlines set by the GKS !?"
         }
       ],
       "checks": {
@@ -8741,7 +8747,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 6
+        "mixed": 5,
+        "UG": 1
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8796,18 +8803,18 @@
           "question": "Are you going for embassy track?.if it's embassy track then call your embassy"
         },
         {
-          "score": 1.7524,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 1.0821,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "RGks is under embassy track na not university track uic"
         },
         {
-          "score": 1.5658,
+          "score": 1.5887,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "This is the full list for both university track and embassy track"
+          "question": "Sooooo nobody will go with 2 sky choices for embassy track ?"
         }
       ],
       "checks": {
@@ -8836,8 +8843,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "mixed": 3,
+        "UG": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8883,13 +8890,6 @@
       ],
       "top_community": [
         {
-          "score": 1.5353,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Do you know . The deadline for documents submittion ? For university track !!!. The thing is my appostile documents will come in Oct 20-21 , and I though the deadline will overlap.."
-        },
-        {
           "score": 1.4702,
           "program": "mixed",
           "confidence": "medium",
@@ -8897,11 +8897,18 @@
           "question": "Are you going for embassy track?.if it's embassy track then call your embassy"
         },
         {
-          "score": 1.4647,
+          "score": 1.5353,
           "program": "mixed",
-          "confidence": "medium",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "So which track embassy track or university track"
+          "question": "Do you know . The deadline for documents submittion ? For university track !!!. The thing is my appostile documents will come in Oct 20-21 , and I though the deadline will overlap.."
+        },
+        {
+          "score": 1.4551,
+          "program": "mixed",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "But don't you think in the University track, there has limited and few universities as the photo?"
         }
       ],
       "checks": {
@@ -8925,13 +8932,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 1,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 4,
-        "UG": 1
+        "UG": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -8957,25 +8964,25 @@
       ],
       "top_community": [
         {
-          "score": 1.549,
-          "program": "mixed",
+          "score": 1.1157,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "When you pass the online screening before interview?"
+          "question": "there is no link"
         },
         {
-          "score": 1.5467,
-          "program": "mixed",
+          "score": 1.0936,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What is the next procedure after interview??"
+          "question": "*I think this group is only for GKS information. Please don't share any other things.*"
         },
         {
-          "score": 1.2646,
-          "program": "mixed",
+          "score": 1.084,
+          "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "If you pass the first round of application You will be shadule for interview that's when you will submit your documents physically"
+          "question": "The process time for applying GKS-U/G are as following, > *GKS-U* : `Sep to Feb` > *GKS-G:* `Feb to Aug`"
         }
       ],
       "checks": {
@@ -9004,8 +9011,8 @@
         "G"
       ],
       "community_programs": {
-        "mixed": 4,
-        "G": 1
+        "G": 1,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9040,6 +9047,13 @@
       ],
       "top_community": [
         {
+          "score": 0.849,
+          "program": "G",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Am I the only one preparing for GKS-U for next year?"
+        },
+        {
           "score": 1.549,
           "program": "mixed",
           "confidence": "medium",
@@ -9052,13 +9066,6 @@
           "confidence": "medium",
           "possible_conflict": false,
           "question": "What is the next procedure after interview??"
-        },
-        {
-          "score": 1.282,
-          "program": "G",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "May I share this year those don't have acceptance letter and now selected in final List. You can Aneeq Ahmad selected in final list, and Hajra Ibrahim didn't soeected in final but appeared in interview. I have 2 -3 more examples."
         }
       ],
       "checks": {
@@ -9087,8 +9094,8 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 5,
-        "UG": 1
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9125,25 +9132,25 @@
       ],
       "top_community": [
         {
-          "score": 1.5379,
-          "program": "mixed",
+          "score": 1.0847,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "When you pass the online screening before interview?"
+          "question": "*I think this group is only for GKS information. Please don't share any other things.*"
         },
         {
-          "score": 1.5087,
-          "program": "mixed",
+          "score": 1.0685,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "What is the next procedure after interview??"
+          "question": "there is no link"
         },
         {
-          "score": 1.1363,
+          "score": 1.2378,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Anyone help me , about documents and sop nd for interview bcz I wanna apply for gks g embassy track."
+          "question": "I think it's physical interview everywhere for embassy track. But if u get to university stage they might hold another interview with u which is now online I think that's what u saw"
         }
       ],
       "checks": {
@@ -9171,8 +9178,7 @@
         "UG"
       ],
       "community_programs": {
-        "UG": 2,
-        "mixed": 4
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9223,18 +9229,18 @@
           "question": "Can anybody guide me in detail about for GKS Bachelor scholarship I am Second year Alevel student and my final result Certificate will only be available in 1 sep"
         },
         {
-          "score": 1.4158,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Recommendation letter Should it be same As the guideline of form I had made letter of recommendation back then for different purpose . But , it can also be used for GKS . So I though about using it??? Can't I????"
-        },
-        {
           "score": 1.3605,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "We don't have to submit a recommendation letter?"
+        },
+        {
+          "score": 1.1077,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "I am applying through the university track with major microbiology is it safe"
         }
       ],
       "checks": {
@@ -9258,13 +9264,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 5,
+      "community_count": 6,
       "official_programs": [
         "G"
       ],
       "community_programs": {
-        "mixed": 4,
-        "G": 1
+        "G": 3,
+        "mixed": 3
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9308,25 +9314,25 @@
       ],
       "top_community": [
         {
-          "score": 1.1341,
-          "program": "mixed",
+          "score": 1.1065,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "But not from the sm university U can choose from different universities"
+          "question": "Hey, has anyone who passed the second round received any email from the university?"
         },
         {
-          "score": 1.1313,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Yh, They choose those they are more suitable for the program"
-        },
-        {
-          "score": 0.9793,
-          "program": "mixed",
+          "score": 0.9282,
+          "program": "G",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "no need to choose univ type A right?"
+          "question": "Hello, does anyone know if I can send my topik exam results to the university for gks-g after the deadline when I got them? has anyone done that before?"
+        },
+        {
+          "score": 0.6383,
+          "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "University track results not gonna be today right?"
         }
       ],
       "checks": {
@@ -9350,13 +9356,13 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 6,
-      "community_count": 4,
+      "community_count": 6,
       "official_programs": [
         "UG"
       ],
       "community_programs": {
-        "mixed": 3,
-        "UG": 1
+        "UG": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9400,25 +9406,25 @@
       ],
       "top_community": [
         {
-          "score": 1.485,
+          "score": 0.9744,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "I think that in my country we could only participate on the embassy track last year :/"
+        },
+        {
+          "score": 0.9446,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Anyone having topik on this 5th prepare well guys"
+        },
+        {
+          "score": 1.1041,
           "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Masters ar age limit koto?"
-        },
-        {
-          "score": 1.1618,
-          "program": "UG",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Heyyy I wanted to do mechanical engineering undergraduate program through gks I did diploma in mechanical just after 10 and currently doing 12 but didn't choose maths nd physics am i eligible?"
-        },
-        {
-          "score": 1.1401,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Hello everyone i want to apply for GKS as an undergraduate but my country is not on the list of neiid designed countries am i eligible to apply am from Malawi by the way"
+          "question": "I don't know what scale people in other countries use, but in my country most people use /100 for undergraduates, as long as you use a scale according to GKS GL, it won't cause any problm"
         }
       ],
       "checks": {
@@ -9668,11 +9674,11 @@
           "question": "Wait wait you mean you sent true copies? Or ORIGINAL like you sent actual Sanad and marksheet?"
         },
         {
-          "score": 1.4392,
+          "score": 1.391,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "So, is the transcript not important?"
+          "question": "The marks on my marksheet come to 70%; when I convert them using the WES scale, it works out to 3.60/4.00. What should I do?"
         },
         {
           "score": 1.4261,
@@ -9764,11 +9770,11 @@
           "question": "Wait wait you mean you sent true copies? Or ORIGINAL like you sent actual Sanad and marksheet?"
         },
         {
-          "score": 1.4392,
+          "score": 1.391,
           "program": "mixed",
-          "confidence": "low",
+          "confidence": "medium",
           "possible_conflict": false,
-          "question": "So, is the transcript not important?"
+          "question": "The marks on my marksheet come to 70%; when I convert them using the WES scale, it works out to 3.60/4.00. What should I do?"
         },
         {
           "score": 1.4261,
@@ -9804,8 +9810,7 @@
         "UG"
       ],
       "community_programs": {
-        "mixed": 3,
-        "UG": 3
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9849,25 +9854,25 @@
       ],
       "top_community": [
         {
-          "score": 1.2471,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "For which university are you applying?"
-        },
-        {
-          "score": 1.2467,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "You selected any university?"
-        },
-        {
           "score": 1.2267,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
+        },
+        {
+          "score": 1.1142,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Yes only UIC students can apply through University track it's written in 2026 guidelines of undergraduates"
+        },
+        {
+          "score": 1.1221,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Do u know something about university track"
         }
       ],
       "checks": {
@@ -9890,10 +9895,10 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 0,
-      "community_count": 6,
+      "community_count": 3,
       "official_programs": [],
       "community_programs": {
-        "UG": 5,
+        "UG": 2,
         "mixed": 1
       },
       "community_conflict_flags": 0,
@@ -9905,13 +9910,6 @@
       },
       "top_official": [],
       "top_community": [
-        {
-          "score": 0.7314,
-          "program": "UG",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "can you please tell me the process after application open ,what to sent in online form ,and i am confused in oline form we need to send our original document or apositile verification document ,or we can do apostile after get selected in first round,what happen after first round,i am litreally in confusion"
-        },
         {
           "score": 0.6134,
           "program": "UG",
@@ -9925,6 +9923,13 @@
           "confidence": "low",
           "possible_conflict": false,
           "question": "If u are confident u can complete a courses in just one month, u can also take the monthly access .."
+        },
+        {
+          "score": 0.5228,
+          "program": "mixed",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "For Embassy track now we online upload our documents or hand over in embassy? GKS-U"
         }
       ],
       "checks": {
@@ -9948,10 +9953,10 @@
       "asked_clarification": false,
       "clarification": null,
       "official_count": 0,
-      "community_count": 6,
+      "community_count": 2,
       "official_programs": [],
       "community_programs": {
-        "G": 6
+        "G": 2
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -9970,18 +9975,11 @@
           "question": "you can also take monthly tests to see your improvement! :)"
         },
         {
-          "score": 0.6714,
+          "score": 0.539,
           "program": "G",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "i also know that only lei students can stay there. but ya there isn’t much info on this studio dorm :/"
-        },
-        {
-          "score": 0.6479,
-          "program": "G",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Will it be after 3rd round result?"
+          "question": "was that monthly?"
         }
       ],
       "checks": {
@@ -10008,8 +10006,7 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "mixed": 3,
-        "UG": 3
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -10021,18 +10018,18 @@
       "top_official": [],
       "top_community": [
         {
-          "score": 0.7977,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "Of your own country or korea?"
-        },
-        {
           "score": 0.7439,
           "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
           "question": "Bro in the evening I saw Anjali in korea video and she also said that Eg. Your major is International Relations so you cannot apply to university track bcz that is only for STEM majors"
+        },
+        {
+          "score": 0.6222,
+          "program": "UG",
+          "confidence": "medium",
+          "possible_conflict": false,
+          "question": "Korea is my dream uni"
         },
         {
           "score": 0.6463,
@@ -10066,8 +10063,7 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "G": 3,
-        "mixed": 3
+        "G": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -10086,18 +10082,18 @@
           "question": "Friday is holiday in Korea."
         },
         {
-          "score": 0.7977,
-          "program": "mixed",
+          "score": 0.7151,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Of your own country or korea?"
+          "question": "Lovely meeting you here, can I DM too?"
         },
         {
-          "score": 0.7253,
-          "program": "mixed",
+          "score": 0.6624,
+          "program": "G",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Do you mean the top three universities in south Korea"
+          "question": "That’s why, since I don’t have much money to eat outside before I receive my allowance, I’m considering continuing to eat at the canteen for now until I get my allowance. Or at least, I hope I can use the halal kitchen to minimize my expenses. 😩😥"
         }
       ],
       "checks": {
@@ -10124,9 +10120,9 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "mixed": 6
+        "UG": 6
       },
-      "community_conflict_flags": 0,
+      "community_conflict_flags": 1,
       "coverage": {
         "question_concepts": [],
         "covered": [],
@@ -10136,25 +10132,25 @@
       "top_official": [],
       "top_community": [
         {
-          "score": 0.7722,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "What do we learn in this"
-        },
-        {
-          "score": 0.7357,
-          "program": "mixed",
-          "confidence": "low",
-          "possible_conflict": false,
-          "question": "Is it very hard to learn Korean"
-        },
-        {
-          "score": 0.6962,
-          "program": "mixed",
+          "score": 0.6787,
+          "program": "UG",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "Ik!😂 it's peak range of over confidence 🥲 😂 But seriously that day when I heard the listening I was like watching an 1.75x Korean drama speaking without subtitles 🥲"
+          "question": "Self funding, for language year or academic session admission?"
+        },
+        {
+          "score": 0.6034,
+          "program": "UG",
+          "confidence": "review",
+          "possible_conflict": true,
+          "question": "Hello, I would like to ask if it is necessary for me to have an English or Korean certificate?Because, as far as I know, they will be responsible for teaching the language for one year"
+        },
+        {
+          "score": 0.5894,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "I want to do my course in english language"
         }
       ],
       "checks": {
@@ -10181,8 +10177,8 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "mixed": 3,
-        "G": 3
+        "G": 2,
+        "mixed": 4
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -10194,13 +10190,6 @@
       "top_official": [],
       "top_community": [
         {
-          "score": 0.7651,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "I'm Nabiha Arshad and my final choice is Seoul national university.. I applied through the Embassy track.. No IELTS/TOPIK"
-        },
-        {
           "score": 0.6805,
           "program": "G",
           "confidence": "medium",
@@ -10208,11 +10197,18 @@
           "question": "What time is your flight from seoul? Mine is at 14:00"
         },
         {
-          "score": 0.6677,
+          "score": 0.2005,
           "program": "G",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "Hello, someone said they already have their tickets bought for them yes? Is anyone maybe flying from seoul to busan and can tell me if domestic flight has baggage included? I asked coordinator if it’s gonna be and she said she has no idea lol (I don’t have my tickets yet, only itinerary)"
+        },
+        {
+          "score": 0.7651,
+          "program": "mixed",
           "confidence": "medium",
           "possible_conflict": false,
-          "question": "It is updated in pnu international notice"
+          "question": "I'm Nabiha Arshad and my final choice is Seoul national university.. I applied through the Embassy track.. No IELTS/TOPIK"
         }
       ],
       "checks": {
@@ -10239,8 +10235,7 @@
       "community_count": 6,
       "official_programs": [],
       "community_programs": {
-        "mixed": 4,
-        "UG": 2
+        "UG": 6
       },
       "community_conflict_flags": 0,
       "coverage": {
@@ -10252,25 +10247,25 @@
       "top_official": [],
       "top_community": [
         {
-          "score": 0.8374,
-          "program": "mixed",
-          "confidence": "medium",
-          "possible_conflict": false,
-          "question": "When did you find out about this scholarship"
-        },
-        {
-          "score": 0.7254,
-          "program": "mixed",
+          "score": 0.6159,
+          "program": "UG",
           "confidence": "low",
           "possible_conflict": false,
-          "question": "Allowed if you are already graduated"
+          "question": "Do you guys know how'll u guys get a job after studying in korea??. My parents are not supporting me to apply"
         },
         {
-          "score": 0.6425,
-          "program": "mixed",
-          "confidence": "medium",
+          "score": 0.592,
+          "program": "UG",
+          "confidence": "low",
           "possible_conflict": false,
-          "question": "Don't they give waiver or partly scholarship for snu and then you can earn on your own there by part time"
+          "question": "Thats very simple, but we cannot say what you'll like after your bachelor, i mean, what if you like to continue in academic life, and not search for a job in industry? Just entering inthe academic life open so many doors that you cant even say where you'll go Even the network part while you do your studies can get you somewhere, and, if your parents is not supporting and u pass, go anyway, you will not need to rely on them anymore if you get the scholarship, do it in silence"
+        },
+        {
+          "score": 0.5901,
+          "program": "UG",
+          "confidence": "low",
+          "possible_conflict": false,
+          "question": "You can find then some university which gives scholarship and not that competitive"
         }
       ],
       "checks": {

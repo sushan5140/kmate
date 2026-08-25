@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { loadAnswers } from "@/lib/gks/store";
@@ -42,6 +42,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   // Return the whole list rather than just the new row: posting changes the
   // ordering, and the client shouldn't have to re-derive that itself.
-  const answers = await loadAnswers(admin, questionId, user.id);
+  const answers = await loadAnswers(admin, questionId, user.id, undefined, await isAuthorizedAdmin(user));
   return NextResponse.json({ answers });
 }

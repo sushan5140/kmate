@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { loadDiscussion } from "@/lib/gks/store";
@@ -52,6 +52,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
   if (error) return NextResponse.json({ error: "post_failed" }, { status: 400 });
 
-  const discussion = await loadDiscussion(admin, questionId, user.id);
+  const discussion = await loadDiscussion(admin, questionId, user.id, await isAuthorizedAdmin(user));
   return NextResponse.json({ discussion });
 }

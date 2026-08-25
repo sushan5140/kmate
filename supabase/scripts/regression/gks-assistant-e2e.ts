@@ -22,6 +22,15 @@
  *       the thread root), and per-post upvotes.
  *  D2 - A reply can't be grafted onto a thread from a different question.
  *  E1 - Every mutating route rejects unauthenticated callers.
+ *  F  - Delete authorisation: owner may, non-owner may not, imports and
+ *       official content are protected, threads survive a deleted parent.
+ *  G  - Contributor diversity: no contributor fills the answer list.
+ *  H  - Stale imports are pruned on re-ask; user answers and upvoted imports
+ *       are never pruned.
+ *  I  - Admin moderation: an admin may remove another user's KMate-authored
+ *       answer or post, imports stay protected even from admins, author and
+ *       moderator removals stay distinguishable, ownership survives removal,
+ *       and removed content cannot be voted on.
  *
  * Needs a running production build (`next start`), not `next dev`.
  * Run:
@@ -73,6 +82,14 @@ async function sessionFor(email: string) {
   return sessionCookieHeader(sessionData.session);
 }
 
+function del(path: string, cookie: string | null) {
+  return fetch(`${BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: { ...(cookie ? { Cookie: cookie } : {}) },
+    redirect: "manual",
+  });
+}
+
 function post(path: string, cookie: string | null, body?: unknown) {
   return fetch(`${BASE_URL}${path}`, {
     method: "POST",
@@ -104,6 +121,10 @@ interface DiscussionView {
   upvotes: number;
   hasUpvoted: boolean;
   replies: DiscussionView[];
+  canDelete: boolean;
+  canModerate: boolean;
+  deleted: boolean;
+  deletionType: "author" | "moderator" | null;
 }
 interface Thread {
   questionId: string;
@@ -117,9 +138,67 @@ interface Thread {
 // shared question bank, and cleaned up at the end either way.
 const QUESTION = `E2E probe ${Date.now()}: do I need to apostille my transcript?`;
 
+/**
+ * Admin moderation is gated by isAuthorizedAdmin(): the caller's email must
+ * equal ADMIN_EMAIL *and* their profile must carry is_admin. To exercise that
+ * for real without borrowing the operator's own account, start the server with
+ * ADMIN_EMAIL set to this address and the suite provisions it:
+ *
+ *   ADMIN_EMAIL=e2e-admin@example.com npx next start --port 3901
+ *
+ * If the server isn't configured that way the admin checks are reported as
+ * SKIP rather than quietly passing -- a moderation test that can't actually
+ * reach the moderation path is worse than no test.
+ */
+const ADMIN_TEST_EMAIL = process.env.KMATE_TEST_ADMIN_EMAIL ?? "e2e-admin@example.com";
+
+async function createTestAdmin() {
+  const { data: existing } = await admin.auth.admin.listUsers({ perPage: 200 });
+  const found = existing?.users.find((u) => u.email === ADMIN_TEST_EMAIL);
+  if (found) {
+    await admin.from("profiles").delete().eq("id", found.id);
+    await admin.auth.admin.deleteUser(found.id);
+  }
+  const { data: created, error } = await admin.auth.admin.createUser({
+    email: ADMIN_TEST_EMAIL,
+    email_confirm: true,
+  });
+  if (error || !created.user) throw new Error(`admin createUser failed: ${error?.message}`);
+  const userId = created.user.id;
+
+  // guard_profiles_is_admin() is a BEFORE UPDATE trigger that silently reverts
+  // any is_admin change unless the caller is already an admin -- deliberately,
+  // and for service-role writes too, so an end user can never self-promote.
+  // It does not fire on INSERT, so the fixture is provisioned by replacing the
+  // signup-trigger's row rather than by updating it. This weakens no guard:
+  // it needs the service-role key, which no end user has.
+  for (let i = 0; i < 10; i++) {
+    const { data: exists } = await admin.from("profiles").select("id").eq("id", userId).maybeSingle();
+    if (exists) break;
+    await new Promise((r) => setTimeout(r, 400));
+  }
+  await admin.from("profiles").delete().eq("id", userId);
+  const { error: insertErr } = await admin.from("profiles").insert({
+    id: userId,
+    username: `e2eadmin${Date.now() % 100000}`,
+    track: "gks_g",
+    major: "Public Policy",
+    application_year: 2027,
+    onboarding_completed_at: new Date().toISOString(),
+    is_admin: true,
+  });
+  if (insertErr) throw new Error(`admin profile insert failed: ${insertErr.message}`);
+
+  const { data: check } = await admin.from("profiles").select("is_admin").eq("id", userId).maybeSingle();
+  if (check?.is_admin !== true) throw new Error("test admin was not granted is_admin");
+
+  return { userId, email: ADMIN_TEST_EMAIL };
+}
+
 async function main() {
   const userA = await createThrowawayUser(admin, "gksa");
   const userB = await createThrowawayUser(admin, "gksb");
+  const adminUser = await createTestAdmin();
   let questionId = "";
 
   try {
@@ -315,10 +394,223 @@ async function main() {
     check("E1 anonymous calls wrote nothing", afterVotes === beforeVotes && afterAnswers === beforeAnswers && afterPosts === beforePosts);
     check("E1 anonymous save wrote nothing",
       (await admin.from("gks_saved_questions").select("question_id", { count: "exact", head: true }).eq("question_id", questionId)).count === 0);
+
+    // --- F: delete authorisation --------------------------------------------
+    // Every negative case below must leave the row untouched, not merely
+    // return an error code.
+    const anonDelete = await del(`/api/gks/discussion/${rootId}`, null);
+    check("F1 anonymous cannot delete",
+      anonDelete.status === 401 || (anonDelete.status === 307 && (anonDelete.headers.get("location") ?? "").includes("/login")));
+
+    // A's post, B tries to delete it.
+    const crossUser = await del(`/api/gks/discussion/${rootId}`, cookieB);
+    check("F2 a user cannot delete another user's discussion post", crossUser.status === 403);
+    const { data: stillThere } = await admin
+      .from("gks_discussion_posts").select("id, deleted_at").eq("id", rootId).maybeSingle();
+    check("F2 the other user's post survived the attempt",
+      Boolean(stillThere) && stillThere!.deleted_at === null);
+
+    // B's reply, A tries to delete it.
+    const crossReply = await del(`/api/gks/discussion/${replyId}`, cookieA);
+    check("F3 a user cannot delete another user's reply", crossReply.status === 403);
+    check("F3 the other user's reply survived",
+      Boolean((await admin.from("gks_discussion_posts").select("id").eq("id", replyId).maybeSingle()).data));
+
+    // Imported community answers have no owner and must be undeletable.
+    const importDelete = await del(`/api/gks/answers/${target.id}`, cookieA);
+    check("F4 an imported community answer cannot be deleted", importDelete.status === 403);
+    check("F4 the imported answer survived",
+      Boolean((await admin.from("gks_answers").select("id").eq("id", target.id).maybeSingle()).data));
+    const importDeleteB = await del(`/api/gks/answers/${target.id}`, cookieB);
+    check("F4 not deletable by a second user either", importDeleteB.status === 403);
+
+    // A deletes their OWN answer -- allowed, and really gone.
+    const ownAnswerId = mine!.id;
+    const ownDelete = await del(`/api/gks/answers/${ownAnswerId}`, cookieA);
+    check("F5 a user can delete their own KMate answer", ownDelete.status === 200);
+    check("F5 the answer is actually gone",
+      !(await admin.from("gks_answers").select("id").eq("id", ownAnswerId).maybeSingle()).data);
+    const afterList = (await ownDelete.json()).answers as AnswerView[];
+    check("F5 the response no longer contains it", !afterList.some((a) => a.id === ownAnswerId));
+
+    // A deletes their own post that HAS replies -> tombstone, chain intact.
+    const tombstone = await del(`/api/gks/discussion/${rootId}`, cookieA);
+    check("F6 a user can delete their own discussion post", tombstone.status === 200);
+    const tombBody = await tombstone.json();
+    check("F6 a post with replies is tombstoned, not removed", tombBody.tombstoned === true);
+    const { data: tombRow } = await admin
+      .from("gks_discussion_posts").select("id, body, deleted_at").eq("id", rootId).maybeSingle();
+    check("F6 the tombstone keeps the row but clears the words",
+      Boolean(tombRow?.deleted_at) && tombRow!.body === "");
+    const tombView = tombBody.discussion as DiscussionView[];
+    check("F6 the reply chain survived", (tombView[0]?.replies?.length ?? 0) >= 1);
+    check("F6 the tombstone exposes no author or body",
+      tombView[0]?.deleted === true && !tombView[0]?.body && !tombView[0]?.authorName);
+    check("F6 deleting twice is rejected", (await del(`/api/gks/discussion/${rootId}`, cookieA)).status === 409);
+
+    // A post with no replies is removed outright.
+    const solo = await post(`/api/gks/questions/${questionId}/discussion`, cookieA, { body: "E2E solo post to delete" });
+    const soloId = ((await solo.json()).discussion as DiscussionView[]).find((d) => d.body === "E2E solo post to delete")!.id;
+    const soloDelete = await del(`/api/gks/discussion/${soloId}`, cookieA);
+    check("F7 a post with no replies is deleted outright", (await soloDelete.json()).tombstoned === false);
+    check("F7 that row is gone",
+      !(await admin.from("gks_discussion_posts").select("id").eq("id", soloId).maybeSingle()).data);
+
+    // --- G: contributor diversity ---------------------------------------------
+    const fresh = await post("/api/gks/ask", cookieA, { question: "ielts", program: "UG" });
+    const freshThread = (await fresh.json()).thread as Thread | null;
+    if (freshThread) {
+      const { data: freshRows } = await admin
+        .from("gks_answers").select("id, sender_alias").eq("question_id", freshThread.questionId);
+      const aliasById = new Map((freshRows ?? []).map((r) => [r.id, r.sender_alias]));
+      const counts = new Map<string, number>();
+      for (const a of freshThread.answers) {
+        const key = aliasById.get(a.id) ?? a.authorName;
+        if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+      const worst = Math.max(0, ...counts.values());
+      check(`G1 no contributor appears 3+ times (max seen: ${worst})`, worst <= 2);
+      const names = freshThread.answers.filter((a) => a.origin === "community_import").map((a) => a.authorName);
+      check("G1 the same contributor still maps to one stable alias",
+        new Set(names).size === new Set([...counts.keys()]).size || names.length === 0);
+      if (freshThread.questionId !== questionId) {
+        await admin.from("gks_questions").delete().eq("id", freshThread.questionId);
+      }
+    }
+
+    // --- H: stale imports are pruned on re-ask ---------------------------------
+    // Threads are deduped and long-lived, so without pruning they only grow:
+    // answers attached under an older, looser retriever would be shown forever
+    // beside the new ones.
+    const ownAnswer2 = "E2E: a KMate answer that must survive the prune.";
+    await post(`/api/gks/questions/${questionId}/answers`, cookieA, { body: ownAnswer2 });
+    await admin.from("gks_answers").insert([
+      { question_id: questionId, origin: "community_import", body: "E2E stale import that retrieval no longer returns",
+        sender_alias: "user_e2estale", external_key: "e2e_stale_cluster:deadbeef" },
+    ]);
+    const beforePrune = (await admin.from("gks_answers")
+      .select("id", { count: "exact", head: true }).eq("question_id", questionId)).count ?? 0;
+
+    await post("/api/gks/ask", cookieA, { question: QUESTION, program: "UG" });
+
+    const { data: afterPrune } = await admin.from("gks_answers")
+      .select("id, origin, body, external_key, upvotes_count").eq("question_id", questionId);
+    const bodies = (afterPrune ?? []).map((a) => a.body);
+    check("H1 the stale import was pruned on re-ask",
+      !bodies.includes("E2E stale import that retrieval no longer returns"));
+    check("H1 pruning actually removed rows", (afterPrune?.length ?? 0) < beforePrune);
+    check("H2 a KMate-written answer is never pruned", bodies.includes(ownAnswer2));
+    check("H3 an upvoted import is never pruned",
+      (afterPrune ?? []).some((a) => a.id === target.id));
+
+    // --- I: admin moderation ----------------------------------------------------
+    const cookieAdmin = await sessionFor(adminUser.email);
+
+    // Is the moderation gate actually reachable in this environment? Probe with
+    // a real attempt rather than assuming.
+    const bAnswer = await post(`/api/gks/questions/${questionId}/answers`, cookieB, {
+      body: "E2E: an answer by user B that an admin should be able to remove.",
+    });
+    const bAnswerId = ((await bAnswer.json()).answers as AnswerView[])
+      .find((a) => a.body.startsWith("E2E: an answer by user B"))!.id;
+
+    const probe = await del(`/api/gks/answers/${bAnswerId}`, cookieAdmin);
+    const adminGateActive = probe.status === 200;
+
+    if (!adminGateActive) {
+      console.log(`  SKIP  I* admin moderation -- server not started with ADMIN_EMAIL=${ADMIN_TEST_EMAIL} ` +
+                  `(probe returned ${probe.status}); moderation paths NOT verified`);
+      // A regular user must still be refused, whatever the admin config is.
+      check("I0 a non-admin cannot moderate another user's answer",
+        (await del(`/api/gks/answers/${bAnswerId}`, cookieA)).status === 403);
+    } else {
+      check("I1 an admin can remove another user's KMate answer", true);
+      check("I1 the removed answer is gone",
+        !(await admin.from("gks_answers").select("id").eq("id", bAnswerId).maybeSingle()).data);
+
+      // Non-admins must not reach the same path.
+      const bAnswer2 = await post(`/api/gks/questions/${questionId}/answers`, cookieB, {
+        body: "E2E: a second answer by user B, for the non-admin check.",
+      });
+      const bAnswer2Id = ((await bAnswer2.json()).answers as AnswerView[])
+        .find((a) => a.body.startsWith("E2E: a second answer by user B"))!.id;
+      check("I2 a non-admin cannot remove another user's answer",
+        (await del(`/api/gks/answers/${bAnswer2Id}`, cookieA)).status === 403);
+      check("I2 that answer survived the non-admin attempt",
+        Boolean((await admin.from("gks_answers").select("id").eq("id", bAnswer2Id).maybeSingle()).data));
+
+      // Imports stay protected from admins too -- this endpoint is for user
+      // content, and the corpus has no author to hold responsible.
+      check("I3 an admin still cannot remove an imported community answer",
+        (await del(`/api/gks/answers/${target.id}`, cookieAdmin)).status === 403);
+      check("I3 the imported answer survived",
+        Boolean((await admin.from("gks_answers").select("id").eq("id", target.id).maybeSingle()).data));
+
+      // Official guideline text is not stored in this table at all.
+      const { count: officialRows } = await admin
+        .from("gks_answers").select("id", { count: "exact", head: true })
+        .not("origin", "in", '("kmate_user","community_import")');
+      check("I4 official answers are unreachable through this endpoint", officialRows === 0);
+
+      // Moderating a post that has replies.
+      const modRoot = await post(`/api/gks/questions/${questionId}/discussion`, cookieB, {
+        body: "E2E: user B parent post to be moderated.",
+      });
+      const modRootId = ((await modRoot.json()).discussion as DiscussionView[])
+        .find((d) => d.body.startsWith("E2E: user B parent post"))!.id;
+      await post(`/api/gks/questions/${questionId}/discussion`, cookieA, {
+        body: "E2E: a reply that must survive moderation of its parent.", parentId: modRootId,
+      });
+
+      const modResult = await del(`/api/gks/discussion/${modRootId}`, cookieAdmin);
+      check("I5 an admin can remove another user's discussion post", modResult.status === 200);
+      const modBody = await modResult.json();
+      check("I5 it is tombstoned, not destroyed", modBody.tombstoned === true);
+      check("I5 recorded as a moderator removal", modBody.deletionType === "moderator");
+
+      const { data: modRow } = await admin
+        .from("gks_discussion_posts")
+        .select("author_id, body, deleted_at, deleted_by, deletion_type")
+        .eq("id", modRootId).maybeSingle();
+      check("I6 deletion_type is 'moderator'", modRow?.deletion_type === "moderator");
+      check("I6 deleted_by records the admin", modRow?.deleted_by === adminUser.userId);
+      check("I6 the original author is NOT overwritten", modRow?.author_id === userB.userId);
+      check("I6 the body is cleared", modRow?.body === "");
+
+      const modView = modBody.discussion as DiscussionView[];
+      const tomb = modView.find((d) => d.id === modRootId);
+      check("I7 the reply chain survived moderation", (tomb?.replies?.length ?? 0) >= 1);
+      check("I7 the moderated body is absent from the payload",
+        !JSON.stringify(modBody).includes("E2E: user B parent post to be moderated"));
+      check("I7 the tombstone is marked as a moderator removal", tomb?.deletionType === "moderator");
+
+      // Author deletion must remain distinguishable from moderation.
+      const ownRoot = await post(`/api/gks/questions/${questionId}/discussion`, cookieA, {
+        body: "E2E: user A parent post deleted by its own author.",
+      });
+      const ownRootId = ((await ownRoot.json()).discussion as DiscussionView[])
+        .find((d) => d.body.startsWith("E2E: user A parent post"))!.id;
+      await post(`/api/gks/questions/${questionId}/discussion`, cookieB, {
+        body: "E2E: reply under the author-deleted parent.", parentId: ownRootId,
+      });
+      const ownResult = await del(`/api/gks/discussion/${ownRootId}`, cookieA);
+      check("I8 author deletion is recorded as 'author', not moderation",
+        (await ownResult.json()).deletionType === "author");
+
+      // Removed content must not be votable.
+      check("I9 a tombstoned post cannot be upvoted",
+        (await post(`/api/gks/discussion/${modRootId}/upvote`, cookieA)).status === 403);
+      check("I9 a deleted answer cannot be upvoted",
+        (await post(`/api/gks/answers/${bAnswerId}/upvote`, cookieA)).status === 403);
+      check("I9 the tombstone carries no votes",
+        ((await admin.from("gks_discussion_upvotes")
+          .select("post_id", { count: "exact", head: true }).eq("post_id", modRootId)).count ?? 0) === 0);
+    }
   } finally {
     if (questionId) await admin.from("gks_questions").delete().eq("id", questionId);
     await cleanupUser(admin, userA.userId);
     await cleanupUser(admin, userB.userId);
+    await cleanupUser(admin, adminUser.userId);
   }
 
   return summarize();

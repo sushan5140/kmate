@@ -21,6 +21,12 @@ export interface AnswerView {
   createdAt: string | null;
   upvotes: number;
   hasUpvoted: boolean;
+  /** True when the signed-in user may delete this (their own KMate answer). */
+  canDelete: boolean;
+  /** True when the viewer is an admin acting on someone else's KMate answer. */
+  canModerate: boolean;
+  /** Further answers by the same contributor, held back by the diversity rule. */
+  moreFromContributor: number;
 }
 
 export interface DiscussionView {
@@ -32,6 +38,14 @@ export interface DiscussionView {
   upvotes: number;
   hasUpvoted: boolean;
   replies: DiscussionView[];
+  /** True when the signed-in user is this post's author. */
+  canDelete: boolean;
+  /** True when the viewer is an admin acting on someone else's post. */
+  canModerate: boolean;
+  /** Tombstone: removed, kept so the replies below it survive. */
+  deleted: boolean;
+  /** Who removed it -- drives the tombstone wording. */
+  deletionType: "author" | "moderator" | null;
 }
 
 export interface ThreadState {

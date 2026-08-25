@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UpvoteButton } from "@/components/gks/upvote-button";
+import { OwnerMenu } from "@/components/gks/owner-menu";
 import { relativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/cn";
 import type { AnswerView, ConflictInfo } from "@/components/gks/types";
@@ -69,6 +70,16 @@ export function CommunityAnswers({
     }
   }
 
+  async function remove(id: string) {
+    const res = await fetch(`/api/gks/answers/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError("Couldn't delete that. Try again.");
+      return;
+    }
+    const data = (await res.json()) as { answers: AnswerView[] };
+    onAnswers(data.answers);
+  }
+
   return (
     <section>
       <div className="flex items-center gap-2">
@@ -78,6 +89,15 @@ export function CommunityAnswers({
           Applicant experience — not official
         </span>
       </div>
+
+      {/* States the count plainly, because a short list is now a deliberate
+          result rather than a failure -- retrieval prefers a few relevant
+          experiences over a padded section. */}
+      {answers.length > 0 && (
+        <p className="mt-1.5 text-[12px] text-muted">
+          {answers.length} relevant community experience{answers.length === 1 ? "" : "s"} found
+        </p>
+      )}
 
       {(conflict?.community_internal || conflict?.against_official) && (
         <div className="mt-3 flex items-start gap-2 rounded-xl bg-gold/10 px-3.5 py-3">
@@ -92,8 +112,8 @@ export function CommunityAnswers({
 
       {answers.length === 0 ? (
         <p className="mt-3 text-[13.5px] text-muted">
-          No closely matching community answer yet. If you&apos;ve been through this, your answer would be the
-          first.
+          No strong community experiences found for this question yet. If you&apos;ve been through this, your
+          answer would be the first.
         </p>
       ) : (
         <ul className="mt-3 flex flex-col">
@@ -123,13 +143,31 @@ export function CommunityAnswers({
                       )}
                     </div>
                     <p className="mt-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink">{a.body}</p>
+                    {/* Held back by the diversity rule so one prolific
+                        contributor can't fill the section. Nothing is
+                        discarded and the alias stays the same person. */}
+                    {a.moreFromContributor > 0 && (
+                      <p className="mt-1.5 text-[11.5px] text-muted">
+                        {a.moreFromContributor} more experience
+                        {a.moreFromContributor === 1 ? "" : "s"} from this contributor
+                      </p>
+                    )}
                   </div>
-                  <UpvoteButton
-                    endpoint={`/api/gks/answers/${a.id}/upvote`}
-                    initialUpvotes={a.upvotes}
-                    initialUpvoted={a.hasUpvoted}
-                    ariaLabel={`Upvote answer by ${a.authorName}`}
-                  />
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <UpvoteButton
+                      endpoint={`/api/gks/answers/${a.id}/upvote`}
+                      initialUpvotes={a.upvotes}
+                      initialUpvoted={a.hasUpvoted}
+                      ariaLabel={`Upvote answer by ${a.authorName}`}
+                    />
+                    {(a.canDelete || a.canModerate) && (
+                      <OwnerMenu
+                        label="answer"
+                        mode={a.canDelete ? "delete" : "remove"}
+                        onDelete={() => remove(a.id)}
+                      />
+                    )}
+                  </div>
                 </div>
               </li>
             );

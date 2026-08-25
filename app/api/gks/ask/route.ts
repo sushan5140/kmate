@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
@@ -117,9 +117,13 @@ export async function POST(request: Request) {
       (data.evidence?.community ?? []) as unknown as Parameters<typeof syncCommunityAnswers>[2]
     );
 
+    // Resolved once, server-side, from the session -- the browser is never
+    // asked whether it is an admin.
+    const viewerIsAdmin = await isAuthorizedAdmin(user);
+
     const [answers, discussion, saved] = await Promise.all([
-      loadAnswers(admin, questionId, user.id, ragRank),
-      loadDiscussion(admin, questionId, user.id),
+      loadAnswers(admin, questionId, user.id, ragRank, viewerIsAdmin),
+      loadDiscussion(admin, questionId, user.id, viewerIsAdmin),
       isQuestionSaved(admin, questionId, user.id),
     ]);
 

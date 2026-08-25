@@ -18,7 +18,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const { upvoted } = await toggleUpvote(getSupabaseAdmin(), GKS_DISCUSSION_VOTES, id, user.id);
+  const admin = getSupabaseAdmin();
+
+  // A tombstoned post has no body left to endorse, so it must not accumulate
+  // votes -- and a vote cast on removed content would sit under a "removed"
+  // notice looking like approval of something nobody can read.
+  const { data: post } = await admin
+    .from("gks_discussion_posts")
+    .select("id, deleted_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (!post || post.deleted_at) {
+    return NextResponse.json({ error: "unavailable" }, { status: 403 });
+  }
+
+  const { upvoted } = await toggleUpvote(admin, GKS_DISCUSSION_VOTES, id, user.id);
 
   return NextResponse.json({ upvoted });
 }

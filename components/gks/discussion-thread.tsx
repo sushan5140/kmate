@@ -4,6 +4,7 @@ import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UpvoteButton } from "@/components/gks/upvote-button";
+import { OwnerMenu } from "@/components/gks/owner-menu";
 import { relativeTime } from "@/lib/relative-time";
 import type { DiscussionView } from "@/components/gks/types";
 
@@ -64,37 +65,69 @@ export function DiscussionThread({
     }
   }
 
+  async function remove(id: string) {
+    const res = await fetch(`/api/gks/discussion/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError("Couldn't delete that. Try again.");
+      return;
+    }
+    const data = (await res.json()) as { discussion: DiscussionView[] };
+    onDiscussion(data.discussion);
+  }
+
   function Post({ post: p, isReply }: { post: DiscussionView; isReply: boolean }) {
     return (
       <div className={isReply ? "border-l border-hairline pl-3.5" : undefined}>
-        <div className="flex items-start gap-2.5">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="text-[13px] font-medium text-ink">{p.authorName}</span>
-              {p.authorMeta && <span className="text-[11.5px] text-muted">{p.authorMeta}</span>}
-              <span className="text-[11.5px] text-muted">{relativeTime(p.createdAt)}</span>
+        {/* A deleted post is kept only as a tombstone so the replies beneath
+            it still read as a conversation. No author, no body, no vote. */}
+        {p.deleted ? (
+          // Author deletion and moderator removal stay distinguishable: they
+          // are different events, and reading "deleted" under a post someone
+          // else removed would misattribute the act to its author.
+          <p className="text-[13px] italic text-muted">
+            {p.deletionType === "moderator"
+              ? "This comment was removed by moderation"
+              : "This comment was deleted"}
+          </p>
+        ) : (
+          <div className="flex items-start gap-2.5">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="text-[13px] font-medium text-ink">{p.authorName}</span>
+                {p.authorMeta && <span className="text-[11.5px] text-muted">{p.authorMeta}</span>}
+                <span className="text-[11.5px] text-muted">{relativeTime(p.createdAt)}</span>
+              </div>
+              <p className="mt-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink">{p.body}</p>
+              {!isReply && questionId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReplyTo(replyTo === p.id ? null : p.id);
+                    setReplyDraft("");
+                  }}
+                  className="mt-1.5 text-[12px] font-medium text-muted hover:text-ink"
+                >
+                  {replyTo === p.id ? "Cancel" : "Reply"}
+                </button>
+              )}
             </div>
-            <p className="mt-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink">{p.body}</p>
-            {!isReply && questionId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setReplyTo(replyTo === p.id ? null : p.id);
-                  setReplyDraft("");
-                }}
-                className="mt-1.5 text-[12px] font-medium text-muted hover:text-ink"
-              >
-                {replyTo === p.id ? "Cancel" : "Reply"}
-              </button>
-            )}
+            <div className="flex shrink-0 items-center gap-1.5">
+              <UpvoteButton
+                endpoint={`/api/gks/discussion/${p.id}/upvote`}
+                initialUpvotes={p.upvotes}
+                initialUpvoted={p.hasUpvoted}
+                ariaLabel={`Upvote reply by ${p.authorName}`}
+              />
+              {(p.canDelete || p.canModerate) && (
+                <OwnerMenu
+                  label={isReply ? "reply" : "comment"}
+                  mode={p.canDelete ? "delete" : "remove"}
+                  onDelete={() => remove(p.id)}
+                />
+              )}
+            </div>
           </div>
-          <UpvoteButton
-            endpoint={`/api/gks/discussion/${p.id}/upvote`}
-            initialUpvotes={p.upvotes}
-            initialUpvoted={p.hasUpvoted}
-            ariaLabel={`Upvote reply by ${p.authorName}`}
-          />
-        </div>
+        )}
 
         {p.replies.length > 0 && (
           <div className="mt-3 flex flex-col gap-3">

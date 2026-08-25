@@ -60,8 +60,21 @@ COMMUNITY_PROGRAM_MISMATCH_PENALTY = float(os.getenv("COMMUNITY_PROGRAM_MISMATCH
 # actually say something?) are different axes. TF-IDF ranks the first; the top
 # RERANK_POOL candidates are then re-ranked by the best answer they contain, so
 # a thread full of "ok thanks" loses to one containing a real procedure.
-COMMUNITY_RERANK_POOL = int(os.getenv("COMMUNITY_RERANK_POOL", "25"))
+# Sized for the strict topic gate below: only clusters in this pool have their
+# answers evaluated, so once off-topic replies are gated out a small pool can
+# leave a question with nothing at all. At 25 the eligibility and
+# personal-statement questions returned zero community evidence while good
+# threads sat just outside the cut; 60 restores them for about +90ms.
+COMMUNITY_RERANK_POOL = int(os.getenv("COMMUNITY_RERANK_POOL", "60"))
 COMMUNITY_USEFULNESS_WEIGHT = float(os.getenv("COMMUNITY_USEFULNESS_WEIGHT", "0.60"))
 # Strongest replies shown per thread, and threads shown per answer.
 COMMUNITY_ANSWERS_PER_CASE = int(os.getenv("COMMUNITY_ANSWERS_PER_CASE", "3"))
 COMMUNITY_MAX_CASES = int(os.getenv("COMMUNITY_MAX_CASES", "3"))
+
+# Community topic gate, mirroring OFFICIAL_REQUIRE_CONCEPT. A thread sharing no
+# concept with a focused question is off-topic however well it scores
+# lexically; without this, "ielts" returned transcript and apostille threads.
+COMMUNITY_REQUIRE_CONCEPT = os.getenv("COMMUNITY_REQUIRE_CONCEPT", "1") not in ("0", "false", "False")
+# Fraction of the best match's relevance a thread must reach to be shown at
+# all. Prefers "2 relevant community experiences" over six padded ones.
+COMMUNITY_RELATIVE_FLOOR = float(os.getenv("COMMUNITY_RELATIVE_FLOOR", "0.55"))

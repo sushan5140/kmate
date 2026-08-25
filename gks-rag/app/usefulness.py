@@ -208,17 +208,20 @@ def classify_answer(text: str, tag: str | None = None, query_concepts: frozenset
                 "reasons": reasons + ["reply is a question, not an answer"]}
 
     # Off-topic reply that happened to sit in a relevant thread.
+    #
+    # This is now a hard gate rather than a penalty with an escape hatch. A
+    # thread's *question* can be squarely on topic while its replies wander:
+    # asking "ielts" surfaced "Daegu university and pusan national university
+    # cos I want apply through the Embassy", which sits in an IELTS thread,
+    # scores well lexically, and trips two usefulness signals -- so the old
+    # `positives <= 1` escape let it through. An answer that shares no concept
+    # with the question does not answer the question, however well written it
+    # is, and showing fewer answers is better than padding with those.
     if query_concepts:
         overlap = query_concepts & concepts_in(t)
         if not overlap:
-            score -= 0.30
             reasons.append("no shared topic with the question")
-            # One incidental verb match is not enough to carry an off-topic reply.
-            # "I'll take a knife and force him to sign" trips the action pattern
-            # while sharing no topic with the question -- that is chatter, not
-            # experience. Two independent signals are required to override.
-            if positives <= 1:
-                return {"label": "irrelevant", "score": 0.0, "reasons": reasons}
+            return {"label": "irrelevant", "score": 0.0, "reasons": reasons}
 
     # Still asks something at the end, even though it also states a fact. That is
     # weaker than a clean answer, so rank it below one rather than dropping it --

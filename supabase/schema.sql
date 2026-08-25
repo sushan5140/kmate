@@ -1699,6 +1699,25 @@ create table if not exists public.gks_discussion_posts (
 create index if not exists gks_discussion_question_idx
   on public.gks_discussion_posts (question_id, created_at);
 
+-- Soft-delete marker for discussion posts. A post with replies is tombstoned
+-- rather than removed (body cleared, deleted_at set) so the reply chain
+-- underneath it survives and still reads as a conversation; a post with no
+-- replies is deleted outright, because nothing depends on it. Deleting is
+-- restricted to the post's own author, or to an admin acting as a moderator
+-- -- both re-checked server-side in /api/gks/discussion/[id].
+alter table public.gks_discussion_posts add column if not exists deleted_at timestamptz;
+
+-- Who removed it and in what capacity. Kept separate from author_id, which is
+-- never overwritten: removing a post must not erase who wrote it, or the
+-- moderation record loses the very thing it is a record of. deletion_type
+-- drives the tombstone wording -- an applicant deleting their own comment and
+-- a moderator removing it are different events and read differently.
+alter table public.gks_discussion_posts add column if not exists deleted_by uuid references public.profiles(id) on delete set null;
+alter table public.gks_discussion_posts add column if not exists deletion_type text;
+alter table public.gks_discussion_posts drop constraint if exists gks_discussion_deletion_type_check;
+alter table public.gks_discussion_posts add constraint gks_discussion_deletion_type_check
+  check (deletion_type is null or deletion_type in ('author', 'moderator'));
+
 create table if not exists public.gks_discussion_upvotes (
   post_id uuid not null references public.gks_discussion_posts(id) on delete cascade,
   user_id uuid not null references public.profiles(id) on delete cascade,

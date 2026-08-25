@@ -15,7 +15,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const { upvoted } = await toggleUpvote(getSupabaseAdmin(), GKS_ANSWER_VOTES, id, user.id);
+  const admin = getSupabaseAdmin();
+
+  // Deleted answers are removed outright, so the row is simply gone. Checking
+  // first turns a foreign-key violation into an honest 403.
+  const { data: answer } = await admin.from("gks_answers").select("id").eq("id", id).maybeSingle();
+  if (!answer) return NextResponse.json({ error: "unavailable" }, { status: 403 });
+
+  const { upvoted } = await toggleUpvote(admin, GKS_ANSWER_VOTES, id, user.id);
 
   return NextResponse.json({ upvoted });
 }
