@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Sparkles, Bookmark, HelpCircle } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,9 +27,16 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_program: "Choose Undergraduate or Graduate first.",
 };
 
-export function GksAssistant() {
-  const [program, setProgram] = useState<Program | null>(null);
-  const [question, setQuestion] = useState("");
+export function GksAssistant({
+  initialQuestion = "",
+  initialProgram = null,
+}: {
+  /** Prefilled from FAQ Trends (?q=...&program=...) so opening an FAQ asks it here. */
+  initialQuestion?: string;
+  initialProgram?: Program | null;
+} = {}) {
+  const [program, setProgram] = useState<Program | null>(initialProgram);
+  const [question, setQuestion] = useState(initialQuestion);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AskResult | null>(null);
@@ -41,6 +48,18 @@ export function GksAssistant() {
   const [showDiagnostics] = useState(
     () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug")
   );
+
+  // Arriving from FAQ Trends with a question already chosen: ask it straight
+  // away rather than leaving the applicant to press the button on a form they
+  // did not fill in. Guarded by a ref so it fires once, not on every render.
+  const autoAsked = useRef(false);
+  useEffect(() => {
+    if (autoAsked.current) return;
+    if (!initialQuestion.trim() || !initialProgram) return;
+    autoAsked.current = true;
+    void ask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function selectProgram(p: Program) {
     setProgram(p);

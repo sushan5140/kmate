@@ -1637,6 +1637,29 @@ create unique index if not exists gks_questions_program_norm_idx
 create index if not exists gks_questions_last_asked_idx
   on public.gks_questions (last_asked_at desc);
 
+-- One row per ask, which is what makes FAQ Trends' "18 asks this week"
+-- truthful. gks_questions.ask_count is cumulative and last_asked_at is a
+-- single timestamp, so neither can answer a windowed question -- and showing
+-- a lifetime total under a "This week" filter would be a fabricated number.
+-- Deliberately append-only and tiny: no body, just who asked what and when.
+create table if not exists public.gks_question_asks (
+  id bigserial primary key,
+  question_id uuid not null references public.gks_questions(id) on delete cascade,
+  asked_by uuid references public.profiles(id) on delete set null,
+  asked_at timestamptz not null default now()
+);
+
+create index if not exists gks_question_asks_recent_idx
+  on public.gks_question_asks (asked_at desc);
+create index if not exists gks_question_asks_question_idx
+  on public.gks_question_asks (question_id, asked_at desc);
+
+alter table public.gks_question_asks enable row level security;
+-- Aggregate trend counts are readable by any signed-in applicant; the rows are
+-- written by the service-role ask route, never by a client.
+drop policy if exists "gks_question_asks_select_all" on public.gks_question_asks;
+create policy "gks_question_asks_select_all" on public.gks_question_asks for select using (true);
+
 create table if not exists public.gks_answers (
   id uuid primary key default gen_random_uuid(),
   question_id uuid not null references public.gks_questions(id) on delete cascade,

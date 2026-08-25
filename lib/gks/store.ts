@@ -116,6 +116,7 @@ export async function upsertQuestion(
       .from("gks_questions")
       .update({ ask_count: askCount, last_asked_at: new Date().toISOString() })
       .eq("id", existing.data.id);
+    await logAsk(admin, existing.data.id, input.userId);
     return { id: existing.data.id, askCount };
   }
 
@@ -132,7 +133,10 @@ export async function upsertQuestion(
     .select("id, ask_count")
     .maybeSingle();
 
-  if (inserted.data) return { id: inserted.data.id, askCount: inserted.data.ask_count ?? 1 };
+  if (inserted.data) {
+    await logAsk(admin, inserted.data.id, input.userId);
+    return { id: inserted.data.id, askCount: inserted.data.ask_count ?? 1 };
+  }
 
   // Lost a race with a concurrent ask of the same question -- the unique index
   // did its job, so just join the thread the other request created.
@@ -143,7 +147,22 @@ export async function upsertQuestion(
     .eq("question_norm", questionNorm)
     .maybeSingle();
   if (!raced.data) throw new Error("could not create or find question thread");
+  await logAsk(admin, raced.data.id, input.userId);
   return { id: raced.data.id, askCount: raced.data.ask_count ?? 1 };
+}
+
+/**
+ * Records one ask so FAQ Trends can count a real time window.
+ *
+ * Never allowed to break asking a question: the applicant's answer matters
+ * more than the trend line, so a failure here is swallowed.
+ */
+async function logAsk(admin: SupabaseClient, questionId: string, userId: string): Promise<void> {
+  try {
+    await admin.from("gks_question_asks").insert({ question_id: questionId, asked_by: userId });
+  } catch {
+    // trend data is best-effort
+  }
 }
 
 /**

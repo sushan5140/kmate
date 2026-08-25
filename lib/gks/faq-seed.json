@@ -1,0 +1,164 @@
+{
+  "generated_from": "community corpus (WhatsApp export), question text only",
+  "similarity": 0.26,
+  "min_asks": 2,
+  "topic_count": 26,
+  "topics": [
+    {
+      "question": "When will the GKS guidelines be available?",
+      "topic": "Timeline",
+      "program": "mixed",
+      "asks": 4
+    },
+    {
+      "question": "Which documents need to be apostilled?",
+      "topic": "Apostille",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "Which track is better, embassy or university?",
+      "topic": "Embassy track",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "How many recommendation letters are needed for GKS-U?",
+      "topic": "Recommendation letters",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "When will GKS be announced again?",
+      "topic": "Timeline",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "Is this an electrical engineering major?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "Which universities are best for CSE?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 3
+    },
+    {
+      "question": "Does MOFA apostille a provisional certificate?",
+      "topic": "Apostille",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Are certificates issued online or as hard copies?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Can we apostille an extra set of academic documents?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Is a high school graduation certificate compulsory for GKS?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Can I use an online work certificate?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Which documents are required for the GKS application?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Do they provide a certificate or a report card?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "What is an example of an experience certificate?",
+      "topic": "Documents",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "For the embassy track, is the first round fully online or are physical documents required?",
+      "topic": "Embassy track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Can we select different majors on the embassy track?",
+      "topic": "Embassy track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Do we need to convert percentages to a 4.0 scale if the guidelines include a 100-point scale?",
+      "topic": "GPA",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "How many questions are usually asked in the interview?",
+      "topic": "Interview",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Can we see the letter of recommendation?",
+      "topic": "Recommendation letters",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "When is the application period?",
+      "topic": "Timeline",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Is anyone applying for the tourism major?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Can I connect with other GKS-U applicants in the AI major or at JBNU?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Is it still a science major, or something completely different?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "Which universities offer this major?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 2
+    },
+    {
+      "question": "I have a BA in English literature — can I study a different major such as fashion design?",
+      "topic": "University track",
+      "program": "mixed",
+      "asks": 2
+    }
+  ]
+}

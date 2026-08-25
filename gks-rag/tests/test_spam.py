@@ -224,6 +224,34 @@ def test_reported_experience_brakes_a_single_weak_signal():
     assert not ok
 
 
+def test_whatsapp_mentions_never_survive_sanitisation():
+    """
+    WhatsApp @-mentions carry the person's display name, wrapped in Unicode
+    directional isolates. The plain @handle pattern never matched that shape,
+    so 180 answers in the corpus reached the UI still carrying a real name.
+    """
+    from app.sanitize import clean_text
+    cases = [
+        "@⁨Gks Ug (Monica) Ai⁩, @⁨~Rajesh Kumar⁩ So you both are applying?",
+        "@⁨~KRISHMA⁩ here is my profile",
+        "i think @⁨Rajiv Malik⁩ can guide you better about this",
+    ]
+    for raw in cases:
+        cleaned = clean_text(raw)
+        assert "Monica" not in cleaned and "Rajesh" not in cleaned, f"name survived: {cleaned!r}"
+        assert "KRISHMA" not in cleaned and "Rajiv" not in cleaned, f"name survived: {cleaned!r}"
+        assert not any("⁦" <= ch <= "⁩" for ch in cleaned), f"bidi isolate survived: {cleaned!r}"
+
+
+def test_sanitiser_keeps_the_sentence_around_a_mention():
+    """Removing the name must not take the answer with it."""
+    from app.sanitize import clean_text
+    got = clean_text("i think @⁨Rajiv Malik⁩ can guide you better about this")
+    assert "can guide you better about this" in got, got
+    plain = "My university said the transcript must be sealed."
+    assert clean_text(plain) == plain
+
+
 def main() -> int:
     tests = [(n, o) for n, o in sorted(globals().items()) if n.startswith("test_") and callable(o)]
     passed, failed = 0, []

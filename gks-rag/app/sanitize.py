@@ -77,6 +77,16 @@ SYSTEM_EVENT_RE = re.compile(
 )
 
 # --- 4. residual identity tokens ---------------------------------------------
+# WhatsApp @-mentions carry the person's *display name*, and the export wraps
+# it in Unicode directional isolates: "@⁨~Rajesh Kumar⁩". The plain
+# @handle pattern below never matched that shape, so 180 answers in the corpus
+# still carried a real name through ingestion. Matched on the isolate
+# boundaries, which delimit the mention exactly, so nothing else is touched.
+MENTION_RE = re.compile("@\\s*⁨[^⁩]{0,80}⁩")
+# Any bidi formatting left over once mentions are gone -- invisible either way,
+# and it defeats pattern matching further down.
+BIDI_RE = re.compile("[⁦-⁩‎‏؜]")
+
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]{2,}")
 # 9+ digits of phone-ish characters. GPA scales ("2.64/4.0") and TOPIK levels are
 # far too short to match.
@@ -116,6 +126,11 @@ def clean_text(text: str | None) -> str:
     m = SYSTEM_EVENT_RE.search(cut)
     if m:
         cut = cut[: m.start()]
+
+    # Mentions first: they are removed by their isolate delimiters, so this has
+    # to run before the isolates themselves are stripped.
+    cut = MENTION_RE.sub(" ", cut)
+    cut = BIDI_RE.sub("", cut)
 
     cut = EMAIL_RE.sub(" ", cut)
     cut = PHONE_RE.sub(" ", cut)
