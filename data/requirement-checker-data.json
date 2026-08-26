@@ -432,8 +432,7 @@
       "degree_level": "graduate",
       "track_label": "University Recommendation Track + Embassy; Global Network handled separately",
       "track_families": [
-        "embassy",
-        "global_network"
+        "embassy"
       ],
       "university_type": null,
       "requirements": {
@@ -6206,9 +6205,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type B; University Track UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "B",
       "requirements": {
@@ -6244,9 +6241,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type B; UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "B",
       "requirements": {
@@ -6327,9 +6322,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type B; UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "B",
       "requirements": {
@@ -6365,9 +6358,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type B; UIC English Track separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "B",
       "requirements": {
@@ -6476,8 +6467,6 @@
       "track_label": "Embassy Track / Type B / R-GKS; UIC separate",
       "track_families": [
         "embassy",
-        "university",
-        "uic",
         "r_gks"
       ],
       "university_type": "B",
@@ -6703,9 +6692,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type A; UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "A",
       "requirements": {
@@ -6741,9 +6728,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type A; UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "A",
       "requirements": {
@@ -6788,9 +6773,7 @@
       "degree_level": "bachelor",
       "track_label": "Embassy Track / Type A; UIC separate",
       "track_families": [
-        "embassy",
-        "university",
-        "uic"
+        "embassy"
       ],
       "university_type": "A",
       "requirements": {
