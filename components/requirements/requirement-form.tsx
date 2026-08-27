@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { RotateCcw, Search } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,9 +18,12 @@ import type { CheckerOptions } from "@/lib/requirements/options";
 export function RequirementForm({
   options,
   initial,
+  children,
 }: {
   options: CheckerOptions;
   initial: { program: string; track: string; university: string; major: string; gender: string };
+  /** The results for the checked selection, rendered below the form. */
+  children?: React.ReactNode;
 }) {
   const router = useRouter();
   const [program, setProgram] = useState(initial.program);
@@ -28,7 +31,14 @@ export function RequirementForm({
   const [university, setUniversity] = useState(initial.university);
   const [major, setMajor] = useState(initial.major);
   const [gender, setGender] = useState(initial.gender);
-  const [pending, setPending] = useState(false);
+
+  // useTransition rather than a hand-managed `pending` flag. The previous
+  // version set pending=true before router.push and had nothing to clear it,
+  // so after one check the button stayed disabled forever and every later
+  // check silently did nothing -- leaving the previous university's result on
+  // screen. isPending is owned by React and clears when the navigation
+  // commits, so there is no longer a flag anyone can forget to reset.
+  const [isPending, startTransition] = useTransition();
 
   const trackOptions = program ? options.tracks[program] ?? [] : [];
   const universityOptions = useMemo(
@@ -67,11 +77,10 @@ export function RequirementForm({
 
   function check() {
     if (!program || !track || !university) return;
-    setPending(true);
     const params = new URLSearchParams({ program, track, university, check: "1" });
     if (major.trim()) params.set("major", major.trim());
     if (gender) params.set("gender", gender);
-    router.push(`/requirement-checker?${params.toString()}`);
+    startTransition(() => router.push(`/requirement-checker?${params.toString()}`));
   }
 
   function reset() {
@@ -80,13 +89,28 @@ export function RequirementForm({
     setUniversity("");
     setMajor("");
     setGender("");
-    router.push("/requirement-checker");
+    // The bare URL carries no selection, so the page re-renders with empty
+    // props and the keyed remount (see page.tsx) gives a clean instance --
+    // nothing from the previous selection can survive.
+    startTransition(() => router.push("/requirement-checker"));
   }
 
   const ready = Boolean(program && track && university);
 
+  // True when the form no longer matches the selection the results below were
+  // computed for. Showing a Chonnam result under a Korea University selection
+  // is worse than showing nothing, so the results are withheld until the user
+  // checks again.
+  const stale =
+    program !== initial.program ||
+    track !== initial.track ||
+    university !== initial.university ||
+    major.trim() !== initial.major ||
+    gender !== initial.gender;
+
   return (
-    <Card className="flex flex-col gap-4">
+    <>
+      <Card className="flex flex-col gap-4">
       <Step index={1} label="GKS program" done={Boolean(program)}>
         <div className="flex flex-wrap gap-1.5">
           {options.programs.map((p) => (
@@ -197,12 +221,23 @@ export function RequirementForm({
           <RotateCcw className="h-3.5 w-3.5" />
           Reset
         </button>
-        <Button onClick={check} disabled={!ready || pending}>
+        <Button onClick={check} disabled={!ready || isPending}>
           <Search className="h-3.5 w-3.5" />
-          {pending ? "Checking…" : "Check requirements"}
+          {isPending ? "Checking…" : "Check requirements"}
         </Button>
       </div>
-    </Card>
+      </Card>
+
+      {/* Results are withheld while the form has moved on from what was
+          checked -- otherwise changing the university leaves the previous
+          university's requirements sitting underneath it. */}
+      {children && !stale && children}
+      {children && stale && !isPending && (
+        <p className="text-[12.5px] text-muted">
+          Your selection has changed. Check requirements again to see results for it.
+        </p>
+      )}
+    </>
   );
 }
 

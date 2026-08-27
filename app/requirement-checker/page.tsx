@@ -81,8 +81,18 @@ export default async function RequirementCheckerPage({
       </div>
 
       <div className="mt-6 flex flex-col gap-5">
-        <RequirementForm options={options} initial={{ program, track, university, major, gender }} />
-        {checked && <RequirementResults results={results} />}
+        {/* Keyed on the checked selection so every navigation -- Check, Reset,
+            or the browser's back/forward -- remounts the form with the props
+            the server just rendered. Without this the form keeps whatever
+            local state it had from mount, and the URL and the fields drift
+            apart permanently. */}
+        <RequirementForm
+          key={`${program}|${track}|${university}|${major}|${gender}|${checked}`}
+          options={options}
+          initial={{ program, track, university, major, gender }}
+        >
+          {checked ? <RequirementResults results={results} /> : null}
+        </RequirementForm>
       </div>
     </main>
   );
