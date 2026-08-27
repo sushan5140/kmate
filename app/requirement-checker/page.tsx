@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { checkUniversityRequirements, requirementDataset } from "@/lib/requirements";
-import { buildCheckerOptions, subtypeEvidence } from "@/lib/requirements/options";
+import { buildCheckerOptions, subtypeEvidence, trackEvidence } from "@/lib/requirements/options";
 import type { CheckerInput } from "@/lib/requirements/matcher";
 import { RequirementForm } from "@/components/requirements/requirement-form";
 import { RequirementResults } from "@/components/requirements/requirement-results";
@@ -56,12 +56,18 @@ export default async function RequirementCheckerPage({
 
   const checked = params.check === "1" && Boolean(program && track && university);
 
-  // The matcher is called with the TOP-LEVEL track, exactly as before; the
-  // sub-route is applied afterwards so matcher.ts stays untouched.
+  // Track scoping happens here rather than inside the matcher, so matcher.ts
+  // stays untouched.
+  //
+  // trackFamily is deliberately NOT passed: GKS-G's specialisation-only
+  // records (the guideline's R&D and Global Network tables) carry no
+  // top-level family, so the matcher's own family filter would drop them
+  // before the sub-route filter below ever ran -- selecting
+  // University Track -> R&D would have reported "no record". Scope is applied
+  // here instead, using the same evidence rule the option tree was built from.
   const matched = checked
     ? checkUniversityRequirements({
         program: program as CheckerInput["program"],
-        trackFamily: track,
         university,
         ...(major ? { major } : {}),
         ...(gender ? { gender: gender as CheckerInput["gender"] } : {}),
@@ -70,25 +76,29 @@ export default async function RequirementCheckerPage({
 
   const subtypeLabel = (trackOption?.subtypes ?? []).find((s) => s.value === subtype)?.label ?? "";
 
-  const results = subtype
-    ? matched
-        .filter((r) => subtypeEvidence(r.record, subtype).matches)
-        // A record kept because its source never distinguished the sub-routes
-        // says so, rather than being presented as verified for this one.
-        .map((r) =>
-          subtypeEvidence(r.record, subtype).stated
-            ? r
-            : {
-                ...r,
-                notes: [
-                  ...r.notes,
-                  `${subtypeLabel} is not specifically stated by this source — it verifies the ${
-                    trackOption?.label ?? "track"
-                  } only.`,
-                ],
-              }
-        )
-    : matched;
+  const trackLabel = trackOption?.label ?? "this track";
+
+  // Scope by top-level track, then by sub-route when one is chosen. Both use
+  // the same evidence rules the option tree was built from.
+  const inTrack = matched.filter((r) => {
+    if (!trackEvidence(r.record, track).matches) return false;
+    return subtype ? subtypeEvidence(r.record, subtype, track).matches : true;
+  });
+
+  // A record kept because its source was less specific says so, rather than
+  // being presented as verified for a route it never named.
+  const results = inTrack.map((r) => {
+    const notes = [...r.notes];
+    if (!trackEvidence(r.record, track).stated) {
+      notes.push(
+        `${trackLabel} is not specifically stated by this source — it names the program type without restating the track.`
+      );
+    }
+    if (subtype && !subtypeEvidence(r.record, subtype, track).stated) {
+      notes.push(`${subtypeLabel} is not specifically stated by this source.`);
+    }
+    return notes.length === r.notes.length ? r : { ...r, notes };
+  });
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -97,8 +107,8 @@ export default async function RequirementCheckerPage({
       </h1>
       <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
         Pick your program, track and university to see what that university&apos;s own official GKS source
-        states. Requirements are never combined across tracks — for GKS-U, Embassy and University routes stay
-        separate, each with its own sub-routes.
+        states. Requirements are never combined across tracks — in both GKS-U and GKS-G the Embassy and
+        University routes stay separate, each with its own program types.
       </p>
 
       <div className="mt-4 flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">

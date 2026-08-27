@@ -231,7 +231,12 @@ function subtitleFor(record: CheckerResult["record"]): string {
 
   // Only worth listing the families this record also belongs to but which the
   // label doesn't already name -- otherwise it just repeats itself.
+  //
+  // `other` is dropped: it is the internal tag for "the source named no
+  // track", so it carries no information for an applicant and would put a
+  // classification bucket in front of them as if it were a route.
   const extraFamilies = record.track_families
+    .filter((f) => f !== "other")
     .map((f) => TRACK_LABELS[f] ?? f)
     .filter((name) => !label.includes(name.toLowerCase().replace(" track", "")));
   if (extraFamilies.length) parts.push(`also listed under ${extraFamilies.join(", ")}`);

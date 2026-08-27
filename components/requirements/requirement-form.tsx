@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import type { CheckerOptions } from "@/lib/requirements/options";
 
 /**
- * The Program -> Track -> University -> Major flow.
+ * The Program -> Track -> Program type -> University -> Major flow.
  *
  * Selections live in the URL rather than component state alone, so a checked
  * result is linkable and the back button works. The dataset itself stays on
@@ -142,42 +142,47 @@ export function RequirementForm({
         </div>
       </Step>
 
+      {/* Top-level routes only. The sub-routes live in their own step below,
+          so an internal classification family is never rendered as a peer of
+          Embassy Track or University Track. */}
       <Step index={2} label="Track" done={Boolean(track)} disabled={!program}>
         {!program ? (
           <p className="text-[12.5px] text-muted">Choose a program first.</p>
         ) : (
-          <>
-            <div className="flex flex-wrap gap-1.5">
-              {trackOptions.map((t) => (
-                <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
-                  {t.label}
-                  <span className="ml-1.5 text-[11px] opacity-70">{t.count}</span>
-                </Chip>
-              ))}
-            </div>
-
-            {/* Sub-routes of the chosen track, shown only where the program
-                actually has them. Optional: leaving it unset keeps every
-                university on the track, which is the safe default when the
-                applicant doesn't know their sub-route yet. */}
-            {subtypeOptions.length > 0 && (
-              <div className="mt-2.5">
-                <p className="text-[11.5px] text-muted">Sub-route (optional)</p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {subtypeOptions.map((s) => (
-                    <Chip key={s.value} small active={subtype === s.value} onClick={() => pickSubtype(s.value)}>
-                      {s.label}
-                      <span className="ml-1.5 text-[11px] opacity-70">{s.count}</span>
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+          <div className="flex flex-wrap gap-1.5">
+            {trackOptions.map((t) => (
+              <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
+                {t.label}
+                <span className="ml-1.5 text-[11px] opacity-70">{t.count}</span>
+              </Chip>
+            ))}
+          </div>
         )}
       </Step>
 
-      <Step index={3} label="University" done={Boolean(university)} disabled={!track}>
+      {/* Only the sub-routes this track actually supports in the dataset.
+          Optional: leaving it unset keeps every university on the track, the
+          safe default when the applicant doesn't know their type yet. */}
+      <Step index={3} label="Program type (optional)" done={Boolean(subtype)} disabled={!track}>
+        {!track ? (
+          <p className="text-[12.5px] text-muted">Choose a track first.</p>
+        ) : subtypeOptions.length === 0 ? (
+          <p className="text-[12.5px] text-muted">
+            This track has no separate program types in the dataset.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {subtypeOptions.map((s) => (
+              <Chip key={s.value} small active={subtype === s.value} onClick={() => pickSubtype(s.value)}>
+                {s.label}
+                <span className="ml-1.5 text-[11px] opacity-70">{s.count}</span>
+              </Chip>
+            ))}
+          </div>
+        )}
+      </Step>
+
+      <Step index={4} label="University" done={Boolean(university)} disabled={!track}>
         {!track ? (
           <p className="text-[12.5px] text-muted">Choose a track first.</p>
         ) : (
@@ -195,13 +200,13 @@ export function RequirementForm({
               ))}
             </select>
             <p className="mt-1.5 text-[11.5px] text-muted">
-              {universityOptions.length} universities listed for this program and track.
+              {universityOptions.length} universities listed for this selection.
             </p>
           </>
         )}
       </Step>
 
-      <Step index={4} label="Major / department (optional)" done={false} disabled={!university}>
+      <Step index={5} label="Major / department (optional)" done={false} disabled={!university}>
         {!university ? (
           <p className="text-[12.5px] text-muted">Choose a university first.</p>
         ) : (
@@ -234,7 +239,7 @@ export function RequirementForm({
       {/* Only asked for when a structured rule at this university actually
           uses it -- no profile detail is collected speculatively. */}
       {meta.needsGender && (
-        <Step index={5} label="Gender" done={Boolean(gender)}>
+        <Step index={6} label="Gender" done={Boolean(gender)}>
           <p className="mb-1.5 text-[12px] text-muted">
             This university has a verified rule that depends on gender.
           </p>
