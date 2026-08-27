@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { RotateCcw, Search } from "lucide-react";
+import { Check, RotateCcw, Search } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -129,9 +129,32 @@ export function RequirementForm({
     major.trim() !== initial.major ||
     gender !== initial.gender;
 
+  // Presentation only -- how far along the five steps the applicant is.
+  const stepsDone = [program, track, subtype, university, major.trim()].filter(Boolean).length;
+
   return (
     <>
-      <Card className="flex flex-col gap-4">
+      <Card className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <MicroLabel>Find a university&apos;s requirements</MicroLabel>
+          <p className="mt-1 text-[13px] leading-relaxed text-muted">
+            Each step narrows the list using the dataset&apos;s own routes.
+          </p>
+        </div>
+        <div className="flex items-center gap-1" aria-hidden>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span
+              key={i}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-200",
+                i < stepsDone ? "w-6 bg-primary" : "w-3 bg-canvas"
+              )}
+            />
+          ))}
+        </div>
+      </div>
+
       <Step index={1} label="GKS program" done={Boolean(program)}>
         <div className="flex flex-wrap gap-1.5">
           {options.programs.map((p) => (
@@ -153,7 +176,7 @@ export function RequirementForm({
             {trackOptions.map((t) => (
               <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
                 {t.label}
-                <span className="ml-1.5 text-[11px] opacity-70">{t.count}</span>
+                <span className="ml-2 rounded-full bg-current/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums">{t.count}</span>
               </Chip>
             ))}
           </div>
@@ -175,7 +198,7 @@ export function RequirementForm({
             {subtypeOptions.map((s) => (
               <Chip key={s.value} small active={subtype === s.value} onClick={() => pickSubtype(s.value)}>
                 {s.label}
-                <span className="ml-1.5 text-[11px] opacity-70">{s.count}</span>
+                <span className="ml-2 rounded-full bg-current/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums">{s.count}</span>
               </Chip>
             ))}
           </div>
@@ -190,7 +213,7 @@ export function RequirementForm({
             <select
               value={university}
               onChange={(e) => pickUniversity(e.target.value)}
-              className="w-full rounded-xl border border-border bg-white px-3 py-2 text-[13.5px] text-ink outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-hairline-strong bg-white px-3.5 text-[13.5px] text-ink outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-soft"
             >
               <option value="">Select a university…</option>
               {universityOptions.map((u) => (
@@ -206,7 +229,7 @@ export function RequirementForm({
         )}
       </Step>
 
-      <Step index={5} label="Major / department (optional)" done={false} disabled={!university}>
+      <Step index={5} label="Major / department (optional)" done={false} disabled={!university} last={!meta.needsGender}>
         {!university ? (
           <p className="text-[12.5px] text-muted">Choose a university first.</p>
         ) : (
@@ -216,7 +239,7 @@ export function RequirementForm({
               value={major}
               onChange={(e) => setMajor(e.target.value.slice(0, 120))}
               placeholder="e.g. Software"
-              className="w-full rounded-xl border border-border bg-white px-3 py-2 text-[13.5px] text-ink outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-hairline-strong bg-white px-3.5 text-[13.5px] text-ink outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-soft"
             />
             {meta.majorSuggestions.length > 0 && (
               <div className="mt-2">
@@ -239,7 +262,7 @@ export function RequirementForm({
       {/* Only asked for when a structured rule at this university actually
           uses it -- no profile detail is collected speculatively. */}
       {meta.needsGender && (
-        <Step index={6} label="Gender" done={Boolean(gender)}>
+        <Step index={6} label="Gender" done={Boolean(gender)} last>
           <p className="mb-1.5 text-[12px] text-muted">
             This university has a verified rule that depends on gender.
           </p>
@@ -292,28 +315,36 @@ function Step({
   label,
   done,
   disabled,
+  last,
   children,
 }: {
   index: number;
   label: string;
   done: boolean;
   disabled?: boolean;
+  /** Suppresses the connecting rail below the final step. */
+  last?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn(disabled && "opacity-55")}>
+    <div className={cn("relative pl-8", disabled && "opacity-55")}>
+      {/* A rail down the left edge ties the steps together instead of leaving
+          five loose rows stacked on top of each other. */}
+      {!last && (
+        <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%-0.5rem)] w-px bg-hairline" />
+      )}
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            "flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold",
+            "absolute left-0 flex h-[23px] w-[23px] items-center justify-center rounded-full text-[11px] font-semibold ring-4 ring-surface transition-colors",
             done ? "bg-primary text-white" : "bg-canvas text-muted"
           )}
         >
-          {index}
+          {done ? <Check className="h-3 w-3" /> : index}
         </span>
         <MicroLabel>{label}</MicroLabel>
       </div>
-      <div className="mt-2 pl-7">{children}</div>
+      <div className="mt-2">{children}</div>
     </div>
   );
 }
@@ -335,9 +366,11 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full border font-medium",
-        small ? "px-2.5 py-1 text-[12px]" : "px-3 py-1.5 text-[13px]",
-        active ? "border-primary bg-primary/10 text-primary" : "border-border bg-white text-muted hover:text-ink"
+        "inline-flex items-center rounded-full border font-medium transition-all duration-150 active:scale-[0.97]",
+        small ? "px-2.5 py-1 text-[12px]" : "px-3.5 py-1.5 text-[13px]",
+        active
+          ? "border-primary bg-primary/10 text-primary shadow-xs"
+          : "border-hairline-strong bg-white text-muted hover:border-border hover:text-ink"
       )}
     >
       {children}

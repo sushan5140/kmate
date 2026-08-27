@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ShieldCheck } from "lucide-react";
+import { Database, ExternalLink, FileText, Lightbulb, Route, ShieldCheck } from "lucide-react";
+import { Card, MicroLabel } from "@/components/ui/card";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { checkUniversityRequirements, requirementDataset } from "@/lib/requirements";
 import { buildCheckerOptions, subtypeEvidence, trackEvidence } from "@/lib/requirements/options";
@@ -101,41 +102,93 @@ export default async function RequirementCheckerPage({
   });
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">
-        University Requirement Checker
-      </h1>
-      <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
-        Pick your program, track and university to see what that university&apos;s own official GKS source
-        states. Requirements are never combined across tracks — in both GKS-U and GKS-G the Embassy and
-        University routes stay separate, each with its own program types.
-      </p>
+    <main className="mx-auto max-w-6xl px-6 py-10">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[24px] font-semibold tracking-tight text-ink">
+            University Requirement Checker
+          </h1>
+          <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted">
+            Pick your program, track and university to see what that university&apos;s own official GKS source
+            states. Requirements are never combined across tracks — in both GKS-U and GKS-G the Embassy and
+            University routes stay separate, each with its own program types.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-[12px] font-medium text-muted">
+          <Database className="h-3.5 w-3.5" />
+          {requirementDataset.cycle} · {requirementDataset.record_count} records
+        </span>
+      </header>
 
-      <div className="mt-4 flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
-        <p className="text-[12.5px] leading-relaxed text-muted">
-          {`Based on the latest verified ${requirementDataset.cycle} GKS information in KMate's dataset (${requirementDataset.record_count} university records).`}{" "}
-          Where a source does not state something,
-          this says <span className="font-medium text-ink">Not stated</span> rather than guessing — it never
-          infers that a requirement does not exist, and never falls back to ordinary international-admission
-          rules.
-        </p>
-      </div>
+      {/* Form and results lead; the guidance panel sits alongside on desktop
+          and drops below the form on narrow screens. */}
+      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <div className="flex flex-col gap-5">
+          {/* Keyed on the checked selection so every navigation -- Check, Reset,
+              or the browser's back/forward -- remounts the form with the props
+              the server just rendered. Without this the form keeps whatever
+              local state it had from mount, and the URL and the fields drift
+              apart permanently. */}
+          <RequirementForm
+            key={`${program}|${track}|${subtype}|${university}|${major}|${gender}|${checked}`}
+            options={options}
+            initial={{ program, track, subtype, university, major, gender }}
+          >
+            {checked ? (
+              <RequirementResults
+                results={results}
+                selection={{
+                  program,
+                  trackLabel: trackOption?.label,
+                  subtypeLabel: subtypeLabel || undefined,
+                }}
+              />
+            ) : null}
+          </RequirementForm>
+        </div>
 
-      <div className="mt-6 flex flex-col gap-5">
-        {/* Keyed on the checked selection so every navigation -- Check, Reset,
-            or the browser's back/forward -- remounts the form with the props
-            the server just rendered. Without this the form keeps whatever
-            local state it had from mount, and the URL and the fields drift
-            apart permanently. */}
-        <RequirementForm
-          key={`${program}|${track}|${subtype}|${university}|${major}|${gender}|${checked}`}
-          options={options}
-          initial={{ program, track, subtype, university, major, gender }}
-        >
-          {checked ? <RequirementResults results={results} /> : null}
-        </RequirementForm>
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
+          <Card className="flex flex-col gap-3.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                <Lightbulb className="h-3.5 w-3.5 text-primary" />
+              </span>
+              <MicroLabel>How to use</MicroLabel>
+            </div>
+            <ul className="flex flex-col gap-3">
+              <Guide icon={<FileText className="h-3.5 w-3.5" />}>
+                This page shows what each university&apos;s own official GKS source states — nothing is
+                inferred from what similar universities require.
+              </Guide>
+              <Guide icon={<Route className="h-3.5 w-3.5" />}>
+                Embassy and University routes stay separate. A university can appear under both with
+                different requirements.
+              </Guide>
+              <Guide icon={<ExternalLink className="h-3.5 w-3.5" />}>
+                Open the official source on each result before you rely on it. Requirement details change.
+              </Guide>
+              <Guide icon={<ShieldCheck className="h-3.5 w-3.5" />}>
+                Where a source does not state something, this says{" "}
+                <span className="font-medium text-ink">Not stated</span> rather than guessing — it never
+                infers that a requirement does not exist, and never falls back to ordinary
+                international-admission rules.
+              </Guide>
+            </ul>
+            <p className="border-t border-hairline pt-3 text-[11.5px] text-muted">
+              {`Based on the latest verified ${requirementDataset.cycle} GKS information in KMate's dataset (${requirementDataset.record_count} university records).`}
+            </p>
+          </Card>
+        </aside>
       </div>
     </main>
+  );
+}
+
+function Guide({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5">
+      <span className="mt-0.5 shrink-0 text-muted">{icon}</span>
+      <p className="text-[12.5px] leading-relaxed text-muted">{children}</p>
+    </li>
   );
 }
