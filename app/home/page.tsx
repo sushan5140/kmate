@@ -17,6 +17,9 @@ import {
   UserCheck,
   Megaphone,
   GraduationCap,
+  ClipboardCheck,
+  FolderCheck,
+  HelpCircle,
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -267,6 +270,24 @@ export default async function HomePage() {
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <Link href="/application-readiness">
+          <Card interactive className="h-full">
+            <FolderCheck className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Application Readiness</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              Track every document for your application
+            </p>
+          </Card>
+        </Link>
+        <Link href="/requirement-checker">
+          <Card interactive className="h-full">
+            <ClipboardCheck className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Requirement Checker</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              What each university officially requires
+            </p>
+          </Card>
+        </Link>
         <Link href="/requests?tab=discover">
           <Card interactive className="h-full">
             <Users className="h-4 w-4 text-muted" />
@@ -301,6 +322,15 @@ export default async function HomePage() {
             <Bot className="h-4 w-4 text-muted" />
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">GKS Assistant</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">Ask about the official GKS guidelines</p>
+          </Card>
+        </Link>
+        <Link href="/faq-trends">
+          <Card interactive className="h-full">
+            <HelpCircle className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">FAQ Trends</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              What applicants are asking most
+            </p>
           </Card>
         </Link>
         <Link href="/mistakes">
