@@ -29,6 +29,8 @@ import { DeadlineBannerText } from "@/components/home/deadline-banner";
 import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
+import { ApplicationDashboard } from "@/components/home/application-dashboard";
+import { getProfileDefaults } from "@/lib/readiness/profile";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -139,6 +141,10 @@ export default async function HomePage() {
   // surfaces a different recent scholarship instead of the same one forever.
   // Nothing about the scholarship itself is invented here -- every field
   // shown is rendered only if the source stated it.
+  // The same defaults Application Readiness prefills from, so "Create from my
+  // profile" produces exactly the configuration that page would have.
+  const readinessDefaults = await getProfileDefaults(user.id);
+
   const scholarshipPool = newestScholarships ?? [];
   const spotlight = pickSpotlight(scholarshipPool, user.id);
 
@@ -178,6 +184,16 @@ export default async function HomePage() {
           Open application readiness
         </Link>
       </Card>
+
+      <ApplicationDashboard
+        defaults={{
+          program: readinessDefaults.program,
+          track: readinessDefaults.track,
+          subtype: readinessDefaults.subtype,
+          major: readinessDefaults.major,
+          universities: readinessDefaults.universities,
+        }}
+      />
 
       {/* A different recent scholarship each time you land here, so the
           dashboard surfaces what has newly been added rather than sitting

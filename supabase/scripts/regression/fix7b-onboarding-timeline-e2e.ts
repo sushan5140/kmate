@@ -205,17 +205,19 @@ async function testC7StaleAccount(browser: Browser) {
     page.on("pageerror", (e: Error) => homeErrors.push(String(e)));
     const homeRes = await page.goto(`${BASE_URL}/home`, { waitUntil: "networkidle" });
     const homeBody = await page.content();
+    // The "this cycle's deadline has passed" special case was removed from the
+    // home dashboard; a stale account now falls through to the same calendar
+    // banner everyone else sees. What still matters is that the page renders
+    // for such an account without erroring -- which is what this now checks.
     check(
-      "Home page for stale application_year=2025 (gks_u) account: loads (200), no client-side error, shows 'cycle has passed' messaging",
+      "Home page for stale application_year=2025 (gks_u) account: loads (200), no client-side error, shows the normal calendar banner",
       (homeRes?.status() ?? 0) === 200 &&
         homeErrors.length === 0 &&
-        homeBody.includes("This application cycle") &&
-        homeBody.includes("deadline has passed")
+        homeBody.includes("Application calendar")
     );
     check("Home page: does NOT show a negative/nonsensical day countdown for the stale account", !/was due -?\d+ days? ago/i.test(homeBody) && !/-\d+ day/i.test(homeBody));
 
-    // The /timeline route was removed with the Timeline feature; the stale
-    // application_year nudge it used to assert is covered on Home above.
+    // The /timeline route was removed with the Timeline feature.
 
     await context.close();
   } finally {

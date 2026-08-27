@@ -22,6 +22,7 @@ import {
 } from "@/lib/readiness/application";
 import type { ApplicantDocumentState, ReadinessItem } from "@/lib/readiness/schema";
 import { ChecklistSection } from "@/components/readiness/readiness-checklist";
+import { SaveApplication } from "@/components/readiness/save-application";
 
 /**
  * The multi-university application workspace.
@@ -397,6 +398,9 @@ export function ReadinessWorkspace({
 
         {program && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3.5">
+            {/* Saves the configuration only -- progress stays in the readiness
+                store this page already writes to. */}
+            <SaveApplication program={program} track={track} subtype={subtype} universities={universities} />
             <button
               type="button"
               onClick={startNewApplication}
