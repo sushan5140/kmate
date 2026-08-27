@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0.0",
+  "cycle": "2026",
+  "dataset": "KMate GKS Application Readiness Checklist",
+  "policy": {
+    "never_treat_missing_as_not_required": true,
+    "submission_method_is_first_round_institution_specific": true,
+    "authentication_rules_can_be_country_specific": true,
+    "university_extras_must_come_from_requirement_checker": true,
+    "status_values": [
+      "required",
+      "conditional",
+      "optional",
+      "not_stated"
+    ]
+  },
+  "official_sources": [
+    {
+      "id": "gks_u_niied",
+      "label": "Study in Korea — 2026 GKS-U Application Guidelines",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4385",
+      "scope": "GKS-U national guideline"
+    },
+    {
+      "id": "gks_u_revised_embassy",
+      "label": "Korean Embassy — revised 2026 GKS-U direct-submission notice",
+      "url": "https://overseas.mofa.go.kr/bd-en/brd/m_2124/view.do?seq=760082",
+      "scope": "2026 revised GKS-U example showing first-round institution may alter submission handling"
+    },
+    {
+      "id": "gks_g_niied",
+      "label": "Study in Korea — 2026 GKS-G Application Guidelines",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4420",
+      "scope": "GKS-G national guideline"
+    },
+    {
+      "id": "gks_g_forms_embassy",
+      "label": "Korean Embassy — 2026 GKS-G document table",
+      "url": "https://overseas.mofa.go.kr/ph-en/brd/m_3272/view.do?seq=761081",
+      "scope": "Official 2026 GKS-G document/form table"
+    }
+  ],
+  "programs": {
+    "GKS-U": {
+      "documents": [
+        {
+          "id": "u_application_form",
+          "label": "Application Form",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 1",
+          "source_ids": [
+            "gks_u_niied",
+            "gks_u_revised_embassy"
+          ],
+          "notes": "Use the official 2026 GKS-U application form."
+        },
+        {
+          "id": "u_personal_statement",
+          "label": "Personal Statement",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 2",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_study_plan",
+          "label": "Study Plan",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 3",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_applicant_agreement",
+          "label": "GKS Applicant Agreement",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 5",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_medical_assessment",
+          "label": "Personal Medical Assessment",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 6",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_citizenship_family",
+          "label": "Proof of citizenship and family relationship",
+          "category": "certificate",
+          "status": "required",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ],
+          "notes": "Evidence normally covers the applicant/parents and the relationship between them. Exact accepted documents and authentication depend on the first-round institution/country."
+        },
+        {
+          "id": "u_graduation_certificate",
+          "label": "High school graduation / expected graduation certificate",
+          "category": "academic",
+          "status": "required",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ],
+          "notes": "Use the final or expected-graduation document allowed by the 2026 guideline and first-round institution."
+        },
+        {
+          "id": "u_transcript",
+          "label": "High school academic transcript",
+          "category": "academic",
+          "status": "required",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_recommendation",
+          "label": "Recommendation letter",
+          "category": "supporting",
+          "status": "conditional",
+          "source_ids": [
+            "gks_u_niied",
+            "gks_u_revised_embassy"
+          ],
+          "condition": "Submission timing/method may be set by the first-round embassy or university.",
+          "notes": "Do not mark missing automatically; some first-round institutions request it later."
+        },
+        {
+          "id": "u_language_score",
+          "label": "TOPIK / English proficiency score",
+          "category": "supporting",
+          "status": "optional",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ],
+          "notes": "Optional at the national checklist level unless the selected university/department has a verified requirement."
+        },
+        {
+          "id": "u_awards",
+          "label": "Awards / certificates / supporting achievements",
+          "category": "supporting",
+          "status": "optional",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ]
+        },
+        {
+          "id": "u_passport",
+          "label": "Passport copy",
+          "category": "identity",
+          "status": "conditional",
+          "source_ids": [
+            "gks_u_revised_embassy"
+          ],
+          "condition": "Required when requested by the first-round institution."
+        },
+        {
+          "id": "u_authentication",
+          "label": "Apostille / consular confirmation / certified translation",
+          "category": "authentication",
+          "status": "conditional",
+          "source_ids": [
+            "gks_u_niied",
+            "gks_u_revised_embassy"
+          ],
+          "condition": "Depends on document type, issuing country, language, and first-round institution.",
+          "notes": "Never present a country-wide authentication rule without an official country/embassy source."
+        }
+      ]
+    },
+    "GKS-G": {
+      "documents": [
+        {
+          "id": "g_application_form",
+          "label": "Application Form",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 1",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_personal_statement",
+          "label": "Personal Statement",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 2",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_study_plan",
+          "label": "Study Plan",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 3",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_research_proposal",
+          "label": "Research Proposal",
+          "category": "gks_form",
+          "status": "conditional",
+          "form": "Form 4",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ],
+          "condition": "Research program applicants only."
+        },
+        {
+          "id": "g_recommendation",
+          "label": "One Letter of Recommendation",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 5",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_invitation",
+          "label": "Letter of Invitation",
+          "category": "gks_form",
+          "status": "conditional",
+          "form": "Form 6",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ],
+          "condition": "Research program applicants where required by the research-program university."
+        },
+        {
+          "id": "g_language_exemption",
+          "label": "Korean Language Program Exemption Application",
+          "category": "gks_form",
+          "status": "optional",
+          "form": "Form 7",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ],
+          "condition": "Only for applicants who qualify under the 2026 guideline."
+        },
+        {
+          "id": "g_applicant_agreement",
+          "label": "GKS Applicant Agreement",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 8",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_medical_assessment",
+          "label": "Personal Medical Assessment",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 9",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_privacy_consent",
+          "label": "Consent to Collect and Use Personal Information",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 10",
+          "source_ids": [
+            "gks_g_forms_embassy"
+          ]
+        },
+        {
+          "id": "g_degree_certificate",
+          "label": "Bachelor's / previous degree graduation certificate",
+          "category": "academic",
+          "status": "required",
+          "source_ids": [
+            "gks_g_niied",
+            "gks_g_forms_embassy"
+          ],
+          "notes": "Expected graduates must later provide the final official degree certificate by the deadline in the guideline."
+        },
+        {
+          "id": "g_transcript",
+          "label": "Academic transcript for previous degree",
+          "category": "academic",
+          "status": "required",
+          "source_ids": [
+            "gks_g_niied"
+          ]
+        },
+        {
+          "id": "g_citizenship_family",
+          "label": "Proof of citizenship / family relationship",
+          "category": "certificate",
+          "status": "required",
+          "source_ids": [
+            "gks_g_niied"
+          ],
+          "notes": "Exact accepted document types and authentication depend on the first-round institution/country."
+        },
+        {
+          "id": "g_language_score",
+          "label": "TOPIK / English proficiency score",
+          "category": "supporting",
+          "status": "conditional",
+          "source_ids": [
+            "gks_g_niied"
+          ],
+          "condition": "Required only where the selected university/program or GKS specialization explicitly requires it."
+        },
+        {
+          "id": "g_authentication",
+          "label": "Apostille / consular confirmation / certified translation",
+          "category": "authentication",
+          "status": "conditional",
+          "source_ids": [
+            "gks_g_niied",
+            "gks_g_forms_embassy"
+          ],
+          "condition": "Depends on document type, issuing country, language, and first-round institution.",
+          "notes": "Country/embassy instructions can be stricter or operationally different."
+        }
+      ]
+    }
+  }
+}
