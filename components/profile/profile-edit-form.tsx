@@ -9,7 +9,7 @@ import { MajorStep } from "@/components/onboarding/major-step";
 import { UniversityPicker, type SelectedUniversity } from "@/components/onboarding/university-picker";
 import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
-import { validApplicationYears } from "@/lib/timeline/deadline";
+import { validApplicationYears } from "@/lib/deadline";
 import { TRACK_LABELS, type GksUEmbassyPath, type Track } from "@/lib/constants";
 
 export interface ProfileEditInitialData {

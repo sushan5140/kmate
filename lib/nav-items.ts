@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Users, MessageSquare, ListChecks, Award, AlertTriangle, FileText, BarChart3, Stamp, Megaphone, GraduationCap, MessageCircle, Bot, HelpCircle, ClipboardCheck, FolderCheck } from "lucide-react";
+import { Home, Users, MessageSquare, Award, AlertTriangle, FileText, BarChart3, Stamp, Megaphone, GraduationCap, MessageCircle, Bot, HelpCircle, ClipboardCheck, FolderCheck } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -17,7 +17,6 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/interview-db", label: "Interview DB", icon: MessageSquare },
-  { href: "/timeline", label: "Timeline", icon: ListChecks },
   { href: "/eca", label: "Extracurriculars", icon: Award },
   { href: "/mistakes", label: "Mistakes", icon: AlertTriangle },
   { href: "/notices", label: "Official Notices", icon: Megaphone },

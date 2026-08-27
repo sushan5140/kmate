@@ -14,7 +14,7 @@ import { ContactsStep, type ContactValue } from "@/components/onboarding/contact
 import { ReviewStep } from "@/components/onboarding/review-step";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { isValidUsernameFormat } from "@/lib/validation/username";
-import { validApplicationYears } from "@/lib/timeline/deadline";
+import { validApplicationYears } from "@/lib/deadline";
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 const STEPS = ["username", "bio", "track", "major", "universities", "year", "contacts", "review"] as const;

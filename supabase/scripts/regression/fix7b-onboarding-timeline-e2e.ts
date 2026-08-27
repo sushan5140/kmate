@@ -5,7 +5,7 @@
  *       clicked, for BOTH tracks; the years rendered match
  *       validApplicationYears(track) exactly.
  *  C7 - An existing account (simulating one created before this batch)
- *       with a now-invalid stored application_year: Home and Timeline
+ *       with a now-invalid stored application_year: Home
  *       pages render the "cycle closed" messaging without throwing.
  *
  * Needs a running production build (`next start`), not `next dev`.
@@ -74,7 +74,7 @@ function expectedValidYears(track: "gks_u" | "gks_g"): number[] {
   const currentYear = now.getFullYear();
   const candidates = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
   const years = candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
-  // Mirrors the same one-off 2026/gks_u carve-out in lib/timeline/deadline.ts
+  // Mirrors the same one-off 2026/gks_u carve-out in lib/deadline.ts
   // (GKS-U 2026 is still open past this estimate's cutoff) -- kept in sync
   // by hand since this is a deliberately independent reimplementation.
   if (track === "gks_u" && !years.includes(2026)) years.unshift(2026);
@@ -214,18 +214,8 @@ async function testC7StaleAccount(browser: Browser) {
     );
     check("Home page: does NOT show a negative/nonsensical day countdown for the stale account", !/was due -?\d+ days? ago/i.test(homeBody) && !/-\d+ day/i.test(homeBody));
 
-    const timelineErrors: string[] = [];
-    page.on("pageerror", (e: Error) => timelineErrors.push(String(e)));
-    const timelineRes = await page.goto(`${BASE_URL}/timeline`, { waitUntil: "networkidle" });
-    const timelineBody = await page.content();
-    check(
-      "Timeline page for stale application_year=2025 (gks_u) account: loads (200), no client-side error, shows the 'update your application year' nudge",
-      (timelineRes?.status() ?? 0) === 200 && timelineErrors.length === 0 && timelineBody.includes("saved application year") && timelineBody.includes("deadline has passed")
-    );
-    check(
-      "Timeline page: also still shows the general calendar banner (Prepare your documents by...) alongside the stale-year nudge",
-      timelineBody.includes("Prepare your documents by")
-    );
+    // The /timeline route was removed with the Timeline feature; the stale
+    // application_year nudge it used to assert is covered on Home above.
 
     await context.close();
   } finally {

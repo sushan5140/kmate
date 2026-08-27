@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validation/username";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_EMBASSY_PATHS, CONTACT_TYPES } from "@/lib/constants";
-import { validApplicationYears } from "@/lib/timeline/deadline";
+import { validApplicationYears } from "@/lib/deadline";
 
 interface CompleteOnboardingBody {
   track: string;

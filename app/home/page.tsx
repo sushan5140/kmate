@@ -10,7 +10,7 @@ import {
   Inbox,
   UserRound,
   ArrowDown,
-  ListChecks,
+  ExternalLink,
   FileText,
   Stamp,
   BarChart3,
@@ -22,10 +22,11 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
-import { DeadlineBannerText } from "@/components/timeline/deadline-banner";
+import { DeadlineBannerText } from "@/components/home/deadline-banner";
 import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
-import { estimateApplicationDeadline } from "@/lib/timeline/deadline";
+import { estimateApplicationDeadline } from "@/lib/deadline";
+import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import type { Track } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -46,8 +47,7 @@ export default async function HomePage() {
 
   const [
     { data: ownUniversityChoices },
-    { data: templateItems },
-    { data: progressRows },
+    { data: newestScholarships },
     { data: draftRows },
     { count: totalApprovedQuestions },
     { data: topMistake },
@@ -59,8 +59,15 @@ export default async function HomePage() {
     { data: conversationRows },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
-    admin.from("timeline_templates").select("id").is("route", null).is("country", null),
-    admin.from("user_timeline_progress").select("timeline_template_item_id, completed").eq("user_id", user.id),
+    // The most recently added active scholarships. One is spotlighted below;
+    // the pool is small so a fresh one surfaces each time you come back.
+    admin
+      .from("scholarships")
+      .select("id, university_name, scholarship_name, benefit_type, tuition_coverage, deadline, deadline_type, source_url, created_at")
+      .eq("is_active", true)
+      .neq("status", "expired")
+      .order("created_at", { ascending: false })
+      .limit(8),
     admin.from("draft_answers").select("content").eq("user_id", user.id),
     admin.from("interview_questions").select("id", { count: "exact", head: true }).eq("status", "approved").eq("kind", "interview"),
     admin
@@ -125,10 +132,13 @@ export default async function HomePage() {
   for (const row of majorMatches.data ?? []) sharedIds.add(row.id);
   for (const row of universityMatches.data ?? []) sharedIds.add((row as { user_id: string }).user_id);
 
-  // Timeline: soonest-due incomplete item, plus an overall done/total fraction.
-  const completedIds = new Set((progressRows ?? []).filter((p) => p.completed).map((p) => p.timeline_template_item_id));
-  const totalTimelineItems = templateItems?.length ?? 0;
-  const doneTimelineItems = completedIds.size;
+  // One scholarship to spotlight, drawn from the most recently added ones.
+  // Picked per request rather than pinned, so returning to the dashboard
+  // surfaces a different recent scholarship instead of the same one forever.
+  // Nothing about the scholarship itself is invented here -- every field
+  // shown is rendered only if the source stated it.
+  const scholarshipPool = newestScholarships ?? [];
+  const spotlight = pickSpotlight(scholarshipPool, user.id);
 
   // True once the estimated deadline for the user's stored (track,
   // application_year) is already in the past -- e.g. an account still set
@@ -167,23 +177,94 @@ export default async function HomePage() {
         {cycleClosed ? (
           <>
             <h2 className="mt-1 text-[19px] font-semibold leading-snug">This application cycle&apos;s deadline has passed</h2>
-            <p className="mt-1 text-[13.5px] text-white/70">Update your application year in your profile to keep tracking your timeline.</p>
+            <p className="mt-1 text-[13.5px] text-white/70">Update your application year in your profile to keep tracking your application.</p>
           </>
         ) : track ? (
           <DeadlineBannerText track={track} />
         ) : (
           <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
         )}
-        <p className="mt-3 text-[13.5px] text-white/70">
-          {doneTimelineItems} of {totalTimelineItems} timeline steps done.
-        </p>
         <Link
-          href="/timeline"
+          href="/application-readiness"
           className="mt-4 inline-flex h-10 items-center rounded-full bg-white px-4 text-[13.5px] font-medium text-primary shadow-xs transition-all duration-150 hover:bg-white/90 active:scale-[0.97]"
         >
-          Open timeline
+          Open application readiness
         </Link>
       </Card>
+
+      {/* A different recent scholarship each time you land here, so the
+          dashboard surfaces what has newly been added rather than sitting
+          static. Only fields the source actually stated are rendered -- a
+          null benefit or deadline is simply left out, never filled in. */}
+      {spotlight && (
+        <Card className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <MicroLabel>New in scholarships</MicroLabel>
+            <span className="text-[11.5px] text-muted">
+              {scholarshipPool.length} recently added
+            </span>
+          </div>
+
+          <div>
+            <h2 className="text-[15px] font-semibold leading-snug text-ink">
+              {spotlight.scholarship_name}
+            </h2>
+            <p className="mt-0.5 text-[13px] text-muted">{spotlight.university_name}</p>
+          </div>
+
+          <dl className="flex flex-wrap gap-x-6 gap-y-2">
+            {spotlight.benefit_type && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Benefit</dt>
+                <dd className="mt-0.5 text-[13px] text-ink">{spotlight.benefit_type}</dd>
+              </div>
+            )}
+            {/* Several sources repeat the same sentence in both columns --
+                showing it twice adds nothing, so the second is dropped when
+                it just restates the first. */}
+            {spotlight.tuition_coverage && spotlight.tuition_coverage !== spotlight.benefit_type && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Tuition</dt>
+                <dd className="mt-0.5 text-[13px] text-ink">{spotlight.tuition_coverage}</dd>
+              </div>
+            )}
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Deadline</dt>
+              <dd className="mt-0.5 text-[13px] text-ink">
+                {spotlight.deadline
+                  ? new Date(spotlight.deadline).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : spotlight.deadline_type === "admission_schedule"
+                    ? "Follows the admission schedule"
+                    : spotlight.deadline_type === "automatic"
+                      ? "Granted without application"
+                      : "Not stated"}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-hairline pt-3">
+            <Link
+              href="/scholarships"
+              className="text-[12.5px] font-medium text-primary hover:underline"
+            >
+              See all scholarships
+            </Link>
+            <a
+              href={spotlight.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted hover:text-ink"
+            >
+              Official source
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </Card>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Link href="/requests?tab=discover">
@@ -252,15 +333,6 @@ export default async function HomePage() {
             <UserRound className="h-4 w-4 text-muted" />
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Your profile</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">See what others see</p>
-          </Card>
-        </Link>
-        <Link href="/timeline">
-          <Card interactive className="h-full">
-            <ListChecks className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Timeline</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {doneTimelineItems} of {totalTimelineItems} steps done
-            </p>
           </Card>
         </Link>
         <Link href="/notices">

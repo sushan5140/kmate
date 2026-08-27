@@ -1,6 +1,6 @@
 /**
  * Live audit for the 5-section batch (ECA badge / ECA+Mistakes downvote /
- * Discover filter fix / computed application years / Timeline banner),
+ * Discover filter fix / computed application years / deadline banner),
  * requested before pushing. Covers, against the real running server + DB:
  *
  *  A1 - RLS on eca_upvotes/mistake_upvotes actually rejects cross-user writes
@@ -28,7 +28,7 @@
  */
 import { createClient } from "@supabase/supabase-js";
 import { loadEnvLocal, makeChecker, createThrowawayUser, cleanupUser } from "./_env";
-import { validApplicationYears } from "@/lib/timeline/deadline";
+import { validApplicationYears } from "@/lib/deadline";
 
 const env = loadEnvLocal();
 const BASE_URL = process.env.KMATE_BASE_URL ?? "http://localhost:3901";
@@ -280,7 +280,7 @@ async function testA3ApplicationYearBypass(userGksG: { userId: string; email: st
         track: "gks_u",
         major: "Computer Science",
         // 2025 (not 2026 -- 2026 is a deliberate carve-out valid year for
-        // gks_u now, see lib/timeline/deadline.ts) is still genuinely
+        // gks_u now, see lib/deadline.ts) is still genuinely
         // invalid: deadline ~Sept 30 2024, long passed.
         applicationYear: 2025,
         username: `e2ea3onb${Date.now() % 100000}`,

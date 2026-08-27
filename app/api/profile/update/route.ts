@@ -5,7 +5,7 @@ import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validat
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_EMBASSY_PATHS } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { validApplicationYears } from "@/lib/timeline/deadline";
+import { validApplicationYears } from "@/lib/deadline";
 
 // track is deliberately NOT part of this body -- it's fixed at onboarding
 // and this route always re-reads the stored value from the DB (see below),
