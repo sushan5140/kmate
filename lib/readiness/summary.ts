@@ -1,7 +1,11 @@
 import type { ReadinessItem, ReadinessResult } from "./schema";
 
 /**
- * Recomputes the readiness summary on the client.
+ * Recomputes the whole-application readiness summary the engine would produce.
+ *
+ * Per-section counting for the multi-university workspace lives in
+ * application.ts; this file keeps the engine mirror (still exercised by the
+ * checks) and the unconditional-Required waiver rule the checklist renders.
  *
  * The engine already produces this, but only from progress passed into it.
  * In this first version progress lives in the browser's localStorage and never

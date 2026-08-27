@@ -5,6 +5,7 @@ import { buildReadinessResult } from "./engine";
 import { subtypeEvidence, trackEvidence } from "@/lib/requirements/options";
 import type { ReadinessChecklistDataset, ReadinessInput, ReadinessResult } from "./schema";
 import type { RequirementDataset } from "@/lib/requirements/schema";
+import type { ApplicationReadiness, UniversitySection } from "./application";
 
 /**
  * Application Readiness data layer.
@@ -54,6 +55,58 @@ export function getApplicationReadiness(input: ReadinessInput): ReadinessResult 
   const { trackFamily: _scoped, ...rest } = input;
   void _scoped;
   return buildReadinessResult(checklist, records, rest);
+}
+
+/**
+ * The multi-university workspace.
+ *
+ * The national checklist is built ONCE, from the program alone, and every
+ * selected university contributes only its own `university_extra` items. That
+ * is what stops the 13-document undergraduate checklist being rendered three
+ * times over, and it needs no new logic: it is the same engine call the
+ * single-university page made, with the national half taken from the
+ * university-less result and the university half taken per university.
+ *
+ * Each university is scoped independently by program + track + program type +
+ * that university + that university's own major, so one university's
+ * requirements can never appear under another's, and two applicants' slots
+ * pointing at different departments evaluate their conditional rules
+ * separately.
+ */
+export function getApplicationWorkspace(input: {
+  program: "GKS-U" | "GKS-G";
+  track?: string;
+  subtype?: string;
+  universities: { name: string; major: string }[];
+}): ApplicationReadiness {
+  const national = getApplicationReadiness({ program: input.program });
+  const common = national.items.filter((i) => i.category !== "university_extra");
+
+  const universities: UniversitySection[] = input.universities.map(({ name, major }) => {
+    const scoped = getApplicationReadiness({
+      program: input.program,
+      university: name,
+      ...(input.track ? { trackFamily: input.track } : {}),
+      ...(input.subtype ? { subtype: input.subtype } : {}),
+      ...(major ? { selectedMajor: major } : {}),
+    });
+    return {
+      university: name,
+      major,
+      // Only this university's own extras. The national documents were already
+      // taken from the university-less result above.
+      items: scoped.items.filter((i) => i.category === "university_extra"),
+    };
+  });
+
+  // The engine's standing warnings belong to the application as a whole. Its
+  // "select a university" warning is dropped once one has been chosen, since
+  // the workspace answers it.
+  const warnings = national.warnings.filter(
+    (w) => universities.length === 0 || !w.startsWith("Select a university")
+  );
+
+  return { common, universities, warnings };
 }
 
 export { checklist as readinessChecklist };

@@ -1,14 +1,9 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
-import { AlertTriangle, ExternalLink, Info, RotateCcw } from "lucide-react";
+import { AlertTriangle, ExternalLink, Info } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
-import {
-  allRequiredTracked,
-  summarizeReadiness,
-  unconditionalRequiredNotApplicable,
-} from "@/lib/readiness/summary";
+import { unconditionalRequiredNotApplicable } from "@/lib/readiness/summary";
 import type {
   ApplicantDocumentState,
   ReadinessCategory,
@@ -17,16 +12,13 @@ import type {
 } from "@/lib/readiness/schema";
 
 /**
- * Step 6 -- the checklist itself.
+ * One checklist section: the common application documents, or one university's
+ * own requirements.
  *
- * Progress is per applicant and per application configuration, so it lives in
- * this browser under a key built from program + track + program type +
- * university. Nothing is written to the database in this version. The page
- * remounts this component whenever that configuration changes (see the `key`
- * in page.tsx), so one university's progress can never appear under another's.
+ * Presentational and storage-agnostic -- the workspace owns where progress
+ * lives and hands each section its own change handler, which is what keeps one
+ * university's ticks out of another's.
  */
-
-const STORAGE_PREFIX = "kmate:readiness:v1:";
 
 const GROUPS: { category: ReadinessCategory; label: string }[] = [
   { category: "gks_form", label: "GKS Forms" },
@@ -61,166 +53,40 @@ const PROGRESS: { value: ApplicantDocumentState; label: string }[] = [
   { value: "not_applicable", label: "Not applicable" },
 ];
 
-type ProgressMap = Record<string, ApplicantDocumentState>;
-
-/**
- * localStorage is an external store, so it is read through
- * useSyncExternalStore rather than copied into state inside an effect. That
- * keeps the server render and the hydrated render consistent by construction
- * (the server snapshot is simply "nothing saved"), and it means a second tab
- * editing the same checklist updates this one through the `storage` event.
- */
-const listeners = new Set<() => void>();
-
-function subscribe(onChange: () => void) {
-  listeners.add(onChange);
-  window.addEventListener("storage", onChange);
-  return () => {
-    listeners.delete(onChange);
-    window.removeEventListener("storage", onChange);
-  };
-}
-
-/** Writes in this tab do not fire `storage`, so they notify subscribers directly. */
-function emit() {
-  for (const l of listeners) l();
-}
-
-function readRaw(key: string): string | null {
-  try {
-    return window.localStorage.getItem(key);
-  } catch {
-    // A private window or blocked site data -- the checklist still works, it
-    // just cannot remember anything.
-    return null;
-  }
-}
-
-export function ReadinessChecklist({
-  storageKey,
+export function ChecklistSection({
+  heading,
+  subheading,
   items,
-  warnings,
+  onChange,
+  emptyNote,
 }: {
-  storageKey: string;
+  heading: string;
+  subheading?: string;
   items: ReadinessItem[];
-  warnings: string[];
+  onChange: (id: string, state: ApplicantDocumentState | null) => void;
+  emptyNote?: string;
 }) {
-  const key = STORAGE_PREFIX + storageKey;
-  const raw = useSyncExternalStore(
-    subscribe,
-    () => readRaw(key),
-    () => null
-  );
-  const progress = useMemo<ProgressMap>(() => {
-    if (!raw) return {};
-    try {
-      return JSON.parse(raw) as ProgressMap;
-    } catch {
-      // Corrupt entry -- start clean rather than breaking the checklist.
-      return {};
-    }
-  }, [raw]);
+  const waived = unconditionalRequiredNotApplicable(items);
 
-  function write(next: ProgressMap) {
-    try {
-      if (Object.keys(next).length === 0) window.localStorage.removeItem(key);
-      else window.localStorage.setItem(key, JSON.stringify(next));
-    } catch {
-      // Nothing to do -- the value simply is not remembered.
-    }
-    emit();
-  }
-
-  function update(id: string, state: ApplicantDocumentState | null) {
-    const next = { ...progress };
-    if (state === null) delete next[id];
-    else next[id] = state;
-    write(next);
-  }
-
-  function resetChecklist() {
-    // Only this configuration's key is cleared -- every other university's
-    // saved checklist is left untouched.
-    write({});
-  }
-
-  // Annotated rather than inferred: without it the index lookup is treated as
-  // always defined, so `progress` narrows to ApplicantDocumentState and the
-  // "untracked" comparisons below become type errors.
-  const tracked: ReadinessItem[] = useMemo(
-    () => items.map((item) => ({ ...item, progress: progress[item.id] ?? "untracked" })),
-    [items, progress]
-  );
-
-  const summary = summarizeReadiness(tracked);
-  const everyRequiredTracked = allRequiredTracked(tracked);
-  const waived = unconditionalRequiredNotApplicable(tracked);
-  const untrackedRequired = summary.required_total - tracked.filter((i) => i.status === "required" && i.progress !== "untracked").length;
-
-  return (
-    <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <MicroLabel>Application readiness</MicroLabel>
-            <p className="mt-1 text-[16px] font-semibold text-ink">
-              {summary.required_ready} / {summary.required_total} required documents ready
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={resetChecklist}
-            className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-ink"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Reset checklist
-          </button>
-        </div>
-
-        <div
-          className="h-2 w-full overflow-hidden rounded-full bg-canvas"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={summary.required_total}
-          aria-valuenow={summary.required_ready}
-          aria-label="Required documents ready"
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{
-              width: `${summary.required_total ? (summary.required_ready / summary.required_total) * 100 : 0}%`,
-            }}
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-muted">
-          <span>
-            Required missing: <span className="font-medium text-ink">{summary.required_missing}</span>
-          </span>
-          <span>
-            Conditional items: <span className="font-medium text-ink">{summary.conditional_total}</span>
-          </span>
-          <span>
-            Optional items: <span className="font-medium text-ink">{summary.optional_total}</span>
-          </span>
-          {!everyRequiredTracked && (
-            <span>
-              Not yet tracked: <span className="font-medium text-ink">{untrackedRequired}</span>
-            </span>
-          )}
-        </div>
-
-        {/* An untracked document is unknown, not done -- so the figure is a
-            share of ALL required documents and only reaches 100% when every
-            one of them has actually been marked ready. */}
-        <p className="text-[12px] leading-relaxed text-muted">
-          {summary.completion_percent === null
-            ? "Mark a document below to start tracking your progress."
-            : `${summary.completion_percent}% of required documents marked ready.`}{" "}
-          This checklist shows what the verified sources state — it does not confirm that you are eligible
-          or that your application is ready to submit.
+  if (items.length === 0) {
+    return (
+      <Card className="flex flex-col gap-1.5">
+        <h2 className="text-[15px] font-semibold leading-snug text-ink">{heading}</h2>
+        {/* An empty section says the dataset records nothing, never that the
+            university has no requirements. */}
+        <p className="text-[12.5px] leading-relaxed text-muted">
+          {emptyNote ?? "Nothing to show for this selection."}
         </p>
       </Card>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div>
+        <h2 className="text-[15px] font-semibold leading-snug text-ink">{heading}</h2>
+        {subheading && <p className="mt-0.5 text-[12.5px] leading-relaxed text-muted">{subheading}</p>}
+      </div>
 
       {waived.length > 0 && (
         <Card className="flex items-start gap-2 bg-gold/5">
@@ -232,29 +98,16 @@ export function ReadinessChecklist({
             </p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
               {waived.map((i) => i.label).join(", ")} {waived.length === 1 ? "carries" : "carry"} no condition
-              in the verified source, so {waived.length === 1 ? "it applies" : "they apply"} to every
-              applicant for this program. Confirm with the first-round institution before treating{" "}
+              in the verified source, so {waived.length === 1 ? "it applies" : "they apply"} to every applicant
+              on this route. Confirm with the first-round institution before treating{" "}
               {waived.length === 1 ? "it" : "them"} as not applicable.
             </p>
           </div>
         </Card>
       )}
 
-      {warnings.length > 0 && (
-        <Card className="flex flex-col gap-2">
-          <MicroLabel>Before you rely on this</MicroLabel>
-          <ul className="flex flex-col gap-1.5">
-            {warnings.map((w, i) => (
-              <li key={i} className="text-[12.5px] leading-relaxed text-muted">
-                · {w}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
       {GROUPS.map((group) => {
-        const groupItems = tracked.filter((i) => i.category === group.category);
+        const groupItems = items.filter((i) => i.category === group.category);
         if (groupItems.length === 0) return null;
         return (
           <Card key={group.category} className="flex flex-col gap-3">
@@ -275,7 +128,7 @@ export function ReadinessChecklist({
 
             <ul className="flex flex-col gap-2.5">
               {groupItems.map((item) => (
-                <ChecklistRow key={item.id} item={item} onChange={update} />
+                <ChecklistRow key={item.id} item={item} onChange={onChange} />
               ))}
             </ul>
           </Card>
@@ -296,12 +149,7 @@ function ChecklistRow({
   const flagged = item.status === "required" && !item.condition && item.progress === "not_applicable";
 
   return (
-    <li
-      className={cn(
-        "rounded-xl border px-3.5 py-3",
-        flagged ? "border-gold bg-gold/5" : "border-hairline"
-      )}
-    >
+    <li className={cn("rounded-xl border px-3.5 py-3", flagged ? "border-gold bg-gold/5" : "border-hairline")}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="min-w-0 flex-1 text-[13.5px] font-medium leading-snug text-ink">{item.label}</p>
         <span
