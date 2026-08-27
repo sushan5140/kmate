@@ -21,13 +21,14 @@ export function RequirementForm({
   children,
 }: {
   options: CheckerOptions;
-  initial: { program: string; track: string; university: string; major: string; gender: string };
+  initial: { program: string; track: string; subtype: string; university: string; major: string; gender: string };
   /** The results for the checked selection, rendered below the form. */
   children?: React.ReactNode;
 }) {
   const router = useRouter();
   const [program, setProgram] = useState(initial.program);
   const [track, setTrack] = useState(initial.track);
+  const [subtype, setSubtype] = useState(initial.subtype);
   const [university, setUniversity] = useState(initial.university);
   const [major, setMajor] = useState(initial.major);
   const [gender, setGender] = useState(initial.gender);
@@ -40,11 +41,20 @@ export function RequirementForm({
   // commits, so there is no longer a flag anyone can forget to reset.
   const [isPending, startTransition] = useTransition();
 
-  const trackOptions = program ? options.tracks[program] ?? [] : [];
-  const universityOptions = useMemo(
-    () => (program && track ? options.universities[`${program}|${track}`] ?? [] : []),
-    [options, program, track]
+  const trackOptions = useMemo(
+    () => (program ? options.tracks[program] ?? [] : []),
+    [options, program]
   );
+  const subtypeOptions = useMemo(
+    () => trackOptions.find((t) => t.value === track)?.subtypes ?? [],
+    [trackOptions, track]
+  );
+  // Top-level track first, then narrowed by subtype when one is chosen.
+  const universityOptions = useMemo(() => {
+    if (!program || !track) return [];
+    if (subtype) return options.universities[`${program}|${track}|${subtype}`] ?? [];
+    return options.universities[`${program}|${track}`] ?? [];
+  }, [options, program, track, subtype]);
   const meta = useMemo(
     () =>
       options.meta[`${program}|${track}|${university}`] ?? {
@@ -59,12 +69,20 @@ export function RequirementForm({
   function pickProgram(value: string) {
     setProgram(value === program ? "" : value);
     setTrack("");
+    setSubtype("");
     setUniversity("");
     setMajor("");
     setGender("");
   }
   function pickTrack(value: string) {
     setTrack(value === track ? "" : value);
+    setSubtype("");
+    setUniversity("");
+    setMajor("");
+    setGender("");
+  }
+  function pickSubtype(value: string) {
+    setSubtype(value === subtype ? "" : value);
     setUniversity("");
     setMajor("");
     setGender("");
@@ -78,6 +96,7 @@ export function RequirementForm({
   function check() {
     if (!program || !track || !university) return;
     const params = new URLSearchParams({ program, track, university, check: "1" });
+    if (subtype) params.set("subtype", subtype);
     if (major.trim()) params.set("major", major.trim());
     if (gender) params.set("gender", gender);
     startTransition(() => router.push(`/requirement-checker?${params.toString()}`));
@@ -86,6 +105,7 @@ export function RequirementForm({
   function reset() {
     setProgram("");
     setTrack("");
+    setSubtype("");
     setUniversity("");
     setMajor("");
     setGender("");
@@ -104,6 +124,7 @@ export function RequirementForm({
   const stale =
     program !== initial.program ||
     track !== initial.track ||
+    subtype !== initial.subtype ||
     university !== initial.university ||
     major.trim() !== initial.major ||
     gender !== initial.gender;
@@ -125,14 +146,34 @@ export function RequirementForm({
         {!program ? (
           <p className="text-[12.5px] text-muted">Choose a program first.</p>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {trackOptions.map((t) => (
-              <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
-                {t.label}
-                <span className="ml-1.5 text-[11px] opacity-70">{t.count}</span>
-              </Chip>
-            ))}
-          </div>
+          <>
+            <div className="flex flex-wrap gap-1.5">
+              {trackOptions.map((t) => (
+                <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
+                  {t.label}
+                  <span className="ml-1.5 text-[11px] opacity-70">{t.count}</span>
+                </Chip>
+              ))}
+            </div>
+
+            {/* Sub-routes of the chosen track, shown only where the program
+                actually has them. Optional: leaving it unset keeps every
+                university on the track, which is the safe default when the
+                applicant doesn't know their sub-route yet. */}
+            {subtypeOptions.length > 0 && (
+              <div className="mt-2.5">
+                <p className="text-[11.5px] text-muted">Sub-route (optional)</p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {subtypeOptions.map((s) => (
+                    <Chip key={s.value} small active={subtype === s.value} onClick={() => pickSubtype(s.value)}>
+                      {s.label}
+                      <span className="ml-1.5 text-[11px] opacity-70">{s.count}</span>
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </Step>
 
