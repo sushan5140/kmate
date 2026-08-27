@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useSyncExternalStore, useTransition } from "react";
-import { ArrowDown, ArrowUp, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowDownToLine, ArrowUp, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import type { CheckerOptions } from "@/lib/requirements/options";
@@ -11,10 +11,13 @@ import {
   EMPTY_PROGRESS,
   describeSlots,
   parseProgress,
+  overallProgress,
   progressOf,
   storageKeyFor,
+  universityAnchor,
   type ApplicationConfig,
   type ApplicationReadiness,
+  type SectionProgress,
   type StoredProgress,
 } from "@/lib/readiness/application";
 import type { ApplicantDocumentState, ReadinessItem } from "@/lib/readiness/schema";
@@ -199,7 +202,14 @@ export function ReadinessWorkspace({
     [workspace, stored]
   );
 
+  // Derived from the same stored progress the checklist rows write to, so
+  // every figure above updates the moment a row is tapped -- no refresh, and no
+  // second source of truth.
   const commonProgress = progressOf(commonItems);
+  const overall = overallProgress(
+    commonProgress,
+    universitySections.map((s) => progressOf(s.items))
+  );
 
   return (
     <div className={cn("flex flex-col gap-5", isPending && "opacity-70")}>
@@ -402,9 +412,10 @@ export function ReadinessWorkspace({
 
       {workspace && (
         <>
-          <Card className="flex flex-col gap-3">
+          {/* ------------ overall application progress ------------ */}
+          <Card className="flex flex-col gap-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <MicroLabel>Checklist progress</MicroLabel>
+              <MicroLabel>Overall application progress</MicroLabel>
               <button
                 type="button"
                 onClick={resetProgress}
@@ -415,46 +426,67 @@ export function ReadinessWorkspace({
               </button>
             </div>
 
-            <SummaryRow
-              label="Common documents"
-              ready={commonProgress.requiredReady}
-              total={commonProgress.requiredTotal}
+            <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+              <p className="text-[30px] font-semibold leading-none tracking-tight text-ink">
+                {overall.percent === null ? "—" : `${overall.percent}%`}
+              </p>
+              <p className="text-[13px] text-muted">
+                {overall.requiredTotal === 0
+                  ? "No required documents recorded for this selection"
+                  : `${overall.requiredReady} / ${overall.requiredTotal} required documents ready`}
+              </p>
+            </div>
+
+            <ProgressBar
+              ready={overall.requiredReady}
+              total={overall.requiredTotal}
+              label="Overall required documents ready"
             />
 
+            {/* Four figures, so the bar can be read at a glance without
+                scrolling the whole checklist. */}
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-hairline pt-3 sm:grid-cols-4">
+              <Stat label="Common docs" value={`${commonProgress.requiredReady} / ${commonProgress.requiredTotal}`} />
+              <Stat label="Required missing" value={overall.requiredMissing} />
+              <Stat label="Conditional" value={overall.conditionalTotal} />
+              <Stat label="Not yet tracked" value={overall.untracked} />
+            </dl>
+
             {universitySections.length > 0 && (
-              <div className="border-t border-hairline pt-3">
-                <MicroLabel>University requirements</MicroLabel>
-                <div className="mt-2 flex flex-col gap-2">
-                  {universitySections.map((s) => {
-                    const p = progressOf(s.items);
-                    // A university can hold verified requirements that are all
-                    // conditional -- saying "0 / 0 required ready" there reads
-                    // like nothing was found, when something was.
-                    const note =
-                      s.items.length === 0
-                        ? "No additional verified requirements"
-                        : p.requiredTotal === 0
-                          ? `${s.items.length} conditional or optional, none unconditionally required`
-                          : undefined;
-                    return (
-                      <SummaryRow
-                        key={s.university}
-                        label={s.university}
-                        ready={p.requiredReady}
-                        total={p.requiredTotal}
-                        emptyNote={note}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
+              <p className="text-[12.5px] text-muted">
+                {overall.universitiesWithOutstanding === 0
+                  ? `No outstanding required items across your ${universitySections.length} ${
+                      universitySections.length === 1 ? "university" : "universities"
+                    }.`
+                  : `${overall.universitiesWithOutstanding} of ${universitySections.length} ${
+                      universitySections.length === 1 ? "university has" : "universities have"
+                    } unresolved required items.`}
+              </p>
             )}
 
             <p className="text-[12px] leading-relaxed text-muted">
-              This is checklist progress against what the verified sources state. It does not confirm you are
+              This is checklist progress against what the verified sources state. Conditional and optional
+              documents are listed separately and never count against it. It does not confirm you are
               eligible or that your application is ready to submit.
             </p>
           </Card>
+
+          {/* ------------ one compact card per university ------------ */}
+          {universitySections.length > 0 && (
+            <div>
+              <MicroLabel>University progress</MicroLabel>
+              <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {universitySections.map((s, i) => (
+                  <UniversityCard
+                    key={s.university}
+                    index={i + 1}
+                    section={s}
+                    progress={progressOf(s.items)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {workspace.warnings.length > 0 && (
             <Card className="flex flex-col gap-2">
@@ -472,6 +504,7 @@ export function ReadinessWorkspace({
           <ChecklistSection
             heading="Common application documents"
             subheading="Filed once for your whole GKS application, however many universities you name."
+            headerProgress={commonProgress}
             items={commonItems}
             onChange={setCommon}
           />
@@ -479,12 +512,10 @@ export function ReadinessWorkspace({
           {universitySections.map((s) => (
             <ChecklistSection
               key={s.university}
+              anchorId={universityAnchor(s.university)}
               heading={s.university}
-              subheading={
-                s.major
-                  ? `Verified requirements for this university · ${s.major}`
-                  : "Verified requirements for this university"
-              }
+              subheading={s.major || undefined}
+              headerProgress={progressOf(s.items)}
               items={s.items}
               onChange={(id, state) => setForUniversity(s.university, id, state)}
               emptyNote="No additional verified requirements are recorded for this university on this route. That is not the same as there being none — check its official GKS page."
@@ -496,40 +527,105 @@ export function ReadinessWorkspace({
   );
 }
 
-function SummaryRow({
-  label,
-  ready,
-  total,
-  emptyNote,
+/** One compact summary of a single university's own requirement overlay. */
+function UniversityCard({
+  index,
+  section,
+  progress,
 }: {
-  label: string;
-  ready: number;
-  total: number;
-  emptyNote?: string;
+  index: number;
+  section: { university: string; major: string; items: ReadinessItem[] };
+  progress: SectionProgress;
 }) {
+  const anchor = universityAnchor(section.university);
+  // A university whose verified items are all conditional has nothing
+  // outstanding to complete -- reporting that as 100% would imply work that
+  // was never there, so it gets a zero-state instead of a full bar.
+  const noRequired = progress.requiredTotal === 0;
+
+  return (
+    <Card className="flex flex-col gap-2.5">
+      <div>
+        <p className="text-[13.5px] font-semibold leading-snug text-ink">
+          <span className="text-muted">{index}.</span> {section.university}
+        </p>
+        <p className="mt-0.5 text-[12px] text-muted">{section.major || "No department chosen"}</p>
+      </div>
+
+      <div className="border-t border-hairline pt-2.5">
+        <MicroLabel>Requirements</MicroLabel>
+        {noRequired ? (
+          <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+            No additional verified required documents
+          </p>
+        ) : (
+          <>
+            <p className="mt-1 text-[13.5px] font-medium text-ink">
+              {progress.requiredReady} / {progress.requiredTotal} required ready
+            </p>
+            <ProgressBar
+              className="mt-1.5"
+              ready={progress.requiredReady}
+              total={progress.requiredTotal}
+              label={`${section.university}: required documents ready`}
+            />
+          </>
+        )}
+
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-[11.5px] text-muted">
+          {progress.requiredMissing > 0 && <span>{progress.requiredMissing} missing</span>}
+          {progress.conditionalTotal > 0 && <span>{progress.conditionalTotal} conditional</span>}
+          {progress.optionalTotal > 0 && <span>{progress.optionalTotal} optional</span>}
+          {progress.itemTotal === 0 && <span>Nothing recorded for this route</span>}
+        </div>
+      </div>
+
+      {progress.itemTotal > 0 && (
+        <a
+          href={`#${anchor}`}
+          className="inline-flex items-center gap-1 text-[12.5px] font-medium text-primary hover:underline"
+        >
+          View details
+          <ArrowDownToLine className="h-3 w-3" />
+        </a>
+      )}
+    </Card>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="text-[13.5px] font-medium text-ink">{label}</p>
-        <p className="text-[12.5px] text-muted">
-          {emptyNote ?? `${ready} / ${total} required ready`}
-        </p>
-      </div>
-      {!emptyNote && (
-        <div
-          className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-canvas"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={total}
-          aria-valuenow={ready}
-          aria-label={`${label}: required documents ready`}
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${total ? (ready / total) * 100 : 0}%` }}
-          />
-        </div>
-      )}
+      <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</dt>
+      <dd className="mt-0.5 text-[15px] font-semibold text-ink">{value}</dd>
+    </div>
+  );
+}
+
+function ProgressBar({
+  ready,
+  total,
+  label,
+  className,
+}: {
+  ready: number;
+  total: number;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn("h-2 w-full overflow-hidden rounded-full bg-canvas", className)}
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-valuenow={ready}
+      aria-label={label}
+    >
+      <div
+        className="h-full rounded-full bg-primary transition-[width] duration-300"
+        style={{ width: `${total ? (ready / total) * 100 : 0}%` }}
+      />
     </div>
   );
 }

@@ -18,7 +18,7 @@ import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";
 import requirements from "@/data/requirement-checker-data.json";
 import { getApplicationReadiness, getApplicationWorkspace } from "@/lib/readiness";
-import { universitySlotsFor, storageKeyFor } from "@/lib/readiness/application";
+import { universitySlotsFor, storageKeyFor, progressOf, overallProgress, universityAnchor } from "@/lib/readiness/application";
 import { createNameResolver, UNIVERSITY_NAME_ALIASES } from "@/lib/readiness/university-names";
 import gksUniversities from "@/data/gks-universities.json";
 import { summarizeReadiness } from "@/lib/readiness/summary";
@@ -497,7 +497,114 @@ function NAME_RECONCILIATION_CHECKS() {
 }
 
 MULTI_UNIVERSITY_CHECKS();
+// ---------------------------------------------------------------------------
+// Part 5 -- summary arithmetic
+// ---------------------------------------------------------------------------
+
+function PROGRESS_SUMMARY_CHECKS() {
+  const item = (status: string, progress: string, id: string): ReadinessItem =>
+    ({
+      id,
+      label: id,
+      category: "gks_form",
+      status,
+      sourceUrls: [],
+      origin: "gks_core",
+      progress,
+    }) as unknown as ReadinessItem;
+
+  console.log("");
+  console.log("=== conditional and optional items never reduce the required percentage ===");
+  const twoOfThree = [
+    item("required", "ready", "r1"),
+    item("required", "ready", "r2"),
+    item("required", "missing", "r3"),
+  ];
+  const base = progressOf(twoOfThree);
+  ok(base.requiredTotal === 3 && base.requiredReady === 2, "3 required, 2 ready");
+  const withExtras = progressOf([
+    ...twoOfThree,
+    item("conditional", "untracked", "c1"),
+    item("conditional", "untracked", "c2"),
+    item("optional", "untracked", "o1"),
+    item("not_stated", "untracked", "n1"),
+  ]);
+  ok(
+    withExtras.requiredTotal === base.requiredTotal && withExtras.requiredReady === base.requiredReady,
+    "adding conditional / optional / not-stated items leaves the required fraction untouched"
+  );
+  ok(withExtras.conditionalTotal === 2 && withExtras.optionalTotal === 1, "but they are counted separately for display");
+  ok(
+    overallProgress(withExtras, []).percent === overallProgress(base, []).percent,
+    "and the overall percentage is identical either way (" + overallProgress(withExtras, []).percent + "%)"
+  );
+
+  console.log("=== a section with no required items never reads as complete ===");
+  const conditionalOnly = progressOf([item("conditional", "untracked", "c1"), item("optional", "untracked", "o1")]);
+  ok(conditionalOnly.requiredTotal === 0, "no required items");
+  ok(overallProgress(conditionalOnly, []).percent === null, "percent is null rather than 100");
+  ok(conditionalOnly.itemTotal === 2, "though the section still holds two items to display");
+
+  console.log("=== overall = common plus every university, with no invented denominator ===");
+  // The worked example: common 8/11, A 2/3, B 1/2, C no required items.
+  const common = progressOf([
+    ...Array.from({ length: 8 }, (_, i) => item("required", "ready", "cr" + i)),
+    ...Array.from({ length: 3 }, (_, i) => item("required", "missing", "cm" + i)),
+  ]);
+  const a = progressOf([
+    item("required", "ready", "a1"),
+    item("required", "ready", "a2"),
+    item("required", "missing", "a3"),
+  ]);
+  const b = progressOf([item("required", "ready", "b1"), item("required", "untracked", "b2")]);
+  const c = progressOf([item("conditional", "untracked", "c1")]);
+  const all = overallProgress(common, [a, b, c]);
+  ok(common.requiredReady === 8 && common.requiredTotal === 11, "common is 8 / 11");
+  ok(a.requiredReady === 2 && a.requiredTotal === 3, "university A is 2 / 3");
+  ok(b.requiredReady === 1 && b.requiredTotal === 2, "university B is 1 / 2");
+  ok(c.requiredTotal === 0, "university C has no required items");
+  ok(all.requiredReady === 11 && all.requiredTotal === 16, "overall is 11 / 16 (got " + all.requiredReady + " / " + all.requiredTotal + ")");
+  ok(all.percent === 69, "overall reads 69% (got " + all.percent + "%)");
+  ok(
+    overallProgress(common, [a, b]).requiredTotal === all.requiredTotal,
+    "the zero-required university adds nothing to the denominator"
+  );
+
+  console.log("=== outstanding-university count ===");
+  ok(all.universitiesWithOutstanding === 2, "2 of 3 universities have unresolved required items (got " + all.universitiesWithOutstanding + ")");
+  ok(all.universitiesCounted === 3, "all three universities are counted");
+  const allDone = overallProgress(common, [progressOf([item("required", "ready", "x")])]);
+  ok(allDone.universitiesWithOutstanding === 0, "a fully ready university is not counted as outstanding");
+
+  console.log("=== a required item that is in progress or untracked is not ready ===");
+  for (const state of ["in_progress", "untracked", "missing", "not_applicable"]) {
+    const p = progressOf([item("required", state, "r")]);
+    ok(p.requiredReady === 0, "a required item marked " + state + " does not count as ready");
+  }
+  ok(progressOf([item("required", "ready", "r")]).requiredReady === 1, "only 'ready' counts as ready");
+
+  console.log("=== university anchors are stable and distinct ===");
+  ok(universityAnchor("Korea University") === universityAnchor("Korea University"), "the same name gives the same anchor");
+  ok(
+    universityAnchor("Korea Maritime & Ocean University") !== universityAnchor("Korea University"),
+    "different universities give different anchors"
+  );
+  ok(/^uni-[a-z0-9-]+$/.test(universityAnchor("Korea Maritime & Ocean University")), "anchors are URL-fragment safe: " + universityAnchor("Korea Maritime & Ocean University"));
+  const workspaceAnchors = getApplicationWorkspace({
+    program: "GKS-U",
+    track: "embassy",
+    subtype: "general",
+    universities: [
+      { name: "Korea Maritime & Ocean University", major: "" },
+      { name: "Ewha Womans University", major: "" },
+      { name: "Yonsei University", major: "" },
+    ],
+  }).universities.map((s) => universityAnchor(s.university));
+  ok(new Set(workspaceAnchors).size === workspaceAnchors.length, "every selected university gets a unique anchor");
+}
+
 NAME_RECONCILIATION_CHECKS();
+PROGRESS_SUMMARY_CHECKS();
 
 console.log("");
 console.log(fail ? fail + " FAILURES" : "ALL READINESS INTEGRATION CHECKS PASSED");

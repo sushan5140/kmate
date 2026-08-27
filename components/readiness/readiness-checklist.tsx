@@ -4,6 +4,7 @@ import { AlertTriangle, ExternalLink, Info } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { unconditionalRequiredNotApplicable } from "@/lib/readiness/summary";
+import type { SectionProgress } from "@/lib/readiness/application";
 import type {
   ApplicantDocumentState,
   ReadinessCategory,
@@ -56,12 +57,18 @@ const PROGRESS: { value: ApplicantDocumentState; label: string }[] = [
 export function ChecklistSection({
   heading,
   subheading,
+  headerProgress,
+  anchorId,
   items,
   onChange,
   emptyNote,
 }: {
   heading: string;
   subheading?: string;
+  /** Shown as a figure and bar in the section header when supplied. */
+  headerProgress?: SectionProgress;
+  /** Scroll target for the matching summary card's "View details" link. */
+  anchorId?: string;
   items: ReadinessItem[];
   onChange: (id: string, state: ApplicantDocumentState | null) => void;
   emptyNote?: string;
@@ -70,7 +77,7 @@ export function ChecklistSection({
 
   if (items.length === 0) {
     return (
-      <Card className="flex flex-col gap-1.5">
+      <Card id={anchorId} className="flex scroll-mt-6 flex-col gap-1.5">
         <h2 className="text-[15px] font-semibold leading-snug text-ink">{heading}</h2>
         {/* An empty section says the dataset records nothing, never that the
             university has no requirements. */}
@@ -82,10 +89,11 @@ export function ChecklistSection({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div id={anchorId} className="flex scroll-mt-6 flex-col gap-3">
       <div>
         <h2 className="text-[15px] font-semibold leading-snug text-ink">{heading}</h2>
         {subheading && <p className="mt-0.5 text-[12.5px] leading-relaxed text-muted">{subheading}</p>}
+        {headerProgress && <SectionHeaderProgress heading={heading} progress={headerProgress} />}
       </div>
 
       {waived.length > 0 && (
@@ -134,6 +142,50 @@ export function ChecklistSection({
           </Card>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * The section's own completion, so it is obvious at the top of a long list
+ * whether anything is still outstanding here.
+ *
+ * A section with no required items shows the zero-state rather than a full bar:
+ * "everything required is done" and "nothing was ever required" are different
+ * statements, and only the second one is true.
+ */
+function SectionHeaderProgress({ heading, progress }: { heading: string; progress: SectionProgress }) {
+  if (progress.requiredTotal === 0) {
+    return (
+      <p className="mt-1.5 text-[12.5px] text-muted">
+        No additional verified required documents
+        {progress.conditionalTotal + progress.optionalTotal > 0
+          ? " — the conditional and optional entries below still apply."
+          : ""}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-2 max-w-sm">
+      <p className="text-[12.5px] text-muted">
+        <span className="font-medium text-ink">
+          {progress.requiredReady} / {progress.requiredTotal}
+        </span>{" "}
+        required ready
+      </p>
+      <div
+        className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-canvas"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={progress.requiredTotal}
+        aria-valuenow={progress.requiredReady}
+        aria-label={`${heading}: required documents ready`}
+      >
+        <div
+          className="h-full rounded-full bg-primary transition-[width] duration-300"
+          style={{ width: `${(progress.requiredReady / progress.requiredTotal) * 100}%` }}
+        />
+      </div>
     </div>
   );
 }

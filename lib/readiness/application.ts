@@ -129,9 +129,22 @@ export interface SectionProgress {
   requiredTotal: number;
   requiredReady: number;
   requiredMissing: number;
+  /** Required items with no progress state yet. */
   untracked: number;
+  conditionalTotal: number;
+  optionalTotal: number;
+  /** Every item in the section, required or not. */
+  itemTotal: number;
 }
 
+/**
+ * Counts one section -- the common checklist, or one university's overlay.
+ *
+ * Completion is measured against REQUIRED items only. A conditional or
+ * optional document left untouched is not an outstanding obligation, so it
+ * must never drag the percentage down; those are counted separately and shown
+ * beside the bar instead.
+ */
 export function progressOf(items: ReadinessItem[]): SectionProgress {
   const required = items.filter((i) => i.status === "required");
   return {
@@ -139,5 +152,50 @@ export function progressOf(items: ReadinessItem[]): SectionProgress {
     requiredReady: required.filter((i) => i.progress === "ready").length,
     requiredMissing: required.filter((i) => i.progress === "missing").length,
     untracked: required.filter((i) => i.progress === "untracked").length,
+    conditionalTotal: items.filter((i) => i.status === "conditional").length,
+    optionalTotal: items.filter((i) => i.status === "optional").length,
+    itemTotal: items.length,
   };
+}
+
+/**
+ * The whole application: the common checklist plus every selected university's
+ * required items.
+ *
+ * A university with no required items of its own contributes nothing to either
+ * side of the fraction rather than an invented denominator, so three
+ * universities where two have requirements read as a total over those two.
+ * `percent` is null until there is something to measure, so an application with
+ * no required items anywhere shows no figure instead of a misleading 100%.
+ */
+export function overallProgress(common: SectionProgress, universities: SectionProgress[]): SectionProgress & {
+  percent: number | null;
+  universitiesWithOutstanding: number;
+  universitiesCounted: number;
+} {
+  const parts = [common, ...universities];
+  const sum = (pick: (p: SectionProgress) => number) => parts.reduce((n, p) => n + pick(p), 0);
+
+  const requiredTotal = sum((p) => p.requiredTotal);
+  const requiredReady = sum((p) => p.requiredReady);
+
+  return {
+    requiredTotal,
+    requiredReady,
+    requiredMissing: sum((p) => p.requiredMissing),
+    untracked: sum((p) => p.untracked),
+    conditionalTotal: sum((p) => p.conditionalTotal),
+    optionalTotal: sum((p) => p.optionalTotal),
+    itemTotal: sum((p) => p.itemTotal),
+    percent: requiredTotal === 0 ? null : Math.round((requiredReady / requiredTotal) * 100),
+    // "Unresolved" means a required item this university still owes -- not yet
+    // ready, whether that is missing, in progress or untouched.
+    universitiesWithOutstanding: universities.filter((p) => p.requiredTotal > p.requiredReady).length,
+    universitiesCounted: universities.length,
+  };
+}
+
+/** A stable DOM id for a university's detail section, for the summary cards to jump to. */
+export function universityAnchor(name: string): string {
+  return "uni-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
