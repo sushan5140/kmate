@@ -28,7 +28,6 @@ import { TrackBadge } from "@/components/ui/track-badge";
 import { DeadlineBannerText } from "@/components/home/deadline-banner";
 import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
-import { estimateApplicationDeadline } from "@/lib/deadline";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import type { Track } from "@/lib/constants";
 
@@ -143,16 +142,6 @@ export default async function HomePage() {
   const scholarshipPool = newestScholarships ?? [];
   const spotlight = pickSpotlight(scholarshipPool, user.id);
 
-  // True once the estimated deadline for the user's stored (track,
-  // application_year) is already in the past -- e.g. an account still set
-  // to a cycle whose deadline passed months ago. Never auto-changes the
-  // stored application_year, just nudges the user to update it themselves.
-  let cycleClosed = false;
-  if (profile?.track && profile?.application_year) {
-    const deadline = estimateApplicationDeadline(profile.track as Track, profile.application_year);
-    cycleClosed = deadline.getTime() < new Date().getTime();
-  }
-
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
 
   return (
@@ -177,12 +166,7 @@ export default async function HomePage() {
 
       <Card className="mt-8 bg-primary text-white">
         <MicroLabel className="text-white/60">Application calendar</MicroLabel>
-        {cycleClosed ? (
-          <>
-            <h2 className="mt-1 text-[19px] font-semibold leading-snug">This application cycle&apos;s deadline has passed</h2>
-            <p className="mt-1 text-[13.5px] text-white/70">Update your application year in your profile to keep tracking your application.</p>
-          </>
-        ) : track ? (
+        {track ? (
           <DeadlineBannerText track={track} />
         ) : (
           <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
