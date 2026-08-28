@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { sanitizeNext } from "@/lib/auth/safe-next";
 
 // Fires the "add a contact" nag (see components/contacts/contact-wallet-nudge.tsx
 // + notifications table's 'contact_wallet_empty' type) once per real sign-in --
@@ -36,7 +37,10 @@ async function maybeNotifyEmptyContactWallet(userId: string) {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/home";
+  // This value comes back from the OAuth round trip and is fully attacker-
+  // controllable (the callback can be hit directly). It previously went
+  // straight into the redirect with no validation whatsoever.
+  const next = sanitizeNext(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { sanitizeNext } from "@/lib/auth/safe-next";
 import GoogleSignInButton from "@/components/auth/google-sign-in-button";
 import { Card } from "@/components/ui/card";
 
@@ -15,12 +16,15 @@ export default async function LoginPage({
 }) {
   const { next, error } = await searchParams;
 
+  // startsWith("/") used to be the whole check, which accepts "//evil.com" --
+  // a protocol-relative URL that begins with a slash and still leaves the
+  // origin. sanitizeNext applies the full rule set instead.
+  const safeNext = sanitizeNext(next);
+
   const user = await getAuthenticatedUser();
   if (user) {
-    redirect(next && next.startsWith("/") ? next : "/home");
+    redirect(safeNext);
   }
-
-  const safeNext = next && next.startsWith("/") ? next : "/home";
 
   return (
     <main className="relative flex min-h-[70vh] items-center justify-center overflow-hidden px-6">

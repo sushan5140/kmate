@@ -46,7 +46,7 @@ function StepProgress({ stepIndex }: { stepIndex: number }) {
   );
 }
 
-export function OnboardingWizard() {
+export function OnboardingWizard({ destination = "/home" }: { destination?: string }) {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
   const step: Step = STEPS[stepIndex];
@@ -131,7 +131,11 @@ export function OnboardingWizard() {
         setSubmitting(false);
         return;
       }
-      router.push("/home");
+      // The page the user originally asked for, validated server-side
+      // before it was handed to this component. Named `destination` rather
+      // than `next` because this file already has a next() step-advance
+      // function.
+      router.push(destination);
       router.refresh();
     } catch {
       setSubmitError("Couldn't reach the server. Check your connection and try again.");

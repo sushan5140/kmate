@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 
 // Unlike a typical "protect one section" setup, almost everything in GKS
 // Connect requires auth -- the matcher below runs on every request except
@@ -92,6 +93,9 @@ export async function proxy(request: NextRequest) {
   // lib/supabase/auth-server.ts) gate every admin route on this header
   // matching ADMIN_EMAIL, so it must never be client-settable.
   request.headers.delete("x-kmate-user-email");
+  // Same reasoning: requireOnboarded() below trusts this as "the URL actually
+  // requested", so a client-supplied value must never survive.
+  request.headers.delete("x-kmate-url");
 
   // Generated fresh per-request -- Next.js reads this off the CSP header (on
   // the request, for rendering; on the response, for the browser) and
@@ -129,11 +133,25 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // The full destination -- pathname AND query string. Previously only the
+  // pathname was carried, so /notices?view=gks&program=... came back as bare
+  // /notices after sign-in and every filter was lost.
+  //
+  // One thing this does NOT control: Next.js normalises the query string
+  // before any proxy code runs, regrouping repeated keys
+  // (uni=A&maj=1&uni=B&maj=2 arrives as uni=A&uni=B&maj=1&maj=2). Nothing is
+  // dropped and the order WITHIN each key is kept, which is what matters --
+  // /application-readiness pairs uni with maj by index via asArray(), so the
+  // pairing survives intact. request.url is normalised identically, so there
+  // is no rawer source to read from here.
+  const destination = destinationFrom(request.nextUrl);
+
   if (!user && !isPublicPath(request.nextUrl.pathname)) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(loginUrl);
+    // Built from the origin rather than by cloning nextUrl: cloning kept the
+    // ORIGINAL query parameters on the login URL, so they arrived as siblings
+    // of `next` (`/login?view=gks&program=...&next=%2Fnotices`) rather than
+    // inside it. buildLoginUrl percent-encodes the whole destination once.
+    return NextResponse.redirect(new URL(buildLoginUrl(destination), request.nextUrl.origin));
   }
 
   // Forward the already-validated user id to Server Components via a request
@@ -146,6 +164,13 @@ export async function proxy(request: NextRequest) {
     request.headers.set("x-kmate-user-id", user.id);
     if (user.email) request.headers.set("x-kmate-user-email", user.email);
   }
+
+  // Server Components never see the request URL, so a page-level guard such as
+  // requireOnboarded() cannot know its own query string -- which is why every
+  // call site passes a hardcoded literal like "/notices". Forwarding the real
+  // destination here lets that one shared guard preserve the query for EVERY
+  // gated route, with no per-page change.
+  request.headers.set("x-kmate-url", destination);
 
   const response = NextResponse.next({ request });
   cookiesToSetList.forEach(({ name, value, options }) => response.cookies.set(name, value, options));

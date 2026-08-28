@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { buildLoginUrl, isSafeNext, withNext } from "@/lib/auth/safe-next";
 
 /**
  * Session-aware Supabase client for Server Components and Route Handlers --
@@ -73,9 +74,10 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
  * /discover, /requests, etc).
  */
 export async function requireOnboarded(nextPath: string): Promise<AuthenticatedUser> {
+  const destination = await currentDestination(nextPath);
   const user = await getAuthenticatedUser();
   if (!user) {
-    redirect(`/login?next=${encodeURIComponent(nextPath)}`);
+    redirect(buildLoginUrl(destination));
   }
 
   const { data: profile } = await getSupabaseAdmin()
@@ -85,10 +87,32 @@ export async function requireOnboarded(nextPath: string): Promise<AuthenticatedU
     .maybeSingle();
 
   if (!profile?.onboarding_completed_at) {
-    redirect("/onboarding");
+    // The destination rides through onboarding too, so someone who signs in
+    // mid-setup still lands on the page they originally asked for.
+    redirect(withNext("/onboarding", destination));
   }
 
   return user;
+}
+
+/**
+ * The URL actually requested, complete with its query string.
+ *
+ * A Server Component is not given its own URL, so every call site passes a
+ * hardcoded literal ("/notices", "/requirement-checker", ...). Those literals
+ * can never carry a query string, which is why filters used to be dropped on
+ * the way to /login. proxy.ts forwards the real destination on x-kmate-url --
+ * a header it strips from every incoming request first, so it cannot be
+ * spoofed, exactly like x-kmate-user-id.
+ *
+ * Falls back to the literal the caller passed when the header is missing (a
+ * direct render in a test, say), so behaviour degrades to the old, correct-
+ * but-query-less path rather than breaking.
+ */
+async function currentDestination(fallback: string): Promise<string> {
+  const fromProxy = (await headers()).get("x-kmate-url");
+  if (isSafeNext(fromProxy)) return fromProxy;
+  return isSafeNext(fallback) ? fallback : "/home";
 }
 
 /**
