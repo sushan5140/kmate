@@ -5,7 +5,12 @@ import Link from "next/link";
 import { AlertTriangle, ArrowRight, CalendarClock, ExternalLink, History, Megaphone } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
-import { getApplicationNotices } from "@/lib/deadlines";
+import { getApplicationNotices, deadlineNoticeDataset } from "@/lib/deadlines";
+import {
+  noticeAppliesTo,
+  dedupeAgainstStatic,
+  type PublishedGksNotice,
+} from "@/lib/notices/published-schema";
 
 /**
  * Deadlines and notices for the saved application.
@@ -55,12 +60,18 @@ export function DeadlineNoticeFeed({
   track,
   cycle,
   attention,
+  liveNotices = [],
 }: {
   program: "GKS-U" | "GKS-G";
   track?: "embassy" | "university";
   /** The applicant's own cycle. Never defaulted to the dataset's. */
   cycle: string;
   attention: AttentionInput;
+  /**
+   * Approved GKS notices from the review pipeline, unfiltered. They SUPPLEMENT
+   * the curated static dataset -- they never replace it. See the merge below.
+   */
+  liveNotices?: PublishedGksNotice[];
 }) {
   const feed = useMemo(
     () => getApplicationNotices({ program, ...(track ? { track } : {}), cycle }),
@@ -68,8 +79,88 @@ export function DeadlineNoticeFeed({
   );
 
   const next = feed.upcoming[0] ?? null;
-  const notices = feed.notices.slice(0, 3);
   const past = feed.historical;
+
+  /**
+   * Precedence, in order:
+   *   A. the curated static records stay valid -- a live copy can never
+   *      displace one, and none is ever dropped to make room
+   *   B. approved live notices SUPPLEMENT the feed
+   *   C. an official notice held by BOTH systems appears once, as the static one
+   *
+   * Where the two disagree about program, track or type, the manually verified
+   * static record wins and the live copy is dropped outright -- so a conflict
+   * can never surface as two contradictory cards for one notice. Nothing is
+   * merged field-by-field; one side is simply discarded.
+   *
+   * The surviving set is then ordered by publication date, newest first,
+   * because this card is "Recent GKS notices". Ordering static ahead of live
+   * unconditionally would be the wrong reading of "supplement": the static
+   * dataset is a fixed 2026 seed that never grows, so with three curated
+   * matches it would fill every slot forever and no approved notice could ever
+   * reach Home. Precedence governs which record represents a notice, not which
+   * notice is newest.
+   */
+  // source_id -> official URL, for de-duplicating live notices against every
+  // curated record rather than only the ones on screen.
+  const staticSourceUrl = useMemo(
+    () => new Map(deadlineNoticeDataset.sources.map((s) => [s.id, s.url])),
+    []
+  );
+
+  const notices = useMemo(() => {
+    const staticMatched = feed.notices;
+    const liveMatched = liveNotices
+      .filter((n) => noticeAppliesTo(n, program, track ?? null))
+      .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
+
+    // De-duplicated against the WHOLE curated dataset, not just the notices
+    // matched for this applicant. If an official notice is curated at all, the
+    // verified record is authoritative everywhere -- otherwise a live row that
+    // disagreed about the program could still surface under the OTHER program,
+    // where the static record it contradicts is not present to suppress it.
+    const fresh = dedupeAgainstStatic(
+      liveMatched,
+      deadlineNoticeDataset.notices.map((n) => ({
+        sourceUrl: staticSourceUrl.get(n.source_id) ?? "",
+        title: n.title,
+        publishedAt: n.published_at,
+      }))
+    );
+
+    return [
+      ...staticMatched.map((s) => ({
+        key: s.id,
+        type: s.type as string,
+        title: s.title,
+        publishedAt: s.published_at,
+        url: s.source.url,
+        label: s.source.title,
+        publisher: s.source.publisher,
+        reviewed: false,
+      })),
+      ...fresh.map((n) => ({
+        key: n.id,
+        type: n.noticeType as string,
+        title: n.title,
+        publishedAt: n.publishedAt ?? "",
+        url: n.sourceUrl,
+        label: n.title,
+        publisher: n.publisher,
+        reviewed: true,
+      })),
+    ]
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .slice(0, 3);
+  }, [feed.notices, liveNotices, program, track, staticSourceUrl]);
+
+  // The existing /notices route with the saved application pre-applied -- not a
+  // second notices page.
+  const noticesHref = useMemo(() => {
+    const p = new URLSearchParams({ view: "gks", program });
+    if (track) p.set("track", track);
+    return `/notices?${p.toString()}`;
+  }, [program, track]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -168,21 +259,28 @@ export function DeadlineNoticeFeed({
               </span>
               <MicroLabel>Recent GKS notices</MicroLabel>
             </div>
-            <Link href="/notices" className="text-[12.5px] font-medium text-primary hover:underline">
-              Official Notices board
+            {/* Carries the saved application's program and track, so the
+                notice centre opens already filtered to this applicant. */}
+            <Link href={noticesHref} className="text-[12.5px] font-medium text-primary hover:underline">
+              View notices
             </Link>
           </div>
           <ul className="flex flex-col gap-2.5">
             {notices.map((n) => (
-              <li key={n.id} className="border-t border-hairline pt-2.5 first:border-0 first:pt-0">
+              <li key={n.key} className="border-t border-hairline pt-2.5 first:border-0 first:pt-0">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="rounded-full bg-canvas px-2 py-0.5 text-[10.5px] font-medium text-muted">
                     {NOTICE_TYPE[n.type] ?? "Notice"}
                   </span>
-                  <span className="text-[11.5px] text-muted">{formatDate(n.published_at)}</span>
+                  <span className="text-[11.5px] text-muted">{n.publishedAt ? formatDate(n.publishedAt) : "Date not stated"}</span>
+                  {n.reviewed && (
+                    <span className="rounded-full bg-success-soft px-2 py-0.5 text-[10.5px] font-medium text-success">
+                      Reviewed
+                    </span>
+                  )}
                 </div>
-                <p className="mt-1 text-[13.5px] font-medium leading-snug text-ink">{n.title}</p>
-                <SourceLink url={n.source.url} label={n.source.title} publisher={n.source.publisher} compact />
+                <p className="mt-1 break-words text-[13.5px] font-medium leading-snug text-ink">{n.title}</p>
+                <SourceLink url={n.url} label={n.label} publisher={n.publisher} compact />
               </li>
             ))}
           </ul>

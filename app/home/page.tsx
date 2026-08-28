@@ -30,6 +30,7 @@ import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import { ApplicationDashboard } from "@/components/home/application-dashboard";
+import { getApprovedGksNotices } from "@/lib/notices/published";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import type { Track } from "@/lib/constants";
 
@@ -145,6 +146,11 @@ export default async function HomePage() {
   // profile" produces exactly the configuration that page would have.
   const readinessDefaults = await getProfileDefaults(user.id);
 
+  // Approved GKS notices, read server-side through the service-role client.
+  // notice_review_queue is never exposed to the browser -- only this narrow,
+  // safe projection of its approved rows travels to the client.
+  const approvedNotices = await getApprovedGksNotices();
+
   const scholarshipPool = newestScholarships ?? [];
   const spotlight = pickSpotlight(scholarshipPool, user.id);
 
@@ -187,6 +193,13 @@ export default async function HomePage() {
 
       <ApplicationDashboard
         cycle={profile?.application_year ? String(profile.application_year) : null}
+        // Every approved GKS notice, not a pre-filtered slice. Which ones apply
+        // depends on the saved application, which lives in localStorage and is
+        // therefore only known on the client -- so the matching happens there,
+        // against the same rule the deadline matcher uses. The approved set is
+        // small by construction (a human approves each one), so sending it
+        // whole costs nothing and avoids a second round trip.
+        liveNotices={approvedNotices}
         defaults={{
           program: readinessDefaults.program,
           track: readinessDefaults.track,

@@ -17,6 +17,7 @@ import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
 import { deadlineNoticeDataset } from "@/lib/deadlines";
+import type { PublishedGksNotice } from "@/lib/notices/published-schema";
 
 /**
  * The saved GKS application, summarised on the home page.
@@ -106,10 +107,17 @@ function requirementHref(app: SavedApplication, universityName: string, major?: 
 export function ApplicationDashboard({
   defaults,
   cycle,
+  liveNotices,
 }: {
   defaults: ProfileDefaults;
   /** The applicant's application year, so deadlines are matched to THEIR cycle. */
   cycle: string | null;
+  /**
+   * Every approved GKS notice, unfiltered. The saved application lives in
+   * localStorage, so only the client knows which program and track to match
+   * against -- the feed narrows this list itself.
+   */
+  liveNotices?: PublishedGksNotice[];
 }) {
   const raw = useSyncExternalStore(
     subscribe,
@@ -407,6 +415,7 @@ export function ApplicationDashboard({
           untracked: summary?.overall.requiredUntracked ?? 0,
           readinessHref: readinessHref(app),
         }}
+        liveNotices={liveNotices ?? []}
       />
 
       {/* ---------------- quick actions ---------------- */}
