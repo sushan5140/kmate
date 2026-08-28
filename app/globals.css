@@ -90,6 +90,28 @@ body {
   border: 2px solid var(--color-canvas);
 }
 
+/* The desktop sidebar's own scroll area. Same quiet thumb as above, but
+   narrower and with no track border: the global rule insets the thumb with a
+   2px canvas-coloured border, which is right against the page background and
+   wrong against the sidebar's white surface. At 210px wide the column also
+   can't spare 10px for a scrollbar without the thumb dominating it.
+   scrollbar-width/-color cover Firefox, which ignores ::-webkit-scrollbar. */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(18, 21, 33, 0.14) transparent;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(18, 21, 33, 0.14);
+  border-radius: 999px;
+  border: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;

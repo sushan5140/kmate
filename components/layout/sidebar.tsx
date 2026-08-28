@@ -19,7 +19,8 @@ export function Sidebar({
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[210px] flex-col border-r border-hairline bg-surface md:flex">
-      <div className="flex h-16 items-center gap-2.5 px-5">
+      {/* Pinned: the brand stays put while the nav below it scrolls. */}
+      <div className="flex h-16 shrink-0 items-center gap-2.5 px-5">
         <button type="button" aria-label="Toggle menu" className="text-ink">
           <Menu className="h-5 w-5" />
         </button>
@@ -28,7 +29,21 @@ export function Sidebar({
         </Link>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-0.5 px-3">
+      {/*
+        The scrolling region, and the whole point of this layout.
+
+        min-h-0 is the load-bearing part: a flex item defaults to
+        min-height:auto, so `flex-1` alone let this nav grow to its content's
+        full height and push past the fixed aside instead of scrolling --
+        which is exactly how the lower items (Admin, Profile) became
+        unreachable on shorter screens. min-h-0 lets it shrink below its
+        content so overflow-y-auto has something to do.
+
+        overscroll-contain stops the scroll chaining onward to the page once
+        this list hits its end, so spinning the wheel over the sidebar never
+        moves the main content.
+      */}
+      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain px-3 sidebar-scroll">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const badgeCount = item.badgeKey === "requests" ? pendingRequestsCount : 0;
@@ -55,7 +70,10 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="px-3 pb-4">
+      {/* Pinned: Admin and Profile stay reachable at any viewport height
+          without scrolling for them. shrink-0 keeps them from being squeezed
+          when the nav above is long. */}
+      <div className="shrink-0 px-3 pb-4">
         <div className="mb-2 border-t border-hairline" />
         {isAdmin && (
           <Link
