@@ -1837,3 +1837,81 @@ drop policy if exists "gks_saved_insert_own" on public.gks_saved_questions;
 create policy "gks_saved_insert_own" on public.gks_saved_questions for insert with check (auth.uid() = user_id);
 drop policy if exists "gks_saved_delete_own" on public.gks_saved_questions;
 create policy "gks_saved_delete_own" on public.gks_saved_questions for delete using (auth.uid() = user_id);
+
+-- =========================================================================
+-- Official notice review queue -- notice ingestion pipeline v1
+--
+-- Sits between discovery (public.notices, populated by the Study in Korea
+-- crawler) and KMate's verified deadline dataset.
+--
+-- The reason this is a separate table rather than columns on public.notices:
+-- public.notices is the raw official index and is world-readable. This table
+-- is editorial workflow state -- an operator's judgement about a notice, not
+-- a fact about it. Keeping them apart means a reviewer's in-progress opinion
+-- is never served to applicants, and the crawler's re-runs never touch
+-- review decisions.
+--
+-- Nothing here is ever promoted into data/deadlines-notices-data.json by
+-- code. Approval records that a human accepted the metadata; adding a
+-- verified deadline remains a source-controlled commit.
+-- =========================================================================
+create table if not exists public.notice_review_queue (
+  id uuid primary key default gen_random_uuid(),
+  -- The discovered notice this review item is about. Cascades, so purging a
+  -- notice cannot leave an orphaned review item behind.
+  notice_id uuid not null references public.notices(id) on delete cascade,
+  source_id uuid not null references public.sources(id) on delete cascade,
+
+  -- Copied from the notice at enqueue time so the queue row is self-contained
+  -- and a reviewer sees exactly what was classified, even if the official
+  -- page is later edited in place.
+  source_url text not null,
+  -- The board's own identifier (nttId) when the URL carries one; NULL otherwise.
+  source_notice_id text,
+  title text not null,
+  -- NULL whenever the notice states no date -- never inferred.
+  published_at date,
+  source_publisher text not null,
+
+  -- Classification. 'unknown'/NULL are first-class outcomes meaning the
+  -- notice did not say, NOT "we could not be bothered to look".
+  program text not null default 'unknown' check (program in ('GKS-U', 'GKS-G', 'unknown')),
+  -- NULL = the notice names no single track. Not the same as "both tracks".
+  track text check (track in ('embassy', 'university')),
+  notice_type text not null default 'other'
+    check (notice_type in ('guideline', 'result', 'schedule_change', 'deadline', 'other')),
+
+  -- Candidate dates only: [{date, kind, context, rawMatch, sourceUrl, confidence}].
+  -- A row here asserts "this date appears in the official text", never
+  -- "KMate treats this as a deadline".
+  extracted_dates jsonb not null default '[]'::jsonb,
+
+  status text not null default 'pending_review'
+    check (status in ('pending_review', 'approved', 'rejected')),
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users(id) on delete set null,
+  review_note text,
+
+  discovered_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  -- Primary dedupe key: one review item per discovered notice, enforced by
+  -- the DB so a re-run cannot queue the same notice twice even if the
+  -- application logic were wrong.
+  unique (notice_id),
+  -- Secondary dedupe key on the canonical official URL.
+  unique (source_url)
+);
+
+create index if not exists notice_review_queue_status_idx
+  on public.notice_review_queue (status, published_at desc nulls last);
+create index if not exists notice_review_queue_source_notice_id_idx
+  on public.notice_review_queue (source_notice_id);
+
+alter table public.notice_review_queue enable row level security;
+
+-- No policy at all, deliberately: this is operator workflow state, reachable
+-- only through the service-role client behind requireAdmin/isAuthorizedAdmin.
+-- Same posture as public.sources above. An RLS-respecting client -- which is
+-- every browser session -- can neither read nor write it.
