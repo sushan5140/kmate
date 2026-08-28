@@ -34,6 +34,7 @@ export interface CandidateDate {
     | "application_deadline"
     | "document_submission"
     | "result_announcement"
+    | "interview"
     | "final_university_choice"
     | "invitation_letter"
     | "unclassified";
@@ -92,6 +93,7 @@ export const CANDIDATE_KIND_LABELS: Record<CandidateDate["kind"], string> = {
   application_deadline: "Application deadline",
   document_submission: "Document submission",
   result_announcement: "Result announcement",
+  interview: "Interview",
   final_university_choice: "Final university choice",
   invitation_letter: "Invitation letter",
   unclassified: "Unclassified date",

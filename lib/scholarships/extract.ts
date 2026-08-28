@@ -1,5 +1,6 @@
 import "server-only";
 import { htmlToCleanText } from "@/lib/notices/study-in-korea";
+import { extractScholarshipDeadline } from "./deadline-extract";
 
 /**
  * Phase 2 scholarship extraction.
@@ -293,29 +294,6 @@ function findSection(sections: Record<string, string[]>, re: RegExp): string[] {
   return [];
 }
 
-/**
- * Explicit calendar dates only: "2026-09-30", "September 30, 2026",
- * "30 September 2026". A bare month, a season, or "the admission period" is
- * NOT a date and returns null rather than being resolved into one.
- */
-export function findExplicitDate(text: string): string | null {
-  const MONTHS: Record<string, number> = {
-    january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
-    july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
-  };
-  const iso = text.match(/\b(20\d{2})[-.\/](0?[1-9]|1[0-2])[-.\/](0?[1-9]|[12]\d|3[01])\b/);
-  if (iso) return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
-
-  const mdy = text.match(/\b([A-Za-z]+)\s+(\d{1,2}),?\s+(20\d{2})\b/);
-  if (mdy && MONTHS[mdy[1].toLowerCase()]) {
-    return `${mdy[3]}-${String(MONTHS[mdy[1].toLowerCase()]).padStart(2, "0")}-${mdy[2].padStart(2, "0")}`;
-  }
-  const dmy = text.match(/\b(\d{1,2})\s+([A-Za-z]+),?\s+(20\d{2})\b/);
-  if (dmy && MONTHS[dmy[2].toLowerCase()]) {
-    return `${dmy[3]}-${String(MONTHS[dmy[2].toLowerCase()]).padStart(2, "0")}-${dmy[1].padStart(2, "0")}`;
-  }
-  return null;
-}
 
 /** Returns the whole verbatim line containing an explicit GPA figure. */
 function findGpaLine(lines: string[]): string | null {
@@ -351,27 +329,19 @@ export function mapSections(raw: RawScholarship): MappedScholarship {
   const labelledApplyLines = allLines.filter((l) => /^\s*application period\s*[:：]/i.test(l));
   const applyText = [...applyLines, ...labelledApplyLines].join(" ");
 
-  // A date is only a deadline if it appears in the section about applying.
-  const explicitDate = applyText ? findExplicitDate(applyText) : null;
+  // Deadline decisions moved to ./deadline-extract, which requires a COMPLETE
+  // date labelled with explicit closing wording. The rule that used to live
+  // here -- "the first date in the apply section is the deadline" -- would read
+  // a result or interview date as an application deadline, and in practice
+  // matched nothing at all, because these pages write month-only text such as
+  // "Application Period : January".
+  const extracted = extractScholarshipDeadline(applyText);
+  const deadlineType = extracted.deadlineType;
 
-  // Literal phrasings only. "no separate process/application" and "same as
-  // admission" are printed verbatim by both registered sources.
-  // Scoped to the section about applying only. Reading "automatically" out
-  // of, say, a benefits footnote and calling the whole award automatic would
-  // be inference, not transcription.
-  const saysNoSeparateApplication = /\bno separate (?:process|application)\b/i.test(applyText);
-  // Both phrasings are printed verbatim by registered sources: KAIST says
-  // "Same as Admission Application"; SNU says "Within/During the
-  // admission(s) application period". Neither is a paraphrase.
-  const saysSameAsAdmission =
-    /\bsame as (?:the )?admission\b/i.test(applyText) ||
-    /\badmissions?\s+application\s+period\b/i.test(applyText);
-  const saysAutomatic = /\bautomatic(?:ally)?\b/i.test(applyText);
-
-  let deadlineType: MappedScholarship["deadlineType"] = null;
-  if (explicitDate) deadlineType = "fixed";
-  else if (saysSameAsAdmission) deadlineType = "admission_schedule";
-  else if (saysNoSeparateApplication || saysAutomatic) deadlineType = "automatic";
+  // Still read here for the two boolean columns below, which describe how the
+  // award is GRANTED rather than when it closes.
+  const saysNoSeparateApplication = /no separate (?:process|application)/i.test(applyText);
+  const saysAutomatic = /automatic(?:ally)?/i.test(applyText);
 
   const gpaLine = findGpaLine([...requirementLines, ...allLines]);
   const topikLine = findTopikLine([...requirementLines, ...allLines]);
@@ -388,7 +358,7 @@ export function mapSections(raw: RawScholarship): MappedScholarship {
     applicationRequired: saysNoSeparateApplication ? false : null,
     automaticConsideration: saysAutomatic || saysNoSeparateApplication ? true : null,
     // The DB additionally enforces deadline-only-when-fixed.
-    deadline: deadlineType === "fixed" ? explicitDate : null,
+    deadline: extracted.deadline,
     deadlineType,
   };
 }

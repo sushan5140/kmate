@@ -1915,3 +1915,214 @@ alter table public.notice_review_queue enable row level security;
 -- only through the service-role client behind requireAdmin/isAuthorizedAdmin.
 -- Same posture as public.sources above. An RLS-respecting client -- which is
 -- every browser session -- can neither read nor write it.
+
+-- =========================================================================
+-- Automation foundation -- scheduler health, assistant proposals, audit
+--
+-- Three concerns, deliberately separate tables:
+--   automation_runs    -- did a scheduled job actually run, and how did it go
+--   deadline_proposals -- what the assistant thinks about a candidate date
+--   content_audit_log  -- immutable record of every decision, for rollback
+--
+-- None of these is publicly readable. All three enable RLS with no policy,
+-- the same service-role-only posture as public.sources and
+-- public.notice_review_queue: reachable only through the server's
+-- service-role client behind requireAdmin / a cron secret.
+-- =========================================================================
+
+-- Source-level failure detail. The existing last_checked_at /
+-- last_successful_at pair already distinguishes "we looked" from "it
+-- worked", but the reason was thrown away and a one-off blip looked
+-- identical to a source that has been broken for a fortnight.
+alter table public.sources add column if not exists last_error text;
+alter table public.sources add column if not exists consecutive_failures integer not null default 0;
+
+-- One row per scheduled job run. This is what makes "the cron never ran"
+-- detectable at all: source freshness alone cannot distinguish a job that
+-- ran and found nothing from a job that never fired.
+create table if not exists public.automation_runs (
+  id uuid primary key default gen_random_uuid(),
+  -- Route-ish identifier, e.g. 'notice-scout', 'scholarships-freshness'.
+  job text not null,
+  started_at timestamptz not null default now(),
+  finished_at timestamptz,
+  ok boolean,
+  -- Free-form per-job counters (queued, expired, listed ...). Kept as jsonb
+  -- so a new job does not need a schema change to report its own numbers.
+  stats jsonb not null default '{}'::jsonb,
+  error text,
+  -- 'cron' when Vercel Cron invoked it, 'manual' for an admin/CLI run, so a
+  -- hand-run does not disguise a scheduler that is not firing.
+  trigger text not null default 'cron' check (trigger in ('cron', 'manual')),
+  created_at timestamptz not null default now()
+);
+create index if not exists automation_runs_job_started_idx
+  on public.automation_runs (job, started_at desc);
+
+-- The assistant's structured opinion about one candidate date on one
+-- approved notice. A row here is a PROPOSAL, never a published deadline:
+-- nothing applicant-facing reads this table.
+create table if not exists public.deadline_proposals (
+  id uuid primary key default gen_random_uuid(),
+  -- The approved notice the candidate date came from.
+  notice_id uuid not null references public.notices(id) on delete cascade,
+  queue_id uuid references public.notice_review_queue(id) on delete set null,
+
+  -- Identity of the candidate date within that notice, so re-running the
+  -- assistant updates its own proposal instead of creating a second one.
+  candidate_date date not null,
+  candidate_kind text,
+
+  classification text not null
+    check (classification in ('deadline', 'not_deadline', 'ambiguous')),
+  program text check (program in ('GKS-U', 'GKS-G')),
+  track text check (track in ('embassy', 'university')),
+  cycle integer,
+  deadline_type text
+    check (deadline_type in ('application_deadline', 'document_deadline', 'interview', 'result', 'other')),
+  scope_type text check (scope_type in ('global', 'country', 'university')),
+  country text,
+  university text,
+  proposed_date date,
+  timezone text,
+
+  confidence numeric(4, 3) not null check (confidence >= 0 and confidence <= 1),
+  -- Verbatim quote from the official notice. Never model prose.
+  evidence text not null,
+  -- Structured, human-readable justification. Never a model transcript.
+  reason text not null,
+  source_url text not null,
+
+  status text not null default 'needs_review'
+    check (status in ('needs_review', 'auto_verified', 'admin_verified', 'rejected_not_deadline', 'superseded')),
+  -- Set when this proposal replaces an earlier verified one.
+  supersedes_id uuid references public.deadline_proposals(id) on delete set null,
+
+  decided_at timestamptz,
+  decided_by uuid references auth.users(id) on delete set null,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  -- One proposal per candidate date per notice. Re-running the assistant is
+  -- therefore idempotent at the DB level, not merely by convention.
+  unique (notice_id, candidate_date, candidate_kind)
+);
+create index if not exists deadline_proposals_status_idx
+  on public.deadline_proposals (status, created_at desc);
+create index if not exists deadline_proposals_notice_idx
+  on public.deadline_proposals (notice_id);
+-- Dedupe support: the strong scope key a verified deadline is identified by.
+create index if not exists deadline_proposals_scope_idx
+  on public.deadline_proposals (program, cycle, track, scope_type, deadline_type, proposed_date);
+
+-- Immutable decision history. Append-only by convention AND by policy:
+-- nothing in the application ever updates or deletes a row here, which is
+-- what makes rollback trustworthy -- the previous snapshot is still there.
+create table if not exists public.content_audit_log (
+  id uuid primary key default gen_random_uuid(),
+  entity_type text not null,
+  entity_id uuid not null,
+  action text not null check (action in (
+    'assistant_proposed',
+    'auto_verified',
+    'admin_verified',
+    'admin_edited_verified',
+    'rejected_not_deadline',
+    'superseded',
+    'reverted'
+  )),
+  actor_type text not null check (actor_type in ('assistant', 'admin', 'system')),
+  actor_id uuid references auth.users(id) on delete set null,
+  -- Full row snapshots, so a revert restores the authoritative previous
+  -- value rather than guessing at which fields changed.
+  previous_value jsonb,
+  new_value jsonb,
+  confidence numeric(4, 3),
+  evidence text,
+  reason text,
+  source_url text,
+  created_at timestamptz not null default now()
+);
+create index if not exists content_audit_log_entity_idx
+  on public.content_audit_log (entity_type, entity_id, created_at desc);
+
+alter table public.automation_runs enable row level security;
+alter table public.deadline_proposals enable row level security;
+alter table public.content_audit_log enable row level security;
+-- No policies, deliberately: operator/editorial state, service-role only.
+
+-- =========================================================================
+-- Verified deadlines -- the authoritative live record
+--
+-- The curated dataset in data/deadlines-notices-data.json stays exactly as it
+-- is: source-controlled, edited only by a reviewed commit, never written at
+-- runtime. This table is the SECOND source the matcher reads, holding
+-- deadlines that reached verification through the assistant pipeline.
+--
+-- A row here exists only because the strict auto-verify gate passed in full,
+-- or because an admin explicitly approved a proposal. Notice approval alone
+-- does not produce one; a candidate date alone does not produce one; a
+-- needs_review or rejected_not_deadline proposal never does.
+--
+-- Publicly readable, unlike the assistant's own tables: this is applicant-
+-- facing product data, the same posture as public.notices. The columns are
+-- chosen so that nothing about the review process leaks -- no proposal
+-- reasoning, no confidence-gating internals beyond the score itself, no
+-- reviewer identity.
+-- =========================================================================
+create table if not exists public.verified_deadlines (
+  id uuid primary key default gen_random_uuid(),
+
+  -- Matcher semantics, mirroring DeadlineRecord in lib/deadlines/schema.ts.
+  program text not null check (program in ('GKS-U', 'GKS-G')),
+  -- NULL = applies across both tracks. Not the same as "no track".
+  track text check (track in ('embassy', 'university')),
+  cycle text not null,
+  deadline_type text not null
+    check (deadline_type in ('application_deadline', 'document_deadline', 'interview', 'result', 'other')),
+  label text not null,
+  deadline date not null,
+  timezone text,
+
+  -- Scope. Only 'global' rows take part in applicant matching today: there is
+  -- no trusted signal for an applicant's country, and showing one country's
+  -- embassy deadline to everyone would be worse than showing none.
+  scope_type text not null default 'global'
+    check (scope_type in ('global', 'country', 'university')),
+  country text,
+  university text,
+
+  source_url text not null,
+  source_notice_id text,
+  proposal_id uuid references public.deadline_proposals(id) on delete set null,
+
+  -- Which path created it. Both are legitimate; neither is the notice being
+  -- approved, which is precisely the distinction this column records.
+  verification_source text not null check (verification_source in ('assistant', 'admin')),
+  confidence numeric(4, 3),
+
+  status text not null default 'active' check (status in ('active', 'superseded', 'revoked')),
+  superseded_by uuid references public.verified_deadlines(id) on delete set null,
+
+  verified_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  -- One live deadline per proposal, so a re-run updates rather than duplicates.
+  unique (proposal_id)
+);
+
+create index if not exists verified_deadlines_match_idx
+  on public.verified_deadlines (status, program, cycle, track, deadline);
+create index if not exists verified_deadlines_scope_idx
+  on public.verified_deadlines (scope_type, country, university);
+
+alter table public.verified_deadlines enable row level security;
+
+-- Applicant-facing official dates, readable by anyone -- same as
+-- public.notices. Writes are service-role only: no insert/update/delete
+-- policy exists, so an RLS-respecting client can read but never modify.
+drop policy if exists "verified_deadlines_select_active" on public.verified_deadlines;
+create policy "verified_deadlines_select_active" on public.verified_deadlines
+  for select using (status = 'active');

@@ -18,6 +18,7 @@ import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
 import { deadlineNoticeDataset } from "@/lib/deadlines";
 import type { PublishedGksNotice } from "@/lib/notices/published-schema";
+import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
 
 /**
  * The saved GKS application, summarised on the home page.
@@ -108,6 +109,7 @@ export function ApplicationDashboard({
   defaults,
   cycle,
   liveNotices,
+  liveDeadlines,
 }: {
   defaults: ProfileDefaults;
   /** The applicant's application year, so deadlines are matched to THEIR cycle. */
@@ -118,6 +120,11 @@ export function ApplicationDashboard({
    * against -- the feed narrows this list itself.
    */
   liveNotices?: PublishedGksNotice[];
+  /**
+   * Verified deadlines from the database. Merged with the curated dataset by
+   * the matcher, which keeps one place computing upcoming vs historical.
+   */
+  liveDeadlines?: LiveVerifiedDeadline[];
 }) {
   const raw = useSyncExternalStore(
     subscribe,
@@ -416,6 +423,7 @@ export function ApplicationDashboard({
           readinessHref: readinessHref(app),
         }}
         liveNotices={liveNotices ?? []}
+        liveDeadlines={liveDeadlines ?? []}
       />
 
       {/* ---------------- quick actions ---------------- */}

@@ -42,6 +42,17 @@ const KIND_CUES: { kind: CandidateDate["kind"]; patterns: RegExp[] }[] = [
     ],
   },
   {
+    kind: "interview",
+    patterns: [
+      // An interview date is a real, correctly-typed schedule fact. Typing it
+      // is what stops it being read as an application deadline -- it used to
+      // fall through as "unclassified", which was safe but uninformative.
+      /\binterviews?\b/i,
+      /\boral (?:test|examination|exam)\b/i,
+      /\b면접\b/,
+    ],
+  },
+  {
     kind: "result_announcement",
     patterns: [
       /announcement of (the )?results?/i,

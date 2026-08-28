@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
+import { isExpiredNow } from "@/lib/scholarships/lifecycle";
 
 export const metadata: Metadata = {
   title: "University Scholarships — KMate",
@@ -65,7 +66,17 @@ export default async function ScholarshipsPage() {
     .order("scholarship_name", { ascending: true })
     .limit(100);
 
-  const rows = (data ?? []) as ScholarshipRow[];
+  // Read-time safety net. The stored `status` column is written only by the
+  // freshness cron; when that job stops running (it had not succeeded in two
+  // weeks before this change) a scholarship whose deadline has passed keeps
+  // status = 'active' and stays on this page indefinitely. Re-deriving the
+  // rule here means a clearly expired fixed-deadline award disappears even if
+  // the scheduler is broken.
+  //
+  // Only ever REMOVES rows. It never resurrects one the cron has expired, and
+  // it never expires a null/admission_schedule/automatic record -- those have
+  // no stated end and must not be aged out on a guess.
+  const rows = ((data ?? []) as ScholarshipRow[]).filter((s) => !isExpiredNow(s));
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">

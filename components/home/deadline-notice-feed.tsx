@@ -6,6 +6,8 @@ import { AlertTriangle, ArrowRight, CalendarClock, ExternalLink, History, Megaph
 import { Card, MicroLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { getApplicationNotices, deadlineNoticeDataset } from "@/lib/deadlines";
+import { useUtcDateKey } from "@/lib/hooks/use-date-key";
+import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
 import {
   noticeAppliesTo,
   dedupeAgainstStatic,
@@ -61,6 +63,7 @@ export function DeadlineNoticeFeed({
   cycle,
   attention,
   liveNotices = [],
+  liveDeadlines = [],
 }: {
   program: "GKS-U" | "GKS-G";
   track?: "embassy" | "university";
@@ -72,11 +75,22 @@ export function DeadlineNoticeFeed({
    * the curated static dataset -- they never replace it. See the merge below.
    */
   liveNotices?: PublishedGksNotice[];
+  /** Verified deadlines from the database, merged in by the matcher. */
+  liveDeadlines?: LiveVerifiedDeadline[];
 }) {
-  const feed = useMemo(
-    () => getApplicationNotices({ program, ...(track ? { track } : {}), cycle }),
-    [program, track, cycle]
-  );
+  // Changes exactly once per UTC day, which is what moves a deadline from
+  // upcoming to historical without waiting for an unrelated re-render. None
+  // of the other memo keys change as time passes, so without this a tab left
+  // open across a deadline boundary kept showing "due today" indefinitely.
+  const dateKey = useUtcDateKey();
+
+  const feed = useMemo(() => {
+    // Read so the memo genuinely depends on the day: the matcher still uses
+    // the real current time, but this forces a fresh evaluation the moment
+    // the UTC date rolls over rather than only on an unrelated re-render.
+    void dateKey;
+    return getApplicationNotices({ program, ...(track ? { track } : {}), cycle, live: liveDeadlines });
+  }, [program, track, cycle, dateKey, liveDeadlines]);
 
   const next = feed.upcoming[0] ?? null;
   const past = feed.historical;

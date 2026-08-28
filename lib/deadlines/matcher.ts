@@ -1,10 +1,17 @@
 import type { DeadlineNoticeDataset, DeadlineRecord, NoticeRecord, NoticeProgram, NoticeTrack, OfficialSource } from "./schema";
+import { mergeWithStatic, toDeadlineRecord, type LiveVerifiedDeadline, type StaticLiveConflict } from "./live-schema";
 
 export interface NoticeMatchInput {
   program: NoticeProgram;
   track?: NoticeTrack;
   cycle?: string;
   now?: Date;
+  /**
+   * Verified deadlines from the database. Optional, and absent means the
+   * behaviour is byte-for-byte what it was before live deadlines existed --
+   * which is what keeps every existing caller and test valid.
+   */
+  live?: LiveVerifiedDeadline[];
 }
 
 export interface MatchedDeadline extends DeadlineRecord {
@@ -51,10 +58,34 @@ export function matchDeadlineNoticeFeed(dataset: DeadlineNoticeDataset, input: N
     })
     .sort((a, b) => b.published_at.localeCompare(a.published_at));
 
+  // Live verified deadlines join the SAME upcoming/historical split, so a
+  // date that came through the assistant ages exactly like a curated one.
+  // The curated record wins any disagreement: a live row identical to one is
+  // dropped as a duplicate, and one that contradicts a curated date is
+  // dropped as a conflict and reported rather than shown beside it.
+  const matchedLive = (input.live ?? []).filter(
+    (d) =>
+      d.program === input.program &&
+      d.cycle === cycle &&
+      (d.track === null || !input.track || d.track === input.track)
+  );
+  const merged = mergeWithStatic(matchedLive, deadlines);
+
+  const liveDeadlines: MatchedDeadline[] = merged.live.map((d) => {
+    const record = toDeadlineRecord(d);
+    const end = new Date(`${record.deadline}T23:59:59Z`);
+    const daysUntil = Math.ceil((end.getTime() - now.getTime()) / DAY_MS);
+    return { ...record, isPast: daysUntil < 0, daysUntil };
+  });
+
+  const all = [...deadlines, ...liveDeadlines].sort((a, b) => a.deadline.localeCompare(b.deadline));
+
   return {
-    upcoming: deadlines.filter((d) => !d.isPast),
-    historical: deadlines.filter((d) => d.isPast),
-    notices
+    upcoming: all.filter((d) => !d.isPast),
+    historical: all.filter((d) => d.isPast),
+    notices,
+    /** Live rows withheld because a curated record contradicts them. */
+    conflicts: merged.conflicts as StaticLiveConflict[],
   };
 }
 

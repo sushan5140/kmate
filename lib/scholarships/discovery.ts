@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { classifyScholarshipLifecycle } from "./lifecycle";
 import {
   parseKaistScholarshipPage,
   parseKaistProseScholarshipPage,
@@ -298,11 +299,6 @@ export async function runScholarshipFreshness(today: Date = new Date()): Promise
     .select("id, deadline, deadline_type, status, is_active");
   if (error) throw new Error(`loading scholarships failed: ${error.message}`);
 
-  const todayStr = today.toISOString().slice(0, 10);
-  const soonCutoff = new Date(today);
-  soonCutoff.setUTCDate(soonCutoff.getUTCDate() + EXPIRING_SOON_DAYS);
-  const soonStr = soonCutoff.toISOString().slice(0, 10);
-
   const out: FreshnessResult = {
     evaluated: rows?.length ?? 0,
     toActive: 0,
@@ -312,36 +308,21 @@ export async function runScholarshipFreshness(today: Date = new Date()): Promise
   };
 
   for (const r of rows ?? []) {
-    // No fixed date means there is nothing to compare against -- these stay
-    // active indefinitely rather than being aged out on a guess.
-    if (r.deadline_type !== "fixed" || !r.deadline) {
-      out.skippedNoFixedDeadline++;
-      if (r.status !== "active" || r.is_active !== true) {
-        await admin.from("scholarships").update({ status: "active", is_active: true, updated_at: new Date().toISOString() }).eq("id", r.id);
-        out.toActive++;
-      }
-      continue;
-    }
+    // The rule itself now lives in ./lifecycle, shared with the listing
+    // page's read-time fallback. One rule, two callers -- so a stale stored
+    // status can never disagree with what the page decides to show.
+    const { status, isActive } = classifyScholarshipLifecycle(r, today);
 
-    let status: "active" | "expiring_soon" | "expired";
-    let isActive = true;
-    if (r.deadline < todayStr) {
-      status = "expired";
-      isActive = false;
-    } else if (r.deadline <= soonStr) {
-      status = "expiring_soon";
-    } else {
-      status = "active";
-    }
+    if (r.deadline_type !== 'fixed' || !r.deadline) out.skippedNoFixedDeadline++;
 
     if (r.status !== status || r.is_active !== isActive) {
       const { error: updateError } = await admin
-        .from("scholarships")
+        .from('scholarships')
         .update({ status, is_active: isActive, updated_at: new Date().toISOString() })
-        .eq("id", r.id);
+        .eq('id', r.id);
       if (!updateError) {
-        if (status === "active") out.toActive++;
-        else if (status === "expiring_soon") out.toExpiringSoon++;
+        if (status === 'active') out.toActive++;
+        else if (status === 'expiring_soon') out.toExpiringSoon++;
         else out.toExpired++;
       }
     }

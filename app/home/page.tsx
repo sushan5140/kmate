@@ -31,6 +31,7 @@ import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import { ApplicationDashboard } from "@/components/home/application-dashboard";
 import { getApprovedGksNotices } from "@/lib/notices/published";
+import { getLiveVerifiedDeadlines } from "@/lib/deadlines/live";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import type { Track } from "@/lib/constants";
 
@@ -151,6 +152,11 @@ export default async function HomePage() {
   // safe projection of its approved rows travels to the client.
   const approvedNotices = await getApprovedGksNotices();
 
+  // Verified deadlines held in the database, merged with the curated dataset
+  // by the matcher. Only status='active' rows are returned, so a revoked or
+  // superseded verification stops reaching applicants immediately.
+  const liveDeadlines = await getLiveVerifiedDeadlines();
+
   const scholarshipPool = newestScholarships ?? [];
   const spotlight = pickSpotlight(scholarshipPool, user.id);
 
@@ -200,6 +206,7 @@ export default async function HomePage() {
         // small by construction (a human approves each one), so sending it
         // whole costs nothing and avoids a second round trip.
         liveNotices={approvedNotices}
+        liveDeadlines={liveDeadlines}
         defaults={{
           program: readinessDefaults.program,
           track: readinessDefaults.track,
