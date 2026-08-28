@@ -15,6 +15,8 @@ import { buildApplicationDashboardSummary } from "@/lib/applications/summary";
 import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applications/summary";
 import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
+import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
+import { deadlineNoticeDataset } from "@/lib/deadlines";
 
 /**
  * The saved GKS application, summarised on the home page.
@@ -101,7 +103,14 @@ function requirementHref(app: SavedApplication, universityName: string, major?: 
   return `/requirement-checker?${p.toString()}`;
 }
 
-export function ApplicationDashboard({ defaults }: { defaults: ProfileDefaults }) {
+export function ApplicationDashboard({
+  defaults,
+  cycle,
+}: {
+  defaults: ProfileDefaults;
+  /** The applicant's application year, so deadlines are matched to THEIR cycle. */
+  cycle: string | null;
+}) {
   const raw = useSyncExternalStore(
     subscribe,
     () => readRaw(SAVED_APPLICATIONS_STORAGE_KEY),
@@ -383,6 +392,22 @@ export function ApplicationDashboard({ defaults }: { defaults: ProfileDefaults }
           </div>
         </div>
       )}
+
+      {/* ---------------- deadlines and notices ---------------- */}
+      {/* Only rendered with a saved application: without a program and track
+          there is nothing to match against, and guessing one would be exactly
+          the inference this feature forbids. A profile with no application
+          year falls back to the dataset's own cycle rather than inventing one. */}
+      <DeadlineNoticeFeed
+        program={app.program}
+        track={app.track}
+        cycle={cycle ?? deadlineNoticeDataset.generated_for_cycle}
+        attention={{
+          missing: summary?.overall.requiredMissing ?? 0,
+          untracked: summary?.overall.requiredUntracked ?? 0,
+          readinessHref: readinessHref(app),
+        }}
+      />
 
       {/* ---------------- quick actions ---------------- */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

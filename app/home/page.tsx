@@ -186,6 +186,7 @@ export default async function HomePage() {
       </Card>
 
       <ApplicationDashboard
+        cycle={profile?.application_year ? String(profile.application_year) : null}
         defaults={{
           program: readinessDefaults.program,
           track: readinessDefaults.track,

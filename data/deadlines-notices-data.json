@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0.0",
+  "generated_for_cycle": "2026",
+  "policy": {
+    "official_only": true,
+    "never_infer_future_cycle_dates": true,
+    "expired_deadlines_are_historical": true,
+    "country_or_university_deadlines_require_matching_official_source": true
+  },
+  "sources": [
+    {
+      "id": "gks_u_2026_guidelines",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2026 GKS-U Application Guidelines",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4385",
+      "published_at": "2025-09-05"
+    },
+    {
+      "id": "gks_u_2026_embassy_round3",
+      "publisher": "NIIED / Study in Korea",
+      "title": "[Embassy Track-3rd Round Result] 2026 GKS Undergraduate Degree Program",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4413",
+      "published_at": "2025-12-26"
+    },
+    {
+      "id": "gks_u_2026_university_round2",
+      "publisher": "NIIED / Study in Korea",
+      "title": "[University Track-2nd Round Result] 2026 GKS Undergraduate Degree Program",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4412",
+      "published_at": "2025-12-24"
+    },
+    {
+      "id": "gks_u_2026_final",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2026 GKS-U Final Result Announcement",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4417",
+      "published_at": "2026-01-09"
+    },
+    {
+      "id": "gks_g_2026_embassy_round2",
+      "publisher": "NIIED / Study in Korea",
+      "title": "[Embassy Track-2nd Round Result] 2026 GKS Graduate Degree Program",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4494",
+      "published_at": "2026-05-04"
+    },
+    {
+      "id": "gks_g_2026_university_round2",
+      "publisher": "NIIED / Study in Korea",
+      "title": "[REVISED_University Track-2nd Round Result] 2026 GKS Graduate Degree Program",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4505",
+      "published_at": "2026-06-11"
+    },
+    {
+      "id": "gks_g_2026_final",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2026 GKS-G Final Result Announcement",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4509",
+      "published_at": "2026-07-01"
+    },
+    {
+      "id": "gks_g_2026_invitation_delay",
+      "publisher": "NIIED / Study in Korea",
+      "title": "Notice on the Revised Schedule for Issuance of 2026 GKS-G Invitation Letters",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4514",
+      "published_at": "2026-07-10"
+    }
+  ],
+  "deadlines": [
+    {
+      "id": "gks_u_2026_expected_graduation",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": "embassy",
+      "scope": "post_selection",
+      "label": "Expected graduation certificate and academic transcript",
+      "deadline": "2025-12-31",
+      "status": "verified",
+      "source_id": "gks_u_2026_embassy_round3",
+      "notes": "For applicable successful candidates after the Embassy Track third-round result."
+    },
+    {
+      "id": "gks_u_2026_topik_56",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": "embassy",
+      "scope": "post_selection",
+      "label": "TOPIK Level 5 or 6 submission",
+      "deadline": "2025-12-31",
+      "status": "verified",
+      "source_id": "gks_u_2026_embassy_round3",
+      "notes": "For applicable successful candidates."
+    },
+    {
+      "id": "gks_u_2026_final_university_choice",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": "embassy",
+      "scope": "post_selection",
+      "label": "Final choice of university",
+      "deadline": "2026-01-02",
+      "status": "verified",
+      "source_id": "gks_u_2026_embassy_round3"
+    }
+  ],
+  "notices": [
+    {
+      "id": "notice_u_guidelines",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": null,
+      "type": "guideline",
+      "title": "2026 GKS-U Application Guidelines",
+      "published_at": "2025-09-05",
+      "source_id": "gks_u_2026_guidelines",
+      "importance": "high"
+    },
+    {
+      "id": "notice_u_embassy_r3",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": "embassy",
+      "type": "result",
+      "title": "2026 GKS-U Embassy Track third-round result",
+      "published_at": "2025-12-26",
+      "source_id": "gks_u_2026_embassy_round3",
+      "importance": "high"
+    },
+    {
+      "id": "notice_u_university_r2",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": "university",
+      "type": "result",
+      "title": "2026 GKS-U University Track second-round result",
+      "published_at": "2025-12-24",
+      "source_id": "gks_u_2026_university_round2",
+      "importance": "high"
+    },
+    {
+      "id": "notice_u_final",
+      "program": "GKS-U",
+      "cycle": "2026",
+      "track": null,
+      "type": "result",
+      "title": "2026 GKS-U final result announcement",
+      "published_at": "2026-01-09",
+      "source_id": "gks_u_2026_final",
+      "importance": "high"
+    },
+    {
+      "id": "notice_g_embassy_r2",
+      "program": "GKS-G",
+      "cycle": "2026",
+      "track": "embassy",
+      "type": "result",
+      "title": "2026 GKS-G Embassy Track second-round result",
+      "published_at": "2026-05-04",
+      "source_id": "gks_g_2026_embassy_round2",
+      "importance": "high"
+    },
+    {
+      "id": "notice_g_university_r2",
+      "program": "GKS-G",
+      "cycle": "2026",
+      "track": "university",
+      "type": "result",
+      "title": "2026 GKS-G University Track second-round result (revised)",
+      "published_at": "2026-06-11",
+      "source_id": "gks_g_2026_university_round2",
+      "importance": "high"
+    },
+    {
+      "id": "notice_g_final",
+      "program": "GKS-G",
+      "cycle": "2026",
+      "track": null,
+      "type": "result",
+      "title": "2026 GKS-G final result announcement",
+      "published_at": "2026-07-01",
+      "source_id": "gks_g_2026_final",
+      "importance": "high"
+    },
+    {
+      "id": "notice_g_invitation_delay",
+      "program": "GKS-G",
+      "cycle": "2026",
+      "track": null,
+      "type": "schedule_change",
+      "title": "2026 GKS-G invitation-letter schedule revised",
+      "published_at": "2026-07-10",
+      "source_id": "gks_g_2026_invitation_delay",
+      "importance": "high"
+    }
+  ]
+}
