@@ -3,6 +3,7 @@ import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-ser
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getQueueRow, recordEvent } from "@/lib/youtube/queue";
+import { isOpportunityType, isPriority, promotionCategoryOf } from "@/lib/youtube/classify";
 import {
   DECISION_ACTIONS,
   approveRefusal,
@@ -29,8 +30,11 @@ import {
 const MAX_DRAFT_LENGTH = 9500; // YouTube's comment ceiling is 10k characters.
 
 type Body =
-  | { action: DecisionAction; draft?: never }
-  | { action: "edit_draft"; draft: string };
+  | { action: DecisionAction }
+  | { action: "edit_draft"; draft: string }
+  | { action: "set_priority"; priority: string }
+  | { action: "set_opportunity"; opportunity_type: string }
+  | { action: "set_follow_up"; manual_follow_up: boolean };
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
@@ -55,6 +59,58 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const admin = getSupabaseAdmin();
   const now = new Date().toISOString();
 
+  // ---- triage -----------------------------------------------------------
+  // Descriptive fields. None of these can make a row postable: postRefusal()
+  // does not read priority or opportunity_type at all, and manual_follow_up
+  // only ever REMOVES a row from posting. So these are editable in any state
+  // except the ones where the row is already gone or in flight.
+  if (
+    body.action === "set_priority" ||
+    body.action === "set_opportunity" ||
+    body.action === "set_follow_up"
+  ) {
+    if (row.status === "POSTING") {
+      return NextResponse.json({ error: "in_flight", status: row.status }, { status: 409 });
+    }
+
+    const patch: Record<string, unknown> = { updated_at: now };
+    let detail: Record<string, unknown> = {};
+
+    if (body.action === "set_priority") {
+      if (!isPriority(body.priority)) {
+        return NextResponse.json({ error: "invalid_priority" }, { status: 400 });
+      }
+      patch.priority = body.priority;
+      detail = { priority: body.priority };
+    } else if (body.action === "set_opportunity") {
+      if (!isOpportunityType(body.opportunity_type)) {
+        return NextResponse.json({ error: "invalid_opportunity_type" }, { status: 400 });
+      }
+      patch.opportunity_type = body.opportunity_type;
+      detail = { opportunity_type: body.opportunity_type };
+    } else {
+      if (typeof body.manual_follow_up !== "boolean") {
+        return NextResponse.json({ error: "invalid_body" }, { status: 400 });
+      }
+      patch.manual_follow_up = body.manual_follow_up;
+      detail = { manual_follow_up: body.manual_follow_up };
+    }
+
+    const { error } = await admin.from("youtube_reply_queue").update(patch).eq("id", id);
+    if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
+
+    // Recorded as a draft-edit event: it is an admin annotation, not a status
+    // change, and the status columns stay null to say so.
+    await recordEvent({
+      queueId: id,
+      eventType: "DRAFT_EDITED",
+      actorUserId: user.id,
+      metadata: { triage: true, ...detail },
+    });
+
+    return NextResponse.json({ ok: true, ...detail });
+  }
+
   // ---- draft edit ------------------------------------------------------
   if (body.action === "edit_draft") {
     if (typeof body.draft !== "string") {
@@ -73,9 +129,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // the record of what arrived. An edit on an untouched row also moves it
     // out of SCRAPED, since a human has now looked at it.
     const nextStatus = row.status === "SCRAPED" ? "DRAFTED" : row.status;
+    // Re-derived from the text the admin just wrote, so the category can never
+    // drift away from what the reply actually says. Reporting only -- it does
+    // not alter the draft and does not gate posting.
+    const promotionCategory = promotionCategoryOf(draft);
+
     const { error } = await admin
       .from("youtube_reply_queue")
-      .update({ edited_draft: draft, status: nextStatus, updated_at: now })
+      .update({
+        edited_draft: draft,
+        status: nextStatus,
+        promotion_category: promotionCategory,
+        updated_at: now,
+      })
       .eq("id", id);
 
     if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
@@ -86,10 +152,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       fromStatus: row.status,
       toStatus: nextStatus,
       actorUserId: user.id,
-      metadata: { length: draft.length },
+      metadata: { length: draft.length, promotion_category: promotionCategory },
     });
 
-    return NextResponse.json({ ok: true, status: nextStatus });
+    return NextResponse.json({ ok: true, status: nextStatus, promotion_category: promotionCategory });
   }
 
   // ---- status decisions -------------------------------------------------

@@ -2324,3 +2324,93 @@ alter table public.youtube_reply_events enable row level security;
 -- No policy on any of the three, deliberately. Same service-role-only
 -- posture as public.notice_review_queue: an RLS-respecting client -- which
 -- is every browser session -- can neither read nor write them.
+
+-- =========================================================================
+-- YouTube Outreach -- daily workspace, triage and analytics
+--
+-- Additive only. Every column here is a persistent FACT about one reply, so
+-- daily figures stay derivable from timestamps: there are no per-day copies
+-- of queue rows, no rollover job, and no "carried forward" flag to rewrite
+-- each night. A day is a range of UTC instants, converted in the admin's
+-- timezone at read time (see lib/youtube/day-window.ts).
+--
+-- None of these columns can make a row postable. The posting route reads
+-- status, is_legacy, posted_reply_id, source_type, automation_action and
+-- manual_follow_up -- priority, tags and categories are descriptive only.
+-- =========================================================================
+
+-- When the scout found the comment, and when the comment itself was written.
+-- discovered_at drives the daily workspace; comment_posted_at drives the age
+-- column and newest/oldest sorting. Both default to NULL rather than now(),
+-- so a sheet that omits them says "unknown" instead of "just now".
+alter table public.youtube_reply_queue add column if not exists discovered_at timestamptz;
+alter table public.youtube_reply_queue add column if not exists comment_posted_at timestamptz;
+
+-- Backfill: existing rows were discovered when they were imported. Only ever
+-- fills NULLs, so re-running never overwrites a real value.
+update public.youtube_reply_queue set discovered_at = created_at where discovered_at is null;
+
+alter table public.youtube_reply_queue
+  add column if not exists priority text not null default 'MEDIUM'
+  check (priority in ('HIGH', 'MEDIUM', 'LOW'));
+
+-- What the ORIGINAL question is about. Distinct from whether the reply
+-- mentions KMate, which is promotion_category below.
+alter table public.youtube_reply_queue
+  add column if not exists opportunity_type text
+  check (opportunity_type in ('GKS', 'GENERAL'));
+
+-- What the reply DOES: answers, names KMate, or carries a link. Derived from
+-- the draft text and recomputed whenever the draft is edited.
+alter table public.youtube_reply_queue
+  add column if not exists promotion_category text not null default 'ANSWER_ONLY'
+  check (promotion_category in ('ANSWER_ONLY', 'KMATE_MENTION', 'KMATE_LINK'));
+
+-- "I will answer this one myself." Excluded from every posting path.
+alter table public.youtube_reply_queue
+  add column if not exists manual_follow_up boolean not null default false;
+
+-- Which KMate features the question touches. Informational; never a trigger.
+alter table public.youtube_reply_queue
+  add column if not exists feature_tags text[] not null default '{}'::text[];
+
+-- The channel the comment came from. channel_title already exists and is what
+-- the sheet provides; the id is kept for when a future scout emits it.
+alter table public.youtube_reply_queue add column if not exists source_channel_id text;
+
+-- Indexes for the daily views. Each daily figure is a range scan over one of
+-- these timestamps, so they are the difference between a dashboard that costs
+-- nothing and one that reads the table five times per page.
+create index if not exists youtube_reply_queue_discovered_idx
+  on public.youtube_reply_queue (discovered_at desc);
+create index if not exists youtube_reply_queue_decided_idx
+  on public.youtube_reply_queue (decided_at desc)
+  where decided_at is not null;
+create index if not exists youtube_reply_queue_verified_idx
+  on public.youtube_reply_queue (verified_at desc)
+  where verified_at is not null;
+create index if not exists youtube_reply_queue_removed_idx
+  on public.youtube_reply_queue (removed_detected_at desc)
+  where removed_detected_at is not null;
+create index if not exists youtube_reply_queue_priority_idx
+  on public.youtube_reply_queue (priority, discovered_at desc);
+create index if not exists youtube_reply_queue_channel_idx
+  on public.youtube_reply_queue (channel_title);
+-- Drives the batch picker: postable rows, best first.
+create index if not exists youtube_reply_queue_postable_idx
+  on public.youtube_reply_queue (status, manual_follow_up, priority, discovered_at);
+
+-- One optional note per day. Purely a message from the admin to themselves --
+-- nothing reads it to decide anything, and no posting rule consults it.
+create table if not exists public.youtube_daily_notes (
+  day date primary key,
+  note text not null,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.youtube_daily_notes enable row level security;
+
+-- No policy, deliberately: same service-role-only posture as the other three
+-- youtube_reply_* tables and public.notice_review_queue.

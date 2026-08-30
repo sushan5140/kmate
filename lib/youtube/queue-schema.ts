@@ -45,7 +45,13 @@ export const YOUTUBE_EVENT_TYPES = [
 
 export type YoutubeEventType = (typeof YOUTUBE_EVENT_TYPES)[number];
 
-/** Safety ceiling on replies per rolling 24h. Overridden by YOUTUBE_DAILY_POST_LIMIT. */
+/**
+ * Safety ceiling on replies. Overridden by YOUTUBE_DAILY_POST_LIMIT.
+ *
+ * Applied to BOTH windows -- the local calendar day and a rolling 24 hours --
+ * so "no more than five a day" holds for either reading of "day". See
+ * batchAllowance() for why one number governs both.
+ */
 export const DEFAULT_DAILY_POST_LIMIT = 5;
 
 /**
@@ -109,6 +115,12 @@ export interface QueueRowFacts {
   posted_reply_id: string | null;
   is_legacy: boolean;
   api_accepted_at: string | null;
+  /**
+   * The admin intends to answer this one personally. Excludes the row from
+   * posting entirely -- single and batch alike -- because "I will handle this
+   * myself" is not a preference the batch should be free to overrule.
+   */
+  manual_follow_up: boolean;
 }
 
 /** The text that would actually be posted: an admin edit wins over the import. */
@@ -161,15 +173,36 @@ export function canApprove(row: QueueRowFacts): boolean {
  * immediately before the API call. The request body carries no comment id and
  * no reply text, so this predicate -- not the browser -- decides what posts.
  */
+export type PostRefusal =
+  | "not_approved"
+  | "legacy"
+  | "already_posted"
+  | "not_top_level"
+  | "action_not_post"
+  | "no_draft"
+  | "manual_follow_up";
+
+/**
+ * Why this row may not be posted, or null when it may.
+ *
+ * Every batch member is re-checked against this, individually, immediately
+ * before its own API call -- a row's presence in a requested batch grants it
+ * nothing. The reason is returned rather than a bare boolean so the batch
+ * report and the UI can both say precisely why a row was passed over.
+ */
+export function postRefusal(row: QueueRowFacts): PostRefusal | null {
+  if (row.status !== "APPROVED") return "not_approved";
+  if (row.is_legacy) return "legacy";
+  if (row.posted_reply_id) return "already_posted";
+  if (row.source_type !== "comment") return "not_top_level";
+  if (row.automation_action !== "POST") return "action_not_post";
+  if (row.manual_follow_up) return "manual_follow_up";
+  if (!resolveDraft(row)) return "no_draft";
+  return null;
+}
+
 export function canPost(row: QueueRowFacts): boolean {
-  return (
-    row.status === "APPROVED" &&
-    !row.is_legacy &&
-    !row.posted_reply_id &&
-    row.source_type === "comment" &&
-    row.automation_action === "POST" &&
-    resolveDraft(row).length > 0
-  );
+  return postRefusal(row) === null;
 }
 
 /** hold / skip are refused only where they would contradict a posted reality. */
@@ -238,6 +271,91 @@ export function readPositiveIntEnv(raw: string | undefined, fallback: number): n
   const n = Number(raw.trim());
   if (!Number.isFinite(n) || !Number.isInteger(n) || n <= 0) return fallback;
   return n;
+}
+
+/** Upper bound on rows one manually-triggered batch may even ask for. */
+export const MAX_BATCH_REQUEST = 25;
+
+export interface BatchAllowance {
+  /** The configured ceiling, applied to BOTH windows. */
+  limit: number;
+
+  /** Sent or in flight inside the local calendar day. */
+  dayUsed: number;
+  /** limit - dayUsed, never negative. */
+  dayRemaining: number;
+
+  /** Sent or in flight inside the last rolling 24 hours. */
+  rollingUsed: number;
+  /** limit - rollingUsed, never negative. */
+  rollingRemaining: number;
+
+  /** min(dayRemaining, rollingRemaining) -- what may actually be sent now. */
+  effectiveRemaining: number;
+
+  /** How many rows pass every safety check right now. */
+  eligible: number;
+  /** The largest batch that could be run at this moment. */
+  maxBatch: number;
+}
+
+/**
+ * What a batch is allowed to be, right now.
+ *
+ * TWO ceilings on volume, not one, and the stricter always wins.
+ *
+ * The calendar-day window is what the admin sees: it matches the Today
+ * dashboard, so "4 / 5 today" means the same thing on screen and on the
+ * server. On its own, though, it resets at local midnight -- which would
+ * permit five replies at 23:55 and five more at 00:05, ten inside ten
+ * minutes. That is a burst, and bursting is the exact behaviour this feature
+ * exists to replace.
+ *
+ * So a rolling 24-hour window sits underneath as a backstop. It has no
+ * boundary to reset across, and it uses the same YOUTUBE_DAILY_POST_LIMIT: a
+ * second variable would be one more thing to misconfigure for no gain, and
+ * the intent of both is identical -- "no more than N replies in a day, for
+ * any reading of the word day".
+ *
+ * The dashboard may therefore show a day allowance the server will refuse.
+ * That is intended and surfaced, not hidden: after a late-night run the day
+ * counter reads 0 / 5 while the effective allowance is still 0 until those
+ * replies age out of the rolling window.
+ *
+ * Both windows count accepted replies AND in-flight POSTING claims, and a
+ * reply later found REMOVED still counts -- the ceiling limits what was sent,
+ * so a removal cannot buy back an attempt.
+ *
+ * This is only a plan. The posting loop re-derives the whole allowance from
+ * the database before every single row, so a stale or forged plan cannot buy
+ * one extra reply.
+ */
+export function batchAllowance(
+  limit: number,
+  dayUsed: number,
+  rollingUsed: number,
+  eligible: number
+): BatchAllowance {
+  const dayRemaining = Math.max(0, limit - dayUsed);
+  const rollingRemaining = Math.max(0, limit - rollingUsed);
+  const effectiveRemaining = Math.min(dayRemaining, rollingRemaining);
+
+  return {
+    limit,
+    dayUsed,
+    dayRemaining,
+    rollingUsed,
+    rollingRemaining,
+    effectiveRemaining,
+    eligible,
+    maxBatch: Math.min(effectiveRemaining, eligible, MAX_BATCH_REQUEST),
+  };
+}
+
+/** Clamps a requested batch size to what is actually permitted. */
+export function clampBatchSize(requested: number, allowance: BatchAllowance): number {
+  if (!Number.isFinite(requested) || !Number.isInteger(requested) || requested <= 0) return 0;
+  return Math.min(requested, allowance.maxBatch);
 }
 
 /** Presentation grouping: API_ACCEPTED must never render as success. */

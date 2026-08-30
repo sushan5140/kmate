@@ -70,6 +70,7 @@ const postable = (over: Partial<QueueRowFacts> = {}): QueueRowFacts => ({
   posted_reply_id: null,
   is_legacy: false,
   api_accepted_at: null,
+  manual_follow_up: false,
   ...over,
 });
 

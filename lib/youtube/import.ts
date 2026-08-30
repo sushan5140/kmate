@@ -18,6 +18,16 @@
  */
 
 import type { YoutubeReplyStatus } from "./queue-schema";
+import {
+  featureTagsFor,
+  opportunityTypeFrom,
+  priorityFromImport,
+  promotionCategoryOf,
+  type KmateFeature,
+  type OpportunityType,
+  type Priority,
+  type PromotionCategory,
+} from "./classify";
 
 /** The only columns read out of the sheet. Anything else is ignored. */
 export const ALLOWED_COLUMNS = [
@@ -31,6 +41,8 @@ export const ALLOWED_COLUMNS = [
   "username",
   "raw_text",
   "topic",
+  "captured_at",
+  "posted_at",
   "score",
   "confidence",
   "reply_status",
@@ -72,6 +84,12 @@ export interface ImportCandidate {
   best_choice: string | null;
   final_draft: string | null;
   automation_action: string | null;
+  discovered_at: string | null;
+  comment_posted_at: string | null;
+  priority: Priority;
+  opportunity_type: OpportunityType;
+  promotion_category: PromotionCategory;
+  feature_tags: KmateFeature[];
   status: YoutubeReplyStatus;
   eligible: boolean;
 }
@@ -102,6 +120,19 @@ const text = (cell: Cell): string | null => {
   if (cell instanceof Date) return cell.toISOString();
   const s = String(cell).trim();
   return s.length ? s : null;
+};
+
+/**
+ * A cell that should be an instant. Excel may hand back a Date object or the
+ * ISO string the scout wrote; anything unparseable becomes null rather than a
+ * guessed timestamp, because a wrong discovered_at would put a row in the
+ * wrong day for the rest of its life.
+ */
+const instant = (cell: Cell): string | null => {
+  if (cell === null || cell === undefined || cell === "") return null;
+  if (cell instanceof Date) return Number.isNaN(cell.getTime()) ? null : cell.toISOString();
+  const parsed = new Date(String(cell).trim());
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
 };
 
 const num = (cell: Cell): number | null => {
@@ -240,6 +271,18 @@ export function parseSheet(matrix: SheetMatrix): ParsedSheet {
       best_choice: text(at(row, "best_choice")),
       final_draft,
       automation_action,
+      // The scout's capture time is the row's birthday, and the daily
+      // workspace is built on it. Falling back to null (not "now") keeps a
+      // sheet without the column out of today's counts rather than flooding
+      // them; the insert layer supplies created_at as the last resort.
+      discovered_at: instant(at(row, "captured_at")),
+      comment_posted_at: instant(at(row, "posted_at")),
+      priority: priorityFromImport(text(at(row, "confidence")), num(at(row, "score"))),
+      opportunity_type: opportunityTypeFrom(text(at(row, "raw_text")), text(at(row, "topic"))),
+      // Read off the draft the sheet supplies. Descriptive only -- it never
+      // changes the text and never makes a row more or less postable.
+      promotion_category: promotionCategoryOf(final_draft),
+      feature_tags: featureTagsFor(text(at(row, "raw_text")), text(at(row, "topic"))),
       status: initialStatusFor(eligible, automation_action),
       eligible,
     });

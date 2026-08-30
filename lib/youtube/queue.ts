@@ -1,13 +1,17 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
+  batchAllowance,
   DEFAULT_DAILY_POST_LIMIT,
   DEFAULT_MIN_VERIFY_AGE_HOURS,
   YOUTUBE_STATUSES,
   readPositiveIntEnv,
+  type BatchAllowance,
   type YoutubeEventType,
   type YoutubeReplyStatus,
 } from "./queue-schema";
+import type { OpportunityType, Priority, PromotionCategory } from "./classify";
+import { dayRange, readTimezone, zonedDayString, type DayRange } from "./day-window";
 import type { ImportCandidate, LegacyRecord } from "./import";
 import { legacyStatusFor } from "./import";
 
@@ -28,6 +32,8 @@ const QUEUE_COLUMNS = `
   general_reply, kmate_reply, use_kmate, best_choice,
   final_draft, edited_draft, automation_action,
   status, decided_at, is_legacy, legacy_source,
+  discovered_at, comment_posted_at, priority, opportunity_type,
+  promotion_category, manual_follow_up, feature_tags, source_channel_id,
   posted_reply_id, api_accepted_at, verified_at, last_verified_at,
   removed_detected_at, attempt_count, last_attempt_at, last_error,
   created_at, updated_at
@@ -61,6 +67,14 @@ export interface QueueRow {
   decided_at: string | null;
   is_legacy: boolean;
   legacy_source: string | null;
+  discovered_at: string | null;
+  comment_posted_at: string | null;
+  priority: Priority;
+  opportunity_type: OpportunityType | null;
+  promotion_category: PromotionCategory;
+  manual_follow_up: boolean;
+  feature_tags: string[] | null;
+  source_channel_id: string | null;
   posted_reply_id: string | null;
   api_accepted_at: string | null;
   verified_at: string | null;
@@ -88,6 +102,18 @@ export interface BatchRow {
 
 export function dailyPostLimit(): number {
   return readPositiveIntEnv(process.env.YOUTUBE_DAILY_POST_LIMIT, DEFAULT_DAILY_POST_LIMIT);
+}
+
+/**
+ * The timezone every "day" in this feature is expressed in.
+ *
+ * One place, so the Today view, the daily archive and the posting cap can
+ * never disagree about where a day starts. KMate has no app-wide timezone to
+ * inherit, so this defaults to Asia/Kolkata; an unrecognised value falls back
+ * rather than throwing the dashboard.
+ */
+export function outreachTimezone(): string {
+  return readTimezone(process.env.YOUTUBE_TIMEZONE);
 }
 
 export function minVerifyAgeHours(): number {
@@ -187,31 +213,187 @@ export interface QueueFilters {
   batchId?: string;
   search?: string;
   limit?: number;
+  /** The local day being viewed, already resolved to a UTC range. */
+  range?: DayRange | null;
+  /**
+   * Include still-pending rows discovered before `range` -- the carry-forward
+   * set. Only meaningful for the current day's working view.
+   */
+  includeCarryForward?: boolean;
+  priority?: string;
+  opportunityType?: string;
+  promotionCategory?: string;
+  featureTag?: string;
+  channel?: string;
+  manualFollowUp?: boolean;
+  legacy?: boolean;
+  author?: string;
+  /** 'newest' | 'oldest' by the comment's own age; priority always leads. */
+  sort?: "newest" | "oldest";
 }
 
-export async function listQueue(filters: QueueFilters = {}): Promise<QueueRow[]> {
-  let query = getSupabaseAdmin().from("youtube_reply_queue").select(QUEUE_COLUMNS);
+/** Statuses that still represent outstanding work, and so carry forward. */
+export const PENDING_STATUSES: readonly YoutubeReplyStatus[] = [
+  "SCRAPED",
+  "DRAFTED",
+  "APPROVED",
+  "HOLD",
+  "FAILED",
+];
 
-  if (filters.status) query = query.eq("status", filters.status);
-  if (filters.batchId) query = query.eq("batch_id", filters.batchId);
+/** The queue table selected with the standard column list. */
+function baseQueueQuery() {
+  return getSupabaseAdmin().from("youtube_reply_queue").select(QUEUE_COLUMNS);
+}
+// Derived from a real call rather than hand-written, so it tracks the client's
+// builder type instead of drifting from it.
+type QueueQuery = ReturnType<typeof baseQueueQuery>;
+
+/** Applies every filter that is independent of the day window. */
+function applyCommonFilters(query: QueueQuery, filters: QueueFilters): QueueQuery {
+  let q = query;
+  if (filters.status) q = q.eq("status", filters.status);
+  if (filters.batchId) q = q.eq("batch_id", filters.batchId);
+  if (filters.priority) q = q.eq("priority", filters.priority);
+  if (filters.opportunityType) q = q.eq("opportunity_type", filters.opportunityType);
+  if (filters.promotionCategory) q = q.eq("promotion_category", filters.promotionCategory);
+  if (filters.channel) q = q.eq("channel_title", filters.channel);
+  if (filters.manualFollowUp !== undefined) q = q.eq("manual_follow_up", filters.manualFollowUp);
+  if (filters.legacy !== undefined) q = q.eq("is_legacy", filters.legacy);
+  if (filters.author) q = q.eq("author_name", filters.author);
+  // contains, so a row tagged with several features still matches one of them.
+  if (filters.featureTag) q = q.contains("feature_tags", [filters.featureTag]);
 
   if (filters.search) {
-    // Escape the PostgREST `or` filter's delimiters so a search string cannot
-    // inject extra conditions.
+    // Strip the PostgREST `or` filter's own delimiters so a search string
+    // cannot inject extra conditions.
     const term = filters.search.replace(/[(),*]/g, " ").trim();
     if (term) {
       const like = `%${term}%`;
-      query = query.or(
+      q = q.or(
         `author_name.ilike.${like},original_text.ilike.${like},video_title.ilike.${like},final_draft.ilike.${like}`
       );
     }
   }
+  return q;
+}
 
-  const { data } = await query
-    .order("created_at", { ascending: false })
-    .limit(filters.limit ?? 200);
+/**
+ * Rows relevant to one view.
+ *
+ * A day's rows are the rows that DID something that day -- were discovered,
+ * decided, sent, verified or found removed -- not a per-day copy of the queue.
+ * Nothing is written to build a view.
+ *
+ * Carry-forward is the second half. Work discovered yesterday and still
+ * pending has to appear in today's queue or it silently falls off the end of
+ * the workspace. It is fetched as a separate query and merged by id, so a row
+ * that qualifies BOTH ways (discovered today and still pending) appears
+ * exactly once. Its discovered_at, imported_at and batch are untouched --
+ * carry-forward is a property of the view, never an edit to the row, which is
+ * why the "Carried from" chip is derived at render time.
+ */
+export async function listQueue(filters: QueueFilters = {}): Promise<QueueRow[]> {
+  const limit = filters.limit ?? 200;
+  const range = filters.range;
 
-  return (data ?? []) as QueueRow[];
+  // A fresh builder per query: the two halves of a day view are separate
+  // round trips, and a PostgREST builder cannot be reused once awaited.
+  const base = () => applyCommonFilters(baseQueueQuery(), filters);
+
+  const collected = new Map<string, QueueRow>();
+
+  if (!range) {
+    const { data, error } = await base().order("created_at", { ascending: false }).limit(limit);
+    // Thrown, not swallowed. A missing column (an unapplied migration) would
+    // otherwise return no rows and no error, and the page would render an
+    // empty workspace instead of saying the schema needs applying.
+    if (error) throw new Error(`youtube queue read failed: ${error.message}`);
+    for (const row of (data ?? []) as QueueRow[]) collected.set(row.id, row);
+  } else {
+    const from = range.startUtc.toISOString();
+    const to = range.endUtc.toISOString();
+    // Half-open on every column: gte start, lt end. Consecutive days
+    // therefore partition time exactly -- no gap, nothing counted twice.
+    const activity = `and(discovered_at.gte.${from},discovered_at.lt.${to}),and(decided_at.gte.${from},decided_at.lt.${to}),and(api_accepted_at.gte.${from},api_accepted_at.lt.${to}),and(verified_at.gte.${from},verified_at.lt.${to}),and(removed_detected_at.gte.${from},removed_detected_at.lt.${to})`;
+
+    const { data, error } = await base().or(activity).order("created_at", { ascending: false }).limit(limit);
+    if (error) throw new Error(`youtube queue read failed: ${error.message}`);
+    for (const row of (data ?? []) as QueueRow[]) collected.set(row.id, row);
+
+    if (filters.includeCarryForward) {
+      const { data: carried, error: carriedError } = await base()
+        .lt("discovered_at", from)
+        .in("status", PENDING_STATUSES as unknown as string[])
+        .eq("manual_follow_up", filters.manualFollowUp ?? false)
+        .order("discovered_at", { ascending: true })
+        .limit(limit);
+      if (carriedError) throw new Error(`youtube carry-forward read failed: ${carriedError.message}`);
+      // Merged by id: a row already collected above is not added again.
+      for (const row of (carried ?? []) as QueueRow[]) collected.set(row.id, row);
+    }
+  }
+
+  return sortQueue([...collected.values()], filters.sort ?? "newest");
+}
+
+const PRIORITY_ORDER: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+
+/**
+ * High priority first, then by comment age in the requested direction.
+ *
+ * Ordering only. Priority decides what an admin sees first; it has no bearing
+ * on whether a row may be posted, which `postRefusal` alone decides.
+ */
+export function sortQueue(rows: QueueRow[], direction: "newest" | "oldest"): QueueRow[] {
+  const timeOf = (r: QueueRow) =>
+    new Date(r.comment_posted_at ?? r.discovered_at ?? r.created_at).getTime();
+
+  return [...rows].sort((a, b) => {
+    const byPriority = (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1);
+    if (byPriority !== 0) return byPriority;
+    const at = timeOf(a);
+    const bt = timeOf(b);
+    if (at === bt) return 0;
+    return direction === "newest" ? bt - at : at - bt;
+  });
+}
+
+/**
+ * The rows a batch may actually draw from, best first.
+ *
+ * A candidate list only. Every row is re-resolved and re-checked individually
+ * inside the posting loop, so this ordering is a convenience for the admin and
+ * never an authorisation.
+ */
+export async function listPostable(limit = 50): Promise<QueueRow[]> {
+  const { data } = await getSupabaseAdmin()
+    .from("youtube_reply_queue")
+    .select(QUEUE_COLUMNS)
+    .eq("status", "APPROVED")
+    .eq("manual_follow_up", false)
+    .eq("is_legacy", false)
+    .eq("source_type", "comment")
+    .eq("automation_action", "POST")
+    .is("posted_reply_id", null)
+    .limit(limit);
+
+  return sortQueue((data ?? []) as QueueRow[], "oldest");
+}
+
+/** How many rows could be posted right now, for the batch allowance. */
+export async function countPostable(): Promise<number> {
+  const { count } = await getSupabaseAdmin()
+    .from("youtube_reply_queue")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "APPROVED")
+    .eq("manual_follow_up", false)
+    .eq("is_legacy", false)
+    .eq("source_type", "comment")
+    .eq("automation_action", "POST")
+    .is("posted_reply_id", null);
+
+  return count ?? 0;
 }
 
 export async function listBatches(limit = 50): Promise<BatchRow[]> {
@@ -253,34 +435,54 @@ export async function countByStatus(): Promise<Record<string, number>> {
   return counts;
 }
 
+/** The day window the posting cap is measured over, right now. */
+export function currentDayRange(now: Date = new Date()): DayRange {
+  const tz = outreachTimezone();
+  return dayRange(zonedDayString(now, tz), tz);
+}
+
 /**
- * Replies accepted by YouTube in the last `hours`, for the safety cap.
+ * Replies sent, or in flight, between two instants.
  *
- * Counts api_accepted_at on the queue rows: a row that was later removed
- * still counts, because the cap is about how much was sent, not how much
- * survived. Rolling rather than calendar-day, so it holds no matter which
- * timezone the admin is in and cannot be reset by midnight passing.
+ * Counts two things, and both matter:
+ *
+ *   - rows whose api_accepted_at falls in the window. A reply later found
+ *     REMOVED still counts: the ceiling limits what was SENT, not what
+ *     survived, so a removal cannot buy back an attempt.
+ *   - rows currently claimed as POSTING whose attempt began in the window.
+ *     Counting these is what stops two concurrent requests from both reading
+ *     a pre-send total and both proceeding. A claim occupies a slot from the
+ *     moment it is made; a clean failure returns the row to FAILED and gives
+ *     the slot back, while an ambiguous one stays POSTING and keeps it.
+ *
+ * `to` is optional because the rolling window has no upper bound worth
+ * stating -- nothing can be sent in the future, and leaving it open avoids a
+ * claim made microseconds ago falling outside its own window.
  */
-export async function countRecentPosts(hours = 24, excludeId?: string): Promise<number> {
-  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+export async function countSentBetween(
+  from: Date,
+  to: Date | null,
+  excludeId?: string
+): Promise<number> {
   const admin = getSupabaseAdmin();
+  const fromIso = from.toISOString();
+  const toIso = to?.toISOString();
 
   let accepted = admin
     .from("youtube_reply_queue")
     .select("id", { count: "exact", head: true })
-    .gte("api_accepted_at", since);
+    .gte("api_accepted_at", fromIso);
 
-  // Rows claimed but not yet resolved. Counting these is what stops two
-  // concurrent posts from both reading a pre-post count and both proceeding:
-  // an in-flight claim occupies a slot from the moment it is made. A claim
-  // that failed cleanly is back in FAILED and no longer counted, so a genuine
-  // failure returns its slot; one with an unknown outcome stays POSTING and
-  // keeps it, which is the conservative reading.
   let inFlight = admin
     .from("youtube_reply_queue")
     .select("id", { count: "exact", head: true })
     .eq("status", "POSTING")
-    .gte("last_attempt_at", since);
+    .gte("last_attempt_at", fromIso);
+
+  if (toIso) {
+    accepted = accepted.lt("api_accepted_at", toIso);
+    inFlight = inFlight.lt("last_attempt_at", toIso);
+  }
 
   if (excludeId) {
     accepted = accepted.neq("id", excludeId);
@@ -289,6 +491,43 @@ export async function countRecentPosts(hours = 24, excludeId?: string): Promise<
 
   const [acceptedResult, inFlightResult] = await Promise.all([accepted, inFlight]);
   return (acceptedResult.count ?? 0) + (inFlightResult.count ?? 0);
+}
+
+/** Sent or in flight inside one local calendar day. */
+export async function countPostsInWindow(range: DayRange, excludeId?: string): Promise<number> {
+  return countSentBetween(range.startUtc, range.endUtc, excludeId);
+}
+
+/** Sent or in flight inside the last rolling 24 hours. */
+export async function countPostsInRollingWindow(
+  now: Date = new Date(),
+  excludeId?: string
+): Promise<number> {
+  return countSentBetween(new Date(now.getTime() - ROLLING_WINDOW_HOURS * 3600_000), null, excludeId);
+}
+
+/** The rolling backstop's width. Deliberately the same "day" the cap names. */
+export const ROLLING_WINDOW_HOURS = 24;
+
+/**
+ * The live allowance, measured against BOTH windows.
+ *
+ * The single source of truth for "may anything be sent right now". The
+ * calendar day matches what the admin sees; the rolling 24 hours stops the
+ * midnight reset from permitting a burst across the boundary. The stricter of
+ * the two governs, and both are recomputed from the database on every call --
+ * the posting loop re-derives this before every individual row.
+ */
+export async function postAllowance(
+  eligible: number,
+  now: Date = new Date(),
+  excludeId?: string
+): Promise<BatchAllowance> {
+  const [dayUsed, rollingUsed] = await Promise.all([
+    countPostsInWindow(currentDayRange(now), excludeId),
+    countPostsInRollingWindow(now, excludeId),
+  ]);
+  return batchAllowance(dailyPostLimit(), dayUsed, rollingUsed, eligible);
 }
 
 // ---------------------------------------------------------------------------
@@ -479,7 +718,14 @@ export async function insertCandidates(
 
     const { data, error } = await admin
       .from("youtube_reply_queue")
-      .insert({ ...columns, batch_id: batchId })
+      .insert({
+        ...columns,
+        batch_id: batchId,
+        // A sheet without a captured_at column would otherwise leave the row
+        // outside every daily view. Import time is the honest fallback for
+        // "when did we first see this".
+        discovered_at: candidate.discovered_at ?? new Date().toISOString(),
+      })
       .select("id")
       .maybeSingle();
 
@@ -592,6 +838,10 @@ export async function importLegacyRecords(
         status,
         is_legacy: true,
         legacy_source: legacySource,
+        // discovered_at is left NULL on purpose. These replies were sent by
+        // the old bot months ago; stamping them with the import time would
+        // dump a hundred historical rows into today's "discovered" count and
+        // make the daily workspace useless on the day of the migration.
       })
       .select("id")
       .maybeSingle();
