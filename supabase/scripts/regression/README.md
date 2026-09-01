@@ -20,6 +20,7 @@ All scripts read Supabase credentials from `.env.local`.
 | `fix7c-discover-initial-state.ts` | Batch-5 audit: Discover tab renders sensibly (defaults to viewer's own track) before any track filter pill has ever been clicked | Yes, production build |
 | `gks-assistant-e2e.ts` | GKS Assistant structured answers: asking persists a thread and materialises imported answers (always `origin='community_import'` with a null `author_id`), imported contributors get a stable generated alias and never leak their raw `sender_alias` or a fabricated timestamp, re-asking joins the same deduped thread, upvotes are one-per-user and toggle, a KMate answer stores `origin='kmate_user'` with a real `author_id`, save-question is private and toggles, discussion threads stay one level deep and can't be grafted across questions, anonymous callers are turned away and write nothing | Yes, production build **and** a reachable `GKS_RAG_URL` |
 | `readiness-checks.ts` | Application Readiness: the checks delivered with the readiness dataset, plus integration coverage -- the GKS-U/GKS-G national checklists render without a university, university extras come only from the Requirement Checker records and are scoped through its track hierarchy, KMOU + Maritime Sciences surfaces the Seafarer's Medical Certificate, no university adds a national document, and the client-side summary agrees with the engine (never reporting 100% while a required document is untracked) | No (imports the datasets directly; needs `--conditions react-server`) |
+| `youtube-recovery-checks.ts` | YouTube recovery drafts: exact 20-row/four-batch shape, evidence-honest legacy matching, approval blocked until removal is confirmed, active-parent uniqueness migration guardrails, and no posting path | No (pure logic; needs `--conditions react-server`) |
 
 ## Running
 
@@ -29,6 +30,7 @@ npx tsx supabase/scripts/regression/fix1-admin-escalation.ts
 npx tsx supabase/scripts/regression/fix3-connection-requests.ts
 npx tsx supabase/scripts/regression/fix5-6-rate-limits-unit.ts
 npx tsx --conditions react-server supabase/scripts/regression/readiness-checks.ts
+npx tsx --conditions react-server supabase/scripts/regression/youtube-recovery-checks.ts
 
 # Requires KMATE_TEST_SECRET set to a THROWAWAY test value (never your real
 # ADMIN_BOOTSTRAP_SECRET) whose hash is populated into
