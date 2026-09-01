@@ -27,7 +27,7 @@ import {
   type Priority,
   type PromotionCategory,
 } from "@/lib/youtube/classify";
-import { formatDayShort, humanAge } from "@/lib/youtube/day-window";
+import { formatDayShort, formatInstant, humanAge } from "@/lib/youtube/day-window";
 
 /**
  * The YouTube outreach console.
@@ -145,12 +145,9 @@ function Chip({ children, className = "" }: { children: React.ReactNode; classNa
   );
 }
 
-function formatWhen(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
-}
+// Same deterministic formatter the recovery view uses: without an explicit
+// zone the server and browser disagree and React reports a hydration mismatch.
+const formatWhen = formatInstant;
 
 const REFUSAL_TEXT: Record<string, string> = {
   terminal: "Removed by YouTube — terminal, never reposted",
@@ -477,7 +474,8 @@ export function YoutubeOutreach(props: Props) {
                 {item.posted_reply_id && (
                   <div className="mt-3 rounded-lg border border-hairline px-3 py-2 text-[12px]">
                     <p className="text-muted">
-                      Reply id <code className="text-ink">{item.posted_reply_id}</code>
+                      Reply id{" "}
+                      <code className="break-all text-ink">{item.posted_reply_id}</code>
                     </p>
                     <p className="mt-1 text-muted">
                       API accepted {formatWhen(item.api_accepted_at)}
@@ -538,7 +536,7 @@ export function YoutubeOutreach(props: Props) {
                       </div>
                     )}
                     <p className="text-muted">
-                      Comment id <code>{item.youtube_comment_id}</code>
+                      Comment id <code className="break-all">{item.youtube_comment_id}</code>
                       {item.spreadsheet_row ? ` · row ${item.spreadsheet_row}` : ""}
                       {item.legacy_source && ` · legacy source ${item.legacy_source}`}
                     </p>

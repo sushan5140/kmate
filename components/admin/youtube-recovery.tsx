@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatInstant } from "@/lib/youtube/day-window";
 import type { RecoveryCategory, RecoveryLegacyOutcome, RecoveryStatus } from "@/lib/youtube/recovery";
 import {
   RECOVERY_LEGACY_OUTCOME_LABELS,
@@ -85,13 +86,19 @@ function Chip({ children, className = "" }: { children: React.ReactNode; classNa
   );
 }
 
-function formatWhen(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? "—"
-    : d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
-}
+// Pinned to one zone by formatInstant, so the server and the browser render
+// the same string and React does not report a hydration mismatch.
+const formatWhen = formatInstant;
+
+/**
+ * Always shown in the summary, even at zero.
+ *
+ * These are exactly the four states a review verb can produce. Rendering only
+ * the statuses present in the data hid "Approved 0" and "Hold 0" entirely,
+ * which reads as "not tracked" rather than "none yet" -- and those two are the
+ * numbers a reviewer most wants confirmed before trusting the screen.
+ */
+const ALWAYS_SHOWN_STATUSES: RecoveryStatus[] = ["DRAFTED", "APPROVED", "HOLD", "SKIP"];
 
 export function YoutubeRecovery({ items, counts }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -166,12 +173,21 @@ export function YoutubeRecovery({ items, counts }: Props) {
           <span>
             Total <span className="text-ink">{counts.total}</span>
           </span>
-          {Object.entries(counts.byStatus).map(([status, n]) => (
+          {ALWAYS_SHOWN_STATUSES.map((status) => (
             <span key={status}>
-              {RECOVERY_STATUS_LABELS[status as RecoveryStatus] ?? status}{" "}
-              <span className="text-ink">{n}</span>
+              {RECOVERY_STATUS_LABELS[status]}{" "}
+              <span className="text-ink">{counts.byStatus[status] ?? 0}</span>
             </span>
           ))}
+          {/* Anything outside the four review states, shown only if it occurs. */}
+          {Object.entries(counts.byStatus)
+            .filter(([status, n]) => n > 0 && !ALWAYS_SHOWN_STATUSES.includes(status as RecoveryStatus))
+            .map(([status, n]) => (
+              <span key={status}>
+                {RECOVERY_STATUS_LABELS[status as RecoveryStatus] ?? status}{" "}
+                <span className="text-ink">{n}</span>
+              </span>
+            ))}
           <span>
             Decided <span className="text-ink">{counts.decided}</span>
           </span>
@@ -243,7 +259,7 @@ export function YoutubeRecovery({ items, counts }: Props) {
               ) : (
                 <p className="mt-1 rounded-lg bg-canvas px-3 py-2 text-[12.5px] italic text-muted">
                   Not available — this parent predates the current queue. Comment id{" "}
-                  <code className="not-italic">{item.youtube_comment_id}</code>
+                  <code className="break-all not-italic">{item.youtube_comment_id}</code>
                 </p>
               )}
             </div>
@@ -255,7 +271,8 @@ export function YoutubeRecovery({ items, counts }: Props) {
                 {item.legacy_draft_text ?? "(text not recorded)"}
               </p>
               <p className="mt-1.5 text-[11.5px] text-muted">
-                Legacy reply id <code className="text-ink">{item.legacy_reply_id}</code>
+                Legacy reply id{" "}
+                <code className="break-all text-ink">{item.legacy_reply_id}</code>
               </p>
               <p className="mt-0.5 text-[11.5px]">
                 <span className={removalProven ? "text-success" : "text-danger"}>
@@ -287,7 +304,7 @@ export function YoutubeRecovery({ items, counts }: Props) {
             {item.posted_reply_id && (
               <div className="mt-3 rounded-lg border border-hairline px-3 py-2 text-[12px]">
                 <p className="text-muted">
-                  New reply id <code className="text-ink">{item.posted_reply_id}</code>
+                  New reply id <code className="break-all text-ink">{item.posted_reply_id}</code>
                 </p>
                 <p className="mt-1 text-muted">
                   API accepted {formatWhen(item.api_accepted_at)}
@@ -311,7 +328,7 @@ export function YoutubeRecovery({ items, counts }: Props) {
             )}
 
             {isOpen && (
-              <pre className="mt-3 max-h-64 overflow-auto rounded-lg bg-canvas px-3 py-2 text-[11px] leading-relaxed text-muted">
+              <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-canvas px-3 py-2 text-[11px] leading-relaxed text-muted">
                 {JSON.stringify(item.legacy_evidence ?? {}, null, 2)}
               </pre>
             )}
@@ -319,8 +336,8 @@ export function YoutubeRecovery({ items, counts }: Props) {
             {isOpen && evidenceChannelId(item.legacy_evidence) && (
               <p className="mt-1 text-[11.5px] text-muted">
                 Verified against channel{" "}
-                <code className="text-ink">{evidenceChannelId(item.legacy_evidence)}</code> ·
-                recovery set <code>{item.recovery_set}</code>
+                <code className="break-all text-ink">{evidenceChannelId(item.legacy_evidence)}</code>{" "}
+                · recovery set <code className="break-all">{item.recovery_set}</code>
               </p>
             )}
 

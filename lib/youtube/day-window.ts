@@ -210,6 +210,32 @@ export function carriedFromDay(
   return originDay < viewDay ? originDay : null;
 }
 
+/**
+ * An exact timestamp, rendered identically on the server and in the browser.
+ *
+ * `toLocaleString` without a `timeZone` resolves against whatever machine runs
+ * it, so a server in UTC and a browser in IST produce different text for the
+ * same instant -- and React treats that as a hydration mismatch (error #418),
+ * which is exactly what the admin console was throwing.
+ *
+ * The zone is therefore pinned to a CONSTANT rather than to the configurable
+ * outreachTimezone(). YOUTUBE_TIMEZONE is a server-only variable the client
+ * cannot read, so deriving the display zone from it would reintroduce the very
+ * mismatch this fixes. The trade-off is deliberate: these timestamps always
+ * read in Asia/Kolkata even if the daily window were reconfigured, and the
+ * zone is shown beside them in the UI.
+ */
+export function formatInstant(iso: string | null, timeZone: string = DEFAULT_TIMEZONE): string {
+  if (!iso) return "—";
+  const at = new Date(iso);
+  if (Number.isNaN(at.getTime())) return "—";
+  return at.toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone,
+  });
+}
+
 /** "Aug 29" for a chip, from a plain day string, with no zone shifting. */
 export function formatDayShort(day: DayString): string {
   const [y, m, d] = day.split("-").map(Number);

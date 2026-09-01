@@ -35,6 +35,7 @@ import {
   type RecoveryRowFacts,
 } from "@/lib/youtube/recovery-review";
 import { RECOVERY_STATUSES, canApproveRecovery } from "@/lib/youtube/recovery";
+import { DEFAULT_TIMEZONE, formatInstant } from "@/lib/youtube/day-window";
 
 let fail = 0;
 const ok = (c: boolean, m: string) => {
@@ -345,6 +346,120 @@ ok(
 ok(
   queueSrc.includes('.from("youtube_reply_queue")') && queueSrc.includes(".select("),
   "  and the single read is a select for parent display text"
+);
+
+// -------------------------------------------------------------------------
+console.log("=== timestamps render identically on server and client ===");
+// -------------------------------------------------------------------------
+// React error #418 was a hydration mismatch: toLocaleString with no timeZone
+// resolves against whichever machine runs it, so a UTC server and an IST
+// browser produced different text for the same instant.
+const INSTANT = "2026-09-01T08:38:31.269429Z";
+const rendered = formatInstant(INSTANT);
+ok(DEFAULT_TIMEZONE === "Asia/Kolkata", `the pinned zone is Asia/Kolkata (${DEFAULT_TIMEZONE})`);
+ok(
+  rendered === "Sep 1, 2026, 2:08 PM",
+  `08:38 UTC renders as the IST wall clock (${rendered})`
+);
+
+// The decisive property: the output must not move when the AMBIENT zone moves.
+// process.env.TZ changes what a bare toLocaleString would produce; an explicit
+// timeZone makes it irrelevant.
+const savedTz = process.env.TZ;
+const underEachZone: string[] = [];
+for (const zone of ["UTC", "America/New_York", "Asia/Tokyo", "Australia/Sydney"]) {
+  process.env.TZ = zone;
+  underEachZone.push(formatInstant(INSTANT));
+}
+if (savedTz === undefined) delete process.env.TZ;
+else process.env.TZ = savedTz;
+ok(
+  new Set(underEachZone).size === 1,
+  `identical under every ambient zone (${JSON.stringify([...new Set(underEachZone)])})`
+);
+ok(
+  underEachZone[0] === rendered,
+  "  and identical to the default-zone render -- so SSR and hydration agree"
+);
+ok(formatInstant(null) === "—", "a null instant renders an em dash, not 'Invalid Date'");
+ok(formatInstant("nonsense") === "—", "and so does an unparseable one");
+ok(
+  formatInstant(INSTANT, "UTC") === "Sep 1, 2026, 8:38 AM",
+  "an explicit zone argument is still honoured for callers that need one"
+);
+
+console.log("=== no component formats a timestamp against the ambient zone ===");
+const dailySrc = readFileSync("components/admin/youtube-daily.tsx", "utf8");
+for (const [name, src] of [
+  ["recovery UI", uiSrc],
+  ["outreach UI", readFileSync("components/admin/youtube-outreach.tsx", "utf8")],
+  ["daily UI", dailySrc],
+] as const) {
+  // A toLocale* call is only safe when it names a timeZone in the same options.
+  const calls = src.match(/toLocale\w*\([^)]*\)/g) ?? [];
+  const unpinned = calls.filter((c) => !/timeZone/.test(c));
+  ok(unpinned.length === 0, `${name}: no unpinned toLocale call (${unpinned.join(" | ") || "none"})`);
+}
+ok(
+  readFileSync("components/admin/youtube-recovery.tsx", "utf8").includes("formatInstant") &&
+    readFileSync("components/admin/youtube-outreach.tsx", "utf8").includes("formatInstant"),
+  "both timestamped components use the shared deterministic formatter"
+);
+
+// -------------------------------------------------------------------------
+console.log("=== long YouTube ids wrap instead of overflowing ===");
+// -------------------------------------------------------------------------
+// A reply id is one unbreakable token ~49 chars long; at 320px it overflowed
+// the page by 53px until the ids were given a breaking rule.
+const idFields: Array<[string, RegExp]> = [
+  ["legacy_reply_id", /legacy_reply_id\}/],
+  ["youtube_comment_id", /youtube_comment_id\}/],
+  ["posted_reply_id", /posted_reply_id\}/],
+];
+for (const [label, pattern] of idFields) {
+  const line = uiSrc.split(String.fromCharCode(10)).find((l) => pattern.test(l) && /<code/.test(l));
+  ok(Boolean(line && /break-all/.test(line)), `${label} is rendered in a break-all <code>`);
+}
+ok(
+  /whitespace-pre-wrap break-all/.test(uiSrc),
+  "the raw evidence block wraps rather than forcing the card wide"
+);
+const codeTags = uiSrc.match(/<code[^>]*>/g) ?? [];
+const unbroken = codeTags.filter((t) => !/break-all/.test(t));
+ok(unbroken.length === 0, `every <code> in the recovery UI breaks long tokens (${unbroken.join(" ") || "none"})`);
+
+// -------------------------------------------------------------------------
+console.log("=== the summary shows zero counts instead of hiding them ===");
+// -------------------------------------------------------------------------
+ok(
+  uiSrc.includes("ALWAYS_SHOWN_STATUSES"),
+  "the summary iterates a fixed list of review states"
+);
+for (const status of ["DRAFTED", "APPROVED", "HOLD", "SKIP"]) {
+  const list = uiSrc.slice(uiSrc.indexOf("ALWAYS_SHOWN_STATUSES: RecoveryStatus[]"), uiSrc.indexOf("export function YoutubeRecovery"));
+  ok(list.includes(`"${status}"`), `  ${status} is always rendered, even at zero`);
+}
+ok(
+  uiSrc.includes("counts.byStatus[status] ?? 0"),
+  "a missing status key renders as 0 rather than disappearing"
+);
+ok(
+  !/Object\.entries\(counts\.byStatus\)\.map/.test(uiSrc),
+  "the summary no longer renders ONLY the statuses present in the data"
+);
+ok(uiSrc.includes("Total") && uiSrc.includes("Decided") && uiSrc.includes("Sent to YouTube"),
+  "Total, Decided and Sent to YouTube remain shown");
+
+console.log("=== counting logic itself is unchanged ===");
+const qSrc = readFileSync("lib/youtube/recovery-queue.ts", "utf8");
+ok(
+  qSrc.includes("byStatus[row.status] = (byStatus[row.status] ?? 0) + 1"),
+  "countRecoveryAttempts still tallies straight from the rows"
+);
+ok(
+  qSrc.includes("decided: rows.filter((r) => r.decided_at !== null).length") &&
+    qSrc.includes("posted: rows.filter((r) => r.posted_reply_id !== null).length"),
+  "decided and posted are still derived from the row fields"
 );
 
 console.log("");
