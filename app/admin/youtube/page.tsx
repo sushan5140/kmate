@@ -8,6 +8,7 @@ import {
   type QueueItem,
 } from "@/components/admin/youtube-outreach";
 import { YoutubeDaily } from "@/components/admin/youtube-daily";
+import { YoutubeRecovery, type RecoveryItem } from "@/components/admin/youtube-recovery";
 import {
   countByStatus,
   countPostable,
@@ -27,6 +28,7 @@ import {
   listChannels,
   survivalBreakdown,
 } from "@/lib/youtube/analytics";
+import { countRecoveryAttempts, listRecoveryAttempts } from "@/lib/youtube/recovery-queue";
 import { isYoutubeConfigured } from "@/lib/youtube/oauth";
 import { isYoutubeStatus } from "@/lib/youtube/queue-schema";
 import {
@@ -128,6 +130,8 @@ export default async function AdminYoutubePage({
         listChannels(),
         getDailyNote(viewDay),
         countPostable().then((eligible) => postAllowance(eligible, now)),
+        listRecoveryAttempts(),
+        countRecoveryAttempts(),
       ] as const);
     } catch {
       return null;
@@ -150,8 +154,37 @@ export default async function AdminYoutubePage({
     );
   }
 
-  const [rows, batches, counts, summary, archive, survival, channels, channelList, note, allowance] =
-    loaded;
+  const [
+    rows, batches, counts, summary, archive, survival, channels, channelList, note, allowance,
+    recoveryRows, recoveryCounts,
+  ] = loaded;
+
+  // Recovery attempts are a SEPARATE review layer, never merged into the queue
+  // above. Only display fields cross over; nothing here mutates a queue row.
+  const recoveryItems: RecoveryItem[] = recoveryRows.map((r) => ({
+    id: r.id,
+    youtube_comment_id: r.youtube_comment_id,
+    legacy_reply_id: r.legacy_reply_id,
+    legacy_draft_text: r.legacy_draft_text,
+    legacy_outcome: r.legacy_outcome,
+    legacy_evidence: r.legacy_evidence,
+    recovery_set: r.recovery_set,
+    author_name: r.author_name,
+    recovery_batch: r.recovery_batch,
+    recovery_order: r.recovery_order,
+    category: r.category,
+    draft_text: r.draft_text,
+    status: r.status,
+    decided_at: r.decided_at,
+    posted_reply_id: r.posted_reply_id,
+    api_accepted_at: r.api_accepted_at,
+    verified_at: r.verified_at,
+    removed_detected_at: r.removed_detected_at,
+    last_error: r.last_error,
+    parent_comment_text: r.parent_comment_text,
+    parent_video_title: r.parent_video_title,
+    parent_source_url: r.parent_source_url,
+  }));
 
   const archiveNotes = await getNotes(archive.map((a) => a.day));
   const histories = await authorHistories(
@@ -285,7 +318,13 @@ export default async function AdminYoutubePage({
         />
       </div>
 
-      <div className="mt-5">
+      {/* Recovery attempts: a separate review layer over a separate table.
+          These rows are never merged into the outreach queue below. */}
+      <div className="mt-8 border-t border-hairline pt-6">
+        <YoutubeRecovery items={recoveryItems} counts={recoveryCounts} />
+      </div>
+
+      <div className="mt-8 border-t border-hairline pt-6">
         <YoutubeOutreach
           items={items}
           batches={batchItems}
