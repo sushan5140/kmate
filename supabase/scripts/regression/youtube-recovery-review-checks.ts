@@ -48,6 +48,9 @@ const reviewable = (over: Partial<RecoveryRowFacts> = {}): RecoveryRowFacts => (
   status: "DRAFTED",
   legacy_outcome: "CONFIRMED_REMOVED",
   posted_reply_id: null,
+  // Never verified: these tests exercise the pre-existing rules, so the
+  // verification gate stays out of the way (see the verify suite for it).
+  legacy_evidence: null,
   ...over,
 });
 

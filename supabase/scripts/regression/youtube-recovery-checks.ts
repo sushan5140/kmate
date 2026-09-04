@@ -98,8 +98,8 @@ ok(
 ok(matched.find((row) => row.recovery_order === 17)?.youtube_comment_id === "parent-17", "reviewed ambiguity override is exact");
 
 console.log("=== Approval safety ===");
-const postedRecorded = { legacy_outcome: "POSTED_RECORDED" as const, status: "DRAFTED" as const, posted_reply_id: null };
-const confirmedRemoved = { legacy_outcome: "CONFIRMED_REMOVED" as const, status: "DRAFTED" as const, posted_reply_id: null };
+const postedRecorded = { legacy_outcome: "POSTED_RECORDED" as const, status: "DRAFTED" as const, posted_reply_id: null, legacy_evidence: null };
+const confirmedRemoved = { legacy_outcome: "CONFIRMED_REMOVED" as const, status: "DRAFTED" as const, posted_reply_id: null, legacy_evidence: null };
 ok(recoveryApproveRefusal(postedRecorded) === "removal_unconfirmed", "POSTED_RECORDED cannot be approved");
 ok(!canApproveRecovery(postedRecorded), "POSTED_RECORDED canApproveRecovery is false");
 ok(canApproveRecovery(confirmedRemoved), "confirmed removal is eligible only for a future explicit approval");

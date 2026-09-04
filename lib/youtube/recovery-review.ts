@@ -49,11 +49,18 @@ export function isRecoveryDecisionAction(value: unknown): value is RecoveryDecis
   );
 }
 
-/** The subset of a recovery row every rule below reasons about. */
+/**
+ * The subset of a recovery row every rule below reasons about.
+ *
+ * `legacy_evidence` is required so the approval gate always receives the
+ * latest exact-ID verification. A caller cannot omit it and quietly fall back
+ * to the weaker legacy_outcome-only answer -- that would not compile.
+ */
 export interface RecoveryRowFacts {
   status: RecoveryStatus;
   legacy_outcome: RecoveryLegacyOutcome;
   posted_reply_id: string | null;
+  legacy_evidence: Record<string, unknown> | null;
 }
 
 export type RecoveryHoldSkipRefusal = "already_posted" | "in_flight" | "terminal";
@@ -105,9 +112,11 @@ export type RecoveryDecisionRefusal =
  * Whether one verb may be applied to one row, and why not when it may not.
  *
  * Approval defers entirely to recoveryApproveRefusal: DRAFTED, legacy outcome
- * CONFIRMED_REMOVED, and no existing posted reply id. That is stricter than the
- * database CHECK (which permits APPROVED for any CONFIRMED_REMOVED row), and
- * deliberately so -- the database is the floor, not the policy.
+ * CONFIRMED_REMOVED, no existing posted reply id, and -- when the row has ever
+ * been checked -- a latest exact-ID verification of CONFIRMED_REMOVED. That is
+ * stricter than the database CHECK (which permits APPROVED for any
+ * CONFIRMED_REMOVED row), and deliberately so -- the database is the floor,
+ * not the policy.
  */
 export function recoveryDecisionRefusal(
   action: RecoveryDecisionAction,
@@ -129,6 +138,12 @@ export function canApplyRecoveryDecision(
 export const RECOVERY_REFUSAL_TEXT: Record<string, string> = {
   not_drafted: "Only a drafted attempt can be approved",
   removal_unconfirmed: "Removal of the legacy reply is not confirmed",
+  verification_still_live:
+    "The latest check found the legacy reply still live — there is nothing to replace",
+  verification_inconclusive:
+    "The latest removal check was inconclusive — re-verify before approving",
+  verification_unreadable:
+    "The stored removal check cannot be read — re-verify before approving",
   already_posted: "A reply has already been sent for this attempt",
   not_held: "Only a held attempt can be returned to review",
   in_flight: "A send is in flight",

@@ -21,6 +21,40 @@ All scripts read Supabase credentials from `.env.local`.
 | `gks-assistant-e2e.ts` | GKS Assistant structured answers: asking persists a thread and materialises imported answers (always `origin='community_import'` with a null `author_id`), imported contributors get a stable generated alias and never leak their raw `sender_alias` or a fabricated timestamp, re-asking joins the same deduped thread, upvotes are one-per-user and toggle, a KMate answer stores `origin='kmate_user'` with a real `author_id`, save-question is private and toggles, discussion threads stay one level deep and can't be grafted across questions, anonymous callers are turned away and write nothing | Yes, production build **and** a reachable `GKS_RAG_URL` |
 | `readiness-checks.ts` | Application Readiness: the checks delivered with the readiness dataset, plus integration coverage -- the GKS-U/GKS-G national checklists render without a university, university extras come only from the Requirement Checker records and are scoped through its track hierarchy, KMOU + Maritime Sciences surfaces the Seafarer's Medical Certificate, no university adds a national document, and the client-side summary agrees with the engine (never reporting 100% while a required document is untracked) | No (imports the datasets directly; needs `--conditions react-server`) |
 | `youtube-recovery-checks.ts` | YouTube recovery drafts: exact 20-row/four-batch shape, evidence-honest legacy matching, approval blocked until removal is confirmed, active-parent uniqueness migration guardrails, and no posting path | No (pure logic; needs `--conditions react-server`) |
+| `youtube-recovery-verify-checks.ts` | Exact-reply-id verifier: only a 200 with an empty `items` array proves removal (404, API errors, malformed bodies and transport failures never do), wrong-channel abort, dry-run writes nothing, and `--apply-evidence` may touch only `legacy_outcome`/`legacy_evidence`/`updated_at` | No (pure logic; needs `--conditions react-server`) |
+
+## YouTube recovery verifier
+
+`supabase/scripts/verify-youtube-recovery.ts` re-checks every stored
+`legacy_reply_id` against YouTube and records what it observed. It is read-only
+against YouTube: the only calls it can make are an OAuth refresh, one
+`channels.list` identity check, and one `comments.list` per row, enforced by an
+allow-list on every request. It aborts unless the authenticated channel is
+`UCkX7YBd1ChGcJWOFHTGSLXQ`.
+
+Dry run is the default and writes nothing:
+
+```bash
+npx tsx --conditions react-server supabase/scripts/verify-youtube-recovery.ts
+```
+
+The result is not merely informational. `recoveryApproveRefusal` reads the
+latest recorded check back out of `legacy_evidence`, and a row whose latest
+check is anything other than `CONFIRMED_REMOVED` cannot be approved even while
+its historical `legacy_outcome` still says it was removed. Outcomes are never
+downgraded automatically; approval simply stops trusting a stale verdict.
+
+Recording the evidence is opt-in, and may only write `legacy_outcome`,
+`legacy_evidence` and `updated_at` -- never a status, a posted reply id, or any
+posting field:
+
+```bash
+npx tsx --conditions react-server supabase/scripts/verify-youtube-recovery.ts --apply-evidence
+```
+
+Credentials come from `YOUTUBE_CLIENT_ID` / `YOUTUBE_CLIENT_SECRET` /
+`YOUTUBE_REFRESH_TOKEN` when all three are set, otherwise from the local bot's
+`token.json` / `credentials.json` (override with `--token` / `--credentials`).
 
 ## Running
 
@@ -31,6 +65,7 @@ npx tsx supabase/scripts/regression/fix3-connection-requests.ts
 npx tsx supabase/scripts/regression/fix5-6-rate-limits-unit.ts
 npx tsx --conditions react-server supabase/scripts/regression/readiness-checks.ts
 npx tsx --conditions react-server supabase/scripts/regression/youtube-recovery-checks.ts
+npx tsx --conditions react-server supabase/scripts/regression/youtube-recovery-verify-checks.ts
 
 # Requires KMATE_TEST_SECRET set to a THROWAWAY test value (never your real
 # ADMIN_BOOTSTRAP_SECRET) whose hash is populated into

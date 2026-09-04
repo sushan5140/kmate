@@ -1,3 +1,8 @@
+import {
+  verificationApproveRefusal,
+  type VerificationApproveRefusal,
+} from "./recovery-verify";
+
 export const RECOVERY_STATUSES = [
   "DRAFTED",
   "APPROVED",
@@ -334,19 +339,48 @@ export function matchRecoveryRows(input: {
   });
 }
 
-export type RecoveryApproveRefusal = "not_drafted" | "removal_unconfirmed" | "already_posted";
+export type RecoveryApproveRefusal =
+  | "not_drafted"
+  | "removal_unconfirmed"
+  | "already_posted"
+  | VerificationApproveRefusal;
 
-export function recoveryApproveRefusal(
-  row: Pick<MatchedRecoveryRow, "legacy_outcome"> & { status: RecoveryStatus; posted_reply_id: string | null }
-): RecoveryApproveRefusal | null {
+/**
+ * The facts the approval gate reasons about.
+ *
+ * `legacy_evidence` is REQUIRED, not optional. An optional field would let a
+ * caller that simply forgot to select the column silently skip the
+ * verification gate and get the old, weaker answer -- a bypass that compiles.
+ * Required, the compiler makes every call site hand over the evidence.
+ */
+export type RecoveryApproveFacts = Pick<MatchedRecoveryRow, "legacy_outcome"> & {
+  status: RecoveryStatus;
+  posted_reply_id: string | null;
+  legacy_evidence: Record<string, unknown> | null;
+};
+
+/**
+ * The single approval gate. Every UI, route and script path reaches approval
+ * through this function.
+ *
+ * Order matters. The legacy_outcome check runs BEFORE the verification check,
+ * which is what makes a POSTED_RECORDED row whose latest check says
+ * CONFIRMED_REMOVED still refuse with `removal_unconfirmed`: a live lookup is
+ * evidence, but recording it against the row is a separate, deliberate act
+ * (`verify-youtube-recovery.ts --apply-evidence`). Approval follows the
+ * recorded outcome, never a reading that nobody has committed to.
+ *
+ * The verification check runs last and can only subtract: it turns an
+ * otherwise-approvable row into a refused one when the most recent exact-ID
+ * check did not positively prove the legacy reply is gone.
+ */
+export function recoveryApproveRefusal(row: RecoveryApproveFacts): RecoveryApproveRefusal | null {
   if (row.status !== "DRAFTED") return "not_drafted";
   if (row.legacy_outcome !== "CONFIRMED_REMOVED") return "removal_unconfirmed";
   if (row.posted_reply_id) return "already_posted";
-  return null;
+  return verificationApproveRefusal(row.legacy_evidence);
 }
 
-export function canApproveRecovery(
-  row: Pick<MatchedRecoveryRow, "legacy_outcome"> & { status: RecoveryStatus; posted_reply_id: string | null }
-): boolean {
+export function canApproveRecovery(row: RecoveryApproveFacts): boolean {
   return recoveryApproveRefusal(row) === null;
 }

@@ -19,6 +19,7 @@ import {
   recoveryDecisionRefusal,
   recoveryStatusTone,
 } from "@/lib/youtube/recovery-review";
+import { readLatestVerification } from "@/lib/youtube/recovery-verify";
 
 /**
  * Manual review for recovery attempts.
@@ -214,7 +215,13 @@ export function YoutubeRecovery({ items, counts }: Props) {
         // never approves, so a held row still needs a separate approval.
         const unholdAllowed = canUnholdRecovery(item);
         const isOpen = expanded === item.id;
-        const removalProven = item.legacy_outcome === "CONFIRMED_REMOVED";
+        // Green means "still proven right now", not "was proven once". A row
+        // whose latest exact-id check contradicts its stored outcome is shown
+        // as unproven, matching the approval gate rather than contradicting it.
+        const latestCheck = readLatestVerification(item.legacy_evidence);
+        const removalProven =
+          item.legacy_outcome === "CONFIRMED_REMOVED" &&
+          (latestCheck === null || latestCheck.result === "CONFIRMED_REMOVED");
 
         return (
           <Card key={item.id} className="p-4">
