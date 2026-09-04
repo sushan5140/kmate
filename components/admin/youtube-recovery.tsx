@@ -20,6 +20,74 @@ import {
   recoveryStatusTone,
 } from "@/lib/youtube/recovery-review";
 import { readLatestVerification } from "@/lib/youtube/recovery-verify";
+import { RECOVERY_SEND_REFUSAL_TEXT, canSendRecovery } from "@/lib/youtube/recovery-send";
+import { RECOVERY_RESOLVE_REFUSAL_TEXT } from "@/lib/youtube/recovery-resolve";
+import { RECOVERY_RETRY_REFUSAL_TEXT, canRetryRecovery } from "@/lib/youtube/recovery-retry";
+import { RECOVERY_CONFIRM_REFUSAL_TEXT, canConfirmRecovery } from "@/lib/youtube/recovery-confirm";
+
+/** The four consequential verbs, each behind its own in-page confirmation. */
+export type RecoveryAction = "send" | "resolve" | "retry" | "confirm";
+
+const ACTION_REFUSAL_TEXT: Record<RecoveryAction, Record<string, string>> = {
+  send: RECOVERY_SEND_REFUSAL_TEXT,
+  resolve: RECOVERY_RESOLVE_REFUSAL_TEXT,
+  retry: RECOVERY_RETRY_REFUSAL_TEXT,
+  confirm: RECOVERY_CONFIRM_REFUSAL_TEXT,
+};
+
+/**
+ * What each confirmation panel says, and what must be typed to arm it.
+ *
+ * Only the two actions that change YouTube-facing state require typing. Resolve
+ * and confirm are read-only investigations, and demanding a typed word for them
+ * would train the reviewer to type words without reading them -- which is
+ * exactly what makes the typed word worthless on the action that matters.
+ */
+const ACTION_CONFIRMATIONS: Record<
+  RecoveryAction,
+  { title: string; word: string | null; tone: "danger" | "neutral"; lines: string[] }
+> = {
+  send: {
+    title: "Send this reply to YouTube",
+    word: "SEND",
+    tone: "danger",
+    lines: [
+      "This posts publicly and CANNOT be undone.",
+      "The server re-checks that the old reply is still gone immediately before sending, and refuses if it is not.",
+      "Read the exact text below. It is what will be sent, byte for byte.",
+    ],
+  },
+  resolve: {
+    title: "Investigate this stuck send",
+    word: null,
+    tone: "neutral",
+    lines: [
+      "READ-ONLY. This looks at the replies already under the comment to find out whether the earlier attempt created one.",
+      "It does NOT post anything.",
+      "It only records a result if it finds exactly one reply matching this draft, from this channel, at the right time. Otherwise nothing changes.",
+    ],
+  },
+  retry: {
+    title: "Authorize one more attempt",
+    word: "RETRY",
+    tone: "danger",
+    lines: [
+      "The previous attempt definitely failed and created nothing.",
+      "This does NOT send. It returns the row to approved; sending stays a separate action.",
+      "An attempt whose outcome was unknown cannot be retried — investigate it instead.",
+    ],
+  },
+  confirm: {
+    title: "Check whether this reply is still live",
+    word: null,
+    tone: "neutral",
+    lines: [
+      "READ-ONLY. Asks YouTube for this exact reply id.",
+      "Accepted by the API is not the same as live — this is the only thing that tells them apart.",
+      "If the reply is gone the row becomes REMOVED, which is terminal. Nothing re-posts it.",
+    ],
+  },
+};
 
 /**
  * Manual review for recovery attempts.
@@ -55,6 +123,7 @@ export interface RecoveryItem {
   verified_at: string | null;
   removed_detected_at: string | null;
   last_error: string | null;
+  attempt_count: number;
   parent_comment_text: string | null;
   parent_video_title: string | null;
   parent_source_url: string | null;
@@ -105,6 +174,62 @@ export function YoutubeRecovery({ items, counts }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Which row is awaiting an in-page confirmation, and what the reviewer typed.
+  const [pending, setPending] = useState<{ id: string; action: RecoveryAction } | null>(null);
+  const [typed, setTyped] = useState("");
+
+  /**
+   * Send, resolve, retry and confirm.
+   *
+   * The request body carries a confirmation verb and the row id in the URL --
+   * no text, no comment ids, no counts. The server reads all of that from the
+   * stored row, so what is on screen cannot change what gets posted.
+   *
+   * Confirmation happens in-page (see the panel below) rather than through
+   * window.prompt: a native dialog cannot show 350 characters of draft text
+   * legibly, and the text is the thing the reviewer most needs to read before
+   * an irreversible send. The typed word is not security -- every rule is
+   * enforced again server-side -- it exists so an irreversible action cannot
+   * happen by misclick, which is a different failure from an unauthorized one.
+   */
+  async function runAction(item: RecoveryItem, action: RecoveryAction) {
+    setPending(null);
+    setTyped("");
+    setBusyId(item.id);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/admin/youtube/recovery/${item.id}/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // The whole body. The server resolves everything else itself.
+        body: JSON.stringify({ confirm: action }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+
+      if (!response.ok) {
+        const reason = typeof payload.reason === "string" ? payload.reason : null;
+        const wording = ACTION_REFUSAL_TEXT[action];
+        setMessage({
+          tone: "error",
+          text:
+            ((reason && wording[reason]) ?? reason ?? `Request failed (${response.status})`) +
+            (payload.needsHumanReview ? " — this attempt needs a human to check YouTube directly." : "") +
+            (typeof payload.detail === "string" ? ` (${payload.detail})` : ""),
+        });
+        return;
+      }
+
+      setMessage({
+        tone: "ok",
+        text: typeof payload.note === "string" ? payload.note : "Done.",
+      });
+      window.location.reload();
+    } catch {
+      setMessage({ tone: "error", text: "Could not reach the server." });
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   async function decide(item: RecoveryItem, action: "approve" | "hold" | "skip" | "unhold") {
     if (action === "approve") {
@@ -214,6 +339,17 @@ export function YoutubeRecovery({ items, counts }: Props) {
         // Shown only for a held attempt. It returns the row to DRAFTED; it
         // never approves, so a held row still needs a separate approval.
         const unholdAllowed = canUnholdRecovery(item);
+        // The same pure rules the server runs. This decides what is SHOWN;
+        // it decides nothing about what is permitted -- every one of these is
+        // re-evaluated server-side, and a hand-made request gets the same
+        // refusal a hidden button would have.
+        const sendAllowed = canSendRecovery(item);
+        const resolveAllowed = item.status === "POSTING" && !item.posted_reply_id;
+        const retryAllowed = canRetryRecovery(item);
+        const confirmAllowed = canConfirmRecovery(item);
+        const openAction = pending?.id === item.id ? pending.action : null;
+        const spec = openAction ? ACTION_CONFIRMATIONS[openAction] : null;
+        const armed = spec ? spec.word === null || typed === spec.word : false;
         const isOpen = expanded === item.id;
         // Green means "still proven right now", not "was proven once". A row
         // whose latest exact-id check contradicts its stored outcome is shown
@@ -380,6 +516,98 @@ export function YoutubeRecovery({ items, counts }: Props) {
                 </span>
               )}
             </div>
+
+            {/* ---- consequential actions, kept visually separate from review ---- */}
+            {(sendAllowed || resolveAllowed || retryAllowed || confirmAllowed) && !openAction && (
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+                {sendAllowed && (
+                  <Button disabled={busy} onClick={() => { setPending({ id: item.id, action: "send" }); setTyped(""); }}>
+                    Send to YouTube…
+                  </Button>
+                )}
+                {resolveAllowed && (
+                  <Button variant="secondary" disabled={busy} onClick={() => { setPending({ id: item.id, action: "resolve" }); setTyped(""); }}>
+                    Investigate stuck send…
+                  </Button>
+                )}
+                {retryAllowed && (
+                  <Button variant="secondary" disabled={busy} onClick={() => { setPending({ id: item.id, action: "retry" }); setTyped(""); }}>
+                    Authorize one more attempt…
+                  </Button>
+                )}
+                {confirmAllowed && (
+                  <Button variant="secondary" disabled={busy} onClick={() => { setPending({ id: item.id, action: "confirm" }); setTyped(""); }}>
+                    Check if still live…
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* ---- in-page confirmation ---- */}
+            {openAction && spec && (
+              <div
+                className={`mt-3 rounded-xl border p-3 ${
+                  spec.tone === "danger" ? "border-danger bg-danger-soft" : "border-line bg-canvas"
+                }`}
+              >
+                <p className={`text-[13px] font-medium ${spec.tone === "danger" ? "text-danger" : "text-ink"}`}>
+                  {spec.title} — #{item.recovery_order} to {item.author_name}
+                </p>
+                <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-[12px] text-muted">
+                  {spec.lines.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+
+                {openAction === "send" && (
+                  <>
+                    <p className="mt-2 text-[11.5px] text-muted">Exact text to be sent:</p>
+                    <pre className="mt-1 whitespace-pre-wrap break-words rounded-lg bg-surface p-2 text-[12px] text-ink">
+                      {item.draft_text}
+                    </pre>
+                    <p className="mt-1 text-[11.5px] text-muted">
+                      Under comment <code className="break-all text-ink">{item.youtube_comment_id}</code>
+                    </p>
+                  </>
+                )}
+
+                {openAction === "confirm" && item.posted_reply_id && (
+                  <p className="mt-2 text-[11.5px] text-muted">
+                    Checking reply <code className="break-all text-ink">{item.posted_reply_id}</code>
+                  </p>
+                )}
+
+                {spec.word && (
+                  <label className="mt-2 block text-[12px] text-muted">
+                    Type <span className="font-mono font-semibold text-ink">{spec.word}</span> to confirm:
+                    <input
+                      autoFocus
+                      value={typed}
+                      onChange={(event) => setTyped(event.target.value)}
+                      className="mt-1 block w-40 rounded-lg border border-line bg-surface px-2 py-1 font-mono text-[13px] text-ink"
+                      placeholder={spec.word}
+                      aria-label={`Type ${spec.word} to confirm`}
+                    />
+                  </label>
+                )}
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <Button
+                    disabled={busy || !armed}
+                    onClick={() => runAction(item, openAction)}
+                  >
+                    {busy ? "Working…" : spec.tone === "danger" ? spec.title : "Run check"}
+                  </Button>
+                  <Button variant="ghost" disabled={busy} onClick={() => { setPending(null); setTyped(""); }}>
+                    Cancel
+                  </Button>
+                  {spec.word && !armed && (
+                    <span className="text-[12px] text-muted">Type {spec.word} to enable.</span>
+                  )}
+                </div>
+              </div>
+            )}
+
           </Card>
         );
       })}

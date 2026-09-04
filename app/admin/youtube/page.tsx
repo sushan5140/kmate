@@ -181,6 +181,7 @@ export default async function AdminYoutubePage({
     verified_at: r.verified_at,
     removed_detected_at: r.removed_detected_at,
     last_error: r.last_error,
+    attempt_count: r.attempt_count,
     parent_comment_text: r.parent_comment_text,
     parent_video_title: r.parent_video_title,
     parent_source_url: r.parent_source_url,

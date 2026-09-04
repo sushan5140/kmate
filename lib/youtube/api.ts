@@ -206,3 +206,146 @@ export async function assertExpectedChannel(): Promise<void> {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Read-only helpers for the recovery send path
+// ---------------------------------------------------------------------------
+
+/**
+ * The authenticated channel's id and title, unjudged.
+ *
+ * `assertExpectedChannel` above answers "does this match YOUTUBE_CHANNEL_ID".
+ * The recovery path needs the raw identity instead, because it asserts against
+ * the channel pinned in code (recovery-verify.EXPECTED_CHANNEL_ID) rather than
+ * against an environment variable that could be pointed anywhere.
+ */
+export async function fetchAuthenticatedChannel(): Promise<{ id: string | null; title: string | null }> {
+  let response: Response;
+  try {
+    response = await authedFetch(`${API_BASE}/channels?part=id,snippet&mine=true`, { method: "GET" });
+  } catch (error) {
+    if (error instanceof YoutubeAuthError) throw error;
+    throw new YoutubeApiError("network", "Could not reach YouTube to confirm the channel.");
+  }
+
+  if (response.status === 401) clearAccessTokenCache();
+  if (!response.ok) {
+    const { reason, message } = await readApiError(response);
+    throw new YoutubeApiError(reason, message, { httpStatus: response.status });
+  }
+
+  const payload = (await response.json()) as {
+    items?: Array<{ id?: unknown; snippet?: { title?: unknown } }>;
+  };
+  const item = payload.items?.[0];
+  return {
+    id: typeof item?.id === "string" ? item.id : null,
+    title: typeof item?.snippet?.title === "string" ? item.snippet.title : null,
+  };
+}
+
+/**
+ * One exact-id comments.list, returned UNINTERPRETED for the caller to classify.
+ *
+ * Deliberately not `replyExists`. That helper reads a 404 as "gone", which is
+ * the right call for verifying a reply we ourselves just created and hold the
+ * id for. It is the wrong call before a recovery send: there, "gone" is the
+ * permission to post, and a 404 is far more likely a malformed request than a
+ * deleted comment. So this returns the raw status and body, and
+ * recovery-verify.classifyLookup applies the strict rule -- only HTTP 200 with
+ * an empty items ARRAY counts as removed.
+ *
+ * Never throws: a transport failure is a classification input, not an
+ * exception, so one unreachable check cannot look like anything but "unknown".
+ */
+export async function fetchReplyLookup(
+  replyId: string
+): Promise<{ status: number; body: unknown; networkError?: string }> {
+  const url = `${API_BASE}/comments?part=id,snippet&textFormat=plainText&id=${encodeURIComponent(replyId)}`;
+
+  let response: Response;
+  try {
+    response = await authedFetch(url, { method: "GET" });
+  } catch (error) {
+    return {
+      status: 0,
+      body: null,
+      networkError: error instanceof Error ? error.message : "unknown transport failure",
+    };
+  }
+
+  if (response.status === 401) clearAccessTokenCache();
+
+  let body: unknown = null;
+  try {
+    body = await response.json();
+  } catch {
+    body = null;
+  }
+  return { status: response.status, body };
+}
+
+/**
+ * ALL replies under one top-level comment, paginated. Read-only.
+ *
+ * Used only by the stuck-send resolver, which needs to find out whether a
+ * reply it may have created actually exists. Returns a discriminated result
+ * rather than throwing, so an API failure classifies as "we could not look"
+ * instead of propagating as an exception the resolver might mistake for
+ * "nothing found" -- the difference between those two is the whole point.
+ *
+ * Pagination matters for correctness, not completeness. A single page would
+ * let a busy comment hide the matching reply past position 100, and the
+ * resolver would read that as "no match" -- a wrong answer that looks like a
+ * safe one. So every page is followed, and if the page cap is somehow reached
+ * the result says `truncated` and the resolver refuses rather than concluding
+ * anything from a partial list.
+ */
+const REPLY_PAGE_SIZE = 100;
+const MAX_REPLY_PAGES = 20;
+
+export async function fetchRepliesForParent(
+  parentId: string
+): Promise<
+  | { ok: true; items: unknown[]; truncated: boolean; pages: number }
+  | { ok: false; reason: "api_error" | "malformed_response" }
+> {
+  const collected: unknown[] = [];
+  let pageToken: string | undefined;
+  let pages = 0;
+
+  do {
+    const url =
+      `${API_BASE}/comments?part=id,snippet&textFormat=plainText&maxResults=${REPLY_PAGE_SIZE}` +
+      `&parentId=${encodeURIComponent(parentId)}` +
+      (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : "");
+
+    let response: Response;
+    try {
+      response = await authedFetch(url, { method: "GET" });
+    } catch {
+      return { ok: false, reason: "api_error" };
+    }
+
+    if (response.status === 401) clearAccessTokenCache();
+    if (!response.ok) return { ok: false, reason: "api_error" };
+
+    let payload: unknown;
+    try {
+      payload = await response.json();
+    } catch {
+      return { ok: false, reason: "malformed_response" };
+    }
+
+    if (!payload || typeof payload !== "object") return { ok: false, reason: "malformed_response" };
+    const body = payload as { items?: unknown; nextPageToken?: unknown };
+    if (!Array.isArray(body.items)) return { ok: false, reason: "malformed_response" };
+
+    collected.push(...body.items);
+    pages++;
+    pageToken = typeof body.nextPageToken === "string" ? body.nextPageToken : undefined;
+  } while (pageToken && pages < MAX_REPLY_PAGES);
+
+  // A token still outstanding at the cap means we did NOT see everything.
+  return { ok: true, items: collected, truncated: Boolean(pageToken), pages };
+}
