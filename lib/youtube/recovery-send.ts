@@ -40,6 +40,8 @@ export type RecoverySendRefusal =
   | "not_approved"
   | "already_posted"
   | "attempt_exhausted"
+  | "daily_limit_reached"
+  | "daily_limit_unknown"
   | "removal_unconfirmed"
   // fresh verification
   | "fresh_still_live"
@@ -67,6 +69,25 @@ export type RecoverySendRefusal =
  * attempt will not fix.
  */
 export const RECOVERY_MAX_TOTAL_ATTEMPTS = 2;
+
+/**
+ * How many recovery replies may be sent in one calendar day, in the configured
+ * YouTube timezone.
+ *
+ * One, for the initial rollout. This is a hard server-side ceiling on the
+ * whole feature, not a per-row rule: the per-row cap stops a row being tried
+ * forever, and this stops the SET being drained in an afternoon. The previous
+ * bot's harm was volume, and a human clicking nineteen times is still volume.
+ *
+ * A constant rather than an environment variable on purpose. An env var is a
+ * number someone can raise at 2am from a phone without review; changing this
+ * requires an edit, a test run and a deploy. That friction is the feature.
+ *
+ * The count is of CLAIMS, not successes: an ambiguous POSTING, a definite
+ * FAILED and an accepted reply all consume the day's budget equally, because
+ * all three mean a reply may exist.
+ */
+export const RECOVERY_DAILY_SEND_LIMIT = 1;
 
 /** The status a row must be in to be claimed, and the status a claim moves it to. */
 export const CLAIM_FROM_STATUS = "APPROVED";
@@ -249,6 +270,19 @@ export type RecoverySendOutcome =
 export interface RecoverySendDeps {
   /** The row as stored, or null. */
   loadRow(id: string): Promise<RecoverySendRow | null>;
+  /**
+   * How many recovery sends have been claimed today, or null when that cannot
+   * be determined. Null blocks: an unknown count is not a low one.
+   */
+  dailyUsage(): Promise<number | null>;
+  /**
+   * Atomically consume one of today's send slots, returning the slot taken or
+   * null when the day is already spent. MUST be race-proof -- a read-then-act
+   * count is exactly what this replaces.
+   */
+  consumeDailyBudget(id: string): Promise<number | null>;
+  /** Hand a consumed slot back when the claim that followed it did not apply. */
+  releaseDailyBudget(slot: number): Promise<void>;
   /** Identity of the credentials being used. */
   authenticatedChannel(): Promise<ChannelIdentity>;
   /** A raw exact-id comments.list result, unclassified. */
@@ -321,6 +355,27 @@ export async function executeRecoverySend(
   const storedRefusal = recoverySendRefusal(row);
   if (storedRefusal) return refuse(storedRefusal, 409);
 
+  // The daily ceiling, checked BEFORE any network call so a capped day costs
+  // nothing. `null` means the count could not be established, and an unknown
+  // count is not a low one -- it blocks.
+  const usage = await deps.dailyUsage();
+  if (usage === null) {
+    await deps.recordEvent({
+      type: "RECOVERY_FRESH_VERIFICATION_BLOCKED",
+      fromStatus: row.status,
+      metadata: { reason: "daily_limit_unknown" },
+    });
+    return refuse("daily_limit_unknown", 503);
+  }
+  if (usage >= RECOVERY_DAILY_SEND_LIMIT) {
+    await deps.recordEvent({
+      type: "RECOVERY_FRESH_VERIFICATION_BLOCKED",
+      fromStatus: row.status,
+      metadata: { reason: "daily_limit_reached", candidates_examined: usage },
+    });
+    return refuse("daily_limit_reached", 429);
+  }
+
   // 2. Whose channel are these credentials? Wrong answer aborts before any
   // per-row work, and a missing/unreadable identity is a mismatch, not a pass.
   const verdict = verifyChannel(await deps.authenticatedChannel());
@@ -354,12 +409,21 @@ export async function executeRecoverySend(
     metadata: { result: classification.result, legacy_reply_id: row.legacy_reply_id },
   });
 
-  // 4. Only one caller can win this.
+  // 4a. Take the day's slot atomically. The earlier count was a courtesy that
+  // avoids pointless work; THIS is what two concurrent requests contend on.
+  const slot = await deps.consumeDailyBudget(row.id);
+  if (slot === null) return refuse("daily_limit_reached", 429);
+
+  // 4b. Only one caller can win this.
   const claimed = await deps.claim(row.id, {
     status: CLAIM_FROM_STATUS,
     attemptCount: row.attempt_count,
   });
-  if (!claimed) return refuse("claim_conflict", 409);
+  if (!claimed) {
+    // Nothing was sent, so the day is not spent. Hand the slot back.
+    await deps.releaseDailyBudget(slot);
+    return refuse("claim_conflict", 409);
+  }
   await deps.recordEvent({
     type: "RECOVERY_POST_CLAIMED",
     fromStatus: CLAIM_FROM_STATUS,
@@ -376,6 +440,7 @@ export async function executeRecoverySend(
     claimed.posted_reply_id !== null ||
     claimed.legacy_reply_id !== row.legacy_reply_id
   ) {
+    await deps.releaseDailyBudget(slot);
     return refuse("claim_state_drift", 409);
   }
 
@@ -438,6 +503,8 @@ export const RECOVERY_SEND_REFUSAL_TEXT: Record<string, string> = {
   not_approved: "Only an approved attempt can be sent",
   already_posted: "A reply has already been sent for this attempt",
   attempt_exhausted: "This attempt has already been tried once and needs a human decision",
+  daily_limit_reached: "The daily recovery send limit has already been used — try again tomorrow",
+  daily_limit_unknown: "Today's send count could not be established, so sending is blocked",
   removal_unconfirmed: "Removal of the legacy reply is not confirmed",
   fresh_still_live: "The legacy reply is still live right now — there is nothing to replace",
   fresh_api_error: "The removal check could not be completed — nothing was sent",

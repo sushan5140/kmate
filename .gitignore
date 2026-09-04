@@ -48,3 +48,6 @@ skills-lock.json
 # The broad `.env*` rule above would otherwise swallow this template, which
 # DEPLOYMENT.md points at for the annotated variable list. It holds no secrets.
 !/gks-rag/.env.example
+
+# Playwright MCP smoke-test output (generated, never source)
+.playwright-mcp/

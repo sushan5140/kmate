@@ -21,6 +21,7 @@ import {
   CLAIM_FROM_STATUS,
   CLAIM_TO_STATUS,
   PayloadIntegrityError,
+  RECOVERY_DAILY_SEND_LIMIT,
   RECOVERY_MAX_TOTAL_ATTEMPTS,
   RECOVERY_SEND_REFUSAL_TEXT,
   assertPayloadMatchesRow,
@@ -94,6 +95,9 @@ interface Harness {
   events: Array<{ type: string; fromStatus?: string | null; toStatus?: string | null; youtubeReplyId?: string | null; attemptNumber?: number | null; metadata?: Record<string, unknown> }>;
   claims: number;
   state: RecoverySendRow;
+  /** Today's consumed slots, keyed like the real primary key would be. */
+  budget: Set<number>;
+  budgetReleases: number;
 }
 
 /** A fake whose claim is genuinely atomic: the first caller wins, forever. */
@@ -104,6 +108,10 @@ function harness(
     channel?: { id: string | null; title: string | null };
     insert?: () => Promise<{ replyId: string }>;
     missing?: boolean;
+    /** Sends already claimed today, as dailyUsage would report them. */
+    usedToday?: number;
+    /** dailyUsage cannot determine the count. */
+    usageUnknown?: boolean;
   } = {}
 ): Harness {
   const state = row(options.start);
@@ -113,6 +121,8 @@ function harness(
     failures: [],
     events: [],
     claims: 0,
+    budget: new Set<number>(),
+    budgetReleases: 0,
     state,
     deps: null as unknown as RecoverySendDeps,
   };
@@ -120,6 +130,23 @@ function harness(
   h.deps = {
     async loadRow() {
       return options.missing ? null : { ...h.state };
+    },
+    async dailyUsage() {
+      return options.usageUnknown ? null : (options.usedToday ?? h.budget.size);
+    },
+    // Mirrors the real primary key: a taken slot cannot be taken again.
+    async consumeDailyBudget() {
+      for (let slot = 0; slot < RECOVERY_DAILY_SEND_LIMIT; slot++) {
+        if (!h.budget.has(slot)) {
+          h.budget.add(slot);
+          return slot;
+        }
+      }
+      return null;
+    },
+    async releaseDailyBudget(slot) {
+      h.budget.delete(slot);
+      h.budgetReleases++;
     },
     async authenticatedChannel() {
       return options.channel ?? { id: EXPECTED_CHANNEL_ID, title: "Sushan" };
@@ -326,7 +353,10 @@ console.log("=== 8. two concurrent sends: only one can win ===");
   const losers = [a, b].filter((r) => !r.ok);
   ok(winners.length === 1, "exactly one send succeeded");
   ok(losers.length === 1, "exactly one was refused");
-  ok(!losers[0].ok && losers[0].reason === "claim_conflict", "the loser was refused with claim_conflict");
+  ok(
+    !losers[0].ok && (losers[0].reason === "claim_conflict" || losers[0].reason === "daily_limit_reached"),
+    "the loser was refused (" + (losers[0].ok ? "-" : losers[0].reason) + ") -- with a cap of 1 the budget refuses it before the claim"
+  );
   ok(h.inserts.length === 1, "the reply was inserted exactly ONCE");
   ok(h.claims === 1, "the row was claimed exactly once");
 }
@@ -339,8 +369,8 @@ console.log("=== 8. two concurrent sends: only one can win ===");
   ok(results.filter((r) => r.ok).length === 1, "five concurrent sends produce exactly one success");
   ok(h.inserts.length === 1, "five concurrent sends produce exactly ONE insert");
   ok(
-    results.filter((r) => !r.ok && r.reason === "claim_conflict").length === 4,
-    "the other four are claim_conflict"
+    results.filter((r) => !r.ok && (r.reason === "claim_conflict" || r.reason === "daily_limit_reached")).length === 4,
+    "the other four are refused, by the budget or the claim"
   );
 }
 {
@@ -575,6 +605,235 @@ console.log("=== 15. the rules themselves ===");
   ]) {
     ok(typeof RECOVERY_SEND_REFUSAL_TEXT[reason] === "string", reason + " has reviewer-facing wording");
   }
+}
+
+console.log("=== 17. the daily send cap ===");
+{
+  const h = harness({ usedToday: 0 });
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(out.ok === true, "zero attempts today -> allowed");
+  ok(h.inserts.length === 1, "and the send happens");
+}
+{
+  // The first send of the day consumes the budget as it goes.
+  const h = harness();
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(out.ok === true, "the first attempt is allowed");
+  ok(h.budget.size === RECOVERY_DAILY_SEND_LIMIT, "and it consumes the day's budget");
+}
+{
+  const h = harness({ usedToday: RECOVERY_DAILY_SEND_LIMIT });
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(!out.ok && out.reason === "daily_limit_reached", "one attempt already today -> blocked");
+  ok(h.inserts.length === 0, "nothing is sent once the cap is reached");
+  ok(h.claims === 0, "and the row is not even claimed");
+  ok(h.state.status === "APPROVED", "the blocked row is left untouched");
+  ok(
+    h.events.some((e) => e.metadata?.reason === "daily_limit_reached"),
+    "the cap refusal is recorded in the audit trail"
+  );
+}
+{
+  // "Yesterday's attempt does not block today": the count is scoped to the
+  // day, so a fresh day reports zero and the send proceeds.
+  const h = harness({ usedToday: 0 });
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(out.ok === true, "a new day reports zero usage and allows the send");
+}
+{
+  const postCode = stripComments(readFileSync("lib/youtube/recovery-post.ts", "utf8"));
+  ok(
+    /\.eq\("send_day", recoverySendDay\(\)\)/.test(postCode),
+    "usage is counted for TODAY only, so yesterday's sends cannot block today"
+  );
+  ok(
+    /today\(now, readTimezone\(process\.env\.YOUTUBE_TIMEZONE\) \|\| DEFAULT_TIMEZONE\)/.test(postCode),
+    "the day boundary is the configured YouTube timezone, not UTC"
+  );
+}
+
+console.log("=== 18. every kind of attempt consumes the day ===");
+{
+  // The budget is taken at CLAIM time, before the API answers, so the
+  // disposition of that answer cannot give the day back.
+  const outcomes: Array<[string, () => Promise<{ replyId: string }>]> = [
+    ["an ambiguous POSTING", async () => { throw { code: "network", message: "died", outcomeUnknown: true }; }],
+    ["a definite FAILED", async () => { throw { code: "commentNotFound", message: "no", httpStatus: 404 }; }],
+    ["an accepted reply", async () => ({ replyId: "r" })],
+  ];
+  for (const [label, insert] of outcomes) {
+    const h = harness({ insert });
+    await executeRecoverySend(h.deps, "row-1");
+    ok(h.budget.size === RECOVERY_DAILY_SEND_LIMIT, label + " consumes the day's budget");
+    ok(h.budgetReleases === 0, label + " does not hand the budget back");
+  }
+}
+{
+  // API_ACCEPTED / VERIFIED_LIVE / REMOVED all descend from a claim, so all
+  // three are already counted by the row that claimed.
+  const h = harness({ insert: async () => ({ replyId: "r" }) });
+  await executeRecoverySend(h.deps, "row-1");
+  const second = await executeRecoverySend(h.deps, "row-1");
+  ok(!second.ok, "a second send after an accepted one is refused");
+  ok(h.inserts.length === 1, "and only one insert ever happened");
+}
+
+console.log("=== 19. the budget is returned only when nothing was sent ===");
+{
+  // A lost claim race sends nothing, so the day must not be spent.
+  const h = harness();
+  h.deps.claim = async () => null;
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(!out.ok && out.reason === "claim_conflict", "a lost claim is reported");
+  ok(h.budgetReleases === 1, "the slot is handed back");
+  ok(h.budget.size === 0, "so the day is still available");
+  ok(h.inserts.length === 0, "and nothing was sent");
+}
+{
+  const h = harness();
+  const original = h.deps.claim.bind(h.deps);
+  h.deps.claim = async (id, expect) => {
+    const claimed = await original(id, expect);
+    return claimed ? { ...claimed, legacy_reply_id: "drifted" } : null;
+  };
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(!out.ok && out.reason === "claim_state_drift", "drift is reported");
+  ok(h.budget.size === 0, "and the unspent day is returned");
+}
+
+console.log("=== 20. an unknown count blocks ===");
+{
+  const h = harness({ usageUnknown: true });
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(!out.ok && out.reason === "daily_limit_unknown", "a count that cannot be read blocks the send");
+  ok(h.inserts.length === 0, "nothing is sent when the cap cannot be evaluated");
+  ok(h.claims === 0, "and nothing is claimed");
+  ok(
+    h.events.some((e) => e.metadata?.reason === "daily_limit_unknown"),
+    "the block is recorded"
+  );
+}
+{
+  const postCode = stripComments(readFileSync("lib/youtube/recovery-post.ts", "utf8"));
+  ok(
+    /if \(error \|\| count === null \|\| count === undefined\) return null;/.test(postCode),
+    "a failed count query returns null, which blocks"
+  );
+  ok(
+    /if \(error\.code !== "23505"\) return null;/.test(postCode),
+    "a budget insert that fails for any reason other than 'slot taken' also blocks"
+  );
+}
+
+console.log("=== 21. concurrency cannot defeat the cap ===");
+{
+  // Two sends of DIFFERENT rows racing on the same day. The budget, not the
+  // per-row claim, is what has to stop the second one.
+  const h = harness();
+  const other = { ...row({ id: "row-2" }) };
+  const deps2: typeof h.deps = {
+    ...h.deps,
+    async loadRow() {
+      return { ...other };
+    },
+    async claim(_id, expect) {
+      if (other.status !== expect.status) return null;
+      other.status = CLAIM_TO_STATUS;
+      other.attempt_count = expect.attemptCount + 1;
+      h.claims++;
+      return { ...other };
+    },
+  };
+
+  const [a, b] = await Promise.all([
+    executeRecoverySend(h.deps, "row-1"),
+    executeRecoverySend(deps2, "row-2"),
+  ]);
+  const wins = [a, b].filter((r) => r.ok).length;
+  ok(wins === 1, "two different rows racing on one day produce exactly ONE send");
+  ok(h.inserts.length === 1, "exactly one insert happened");
+  ok(
+    [a, b].some((r) => !r.ok && r.reason === "daily_limit_reached"),
+    "the loser is refused by the daily cap, not by luck"
+  );
+}
+{
+  const h = harness();
+  const results = await Promise.all(
+    Array.from({ length: 5 }, () => executeRecoverySend(h.deps, "row-1"))
+  );
+  ok(results.filter((r) => r.ok).length === 1, "five concurrent sends of one row still produce one success");
+  ok(h.inserts.length === 1, "and one insert");
+}
+
+console.log("=== 22. the cap is server-side, constant, and not client-supplied ===");
+{
+  ok(RECOVERY_DAILY_SEND_LIMIT === 1, "the rollout limit is 1 per day");
+  const sendSrc = readFileSync("lib/youtube/recovery-send.ts", "utf8");
+  ok(
+    /export const RECOVERY_DAILY_SEND_LIMIT = \d+;/.test(sendSrc),
+    "it is a constant in code, not an environment variable"
+  );
+  ok(!/process\.env\.[A-Z_]*DAILY[A-Z_]*/.test(sendSrc), "no env var can raise it");
+  for (const path of [
+    "app/api/admin/youtube/recovery/[id]/send/route.ts",
+    "app/api/admin/youtube/recovery/[id]/retry/route.ts",
+  ]) {
+    const code = stripComments(readFileSync(path, "utf8"));
+    const bodyReads = code.match(/body\.\w+/g) ?? [];
+    ok(
+      bodyReads.every((r) => r === "body.confirm"),
+      path + " reads only body.confirm, so no limit can arrive from the client"
+    );
+    ok(!/RECOVERY_DAILY_SEND_LIMIT/.test(code), path + " does not even reference the constant");
+  }
+  const uiSrc = stripComments(readFileSync("components/admin/youtube-recovery.tsx", "utf8"));
+  ok(!/DAILY_SEND_LIMIT/.test(uiSrc), "the UI does not send a limit either");
+
+  // The cap runs before the network work, so a capped day is cheap AND leaves
+  // no trace on the row.
+  const sendCode = stripComments(sendSrc);
+  const capAt = sendCode.indexOf("deps.dailyUsage()");
+  const channelAt = sendCode.indexOf("deps.authenticatedChannel()");
+  const lookupAt = sendCode.indexOf("deps.lookupReply(");
+  const claimAt = sendCode.indexOf("deps.claim(");
+  ok(capAt > 0 && capAt < channelAt, "the cap is checked before the channel assertion");
+  ok(capAt < lookupAt, "and before the fresh verification");
+  ok(capAt < claimAt, "and before the claim");
+  ok(sendCode.indexOf("deps.consumeDailyBudget(") < claimAt, "the budget is taken immediately before the claim");
+}
+
+console.log("=== 23. a retry cannot bypass the cap ===");
+{
+  // A retry returns a row to APPROVED. It does not send, and the send that
+  // follows still meets the same ceiling.
+  const h = harness({ start: { attempt_count: 1 }, usedToday: RECOVERY_DAILY_SEND_LIMIT });
+  const out = await executeRecoverySend(h.deps, "row-1");
+  ok(!out.ok && out.reason === "daily_limit_reached", "a retry-authorized row is still capped");
+  ok(h.inserts.length === 0, "and sends nothing");
+  const retrySrc = stripComments(readFileSync("lib/youtube/recovery-retry.ts", "utf8"));
+  ok(!/insertReply|executeRecoverySend/.test(retrySrc), "the retry path cannot send at all");
+  ok(!/DailyBudget|dailyUsage/.test(retrySrc), "and it cannot touch the budget");
+}
+
+console.log("=== 24. no automatic reset ===");
+{
+  const postCode = stripComments(readFileSync("lib/youtube/recovery-post.ts", "utf8"));
+  const budgetDeletes = (postCode.match(/from\("youtube_reply_recovery_send_budget"\)[\s\S]{0,80}\.delete\(\)/g) ?? []).length;
+  ok(budgetDeletes === 1, "there is exactly one delete of a budget row (" + budgetDeletes + ")");
+  ok(
+    /releaseDailyBudget\(slot\)/.test(postCode) === false || /async releaseDailyBudget/.test(postCode),
+    "and it is only the release of an unspent slot"
+  );
+  ok(!/setInterval|setTimeout|cron/.test(postCode), "nothing clears the budget on a timer");
+  const migration = readFileSync("supabase/migrations/20260904180000_youtube_reply_recovery_send_budget.sql", "utf8")
+    .split(NEWLINE)
+    .filter((l) => !l.trim().startsWith("--"))
+    .join(NEWLINE);
+  ok(/primary key \(send_day, slot\)/.test(migration), "the primary key is what enforces the cap");
+  ok(/enable row level security/.test(migration), "RLS is enabled");
+  ok(/revoke all on public\.youtube_reply_recovery_send_budget from public, anon, authenticated/.test(migration), "service-role only");
+  ok(!/grant[^;]*update[^;]*budget/i.test(migration), "no update grant on the budget table");
 }
 
 console.log("=== 16. nothing in this suite touched YouTube ===");

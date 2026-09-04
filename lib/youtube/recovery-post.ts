@@ -26,9 +26,11 @@ import {
   type RetryOutcome,
   type RetryRow,
 } from "./recovery-retry";
+import { DEFAULT_TIMEZONE, readTimezone, today } from "./day-window";
 import {
   CLAIM_FROM_STATUS,
   CLAIM_TO_STATUS,
+  RECOVERY_DAILY_SEND_LIMIT,
   executeRecoverySend,
   type RecoverySendDeps,
   type RecoverySendOutcome,
@@ -137,6 +139,11 @@ function asRow(record: Record<string, unknown>): RecoverySendRow {
  * outreach queue uses to claim a batch row, and the same shape
  * decideRecoveryAttempt uses to guard a decision.
  */
+/** Today, in the configured YouTube timezone -- not UTC, not the server's zone. */
+export function recoverySendDay(now = new Date()): string {
+  return today(now, readTimezone(process.env.YOUTUBE_TIMEZONE) || DEFAULT_TIMEZONE);
+}
+
 export function realRecoverySendDeps(id: string, actorUserId: string): RecoverySendDeps {
   const admin = getSupabaseAdmin();
 
@@ -149,6 +156,50 @@ export function realRecoverySendDeps(id: string, actorUserId: string): RecoveryS
         .maybeSingle();
       if (error) throw new Error(`Could not read recovery attempt: ${error.message}`);
       return data ? asRow(data as Record<string, unknown>) : null;
+    },
+
+    /**
+     * How many of today's send slots are already spent.
+     *
+     * Returns null -- which blocks -- on any error. A count we could not read
+     * is not a count of zero, and treating it as zero is precisely how a cap
+     * quietly stops capping.
+     */
+    async dailyUsage() {
+      const { count, error } = await admin
+        .from("youtube_reply_recovery_send_budget")
+        .select("slot", { count: "exact", head: true })
+        .eq("send_day", recoverySendDay());
+      if (error || count === null || count === undefined) return null;
+      return count;
+    },
+
+    /**
+     * Take one of today's slots. The primary key on (send_day, slot) is what
+     * makes this atomic: a duplicate insert fails with 23505 regardless of how
+     * two requests interleave.
+     */
+    async consumeDailyBudget(rowId) {
+      const day = recoverySendDay();
+      for (let slot = 0; slot < RECOVERY_DAILY_SEND_LIMIT; slot++) {
+        const { error } = await admin
+          .from("youtube_reply_recovery_send_budget")
+          .insert({ send_day: day, slot, attempt_id: rowId });
+        if (!error) return slot;
+        // 23505 = the slot is taken. Anything else is a real failure, and a
+        // failure to record the budget must not permit the send.
+        if (error.code !== "23505") return null;
+      }
+      return null;
+    },
+
+    async releaseDailyBudget(slot) {
+      // Only ever called when the claim did not apply, i.e. nothing was sent.
+      await admin
+        .from("youtube_reply_recovery_send_budget")
+        .delete()
+        .eq("send_day", recoverySendDay())
+        .eq("slot", slot);
     },
 
     async authenticatedChannel() {
