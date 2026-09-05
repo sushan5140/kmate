@@ -51,3 +51,6 @@ skills-lock.json
 
 # Playwright MCP smoke-test output (generated, never source)
 .playwright-mcp/
+
+# Supabase CLI local cache/state, never source
+supabase/.temp/
