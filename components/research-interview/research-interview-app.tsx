@@ -44,6 +44,14 @@ const FOCUS_LABELS: Record<ResearchFocus, string> = {
   limitations: "Limitations",
 };
 
+const FOCUS_COPY: Record<ResearchFocus, string> = {
+  balanced: "Move naturally across contribution, methods, results, evidence, and limitations.",
+  novelty: "Prioritize what is actually new, why it matters, and whether the contribution is justified.",
+  methods: "Probe design choices, equations, datasets, implementation decisions, and experimental setup.",
+  results: "Press on findings, metrics, interpretation, evidence quality, and what the results really establish.",
+  limitations: "Stress-test assumptions, weaknesses, threats to validity, failure cases, and future work.",
+};
+
 const PAPER_LIMIT_BYTES = 18 * 1024 * 1024;
 const PPTX_LIMIT_BYTES = 35 * 1024 * 1024;
 
@@ -64,6 +72,80 @@ function GroundingBadge({ status }: { status: ResearchTurn["evaluation"]["ground
     <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide", classes)}>
       {status.replace("_", " ")}
     </span>
+  );
+}
+
+function FocusSelector({
+  value,
+  onChange,
+  compact = false,
+}: {
+  value: ResearchFocus;
+  onChange: (focus: ResearchFocus) => void;
+  compact?: boolean;
+}) {
+  if (compact) {
+    return (
+      <div className="rounded-2xl border border-hairline bg-surface px-3.5 py-3 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Live interview focus</p>
+            <p className="mt-0.5 text-[11px] text-muted">Switch anytime · applies to the next adaptive question</p>
+          </div>
+          <span className="rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-semibold text-primary">
+            {FOCUS_LABELS[value]} active
+          </span>
+        </div>
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {RESEARCH_FOCUS_MODES.map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              aria-pressed={value === mode}
+              onClick={() => onChange(mode)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-all",
+                value === mode
+                  ? "border-ink bg-ink text-white shadow-xs"
+                  : "border-hairline bg-canvas text-muted hover:border-hairline-strong hover:text-ink"
+              )}
+            >
+              {FOCUS_LABELS[mode]}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted">{FOCUS_COPY[value]}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Focus</p>
+          <p className="mt-0.5 text-[10.5px] text-muted">This is only the starting focus — you can change it during the interview.</p>
+        </div>
+        <span className="text-[10.5px] font-semibold text-primary">{FOCUS_LABELS[value]} selected</span>
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {RESEARCH_FOCUS_MODES.map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            aria-pressed={value === mode}
+            onClick={() => onChange(mode)}
+            className={cn(
+              "rounded-xl border px-3 py-2.5 text-left transition-all",
+              value === mode ? "border-ink bg-ink text-white shadow-xs" : "border-hairline bg-canvas hover:border-hairline-strong"
+            )}
+          >
+            <p className={cn("text-[11.5px] font-semibold", value === mode ? "text-white" : "text-ink")}>{FOCUS_LABELS[mode]}</p>
+            <p className={cn("mt-1 text-[10px] leading-relaxed", value === mode ? "text-white/70" : "text-muted")}>{FOCUS_COPY[mode]}</p>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -223,24 +305,27 @@ export function ResearchInterviewApp() {
 
   if (stage === "interview" && stream && paperBase64 && digest && presentationFile && paperFile) {
     return (
-      <ResearchInterviewStage
-        apiKey={apiKey.trim()}
-        stream={stream}
-        paperBase64={paperBase64}
-        paperMimeType={paperFile.type || "application/pdf"}
-        digest={digest}
-        difficulty={difficulty}
-        focus={focus}
-        presentationFile={presentationFile}
-        mainQuestionLimit={questionCount}
-        onFinish={(result) => {
-          stream.getTracks().forEach((track) => track.stop());
-          setStream(null);
-          setCompleted(result);
-          setStage("results");
-          void saveCompletedInterview(result, digest);
-        }}
-      />
+      <div className="mt-5 space-y-3">
+        <FocusSelector value={focus} onChange={setFocus} compact />
+        <ResearchInterviewStage
+          apiKey={apiKey.trim()}
+          stream={stream}
+          paperBase64={paperBase64}
+          paperMimeType={paperFile.type || "application/pdf"}
+          digest={digest}
+          difficulty={difficulty}
+          focus={focus}
+          presentationFile={presentationFile}
+          mainQuestionLimit={questionCount}
+          onFinish={(result) => {
+            stream.getTracks().forEach((track) => track.stop());
+            setStream(null);
+            setCompleted(result);
+            setStage("results");
+            void saveCompletedInterview(result, digest);
+          }}
+        />
+      </div>
     );
   }
 
@@ -387,7 +472,7 @@ export function ResearchInterviewApp() {
             <h2 className="text-[15px] font-semibold text-ink">Paper + interview mode</h2>
           </div>
           <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-            The PDF is the authoritative source for every content judgment. Files stay in this browser session and the originals are not uploaded to KMate storage.
+            The PDF is the authoritative source for every content judgment. Files stay in this browser session and the originals are not uploaded to storage.
           </p>
 
           <label className="mt-4 block text-[11px] font-semibold uppercase tracking-wide text-muted">Research paper PDF</label>
@@ -430,24 +515,7 @@ export function ResearchInterviewApp() {
             </div>
           </div>
 
-          <div className="mt-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Focus</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {RESEARCH_FOCUS_MODES.map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setFocus(mode)}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors",
-                    focus === mode ? "bg-ink text-white" : "bg-canvas text-muted hover:text-ink"
-                  )}
-                >
-                  {FOCUS_LABELS[mode]}
-                </button>
-              ))}
-            </div>
-          </div>
+          <FocusSelector value={focus} onChange={setFocus} />
 
           <label className="mt-5 block text-[11px] font-semibold uppercase tracking-wide text-muted">Main interview questions</label>
           <select
@@ -466,7 +534,7 @@ export function ResearchInterviewApp() {
               <h2 className="text-[15px] font-semibold text-ink">Presentation</h2>
             </div>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-              Upload the PPTX you will present. It renders inside KMate, remains under your control, and is treated only as secondary interview context.
+              Upload the PPTX you will present. It renders in-browser, remains under your control, and is treated only as secondary interview context.
             </p>
             <input
               type="file"
@@ -498,7 +566,7 @@ export function ResearchInterviewApp() {
               <h2 className="text-[15px] font-semibold text-ink">Gemini BYOK</h2>
             </div>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-              Your key is used directly from this browser to Google&apos;s Generative Language API. KMate does not send it to its backend or save it to Supabase.
+              Your key is used directly from this browser to Google&apos;s Generative Language API and is not saved by the app.
             </p>
           </div>
           <div className="flex w-full max-w-xl gap-2">
