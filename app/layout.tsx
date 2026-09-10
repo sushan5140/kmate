@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Manrope, Instrument_Serif } from "next/font/google";
-import AppShell from "@/components/layout/app-shell";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -19,21 +18,16 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "KMate",
-  description:
-    "Find other Global Korea Scholarship applicants targeting your major and universities, prep for interviews together, and connect safely.",
+  title: "Research Interview Lab",
+  description: "Adaptive paper-grounded professor interviews with presentation support.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${manrope.variable} ${instrumentSerif.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-canvas text-ink antialiased">
+      <body className="min-h-full bg-canvas text-ink antialiased">
         <div className="grain-overlay" />
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   );
