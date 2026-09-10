@@ -23,7 +23,7 @@ interface QuestionRow {
 
 export default async function InterviewDbPage() {
   const user = await requireOnboarded("/interview-db");
-  const supabase = await createClient(); // RLS-respecting, for the personalized queries below
+  const supabase = await createClient();
 
   const isAdmin = await isAuthorizedAdmin(user);
 
@@ -31,12 +31,6 @@ export default async function InterviewDbPage() {
   let draftRowsForCount: { content: string }[];
 
   if (isAdmin) {
-    // Admins see every submission regardless of status/owner on this page
-    // today (an RLS side-effect, not a deliberate feature -- there's a
-    // dedicated /admin/questions moderation queue for reviewing others'
-    // pending content). Left on the original fully-dynamic, uncached path
-    // rather than guessing whether that behavior should be preserved
-    // through the cache -- admins are a tiny fraction of traffic.
     const [{ data: questionRows }, { data: draftRows }] = await Promise.all([
       supabase
         .from("interview_questions")
@@ -63,8 +57,6 @@ export default async function InterviewDbPage() {
   } else {
     const [cachedApproved, { data: ownPendingRows }, { data: myVoteRows }, { data: draftRows }] = await Promise.all([
       getCachedApprovedQuestions("interview"),
-      // This user's own non-approved submissions -- shown inline with a
-      // status label, same as before caching (see question-card.tsx).
       supabase
         .from("interview_questions")
         .select("id, text, category, upvotes_count, downvotes_count, status")
@@ -124,11 +116,21 @@ export default async function InterviewDbPage() {
 
       <Card interactive className="mt-4">
         <Link href="/interview-db/mock-interview" className="block">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-muted">New</p>
-          <h2 className="mt-1 text-[16px] font-semibold text-ink">Try an AI mock interview</h2>
+          <p className="text-[12px] font-medium uppercase tracking-wide text-muted">AI mock interview</p>
+          <h2 className="mt-1 text-[16px] font-semibold text-ink">Practice scholarship interview delivery</h2>
           <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-            Practice out loud with your camera on. Get delivery-mechanics feedback -- eye
-            contact, pace, filler words, posture -- never on what you said.
+            Practice out loud with your camera on. Get delivery-mechanics feedback -- camera-facing tendency,
+            pace, filler words, pauses, and posture -- without psychological or personality claims.
+          </p>
+        </Link>
+      </Card>
+
+      <Card interactive className="mt-4">
+        <Link href="/interview-db/research-interview" className="block">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-primary">New · Professor mode</p>
+          <h2 className="mt-1 text-[16px] font-semibold text-ink">Defend a research paper with your presentation</h2>
+          <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
+            Upload a paper and PPTX, present slide by slide, and face adaptive paper-grounded questions that react to each answer. Includes contradiction tracking, coverage, a weakness drill, and separate research-understanding and delivery reports.
           </p>
         </Link>
       </Card>
