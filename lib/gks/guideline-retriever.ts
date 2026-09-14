@@ -44,17 +44,57 @@ function scoreEvidence(question: string, item: GksU2027GuidelineEvidence): numbe
 
   for (const keyword of item.keywords) {
     const k = keyword.toLowerCase();
-    if (q.includes(k)) score += k.includes(" ") ? 3 : 2;
+    if (q.includes(k)) score += k.includes(" ") ? 4 : 2;
   }
 
   if (q.includes(item.topic.replace("_", " "))) score += 2;
+
+  // Topic intent matters more than generic phrase overlap. Without this,
+  // questions such as "Do I need apostille in the Embassy first round?"
+  // could rank unrelated first-round fallback rules just because they also
+  // contain "Embassy Track first round".
+  const topicIntent: Partial<Record<GksU2027GuidelineEvidence["topic"], string[]>> = {
+    apostille: ["apostille", "apostilled", "consular", "authentication", "notary", "notarized"],
+    documents: ["document", "documents", "scan", "scanned", "original", "upload", "submit"],
+    fallback: ["fail", "failed", "fallback", "backup", "pass first round", "passed first round"],
+    deadline: ["deadline", "date", "when", "application window"],
+    grades: ["grade", "gpa", "cgpa", "percentage", "marks", "rank"],
+    language: ["topik", "ielts", "toefl", "language score"],
+    university_choice: ["type a", "type b", "university choice", "universities", "department"],
+    passport: ["passport"],
+    recommendation: ["recommendation", "recommender"],
+    graduation: ["graduate", "graduation", "expected graduate"],
+    eligibility: ["eligible", "eligibility", "citizenship", "nationality", "age"],
+    evaluation: ["evaluation", "bonus", "additional points", "score advantage"],
+  };
+
+  const intentTerms = topicIntent[item.topic] ?? [];
+  if (intentTerms.some((term) => q.includes(term))) score += 8;
+
+  if (
+    item.topic === "fallback" &&
+    !["fail", "failed", "fallback", "backup", "pass first round", "passed first round"].some((term) =>
+      q.includes(term)
+    )
+  ) {
+    score -= 8;
+  }
+
+  if (
+    item.topic === "apostille" &&
+    q.includes("first round") &&
+    (q.includes("apostille") || q.includes("consular"))
+  ) {
+    score += 10;
+  }
+
   return score;
 }
 
 export function retrieveGksU2027(question: string, limit = 6) {
   const ranked = GKS_U_2027_EVIDENCE
     .map((item) => ({ item, score: scoreEvidence(question, item) }))
-    .filter((x) => x.score > 0)
+    .filter((x) => x.score > 1)
     .sort((a, b) => b.score - a.score || a.item.page - b.item.page)
     .slice(0, limit);
 
