@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revision-note";
 import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
+import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
+import { getProfileDefaults } from "@/lib/readiness/profile";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
 
@@ -79,6 +81,7 @@ export default async function OfficialGuidelinesPage() {
 
   const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_u";
+  const profileDefaults = track === "gks_u" ? await getProfileDefaults(user.id) : null;
   const guidelines = OFFICIAL_GUIDELINES[track];
   const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent);
   const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
@@ -116,7 +119,22 @@ export default async function OfficialGuidelinesPage() {
         </Card>
       )}
 
-      {track === "gks_u" && <GksU2027QuickGuide />}
+      {track === "gks_u" && (
+        <>
+          <GksU2027QuickGuide />
+          <GksU2027SmartTools
+            defaultPath={
+              profileDefaults?.track === "embassy"
+                ? profileDefaults.subtype === "r_gks"
+                  ? "r_gks"
+                  : "general"
+                : null
+            }
+            savedUniversities={profileDefaults?.universities ?? []}
+            defaultMajor={profileDefaults?.major ?? ""}
+          />
+        </>
+      )}
 
       {archivedGuidelines.length > 0 && (
         <section className="mt-10">

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { retrieveGksU2027, guidelineCoverage } from "@/lib/gks/guideline-retriever";
+import { synthesizeGksAnswer } from "@/lib/gks/grok-synthesis";
 import {
   upsertQuestion,
   syncCommunityAnswers,
@@ -13,6 +15,19 @@ import {
 interface RagEvidenceItem {
   layer: "official" | "community";
   score: number;
+  claim?: string | null;
+  source_title?: string | null;
+  source_url?: string | null;
+  cycle?: string | null;
+  page?: number | null;
+  question?: string | null;
+  answer_confidence?: string | null;
+  possible_conflict?: boolean;
+  answers?: Array<{
+    text?: string | null;
+    usefulness?: string | null;
+    [key: string]: unknown;
+  }>;
   [key: string]: unknown;
 }
 
@@ -23,9 +38,14 @@ interface RagAskResponse {
   program: Program;
   answer: string;
   mode: "retrieval_only" | "rag_generated" | "needs_clarification";
+  needs_clarification?: boolean;
+  clarification?: string;
   official_sources_found: number;
   community_cases_found: number;
-  /** Which parts of the question the retrieved official text actually addresses. */
+  conflict?: {
+    community_internal: boolean;
+    against_official: boolean;
+  };
   coverage: {
     question_concepts: string[];
     covered: string[];
@@ -39,11 +59,16 @@ interface RagAskResponse {
 }
 
 /**
- * Server-side only -- the GKS RAG service (gks-rag/, a separate Python
- * process) is never called directly from the browser, so its base URL and
- * (if the service is later given one) its own OpenAI key never reach the
- * client. This route just authenticates, rate-limits, validates, and
- * forwards; the RAG service owns evidence retrieval and answer generation.
+ * One applicant question deliberately hits TWO evidence paths:
+ *
+ * 1) the current-cycle guideline layer (2027 GKS-U is retrieved locally from
+ *    reviewed, structured facts extracted from the official PDF), and
+ * 2) the existing KMate RAG service, which supplies community experience and
+ *    the existing GKS corpus.
+ *
+ * Grok, when configured, is only the synthesis layer. It never gets to invent
+ * facts: the current guideline is authoritative and community RAG evidence is
+ * clearly separated as applicant experience.
  */
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
@@ -64,10 +89,16 @@ export async function POST(request: Request) {
   if (question.length < 3 || question.length > 2000) {
     return NextResponse.json({ error: "invalid_question" }, { status: 400 });
   }
+
   const program: Program | null = body?.program === "UG" || body?.program === "G" ? body.program : null;
   if (!program) {
     return NextResponse.json({ error: "invalid_program" }, { status: 400 });
   }
+
+  // Current-cycle official retrieval happens independently from the RAG call.
+  // That prevents an archived 2026 UG source inside the older RAG index from
+  // being presented as the current 2027 rule.
+  const currentOfficial = program === "UG" ? retrieveGksU2027(question, 6) : null;
 
   let upstream: Response;
   try {
@@ -75,9 +106,6 @@ export async function POST(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ question, program }),
-      // The RAG service is a plain TF-IDF retriever unless someone's set an
-      // OpenAI key on it -- either way this should resolve in well under a
-      // few seconds. A generous ceiling just guards against it hanging.
       signal: AbortSignal.timeout(20_000),
     });
   } catch {
@@ -88,19 +116,71 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "rag_error" }, { status: 502 });
   }
 
-  const data = (await upstream.json()) as RagAskResponse;
+  const rag = (await upstream.json()) as RagAskResponse;
 
-  // A clarification isn't an answer to anything yet, so there is no thread to
-  // open -- persisting it would fill the question bank (and the upcoming FAQ
-  // Trends counts) with half-formed queries.
-  if (data.mode === "needs_clarification") {
-    return NextResponse.json(data);
+  // If the RAG service says the question is too vague AND the current 2027
+  // guideline retriever also found nothing, ask for clarification rather than
+  // synthesizing noise.
+  if (
+    rag.mode === "needs_clarification" &&
+    (!currentOfficial || currentOfficial.length === 0)
+  ) {
+    return NextResponse.json(rag);
   }
 
-  // Persistence is what makes the answer votable, discussable and saveable.
-  // It is deliberately non-fatal: if it fails, the applicant still gets the
-  // official and community evidence they asked for, just without the
-  // interactive layer, rather than an error page.
+  const official =
+    program === "UG"
+      ? currentOfficial ?? []
+      : rag.evidence?.official ?? [];
+
+  const community = rag.evidence?.community ?? [];
+
+  const coverage =
+    program === "UG"
+      ? guidelineCoverage(question, official as ReturnType<typeof retrieveGksU2027>)
+      : rag.coverage;
+
+  // The old UG RAG conflict flag was evaluated against its archived official
+  // source. For 2027 UG we keep only the community-internal signal and let the
+  // synthesis compare community text against the current guideline evidence.
+  const conflict =
+    program === "UG"
+      ? {
+          community_internal: Boolean(rag.conflict?.community_internal),
+          against_official: false,
+        }
+      : rag.conflict ?? {
+          community_internal: false,
+          against_official: false,
+        };
+
+  const synthesis = await synthesizeGksAnswer({
+    question,
+    program,
+    official,
+    community,
+    unsupportedLabels: coverage?.unsupported_labels ?? [],
+    conflict,
+  });
+
+  const data = {
+    question,
+    program,
+    answer: synthesis.answer,
+    mode: synthesis.provider === "grok" ? ("grok_generated" as const) : ("retrieval_only" as const),
+    synthesis_provider: synthesis.provider,
+    guideline_cycle: program === "UG" ? "2027" : null,
+    needs_clarification: false,
+    official_sources_found: official.length,
+    community_cases_found: community.length,
+    coverage,
+    conflict,
+    evidence: {
+      official,
+      community,
+    },
+  };
+
   try {
     const admin = getSupabaseAdmin();
     const { id: questionId, askCount } = await upsertQuestion(admin, {
@@ -108,17 +188,15 @@ export async function POST(request: Request) {
       question,
       userId: user.id,
       officialAnswer: data.answer ?? null,
-      officialSources: data.evidence?.official ?? [],
+      officialSources: data.evidence.official ?? [],
     });
 
     const ragRank = await syncCommunityAnswers(
       admin,
       questionId,
-      (data.evidence?.community ?? []) as unknown as Parameters<typeof syncCommunityAnswers>[2]
+      (data.evidence.community ?? []) as unknown as Parameters<typeof syncCommunityAnswers>[2]
     );
 
-    // Resolved once, server-side, from the session -- the browser is never
-    // asked whether it is an admin.
     const viewerIsAdmin = await isAuthorizedAdmin(user);
 
     const [answers, discussion, saved] = await Promise.all([
