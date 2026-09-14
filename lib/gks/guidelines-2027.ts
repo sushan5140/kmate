@@ -321,3 +321,25 @@ export const GKS_U_2027_TYPE_B = [
   "Wonkwang University",
   "Yeungnam University",
 ] as const;
+
+
+export const GKS_U_2027_UIC_BACHELOR_DEPARTMENTS: Record<string, readonly string[]> = {
+  "Ajou University": ["School of AI and Computer Engineering"],
+  "Daegu University": ["Division of Electronic Engineering"],
+  "Dong-A University": ["Food Science and Nutrition", "Medicinal Biotechnology"],
+  "Inje University": [
+    "AI Software",
+    "Food Nutrition and Food Engineering",
+    "Medical Information Technology",
+    "Mechanical and Electrical Automotive Engineering",
+  ],
+  "Keimyung University": ["Mechanical Engineering"],
+  "Konyang University": ["Artificial Intelligence", "Smart Security"],
+  "Kookmin University": ["Software"],
+  "Korea University of Technology and Education (KOREATECH)": [
+    "Mechanical Engineering Major",
+    "Computer Engineering Major",
+  ],
+  "Sungshin Women's University": ["Statistics/Big Data Science Major"],
+  "Yeungnam University": ["Environmental Engineering"],
+};
