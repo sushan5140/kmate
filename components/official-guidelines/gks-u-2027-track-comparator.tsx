@@ -1,0 +1,257 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  CircleAlert,
+  GitCompareArrows,
+  Landmark,
+  School,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/cn";
+
+type EmbassyPath = "general" | "r_gks";
+
+const ROWS = [
+  {
+    label: "Where you apply",
+    embassy: "Study in Korea online system",
+    university: "Directly through the university's own application method",
+  },
+  {
+    label: "2027 application window",
+    embassy: "Sep 15, 11:00 → Sep 30, 18:00 KST",
+    university: "September–November 2026; exact dates vary by university",
+  },
+  {
+    label: "University choices",
+    embassyGeneral: "Up to 3 universities; at least 1 must be Type B",
+    embassyRgks: "Up to 2 universities; all choices must be Type B",
+    university: "1 university + 1 department",
+  },
+  {
+    label: "First-round documents",
+    embassy: "Complete forms online; upload scanned certificates and recommendation",
+    university: "Follow that university's submission method and any additional document instructions",
+  },
+  {
+    label: "Selection structure",
+    embassy: "Embassy → NIIED → selected universities",
+    university: "University → NIIED; no third university round",
+  },
+  {
+    label: "If Embassy Round 1 fails",
+    embassy: "You may still apply through University Track if its deadline is still open",
+    university: "This is the fallback route permitted after an Embassy first-round failure",
+  },
+] as const;
+
+export function GksU2027TrackComparator({
+  defaultPath,
+  defaultMajor,
+}: {
+  defaultPath: "general" | "r_gks" | null;
+  defaultMajor: string;
+}) {
+  const [embassyPath, setEmbassyPath] = useState<EmbassyPath>(defaultPath ?? "general");
+
+  const choiceRule = useMemo(
+    () =>
+      embassyPath === "r_gks"
+        ? "Up to 2 universities; all choices must be Type B"
+        : "Up to 3 universities; at least 1 must be Type B",
+    [embassyPath]
+  );
+
+  return (
+    <section className="mt-10">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+            Track comparator
+          </p>
+          <h2 className="mt-1 text-[20px] font-semibold text-ink">
+            Embassy Track vs University Track
+          </h2>
+          <p className="mt-1 max-w-3xl text-[12.75px] leading-relaxed text-muted">
+            Compare the structure of the two routes using only the 2027 GKS-U guideline. This does not estimate which route has a better acceptance chance.
+          </p>
+        </div>
+
+        <div className="flex rounded-full bg-canvas p-1">
+          <button
+            type="button"
+            onClick={() => setEmbassyPath("general")}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-[12px] font-medium",
+              embassyPath === "general" ? "bg-white text-ink shadow-xs" : "text-muted"
+            )}
+          >
+            Embassy General
+          </button>
+          <button
+            type="button"
+            onClick={() => setEmbassyPath("r_gks")}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-[12px] font-medium",
+              embassyPath === "r_gks" ? "bg-white text-ink shadow-xs" : "text-muted"
+            )}
+          >
+            Embassy R-GKS
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <Card className="border-primary/20 bg-primary-soft/20">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary ring-1 ring-hairline">
+              <Landmark className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
+                Embassy Track
+              </p>
+              <p className="mt-1 text-[15px] font-semibold text-ink">
+                {embassyPath === "r_gks" ? "R-GKS" : "General"}
+              </p>
+              {defaultPath && (
+                <p className="mt-1 text-[11.5px] text-muted">
+                  Prefilled from your KMate profile.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl bg-white/75 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Choice rule</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">{choiceRule}</p>
+            </div>
+            <div className="rounded-xl bg-white/75 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Submission</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
+                Online through Study in Korea during the Embassy application window.
+              </p>
+            </div>
+            <div className="rounded-xl bg-white/75 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Selection rounds</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
+                Embassy first round → NIIED second round → university third round.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-canvas text-ink">
+              <School className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                University Track
+              </p>
+              <p className="mt-1 text-[15px] font-semibold text-ink">UIC Bachelor's</p>
+              {defaultMajor && (
+                <p className="mt-1 text-[11.5px] text-muted">
+                  Your saved major: {defaultMajor}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl bg-canvas p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Choice rule</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
+                One university and one department only.
+              </p>
+            </div>
+            <div className="rounded-xl bg-canvas p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Submission</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
+                Apply according to the university's own method and schedule.
+              </p>
+            </div>
+            <div className="rounded-xl bg-canvas p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Selection rounds</p>
+              <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
+                University first round → NIIED second round. There is no third round.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <Card className="mt-4 overflow-hidden p-0">
+        <div className="flex items-center gap-2 border-b border-hairline px-4 py-3">
+          <GitCompareArrows className="h-4 w-4 text-primary" />
+          <p className="text-[13px] font-semibold text-ink">Side-by-side rules</p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left">
+            <thead className="bg-canvas text-[11px] uppercase tracking-wide text-muted">
+              <tr>
+                <th className="px-4 py-2.5 font-semibold">Rule</th>
+                <th className="px-4 py-2.5 font-semibold">Embassy Track</th>
+                <th className="px-4 py-2.5 font-semibold">University Track</th>
+              </tr>
+            </thead>
+            <tbody className="text-[12.5px] leading-relaxed">
+              {ROWS.map((row) => (
+                <tr key={row.label} className="border-t border-hairline first:border-t-0">
+                  <td className="px-4 py-3 font-medium text-ink">{row.label}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {"embassyGeneral" in row
+                      ? embassyPath === "r_gks"
+                        ? row.embassyRgks
+                        : row.embassyGeneral
+                      : row.embassy}
+                  </td>
+                  <td className="px-4 py-3 text-muted">{row.university}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="flex items-start gap-2 rounded-xl bg-success/10 px-3.5 py-3">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+          <p className="text-[12.5px] leading-relaxed text-ink">
+            If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university's deadline is still open.
+          </p>
+        </div>
+        <div className="flex items-start gap-2 rounded-xl bg-gold/10 px-3.5 py-3">
+          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+          <p className="text-[12.5px] leading-relaxed text-ink">
+            If you pass the Embassy first round, including as a backup candidate, you cannot apply again through University Track.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          href="/official-guidelines"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-[12px] font-medium text-ink ring-1 ring-hairline-strong"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          Review 2027 guideline
+        </Link>
+        <Link
+          href="/application-readiness"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-white"
+        >
+          Use this route in readiness <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </section>
+  );
+}
