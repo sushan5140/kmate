@@ -5,6 +5,8 @@ import { Bookmark, Sparkles, ShieldCheck, TriangleAlert } from "lucide-react";
 import type { AskResult } from "@/components/gks/types";
 import {
   isGksRuleSaved,
+  pushAccountSavedGksRules,
+  reconcileSavedGksRules,
   toggleGksRule,
   type SavedGksRule,
 } from "@/lib/gks/saved-rules";
@@ -48,6 +50,7 @@ export function CombinedAnswer({ result }: { result: AskResult }) {
   useEffect(() => {
     const sync = () => setSaved(isGksRuleSaved(id));
     sync();
+    void reconcileSavedGksRules().then(sync);
     window.addEventListener("storage", sync);
     window.addEventListener("kmate:gks-rules-changed", sync as EventListener);
     return () => {
@@ -90,6 +93,7 @@ export function CombinedAnswer({ result }: { result: AskResult }) {
           onClick={() => {
             const next = toggleGksRule(bookmark);
             setSaved(next.saved);
+            void pushAccountSavedGksRules(next.items);
           }}
           className={
             "inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-[10.5px] font-medium ring-1 ring-hairline-strong " +
