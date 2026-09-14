@@ -9,6 +9,7 @@ import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-
 import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
 import { GksU2027FormAssistant } from "@/components/official-guidelines/gks-u-2027-form-assistant";
 import { GksU2027ManualChecklist } from "@/components/official-guidelines/gks-u-2027-manual-checklist";
+import { GksU2027RouteDashboard } from "@/components/official-guidelines/gks-u-2027-route-dashboard";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
@@ -125,6 +126,18 @@ export default async function OfficialGuidelinesPage() {
       {track === "gks_u" && (
         <>
           <GksU2027QuickGuide />
+          <GksU2027RouteDashboard
+            defaultPath={
+              profileDefaults?.track === "embassy"
+                ? profileDefaults.subtype === "r_gks"
+                  ? "r_gks"
+                  : "general"
+                : null
+            }
+            savedUniversities={profileDefaults?.universities ?? []}
+            unresolvedUniversities={profileDefaults?.unresolvedUniversities ?? []}
+            defaultMajor={profileDefaults?.major ?? ""}
+          />
           <GksU2027SmartTools
             defaultPath={
               profileDefaults?.track === "embassy"

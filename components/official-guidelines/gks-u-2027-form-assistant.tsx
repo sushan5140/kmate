@@ -7,11 +7,12 @@ import {
   ChevronRight,
   ClipboardCheck,
   FileText,
-  MessageCircleQuestion,
   ShieldCheck,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
+import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
 
 type RouteMode = "embassy" | "university";
 
@@ -294,14 +295,29 @@ export function GksU2027FormAssistant({
             </p>
           )}
 
-          <div className="mt-5 flex flex-wrap gap-2 border-t border-hairline pt-4">
-            <Link
-              href={"/gks?program=UG&q=" + encodeURIComponent("What does the 2027 GKS-U guideline require for Form " + form.no + " (" + form.name + ")?")}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[12px] font-medium text-white"
-            >
-              <MessageCircleQuestion className="h-3.5 w-3.5" />
-              Ask guideline AI about this form
-            </Link>
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-hairline pt-4">
+            <GuidelineRuleActions
+              id={"form-guide-" + form.no}
+              title={"Form " + form.no + " — " + form.name}
+              text={
+                (route === "embassy" ? form.firstRoundEmbassy : form.firstRoundUniversity) +
+                " After Round 1: " +
+                form.afterFirstRound +
+                " Checks: " +
+                form.checks.join(" ")
+              }
+              page={form.no <= 7 ? "pp.12–14" : null}
+              sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+              askQuestion={
+                "What does the 2027 GKS-U guideline require for Form " +
+                form.no +
+                " (" +
+                form.name +
+                ") for " +
+                (route === "embassy" ? "Embassy Track" : "University Track") +
+                "? Use only the official guideline."
+              }
+            />
             <Link
               href="/official-guidelines"
               className="inline-flex h-9 items-center rounded-full bg-white px-4 text-[12px] font-medium text-ink ring-1 ring-hairline-strong"
