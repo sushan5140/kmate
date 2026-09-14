@@ -19,6 +19,7 @@ import {
   GKS_U_2027_TYPE_A,
   GKS_U_2027_TYPE_B,
 } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
 type RouteType = "general" | "r_gks" | null;
 
@@ -38,11 +39,11 @@ function normalizeUniversity(name: string): string | null {
 
 function getEmbassyStage() {
   const now = Date.now();
-  const open = Date.UTC(2026, 8, 15, 2, 0, 0); // Sep 15, 11:00 KST
-  const close = Date.UTC(2026, 8, 30, 9, 0, 0); // Sep 30, 18:00 KST
-  const firstRound = Date.UTC(2026, 9, 16, 14, 59, 59);
-  const thirdRound = Date.UTC(2026, 11, 23, 9, 0, 0);
-  const final = Date.UTC(2027, 0, 7, 14, 59, 59);
+  const open = Date.parse(GKS_U_2027_POLICY.embassyApplication.opensAtUtc);
+  const close = Date.parse(GKS_U_2027_POLICY.embassyApplication.closesAtUtc);
+  const firstRound = Date.parse(GKS_U_2027_POLICY.timeline.embassyRound1ResultBy + "T23:59:59Z");
+  const thirdRound = Date.parse(GKS_U_2027_POLICY.timeline.universityRound3By + "T23:59:59Z");
+  const final = Date.parse(GKS_U_2027_POLICY.timeline.finalResultExpected + "T23:59:59Z");
 
   if (now < open) {
     return {
@@ -53,7 +54,7 @@ function getEmbassyStage() {
   if (now <= close) {
     return {
       label: "Embassy application open",
-      next: "Complete the Study in Korea submission before Sep 30, 18:00 KST.",
+      next: `Complete the Study in Korea submission before ${GKS_U_2027_POLICY.embassyApplication.display.split("→")[1].trim()}.`,
     };
   }
   if (now <= firstRound) {
@@ -183,9 +184,9 @@ export function GksU2027RouteDashboard({
 
   const choiceRule =
     defaultPath === "r_gks"
-      ? "Up to 2 universities · all Type B"
+      ? GKS_U_2027_POLICY.choiceRules.r_gks.display.replace("; ", " · ")
       : defaultPath === "general"
-        ? "Up to 3 universities · at least 1 Type B"
+        ? GKS_U_2027_POLICY.choiceRules.general.display.replace("; ", " · ")
         : "Choose your route in the Smart 2027 workspace";
 
   return (
@@ -272,7 +273,7 @@ export function GksU2027RouteDashboard({
           <GuidelineRuleActions
             id="route-summary-2027"
             title={routeLabel}
-            text={choiceRule + ". Embassy Track applications are submitted through Study in Korea from Sep 15, 11:00 to Sep 30, 18:00 KST."}
+            text={choiceRule + ". Embassy Track applications are submitted through Study in Korea during " + GKS_U_2027_POLICY.embassyApplication.display + "."}
             page="pp.6, 9"
             sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
             askQuestion={`Explain my 2027 GKS-U route: ${routeLabel}. My current saved university choices are ${savedUniversities.join(", ") || "none yet"}. Use only the official guideline and tell me the rules I must follow.`}
