@@ -5,6 +5,8 @@ import { DisclaimerBanner } from "@/components/apostille/disclaimer-banner";
 import { GeneralDefaultSection } from "@/components/apostille/general-default-section";
 import { ApostilleTrackToggle } from "@/components/apostille/track-toggle";
 import { CountryOverrideCard } from "@/components/apostille/country-override-card";
+import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
+import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
 import { APOSTILLE_GENERAL_DEFAULT, APOSTILLE_COUNTRY_OVERRIDES } from "@/lib/apostille-requirements";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
 
@@ -43,7 +45,31 @@ export default async function ApostillePage() {
       {dualTrackAccess ? (
         <ApostilleTrackToggle defaultTrack={track} />
       ) : (
-        <GeneralDefaultSection data={APOSTILLE_GENERAL_DEFAULT[track]} />
+        <>
+          <GeneralDefaultSection data={APOSTILLE_GENERAL_DEFAULT[track]} />
+          {track === "gks_u" && (
+            <Card className="mt-4 border-primary/20 bg-primary-soft/30">
+              <p className="text-[12px] font-semibold uppercase tracking-wide text-primary">
+                2027 GKS-U stage rule
+              </p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-ink">
+                Embassy first-round certificates are uploaded as scanned copies. Authentication generally becomes
+                necessary after passing Round 1 for the required certificates submitted to NIIED; the application
+                forms themselves do not need apostille or consular confirmation.
+              </p>
+              <div className="mt-3">
+                <GuidelineRuleActions
+                  id="apostille-2027-stage-rule"
+                  title="2027 GKS-U apostille timing"
+                  text="Embassy first-round certificates are uploaded as scanned copies; required certificates for NIIED's second round generally need apostille or consular confirmation after passing Round 1, while application forms do not."
+                  page="pp.14–15"
+                  sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+                  askQuestion="For 2027 GKS-U, explain exactly when apostille or consular confirmation is required, distinguishing Embassy first round from NIIED second round. Use only the official guideline."
+                />
+              </div>
+            </Card>
+          )}
+        </>
       )}
 
       <h2 className="mt-8 text-[16px] font-semibold text-ink">Confirmed country-specific differences</h2>
