@@ -24,6 +24,7 @@ import {
   GKS_U_2027_UIC_BACHELOR_DEPARTMENTS,
   GKS_U_2027_SOURCE,
 } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
 type ToolTab = "rules" | "documents" | "validator" | "score" | "fallback";
 type RouteType = "general" | "r_gks" | "university";
@@ -144,7 +145,12 @@ export function GksU2027SmartTools({
 
   const routePool =
     route === "r_gks" ? [...GKS_U_2027_TYPE_B] : route === "university" ? UIC : ALL_EMBASSY;
-  const slotCount = route === "general" ? 3 : route === "r_gks" ? 2 : 1;
+  const slotCount =
+    route === "general"
+      ? GKS_U_2027_POLICY.choiceRules.general.maxUniversities
+      : route === "r_gks"
+        ? GKS_U_2027_POLICY.choiceRules.r_gks.maxUniversities
+        : GKS_U_2027_POLICY.choiceRules.university.maxUniversities;
   const selected = choices.slice(0, slotCount).filter(Boolean);
 
   const validation = useMemo(() => {
@@ -185,42 +191,23 @@ export function GksU2027SmartTools({
   }, [department, route, selected]);
 
   const topikLevel = Number(topik);
-  const topikBand =
-    topikLevel >= 5
-      ? 100
-      : topikLevel === 4
-        ? 90
-        : topikLevel === 3
-          ? 80
-          : topikLevel === 2
-            ? 70
-            : topikLevel === 1
-              ? 60
-              : 50;
-  const topikBonus = topikLevel >= 5 ? 5 : topikLevel === 4 ? 4 : topikLevel === 3 ? 3 : 0;
+  const topikBand = GKS_U_2027_POLICY.evaluation.topikBand(topikLevel);
+  const topikBonus = GKS_U_2027_POLICY.evaluation.topikBonus(topikLevel);
 
   const ieltsNumber = Number.parseFloat(ielts);
-  const ieltsBand = Number.isFinite(ieltsNumber)
-    ? ieltsNumber >= 8
-      ? 90
-      : ieltsNumber >= 7
-        ? 80
-        : ieltsNumber >= 6
-          ? 70
-          : ieltsNumber >= 5
-            ? 60
-            : 50
-    : 50;
+  const ieltsBand = GKS_U_2027_POLICY.evaluation.ieltsBand(
+    Number.isFinite(ieltsNumber) ? ieltsNumber : null
+  );
 
   const tabRule = {
     rules: {
       title: "My 2027 GKS route rules",
       text:
         route === "general"
-          ? "Embassy General allows up to three universities and requires at least one Type B choice."
+          ? GKS_U_2027_POLICY.choiceRules.general.display + "."
           : route === "r_gks"
-            ? "R-GKS allows up to two universities and all selected universities must be Type B."
-            : "University Track allows one university and one department only.",
+            ? GKS_U_2027_POLICY.choiceRules.r_gks.display + "."
+            : GKS_U_2027_POLICY.choiceRules.university.display + " only.",
       page: "p.6",
     },
     documents: {
@@ -233,22 +220,22 @@ export function GksU2027SmartTools({
       title: "2027 university-choice rule",
       text:
         route === "general"
-          ? "Embassy General allows up to three universities and requires at least one Type B choice."
+          ? GKS_U_2027_POLICY.choiceRules.general.display + "."
           : route === "r_gks"
-            ? "R-GKS allows up to two Type B universities."
-            : "University Track allows one university and one department only.",
+            ? GKS_U_2027_POLICY.choiceRules.r_gks.display + "."
+            : GKS_U_2027_POLICY.choiceRules.university.display + " only.",
       page: "p.6",
     },
     score: {
       title: "2027 evaluation advantages",
       text:
-        "TOPIK level 3 or above receives quantitative additional points, and applicants to science and engineering departments receive additional points equal to 5% of total allocated points.",
+        "TOPIK level 3 or above receives quantitative additional points, and applicants to science and engineering departments receive additional points equal to " + GKS_U_2027_POLICY.evaluation.scienceEngineeringBonusPct + "% of total allocated points.",
       page: "pp.19–20",
     },
     fallback: {
       title: "Embassy to University Track fallback",
       text:
-        "Applicants who fail the Embassy first round may apply through University Track if the university deadline remains open; applicants who pass the Embassy first round, including backup candidates, cannot apply again through University Track.",
+        GKS_U_2027_POLICY.fallback.afterEmbassyRound1Fail + " " + GKS_U_2027_POLICY.fallback.afterEmbassyRound1Pass,
       page: "pp.9–11",
     },
   }[tab];
@@ -359,18 +346,18 @@ export function GksU2027SmartTools({
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">University rule</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-ink">
                   {route === "general"
-                    ? "Choose up to 3 universities; at least 1 must be Type B."
+                    ? GKS_U_2027_POLICY.choiceRules.general.display + "."
                     : route === "r_gks"
-                      ? "Choose up to 2 universities; both must be Type B."
-                      : "Apply to 1 UIC university and 1 department only."}
+                      ? GKS_U_2027_POLICY.choiceRules.r_gks.display + "."
+                      : "Apply to " + GKS_U_2027_POLICY.choiceRules.university.display + " only."}
                 </p>
               </div>
               <div className="rounded-xl bg-canvas p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Application window</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-ink">
                   {route === "university"
-                    ? "September–November 2026, according to each university's own schedule."
-                    : "Sep 15, 11:00 → Sep 30, 18:00 KST through Study in Korea."}
+                    ? GKS_U_2027_POLICY.universityTrackWindow.display + ", according to each university's own schedule."
+                    : GKS_U_2027_POLICY.embassyApplication.display + " through Study in Korea."}
                 </p>
               </div>
             </div>
@@ -641,7 +628,7 @@ export function GksU2027SmartTools({
                 )}
                 {stem ? (
                   <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11.5px] font-medium text-primary">
-                    Science/engineering: +5%
+                    Science/engineering: +{GKS_U_2027_POLICY.evaluation.scienceEngineeringBonusPct}%
                   </span>
                 ) : (
                   <span className="rounded-full bg-canvas px-2.5 py-1 text-[11.5px] text-muted">
@@ -671,11 +658,11 @@ export function GksU2027SmartTools({
 
             <div className="mt-5 grid gap-3">
               {[
-                ["1", "Embassy application", "Sep 15–30, 2026 · online through Study in Korea"],
-                ["2", "Embassy first-round result", "By Oct 16"],
-                ["3A", "If you fail Round 1", "You may apply through University Track, if that university's deadline is still open."],
-                ["3B", "If you pass / are a backup candidate", "You cannot apply again through University Track."],
-                ["4", "Later Embassy rounds", "NIIED in November → university review by Dec 23 → final result expected Jan 7, 2027."],
+                ["1", "Embassy application", GKS_U_2027_POLICY.embassyApplication.display + " · online through Study in Korea"],
+                ["2", "Embassy first-round result", "By " + new Date(GKS_U_2027_POLICY.timeline.embassyRound1ResultBy + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric" })],
+                ["3A", "If you fail Round 1", GKS_U_2027_POLICY.fallback.afterEmbassyRound1Fail],
+                ["3B", "If you pass / are a backup candidate", GKS_U_2027_POLICY.fallback.afterEmbassyRound1Pass],
+                ["4", "Later Embassy rounds", GKS_U_2027_POLICY.timeline.niiedRound2 + " → university review by Dec 23 → final result expected Jan 7, 2027."],
               ].map(([step, title, body]) => (
                 <div key={step} className="flex gap-3 rounded-xl bg-canvas p-3">
                   <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-white px-2 text-[10.5px] font-bold text-primary ring-1 ring-hairline">
