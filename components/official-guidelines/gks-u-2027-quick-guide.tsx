@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowRightLeft,
   BadgeCheck,
@@ -151,7 +152,11 @@ export function GksU2027QuickGuide() {
       </div>
 
       <div className="mt-4 grid gap-3">
-        {SECTIONS.map((section, index) => {
+        {SECTIONS.filter(
+          (section) =>
+            section.title !== "Apostille / consular confirmation" &&
+            section.title !== "Embassy → University Track fallback"
+        ).map((section, index) => {
           const icons = [
             GraduationCap,
             Building2,
@@ -205,6 +210,20 @@ export function GksU2027QuickGuide() {
           University- and embassy-specific instructions can add local submission requirements, so applicants should still check
           the relevant first-round institution before submitting.
         </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/gks?program=UG" className="rounded-full bg-white px-3 py-1.5 text-[11.5px] font-medium text-ink ring-1 ring-hairline-strong">
+            Ask guideline AI
+          </Link>
+          <Link href="/application-readiness" className="rounded-full bg-white px-3 py-1.5 text-[11.5px] font-medium text-ink ring-1 ring-hairline-strong">
+            Application Readiness
+          </Link>
+          <Link href="/requirement-checker" className="rounded-full bg-white px-3 py-1.5 text-[11.5px] font-medium text-ink ring-1 ring-hairline-strong">
+            Requirement Checker
+          </Link>
+          <Link href="/apostille" className="rounded-full bg-white px-3 py-1.5 text-[11.5px] font-medium text-ink ring-1 ring-hairline-strong">
+            Apostille Guide
+          </Link>
+        </div>
       </Card>
     </section>
   );
