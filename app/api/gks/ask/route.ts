@@ -15,6 +15,19 @@ import {
 interface RagEvidenceItem {
   layer: "official" | "community";
   score: number;
+  claim?: string | null;
+  source_title?: string | null;
+  source_url?: string | null;
+  cycle?: string | null;
+  page?: number | null;
+  question?: string | null;
+  answer_confidence?: string | null;
+  possible_conflict?: boolean;
+  answers?: Array<{
+    text?: string | null;
+    usefulness?: string | null;
+    [key: string]: unknown;
+  }>;
   [key: string]: unknown;
 }
 
