@@ -1,0 +1,64 @@
+import type { GuidelineTopic } from "@/lib/gks/guidelines-2027";
+
+export interface GksU2027PageMapEntry {
+  page: number;
+  topics: GuidelineTopic[];
+  keywords: string[];
+  summary: string;
+}
+
+/**
+ * Page-level semantic map covering the full 45-page official English guideline.
+ *
+ * This map was reviewed against the official 2026-09-09 English PDF baseline.
+ * Study in Korea later replaced the attachment with a 0914 revision. For that
+ * reason, atomic rules in guidelines-2027.ts are authoritative and this page
+ * map is a broad-recall fallback/locator only.
+ */
+export const GKS_U_2027_PAGE_MAP: GksU2027PageMapEntry[] = [
+  { page: 1, topics: ["eligibility"], keywords: ["korean version", "translation", "conflict", "prevails"], summary: "Title page and language-precedence notice: if the Korean and English guidelines conflict in interpretation, the Korean guideline prevails." },
+  { page: 2, topics: ["eligibility"], keywords: ["contents", "table of contents", "appendix", "sections"], summary: "Table of contents for selection overview, eligibility, application process, documents, evaluation, scholarship information, contacts and appendices." },
+  { page: 3, topics: ["eligibility"], keywords: ["objective", "degree", "bachelor", "associate", "duration", "program"], summary: "Program objectives and degree-program overview, including bachelor and associate degree routes and the role of Korean-language study." },
+  { page: 4, topics: ["eligibility"], keywords: ["quota", "country quota", "embassy quota", "general", "r-gks", "overseas korean", "adoptee"], summary: "Embassy Track quota table by country and sub-track, including General, R-GKS, Overseas Koreans and Adoptees." },
+  { page: 5, topics: ["university_choice"], keywords: ["uic", "university track", "quota", "department", "ai", "engineering"], summary: "University Track UIC quota and designated bachelor departments by institution." },
+  { page: 6, topics: ["university_choice"], keywords: ["field of study", "participating universities", "type a", "type b", "night program", "department"], summary: "Available fields and participating-university rules, including the requirement to choose only departments listed in the University Information file." },
+  { page: 7, topics: ["university_choice"], keywords: ["associate degree", "bachelor", "university track", "choice", "one university"], summary: "University Track participating institutions for associate and bachelor routes plus route-specific university/department choice limits." },
+  { page: 8, topics: ["eligibility", "graduation"], keywords: ["nationality", "citizenship", "parents", "age", "under 25", "education"], summary: "Core eligibility rules for nationality, parents/legal guardians, age and prior education." },
+  { page: 9, topics: ["grades", "eligibility"], keywords: ["80 percent", "top 20", "cgpa", "health", "restriction", "grade"], summary: "Academic-grade thresholds, accepted CGPA scales and general eligibility/restriction conditions." },
+  { page: 10, topics: ["eligibility", "fallback", "deadline"], keywords: ["previous gks", "duplicate", "restriction", "application period", "embassy", "university track"], summary: "Prior-scholarship restrictions, duplicate-application rules and the application-period distinction between Embassy and University Tracks." },
+  { page: 11, topics: ["deadline", "fallback"], keywords: ["selection procedure", "schedule", "first round", "second round", "third round", "final"], summary: "Selection flow and schedule for Embassy and University Tracks from first-round review through final announcement." },
+  { page: 12, topics: ["deadline", "fallback"], keywords: ["october 16", "november", "december", "result", "successful candidates", "niied"], summary: "Detailed result-announcement timeline and handling of first-round successful candidates, including Embassy-to-University fallback after a first-round failure." },
+  { page: 13, topics: ["documents", "recommendation", "passport"], keywords: ["embassy documents", "form 1", "form 7", "certificate", "passport", "scanned"], summary: "Embassy Track document table covering Forms 1-7, required certificates and optional supporting documents." },
+  { page: 14, topics: ["documents", "recommendation"], keywords: ["university track documents", "forms", "original", "recommendation", "signature"], summary: "University Track document table and first-round versus successful-candidate handling for forms, recommendation and certificates." },
+  { page: 15, topics: ["documents", "apostille"], keywords: ["document preparation", "scanned copies", "first round", "second round", "forms no apostille"], summary: "Document-preparation rules distinguishing documents to complete from required certificates and distinguishing first-round scans from later originals/authentication." },
+  { page: 16, topics: ["apostille", "documents"], keywords: ["apostille", "consular confirmation", "translation", "certified copy", "notarized"], summary: "Authentication rules for required certificates, including apostille/consular confirmation, certified translations and unacceptable photocopy/notarization substitutes." },
+  { page: 17, topics: ["documents", "passport", "graduation"], keywords: ["second round", "citizenship", "graduation", "transcript", "passport", "validity"], summary: "Second-round certificate requirements, family/citizenship evidence, graduation/transcript handling and authentication validity rules." },
+  { page: 18, topics: ["documents", "language", "passport"], keywords: ["supplementary", "topik", "ielts", "toefl", "awards", "passport"], summary: "Supplementary-document guidance including transcript edge cases, language-score reports, awards/activities and passport use." },
+  { page: 19, topics: ["documents", "recommendation"], keywords: ["official name", "department name", "english name", "signature", "recommendation", "order"], summary: "Submission-quality checks: exact university/department names, passport-matching English name, signatures, recommendation handling and document order." },
+  { page: 20, topics: ["evaluation", "language"], keywords: ["evaluation", "competency", "language scoring", "topik", "ielts", "additional points"], summary: "Evaluation framework, competency-review factors and official language-proficiency scoring bands." },
+  { page: 21, topics: ["evaluation", "university_choice"], keywords: ["science engineering", "5 percent", "preference", "field transfer", "evaluation preference"], summary: "Additional points and evaluation preferences, including the science/engineering bonus and the ban on changing field after final selection." },
+  { page: 22, topics: ["deadline"], keywords: ["university track result", "final selection", "january 7", "invitation letter"], summary: "University Track later-round schedule, final announcement timing and invitation-letter process." },
+  { page: 23, topics: ["benefits", "language"], keywords: ["scholarship period", "tuition", "monthly allowance", "airfare", "language program fee"], summary: "Scholarship period and benefit table covering tuition, Korean-language program fee, airfare and annual allowance amounts." },
+  { page: 24, topics: ["benefits"], keywords: ["airfare exception", "withdraw", "return scholarship", "visa", "contact niied"], summary: "Benefit caveats, airfare exclusions, early-withdrawal repayment rule and NIIED contact information." },
+  { page: 25, topics: ["grades"], keywords: ["cgpa conversion", "4.0", "4.3", "4.5", "5.0", "100 point"], summary: "Appendix A CGPA conversion table across accepted GPA scales and a 100-point scale." },
+  { page: 26, topics: ["documents"], keywords: ["embassy contact", "india", "bangladesh", "embassy email", "phone"], summary: "Appendix B begins the official contact list for Korean embassies in participating countries." },
+  { page: 27, topics: ["documents"], keywords: ["embassy contact", "pakistan", "myanmar", "philippines", "peru", "mofa"], summary: "Continuation of Appendix B Korean-embassy contact list." },
+  { page: 28, topics: ["documents"], keywords: ["embassy contact", "vietnam", "uzbekistan", "ukraine", "türkiye", "mofa"], summary: "Final portion of Appendix B Korean-embassy contact list." },
+  { page: 29, topics: ["university_choice"], keywords: ["university contact", "ajou", "chonnam", "chosun", "admission office"], summary: "Appendix C begins Embassy Track university-staff contact details." },
+  { page: 30, topics: ["university_choice"], keywords: ["university contact", "hongik", "inha", "inje", "jeju", "kangwon"], summary: "Continuation of Embassy Track university-staff contact details." },
+  { page: 31, topics: ["university_choice"], keywords: ["university contact", "postech", "sejong", "sogang", "unist", "international office"], summary: "Continuation of Embassy Track university-staff contact details." },
+  { page: 32, topics: ["university_choice"], keywords: ["university contact", "yonsei", "yeungnam", "koreatech", "kookmin", "uic"], summary: "Final Embassy Track contacts and beginning of University Track UIC staff contacts." },
+  { page: 33, topics: ["university_choice"], keywords: ["associate degree contact", "college", "institute", "international office"], summary: "University Track associate-degree institution contact list." },
+  { page: 34, topics: ["eligibility", "passport"], keywords: ["parents passport", "deceased parent", "different citizenship", "family relation"], summary: "FAQ on parents' citizenship/family evidence, absent/deceased parents and applicants whose parents hold different citizenship." },
+  { page: 35, topics: ["eligibility", "graduation"], keywords: ["country not listed", "uic worldwide", "exchange student", "bachelor already", "march 2027 graduation"], summary: "FAQ on countries outside the quota list, UIC worldwide eligibility, prior exchange study in Korea, existing bachelor degrees and late graduation." },
+  { page: 36, topics: ["graduation", "grades"], keywords: ["provisional certificate", "temporary graduation", "graduation date", "scholaro", "grade conversion"], summary: "FAQ on provisional graduation certificates and officially supported grade conversion." },
+  { page: 37, topics: ["grades"], keywords: ["below 80", "top 20", "semester gpa", "cgpa only", "percentile"], summary: "FAQ on top-20% eligibility below 80% and how to complete grade fields when a transcript provides only CGPA." },
+  { page: 38, topics: ["eligibility", "university_choice"], keywords: ["minimum requirements", "university additional requirement", "residing in korea", "apply"], summary: "FAQ explaining that national GKS eligibility is only a minimum and universities/departments can impose additional qualifications." },
+  { page: 39, topics: ["deadline", "documents"], keywords: ["11am", "6pm", "study in korea", "university website", "direct niied"], summary: "FAQ on application submission: Embassy Track uses Study in Korea during the national window; University Track follows each university; direct submission to NIIED is not accepted." },
+  { page: 40, topics: ["apostille"], keywords: ["apostille convention", "consular confirmation", "certified copy", "notary"], summary: "FAQ clarifying when apostille versus consular confirmation applies and how authenticated/certified copies are treated." },
+  { page: 41, topics: ["apostille", "university_choice"], keywords: ["translation", "documents returned", "certified true copy", "three universities", "one department"], summary: "FAQ on certified translations, non-return of NIIED documents, authenticated copies and route-specific university/department selection." },
+  { page: 42, topics: ["university_choice", "recommendation"], keywords: ["choosing universities", "competitive", "recommendation letter", "teacher", "two referees"], summary: "FAQ with university-choice cautions and recommendation-letter recommender/count guidance." },
+  { page: 43, topics: ["recommendation", "language", "fallback"], keywords: ["sealed envelope", "back flap", "language optional", "duplicate application", "both tracks"], summary: "FAQ on recommendation submission, optional language scores and duplicate-application restrictions." },
+  { page: 44, topics: ["deadline", "language"], keywords: ["selection results", "october 16", "topik 3", "korean language program", "same university"], summary: "FAQ on result announcements and Korean-language program requirements, including minimum TOPIK level 3 and same-university language study." },
+  { page: 45, topics: ["language", "university_choice"], keywords: ["topik 5", "topik 6", "exemption", "december 24", "september 2027", "transfer"], summary: "FAQ on TOPIK 5/6 language-program exemptions, early degree start and the prohibition on changing/transferring universities." },
+];
