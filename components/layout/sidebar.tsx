@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, ShieldCheck } from "lucide-react";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_GROUP_LABELS, NAV_GROUP_ORDER, navItemsByGroup } from "@/lib/nav-items";
 import { cn } from "@/lib/cn";
 
 export function Sidebar({
@@ -43,29 +43,44 @@ export function Sidebar({
         this list hits its end, so spinning the wheel over the sidebar never
         moves the main content.
       */}
-      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain px-3 sidebar-scroll">
-        {NAV_ITEMS.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const badgeCount = item.badgeKey === "requests" ? pendingRequestsCount : 0;
+      <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-3 pb-2 sidebar-scroll">
+        {NAV_GROUP_ORDER.map((group, groupIndex) => {
+          const items = navItemsByGroup(group);
+          if (!items.length) return null;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors",
-                active ? "bg-primary/10 text-primary" : "text-muted hover:bg-canvas hover:text-ink"
+            <div key={group} className={cn(groupIndex > 0 && "mt-3")}>
+              {group !== "overview" && (
+                <p className="mb-1 px-3 text-[9.5px] font-semibold uppercase tracking-[0.13em] text-muted/60">
+                  {NAV_GROUP_LABELS[group]}
+                </p>
               )}
-            >
-              <span className="flex items-center gap-2.5">
-                <item.icon className="h-[18px] w-[18px]" />
-                {item.label}
-              </span>
-              {badgeCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gks-u px-1.5 text-[11px] font-semibold text-white">
-                  {badgeCount > 9 ? "9+" : badgeCount}
-                </span>
-              )}
-            </Link>
+              <div className="flex flex-col gap-0.5">
+                {items.map((item) => {
+                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const badgeCount = item.badgeKey === "requests" ? pendingRequestsCount : 0;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                        active ? "bg-primary/10 text-primary" : "text-muted hover:bg-canvas hover:text-ink"
+                      )}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <item.icon className="h-[17px] w-[17px]" />
+                        {item.label}
+                      </span>
+                      {badgeCount > 0 && (
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gks-u px-1.5 text-[11px] font-semibold text-white">
+                          {badgeCount > 9 ? "9+" : badgeCount}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
       </nav>
