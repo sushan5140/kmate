@@ -106,7 +106,7 @@ export interface AskResult {
   question: string;
   program: Program;
   answer: string;
-  mode: "retrieval_only" | "rag_generated" | "needs_clarification";
+  mode: "retrieval_only" | "rag_generated" | "grok_generated" | "needs_clarification";\n  synthesis_provider?: "grok" | "retrieval";\n  guideline_cycle?: string | null;
   needs_clarification?: boolean;
   clarification?: string;
   official_sources_found: number;
