@@ -200,7 +200,7 @@ export function GksU2027RouteDashboard({
           </h2>
         </div>
         <Link
-          href="/official-guidelines/saved"
+          href="/gks/saved"
           className="inline-flex h-9 items-center gap-1.5 rounded-full bg-white px-4 text-[12px] font-medium text-ink ring-1 ring-hairline-strong hover:bg-canvas"
         >
           <Bookmark className="h-3.5 w-3.5" />
