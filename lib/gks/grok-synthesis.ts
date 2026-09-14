@@ -8,93 +8,62 @@ interface OfficialEvidence {
   page?: number | null;
 }
 
-interface CommunityEvidence {
-  question?: string | null;
-  answer_confidence?: string | null;
-  possible_conflict?: boolean;
-  answers?: Array<{
-    text?: string | null;
-    usefulness?: string | null;
-  }>;
-}
-
 export interface SynthesisInput {
   question: string;
   program: "UG" | "G";
   official: OfficialEvidence[];
-  community: CommunityEvidence[];
   unsupportedLabels?: string[];
-  conflict?: {
-    community_internal?: boolean;
-    against_official?: boolean;
-  };
 }
 
 export interface SynthesisResult {
   answer: string;
   provider: "grok" | "retrieval";
+  providerStatus:
+    | "ok"
+    | "missing_key"
+    | "xai_auth_error"
+    | "xai_rate_limited"
+    | "xai_error"
+    | "empty_response"
+    | "timeout_or_network";
 }
 
-function trim(text: string, max = 420) {
+function trim(text: string, max = 460) {
   const compact = text.replace(/\s+/g, " ").trim();
   return compact.length <= max ? compact : compact.slice(0, max - 1).trimEnd() + "…";
 }
 
-function retrievalFallback(input: SynthesisInput): SynthesisResult {
+function retrievalFallback(input: SynthesisInput, status: SynthesisResult["providerStatus"]): SynthesisResult {
   const lines: string[] = [];
 
   if (input.official.length) {
-    lines.push("Official guideline");
-    for (const item of input.official.slice(0, 3)) {
+    lines.push("Official guideline evidence");
+    for (const item of input.official.slice(0, 4)) {
       const page = item.page ? ` (p.${item.page})` : "";
       lines.push(`• ${trim(item.claim ?? "")}${page}`);
     }
   } else {
-    lines.push("Official guideline");
-    lines.push("• The current guideline evidence retrieved by KMate does not directly answer this.");
-  }
-
-  const communityAnswers = input.community
-    .flatMap((item) => item.answers ?? [])
-    .filter((item) => item.text)
-    .slice(0, 2);
-
-  if (communityAnswers.length) {
-    lines.push("");
-    lines.push("Applicant experience");
-    for (const item of communityAnswers) {
-      lines.push(`• ${trim(item.text ?? "")}`);
-    }
+    lines.push("The current official guideline evidence retrieved by KMate does not directly answer this question.");
   }
 
   if (input.unsupportedLabels?.length) {
     lines.push("");
     lines.push(
-      `The current official evidence does not explicitly confirm: ${input.unsupportedLabels.join(", ")}.`
+      `The guideline evidence retrieved here does not explicitly confirm: ${input.unsupportedLabels.join(", ")}.`
     );
   }
 
-  if (input.conflict?.against_official) {
-    lines.push("");
-    lines.push("Some applicant reports conflict with the official guideline; follow the official guideline.");
-  } else if (input.conflict?.community_internal) {
-    lines.push("");
-    lines.push("Applicant reports are mixed on this point.");
-  }
-
-  return { answer: lines.join("\n"), provider: "retrieval" };
+  return { answer: lines.join("\n"), provider: "retrieval", providerStatus: status };
 }
 
 export async function synthesizeGksAnswer(input: SynthesisInput): Promise<SynthesisResult> {
-  // Accept the name the user has used in other KMate-family projects, while
-  // also supporting xAI's conventional environment-variable name.
   const apiKey =
     process.env.XAI_API_KEY ??
     process.env.GROK_API_KEY ??
     process.env.GROK_API ??
     process.env.Grok_API;
 
-  if (!apiKey) return retrievalFallback(input);
+  if (!apiKey) return retrievalFallback(input, "missing_key");
 
   const official = input.official.slice(0, 6).map((item) => ({
     claim: item.claim,
@@ -102,16 +71,6 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
     cycle: item.cycle,
     source_title: item.source_title,
     source_url: item.source_url,
-  }));
-
-  const community = input.community.slice(0, 3).map((item) => ({
-    question: item.question,
-    confidence: item.answer_confidence,
-    possible_conflict: item.possible_conflict,
-    answers: (item.answers ?? []).slice(0, 2).map((a) => ({
-      text: a.text,
-      usefulness: a.usefulness,
-    })),
   }));
 
   const controller = new AbortController();
@@ -123,25 +82,25 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "x-grok-conv-id": "kmate-gks-guidelines",
       },
       body: JSON.stringify({
         model: process.env.GROK_MODEL ?? "grok-4.6",
-        temperature: 0.15,
-        max_tokens: 700,
+        temperature: 0.1,
+        max_tokens: 650,
         messages: [
           {
             role: "system",
             content: [
-              "You are the KMate GKS scholarship assistant.",
-              "Use only the supplied evidence.",
-              "The official guideline evidence is authoritative and always outranks community experience.",
-              "Community evidence is applicant experience, never an official rule.",
-              "For GKS-U, the supplied official evidence is from the current 2027 guideline.",
-              "If official evidence does not explicitly answer part of the question, say that clearly instead of inferring.",
-              "If community reports conflict with official evidence, say so and follow the official evidence.",
-              "Keep the answer concise, practical, and easy to read.",
-              "Use this structure: Answer; Official basis; Community experience (only if useful); What to do next.",
-              "Do not invent deadlines, document rules, university requirements, scores, or exceptions.",
+              "You are KMate's official GKS guideline assistant.",
+              "Answer ONLY from the official guideline evidence supplied in this request.",
+              "Do not use applicant anecdotes, community reports, memory, web knowledge, or unstated assumptions.",
+              "For GKS-U, the evidence is from the current 2027 GKS-U guideline.",
+              "If the evidence does not directly support an answer, say that the guideline evidence provided does not confirm it.",
+              "Prefer a direct yes/no first when the question allows it.",
+              "Then explain the rule in 2-4 concise sentences and cite the supplied page number(s) as 'p.X'.",
+              "Do not invent deadlines, document rules, exceptions, scores, university requirements, or interpretations.",
+              "Where two stages differ, state the distinction explicitly (for example first round versus NIIED second round).",
             ].join("\n"),
           },
           {
@@ -149,10 +108,8 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
             content: JSON.stringify({
               question: input.question,
               program: input.program,
-              current_official_evidence: official,
-              rag_community_evidence: community,
-              official_gaps: input.unsupportedLabels ?? [],
-              conflict: input.conflict ?? {},
+              official_guideline_evidence: official,
+              unsupported_topics: input.unsupportedLabels ?? [],
             }),
           },
         ],
@@ -160,17 +117,34 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
       signal: controller.signal,
     });
 
-    if (!response.ok) return retrievalFallback(input);
+    if (!response.ok) {
+      const safeBody = (await response.text().catch(() => "")).slice(0, 500);
+      console.error("[gks:grok] xAI request failed", response.status, safeBody);
+      if (response.status === 401 || response.status === 403) {
+        return retrievalFallback(input, "xai_auth_error");
+      }
+      if (response.status === 429) {
+        return retrievalFallback(input, "xai_rate_limited");
+      }
+      return retrievalFallback(input, "xai_error");
+    }
 
     const payload = (await response.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
     };
     const answer = payload.choices?.[0]?.message?.content?.trim();
-    if (!answer) return retrievalFallback(input);
+    if (!answer) {
+      console.error("[gks:grok] xAI returned no answer content");
+      return retrievalFallback(input, "empty_response");
+    }
 
-    return { answer, provider: "grok" };
-  } catch {
-    return retrievalFallback(input);
+    return { answer, provider: "grok", providerStatus: "ok" };
+  } catch (error) {
+    console.error(
+      "[gks:grok] request exception",
+      error instanceof Error ? error.name + ": " + error.message : "unknown"
+    );
+    return retrievalFallback(input, "timeout_or_network");
   } finally {
     clearTimeout(timeout);
   }

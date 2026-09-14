@@ -1,35 +1,28 @@
-import { ShieldCheck, GraduationCap, Users } from "lucide-react";
+import { ShieldCheck, Sparkles, GraduationCap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-/**
- * Explains what the three kinds of answer actually mean.
- *
- * The point is the last line of each: an applicant needs to know which of
- * these they can rely on and which they can't. Icons stay small and
- * monochrome -- this is a legend, not a feature grid.
- */
 const TYPES = [
   {
     icon: ShieldCheck,
     title: "Official guideline",
-    body: "Quoted from the GKS guideline for the program you selected, with the source and page. This is the rule.",
+    body: "The evidence layer comes from the official GKS guideline for the selected program, with source and page information.",
+  },
+  {
+    icon: Sparkles,
+    title: "Guideline-grounded AI",
+    body: "Grok explains only the retrieved official guideline evidence. Applicant anecdotes and community RAG are not sent to the model.",
   },
   {
     icon: GraduationCap,
-    title: "University-specific",
-    body: "Shown only where verified university-specific information exists. Requirements differ by university and department.",
-  },
-  {
-    icon: Users,
-    title: "Community experience",
-    body: "What applicants and scholars reported happening to them. Useful context, never a rule — verify anything that matters.",
+    title: "University-specific rules",
+    body: "A university may add its own requirements or deadlines. When the national guideline does not answer that point, KMate should say so rather than guess.",
   },
 ];
 
 export function AnswerTypes() {
   return (
     <Card className="p-4">
-      <h2 className="text-[13.5px] font-semibold text-ink">Answer types</h2>
+      <h2 className="text-[13.5px] font-semibold text-ink">How answers work</h2>
       <ul className="mt-3 flex flex-col gap-3.5">
         {TYPES.map(({ icon: Icon, title, body }) => (
           <li key={title} className="flex gap-2.5">

@@ -108,6 +108,7 @@ export interface AskResult {
   answer: string;
   mode: "retrieval_only" | "rag_generated" | "grok_generated" | "needs_clarification";
   synthesis_provider?: "grok" | "retrieval";
+  synthesis_status?: "ok" | "missing_key" | "xai_auth_error" | "xai_rate_limited" | "xai_error" | "empty_response" | "timeout_or_network";
   guideline_cycle?: string | null;
   needs_clarification?: boolean;
   clarification?: string;
