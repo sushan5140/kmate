@@ -6,6 +6,9 @@ import { TrackBadge } from "@/components/ui/track-badge";
 import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revision-note";
 import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
 import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
+import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
+import { GksU2027FormAssistant } from "@/components/official-guidelines/gks-u-2027-form-assistant";
+import { GksU2027ManualChecklist } from "@/components/official-guidelines/gks-u-2027-manual-checklist";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
@@ -87,7 +90,7 @@ export default async function OfficialGuidelinesPage() {
   const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Official Guidelines</h1>
       <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-gold">
         Official source material — not community-written
@@ -133,6 +136,26 @@ export default async function OfficialGuidelinesPage() {
             savedUniversities={profileDefaults?.universities ?? []}
             defaultMajor={profileDefaults?.major ?? ""}
           />
+          <GksU2027TrackComparator
+            defaultPath={
+              profileDefaults?.track === "embassy"
+                ? profileDefaults.subtype === "r_gks"
+                  ? "r_gks"
+                  : "general"
+                : null
+            }
+            defaultMajor={profileDefaults?.major ?? ""}
+          />
+          <GksU2027FormAssistant
+            defaultRoute={
+              profileDefaults?.track === "embassy"
+                ? profileDefaults.subtype === "r_gks"
+                  ? "r_gks"
+                  : "general"
+                : null
+            }
+          />
+          <GksU2027ManualChecklist />
         </>
       )}
 
