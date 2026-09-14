@@ -134,6 +134,70 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
     keywords: ["first round", "scan", "scanned", "upload", "document", "recommendation", "embassy"],
   },
   {
+    id: "form-1",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 1 is the Application Form. Embassy Track applicants complete it directly in the Study in Korea system; first-round successful candidates print it and provide the required original handwritten signatures for the NIIED second round.",
+    keywords: ["form 1", "application form", "application", "signature"],
+  },
+  {
+    id: "form-2",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 2 is the Personal Statement. Embassy Track applicants complete it directly in the Study in Korea system; it may be written in English or Korean.",
+    keywords: ["form 2", "personal statement", "english", "korean"],
+  },
+  {
+    id: "form-3",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 3 is the Study Plan. Embassy Track applicants complete it directly in the Study in Korea system; it may be written in English or Korean.",
+    keywords: ["form 3", "study plan", "english", "korean"],
+  },
+  {
+    id: "form-4",
+    topic: "recommendation",
+    page: 12,
+    claim:
+      "Form 4 is the Recommendation Letter. For the Embassy Track first round, a scanned copy prepared by the recommender is uploaded; first-round successful candidates submit the original letter for the NIIED second round.",
+    keywords: ["form 4", "recommendation letter", "recommender", "original letter", "scanned copy"],
+  },
+  {
+    id: "form-5",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 5 is the GKS Applicant Agreement. Embassy Track applicants complete it directly in the Study in Korea system and, after passing the first round, print the form and provide the required signature.",
+    keywords: ["form 5", "gks applicant agreement", "applicant agreement", "signature"],
+  },
+  {
+    id: "form-6",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 6 is the Personal Medical Assessment. Embassy Track applicants complete it directly in the Study in Korea system and, after passing the first round, print the form and provide the required signature.",
+    keywords: ["form 6", "personal medical assessment", "medical assessment", "signature"],
+  },
+  {
+    id: "form-7",
+    topic: "documents",
+    page: 12,
+    claim:
+      "Form 7 is the Consent to Collect and Use Personal Information. Embassy Track applicants complete it directly in the Study in Korea system and, after passing the first round, print the form and provide the required signature.",
+    keywords: ["form 7", "consent", "collect and use personal information", "personal information", "signature"],
+  },
+  {
+    id: "university-track-forms",
+    topic: "documents",
+    page: 13,
+    claim:
+      "For University Track, Forms 1-3 and 5-7 are completed according to the university's application method, while Form 4 is completed by the recommender. First-round successful candidates submit the original/printed forms for the NIIED second round as instructed.",
+    keywords: ["university track forms", "university track", "form 1", "form 4", "forms 1-7"],
+  },
+  {
     id: "first-round-no-apostille",
     topic: "apostille",
     page: 14,

@@ -231,7 +231,7 @@ export function GksU2027SmartTools({
           href="/gks?program=UG"
           className="inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[12.5px] font-medium text-white"
         >
-          Ask the guideline + RAG <Sparkles className="h-3.5 w-3.5" />
+          Ask official guideline AI <Sparkles className="h-3.5 w-3.5" />
         </Link>
       </div>
 
