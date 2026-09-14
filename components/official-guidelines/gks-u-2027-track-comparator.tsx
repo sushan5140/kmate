@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
 import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
 type EmbassyPath = "general" | "r_gks";
 
@@ -26,19 +27,19 @@ const ROWS = [
   },
   {
     label: "2027 application window",
-    embassy: "Sep 15, 11:00 → Sep 30, 18:00 KST",
-    university: "September–November 2026; exact dates vary by university",
+    embassy: GKS_U_2027_POLICY.embassyApplication.display,
+    university: GKS_U_2027_POLICY.universityTrackWindow.display + "; exact dates vary by university",
   },
   {
     label: "University choices",
-    embassyGeneral: "Up to 3 universities; at least 1 must be Type B",
-    embassyRgks: "Up to 2 universities; all choices must be Type B",
-    university: "1 university + 1 department",
+    embassyGeneral: GKS_U_2027_POLICY.choiceRules.general.display,
+    embassyRgks: GKS_U_2027_POLICY.choiceRules.r_gks.display,
+    university: GKS_U_2027_POLICY.choiceRules.university.display,
   },
   {
     label: "First-round documents",
-    embassy: "Complete forms online; upload scanned certificates and recommendation",
-    university: "Follow that university's submission method and any additional document instructions",
+    embassy: GKS_U_2027_POLICY.documents.embassyFirstRound,
+    university: GKS_U_2027_POLICY.documents.universityFirstRound,
   },
   {
     label: "Selection structure",
@@ -47,7 +48,7 @@ const ROWS = [
   },
   {
     label: "If Embassy Round 1 fails",
-    embassy: "You may still apply through University Track if its deadline is still open",
+    embassy: GKS_U_2027_POLICY.fallback.afterEmbassyRound1Fail,
     university: "This is the fallback route permitted after an Embassy first-round failure",
   },
 ] as const;
@@ -64,8 +65,8 @@ export function GksU2027TrackComparator({
   const choiceRule = useMemo(
     () =>
       embassyPath === "r_gks"
-        ? "Up to 2 universities; all choices must be Type B"
-        : "Up to 3 universities; at least 1 must be Type B",
+        ? GKS_U_2027_POLICY.choiceRules.r_gks.display
+        : GKS_U_2027_POLICY.choiceRules.general.display,
     [embassyPath]
   );
 
