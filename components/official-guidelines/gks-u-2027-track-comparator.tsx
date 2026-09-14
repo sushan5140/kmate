@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
+import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
 
 type EmbassyPath = "general" | "r_gks";
 
@@ -145,6 +147,16 @@ export function GksU2027TrackComparator({
               </p>
             </div>
           </div>
+          <div className="mt-4">
+            <GuidelineRuleActions
+              id={"track-comparator-embassy-" + embassyPath}
+              title={embassyPath === "r_gks" ? "Embassy Track — R-GKS" : "Embassy Track — General"}
+              text={choiceRule + ". Embassy Track applications are submitted online through Study in Korea and proceed through Embassy, NIIED, then university review."}
+              page="pp.6, 9–11"
+              sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+              compact
+            />
+          </div>
         </Card>
 
         <Card>
@@ -185,6 +197,16 @@ export function GksU2027TrackComparator({
               </p>
             </div>
           </div>
+          <div className="mt-4">
+            <GuidelineRuleActions
+              id="track-comparator-university"
+              title="University Track — UIC Bachelor's"
+              text="University Track applicants apply to one university and one department according to the university's own method and schedule. The route proceeds from the university first round to NIIED second round, with no third university round."
+              page="pp.6, 9–11"
+              sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+              compact
+            />
+          </div>
         </Card>
       </div>
 
@@ -223,17 +245,41 @@ export function GksU2027TrackComparator({
       </Card>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="flex items-start gap-2 rounded-xl bg-success/10 px-3.5 py-3">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-          <p className="text-[12.5px] leading-relaxed text-ink">
-            If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university's deadline is still open.
-          </p>
+        <div className="rounded-xl bg-success/10 px-3.5 py-3">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+            <p className="text-[12.5px] leading-relaxed text-ink">
+              If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university's deadline is still open.
+            </p>
+          </div>
+          <div className="mt-2.5 pl-6">
+            <GuidelineRuleActions
+              id="fallback-after-embassy-fail"
+              title="Embassy first-round fallback"
+              text="If an applicant fails the Embassy Track first round, they may apply through University Track if the university's application deadline is still open."
+              page="pp.9–11"
+              sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+              compact
+            />
+          </div>
         </div>
-        <div className="flex items-start gap-2 rounded-xl bg-gold/10 px-3.5 py-3">
-          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-          <p className="text-[12.5px] leading-relaxed text-ink">
-            If you pass the Embassy first round, including as a backup candidate, you cannot apply again through University Track.
-          </p>
+        <div className="rounded-xl bg-gold/10 px-3.5 py-3">
+          <div className="flex items-start gap-2">
+            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+            <p className="text-[12.5px] leading-relaxed text-ink">
+              If you pass the Embassy first round, including as a backup candidate, you cannot apply again through University Track.
+            </p>
+          </div>
+          <div className="mt-2.5 pl-6">
+            <GuidelineRuleActions
+              id="no-fallback-after-embassy-pass"
+              title="No University Track after Embassy Round 1 pass"
+              text="Embassy Track applicants who pass the first round, including backup candidates, cannot apply again through University Track."
+              page="p.9"
+              sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+              compact
+            />
+          </div>
         </div>
       </div>
 
