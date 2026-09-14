@@ -6,45 +6,60 @@ export interface OfficialGuideline {
   track: Track;
   title: string;
   description: string;
-  /** Either an absolute external URL (proxied through /api/official-guidelines/download for a forced download) or a same-origin /public path (downloads natively via the `download` attribute). */
+  /** PDF URL. Local /public paths are served directly; remote PDFs are proxied for download. */
   url: string;
-  /** Only set when a track has more than one published version (currently GKS-U's pre/post-NIRS-fire revision) -- shown as a small badge on the card. Omitted for tracks with a single, unambiguous version. */
+  /** Optional official notice page that published the PDF. */
+  sourceUrl?: string;
+  /** Friendly download filename for remote PDFs whose URL does not end in .pdf. */
+  downloadFilename?: string;
+  /** Marks the edition applicants should use for the currently open cycle. */
+  isCurrent?: boolean;
+  /** Small status/version badge shown on the card. */
   versionLabel?: string;
 }
 
 /**
- * NIIED republishes these application-guideline PDFs at new URLs each
- * cycle -- this list needs a manual update when that happens, same caveat
- * already noted for the university list, mistake-data seeds, and deadline
- * estimates elsewhere in this codebase.
+ * Official guideline PDFs surfaced in KMate.
  *
- * GKS-U has two entries because NIIED issued an emergency revision
- * mid-cycle -- see GKS_U_REVISION_NOTE below for why. Both PDFs are
- * mirrored under /public/official-guidelines/ (this project has no
- * existing Supabase Storage bucket, and /public already matches how other
- * static reference data -- data/gks-universities.json etc -- is committed
- * directly rather than fetched from an external host). GKS-G's guideline
- * has a live public URL and stays linked directly.
+ * The current 2027 GKS-U English PDF is published by NIIED through Study in Korea.
+ * KMate links the official NIIED notice as the source of record and uses the Korean
+ * Education Centre in India's government-hosted PDF mirror for direct viewing/download.
+ *
+ * Older GKS-U PDFs remain visible as an archive so applicants can distinguish the
+ * current cycle from the 2026 original/revised documents.
  */
 export const OFFICIAL_GUIDELINES: Record<Track, OfficialGuideline[]> = {
   gks_u: [
     {
-      id: "gks-u-2026-original",
+      id: "gks-u-2027",
       track: "gks_u",
-      title: "GKS-U 2026 Application Guidelines (Original)",
+      title: "GKS-U 2027 Application Guidelines",
       description:
-        "Official NIIED application guidelines for the 2026 Global Korea Scholarship — Undergraduate track, as originally published.",
-      url: "/official-guidelines/gks-u-2026-original.pdf",
-      versionLabel: "Original — Sept 2025",
+        "Current official application guidelines for the 2027 Global Korea Scholarship — Undergraduate Degrees.",
+      url: "https://kecindia.org/api/download/291",
+      sourceUrl:
+        "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
+      downloadFilename: "2027-GKS-U-Application-Guidelines-English.pdf",
+      isCurrent: true,
+      versionLabel: "Current — Sep 2026",
     },
     {
       id: "gks-u-2026-revised",
       track: "gks_u",
       title: "GKS-U 2026 Application Guidelines (Revised)",
       description:
-        "Official NIIED application guidelines for the 2026 Global Korea Scholarship — Undergraduate track, revised after the October 2025 NIRS fire.",
+        "Archived NIIED application guidelines for the 2026 Undergraduate cycle, revised after the October 2025 NIRS fire.",
       url: "/official-guidelines/gks-u-2026-revised.pdf",
-      versionLabel: "Revised — Oct 2025",
+      versionLabel: "Archive — Revised Oct 2025",
+    },
+    {
+      id: "gks-u-2026-original",
+      track: "gks_u",
+      title: "GKS-U 2026 Application Guidelines (Original)",
+      description:
+        "Archived NIIED application guidelines for the 2026 Undergraduate cycle, as originally published.",
+      url: "/official-guidelines/gks-u-2026-original.pdf",
+      versionLabel: "Archive — Original Sep 2025",
     },
   ],
   gks_g: [
@@ -54,6 +69,7 @@ export const OFFICIAL_GUIDELINES: Record<Track, OfficialGuideline[]> = {
       title: "GKS-G 2026 Application Guidelines",
       description: "Official NIIED application guidelines for the 2026 Global Korea Scholarship — Graduate track.",
       url: "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf",
+      downloadFilename: "2026-GKS-G-Application-Guidelines-English.pdf",
     },
   ],
 };
@@ -65,11 +81,7 @@ export interface GuidelineDifference {
 }
 
 /**
- * Explains why two GKS-U guideline versions exist and exactly where they
- * diverge -- rendered by the collapsed-by-default "See what changed" note
- * on the Official Guidelines page. Hand-verified against both PDFs at the
- * time this was written; if NIIED publishes a further revision, re-diff
- * before reusing this note.
+ * Historical note explaining why KMate preserves both 2026 GKS-U editions.
  */
 export const GKS_U_REVISION_NOTE = {
   summary:
@@ -107,5 +119,5 @@ export const GKS_U_REVISION_NOTE = {
     },
   ] satisfies GuidelineDifference[],
   closingNote:
-    "Both documents are historical: the 2026 GKS-U application cycle has concluded. They're kept here for reference and transparency, not as an active application procedure.",
+    "Both 2026 documents are historical. For an active 2027 GKS-U application, use the 2027 guideline shown above.",
 };
