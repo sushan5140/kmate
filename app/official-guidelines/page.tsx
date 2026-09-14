@@ -4,6 +4,7 @@ import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { Card } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revision-note";
+import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
 
@@ -12,43 +13,61 @@ export const metadata: Metadata = {
 };
 
 function GuidelineCard({ guideline }: { guideline: OfficialGuideline }) {
-  // Local /public PDFs are same-origin, so the `download` attribute works
-  // natively; the external GKS-G link needs the download-proxy route,
-  // since NIIED's own server sends no Content-Disposition and browsers
-  // ignore `download` cross-origin.
   const isExternal = guideline.url.startsWith("http");
   const downloadHref = isExternal ? `/api/official-guidelines/download?id=${guideline.id}` : guideline.url;
 
   return (
-    <Card className="flex items-start justify-between gap-4">
-      <div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          <TrackBadge track={guideline.track} />
-          {guideline.versionLabel && (
-            <span className="inline-flex items-center rounded-full bg-ink/[0.06] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
-              {guideline.versionLabel}
-            </span>
+    <Card className={guideline.isCurrent ? "border-primary/25 bg-primary-soft/25" : undefined}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <TrackBadge track={guideline.track} />
+            {guideline.versionLabel && (
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${
+                  guideline.isCurrent
+                    ? "bg-primary/10 text-primary"
+                    : "bg-ink/[0.06] text-muted"
+                }`}
+              >
+                {guideline.versionLabel}
+              </span>
+            )}
+          </div>
+
+          <p className="mt-2 text-[14.5px] font-medium text-ink">{guideline.title}</p>
+          <p className="mt-1 text-[13px] leading-relaxed text-muted">{guideline.description}</p>
+
+          {guideline.sourceUrl && (
+            <a
+              href={guideline.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-[12px] font-medium text-primary hover:underline"
+            >
+              Official NIIED / Study in Korea notice
+              <ExternalLink className="h-3 w-3" />
+            </a>
           )}
         </div>
-        <p className="mt-1.5 text-[14.5px] font-medium text-ink">{guideline.title}</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-muted">{guideline.description}</p>
-      </div>
-      <div className="flex shrink-0 flex-col items-stretch gap-2">
-        <a
-          href={guideline.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-medium text-white transition-colors hover:bg-ink/90"
-        >
-          View <ExternalLink className="h-3.5 w-3.5" />
-        </a>
-        <a
-          href={downloadHref}
-          download={isExternal ? undefined : guideline.url.split("/").pop()}
-          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-medium text-ink ring-1 ring-hairline-strong transition-colors hover:bg-canvas"
-        >
-          <Download className="h-3.5 w-3.5" /> Download
-        </a>
+
+        <div className="flex shrink-0 gap-2 sm:flex-col sm:items-stretch">
+          <a
+            href={guideline.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-medium text-white transition-colors hover:bg-ink/90"
+          >
+            View PDF <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+          <a
+            href={downloadHref}
+            download={isExternal ? undefined : guideline.downloadFilename ?? guideline.url.split("/").pop()}
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-medium text-ink ring-1 ring-hairline-strong transition-colors hover:bg-canvas"
+          >
+            <Download className="h-3.5 w-3.5" /> Download
+          </a>
+        </div>
       </div>
     </Card>
   );
@@ -61,27 +80,62 @@ export default async function OfficialGuidelinesPage() {
   const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_u";
   const guidelines = OFFICIAL_GUIDELINES[track];
+  const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent);
+  const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Official Guidelines</h1>
       <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-gold">
-        Official NIIED content — not community-written
+        Official source material — not community-written
       </p>
 
       <Card className="mt-4">
         <p className="text-[13.5px] leading-relaxed text-muted">
-          Showing the guidelines for {TRACK_LABELS[track]}, based on your profile.
+          Showing the guidelines for {TRACK_LABELS[track]}, based on your profile. KMate keeps older editions
+          visible as an archive so you can tell current rules from past-cycle instructions.
         </p>
       </Card>
 
-      <div className="mt-6 flex flex-col gap-4">
-        {guidelines.map((guideline) => (
-          <GuidelineCard key={guideline.id} guideline={guideline} />
-        ))}
-      </div>
+      {currentGuidelines.length > 0 ? (
+        <>
+          <div className="mt-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">Current cycle</p>
+          </div>
+          <div className="mt-2 flex flex-col gap-4">
+            {currentGuidelines.map((guideline) => (
+              <GuidelineCard key={guideline.id} guideline={guideline} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <Card className="mt-6 bg-canvas">
+          <p className="text-[13px] leading-relaxed text-muted">
+            No newer official guideline has been added for this track yet. The latest archived edition is shown below.
+          </p>
+        </Card>
+      )}
 
-      {track === "gks_u" && <GksURevisionNote />}
+      {track === "gks_u" && <GksU2027QuickGuide />}
+
+      {archivedGuidelines.length > 0 && (
+        <section className="mt-10">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Previous cycle archive</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+              Kept for transparency and comparison. Do not use an archived edition as the active 2027 procedure.
+            </p>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-4">
+            {archivedGuidelines.map((guideline) => (
+              <GuidelineCard key={guideline.id} guideline={guideline} />
+            ))}
+          </div>
+
+          {track === "gks_u" && <GksURevisionNote />}
+        </section>
+      )}
     </main>
   );
 }
