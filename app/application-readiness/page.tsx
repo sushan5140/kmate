@@ -151,16 +151,57 @@ export default async function ApplicationReadinessPage({
       </div>
 
       {showGksU2027 && (
-        <>
-          <GksU2027SmartTools
-            mode="readiness"
-            defaultPath={routePath}
-            savedUniversities={savedUniversityNames}
-            defaultMajor={toolMajor}
-          />
-          <GksU2027FormAssistant defaultRoute={routePath} />
-          <GksU2027ManualChecklist />
-        </>
+        <section className="mt-10 border-t border-hairline pt-8">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+              2027 supporting tools
+            </p>
+            <h2 className="mt-1 text-[18px] font-semibold text-ink">
+              Open the part you are working on
+            </h2>
+            <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-muted">
+              Your core readiness checklist stays visible above. Detailed planning tools are collapsed so this page
+              does not become one long dashboard.
+            </p>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3">
+            <details className="group rounded-2xl border border-hairline bg-white">
+              <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
+                Documents and Embassy → University fallback
+                <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="border-t border-hairline px-4 pb-5">
+                <GksU2027SmartTools
+                  mode="readiness"
+                  defaultPath={routePath}
+                  savedUniversities={savedUniversityNames}
+                  defaultMajor={toolMajor}
+                />
+              </div>
+            </details>
+
+            <details className="group rounded-2xl border border-hairline bg-white">
+              <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
+                Forms 1–7 assistant
+                <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="border-t border-hairline px-4 pb-5">
+                <GksU2027FormAssistant defaultRoute={routePath} />
+              </div>
+            </details>
+
+            <details className="group rounded-2xl border border-hairline bg-white">
+              <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
+                Final manual self-check
+                <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="border-t border-hairline px-4 pb-5">
+                <GksU2027ManualChecklist />
+              </div>
+            </details>
+          </div>
+        </section>
       )}
     </main>
   );
