@@ -5,6 +5,7 @@ import { AlertTriangle, Sparkles, Bookmark, HelpCircle } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OfficialAnswer } from "@/components/gks/official-answer";
+import { CombinedAnswer } from "@/components/gks/combined-answer";
 import { CommunityAnswers } from "@/components/gks/community-answers";
 import { DiscussionThread } from "@/components/gks/discussion-thread";
 import { AnswerTypes } from "@/components/gks/answer-types";
@@ -192,6 +193,8 @@ export function GksAssistant({
 
         {showResult && result && (
           <>
+            <CombinedAnswer result={result} />
+
             <Card className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex min-w-0 gap-2.5">
                 <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
@@ -294,7 +297,11 @@ export function GksAssistant({
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-[11.5px] font-medium text-muted">
                     <Sparkles className="h-3.5 w-3.5" />
-                    {result.mode === "rag_generated" ? "AI-assisted" : "Retrieval only"}
+                    {result.mode === "grok_generated"
+                      ? "Grok synthesis"
+                      : result.mode === "rag_generated"
+                        ? "AI-assisted"
+                        : "Retrieval only"}
                   </span>
                   <span className="text-[11.5px] text-muted">
                     {result.official_sources_found} official · {result.community_cases_found} community cases
