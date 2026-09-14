@@ -5,12 +5,6 @@ import { Card } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
 import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revision-note";
 import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
-import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
-import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
-import { GksU2027FormAssistant } from "@/components/official-guidelines/gks-u-2027-form-assistant";
-import { GksU2027ManualChecklist } from "@/components/official-guidelines/gks-u-2027-manual-checklist";
-import { GksU2027RouteDashboard } from "@/components/official-guidelines/gks-u-2027-route-dashboard";
-import { getProfileDefaults } from "@/lib/readiness/profile";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
 
@@ -85,13 +79,12 @@ export default async function OfficialGuidelinesPage() {
 
   const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_u";
-  const profileDefaults = track === "gks_u" ? await getProfileDefaults(user.id) : null;
   const guidelines = OFFICIAL_GUIDELINES[track];
   const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent);
   const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-6 py-10">
       <h1 className="text-[22px] font-semibold text-ink">Official Guidelines</h1>
       <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-gold">
         Official source material — not community-written
@@ -99,8 +92,7 @@ export default async function OfficialGuidelinesPage() {
 
       <Card className="mt-4">
         <p className="text-[13.5px] leading-relaxed text-muted">
-          Showing the guidelines for {TRACK_LABELS[track]}, based on your profile. KMate keeps older editions
-          visible as an archive so you can tell current rules from past-cycle instructions.
+          Showing the official source material for {TRACK_LABELS[track]}, based on your profile. This page stays focused on the guideline itself; application planning, requirement checks, forms, and apostille actions live in their dedicated KMate sections.
         </p>
       </Card>
 
@@ -123,54 +115,7 @@ export default async function OfficialGuidelinesPage() {
         </Card>
       )}
 
-      {track === "gks_u" && (
-        <>
-          <GksU2027QuickGuide />
-          <GksU2027RouteDashboard
-            defaultPath={
-              profileDefaults?.track === "embassy"
-                ? profileDefaults.subtype === "r_gks"
-                  ? "r_gks"
-                  : "general"
-                : null
-            }
-            savedUniversities={profileDefaults?.universities ?? []}
-            unresolvedUniversities={profileDefaults?.unresolvedUniversities ?? []}
-            defaultMajor={profileDefaults?.major ?? ""}
-          />
-          <GksU2027SmartTools
-            defaultPath={
-              profileDefaults?.track === "embassy"
-                ? profileDefaults.subtype === "r_gks"
-                  ? "r_gks"
-                  : "general"
-                : null
-            }
-            savedUniversities={profileDefaults?.universities ?? []}
-            defaultMajor={profileDefaults?.major ?? ""}
-          />
-          <GksU2027TrackComparator
-            defaultPath={
-              profileDefaults?.track === "embassy"
-                ? profileDefaults.subtype === "r_gks"
-                  ? "r_gks"
-                  : "general"
-                : null
-            }
-            defaultMajor={profileDefaults?.major ?? ""}
-          />
-          <GksU2027FormAssistant
-            defaultRoute={
-              profileDefaults?.track === "embassy"
-                ? profileDefaults.subtype === "r_gks"
-                  ? "r_gks"
-                  : "general"
-                : null
-            }
-          />
-          <GksU2027ManualChecklist />
-        </>
-      )}
+      {track === "gks_u" && <GksU2027QuickGuide />}
 
       {archivedGuidelines.length > 0 && (
         <section className="mt-10">
