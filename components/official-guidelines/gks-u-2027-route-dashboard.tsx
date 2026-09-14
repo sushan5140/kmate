@@ -91,7 +91,13 @@ export function GksU2027RouteDashboard({
   unresolvedUniversities: string[];
   defaultMajor: string;
 }) {
-  const stage = getEmbassyStage();
+  const stage =
+    defaultPath === null
+      ? {
+          label: "Choose your application route",
+          next: "Compare Embassy Track and University Track below, then save your intended route in KMate before relying on route-specific checks.",
+        }
+      : getEmbassyStage();
 
   const normalized = useMemo(
     () =>
@@ -233,7 +239,9 @@ export function GksU2027RouteDashboard({
               <ShieldCheck className="h-3.5 w-3.5" />
               <p className="text-[10.5px] font-semibold uppercase tracking-wide">Embassy deadline</p>
             </div>
-            <p className="mt-1.5 text-[13px] font-semibold text-ink">Sep 30 · 18:00 KST</p>
+            <p className="mt-1.5 text-[13px] font-semibold text-ink">
+              {defaultPath ? "Sep 30 · 18:00 KST" : "Depends on selected route"}
+            </p>
           </div>
         </div>
 
