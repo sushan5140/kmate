@@ -8,6 +8,7 @@ import {
   upsertQuestion,
   loadDiscussion,
   isQuestionSaved,
+  countRecentGksAsks,
 } from "@/lib/gks/store";
 
 interface RagOfficialEvidence {
@@ -54,7 +55,23 @@ export async function POST(request: Request) {
 
   const rateLimit = checkRateLimit(`gks-ask:${user.id}`, 20, 60 * 60 * 1000);
   if (!rateLimit.allowed) {
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    return NextResponse.json(
+      { error: "rate_limited", retry_after_seconds: rateLimit.retryAfterSeconds },
+      { status: 429 }
+    );
+  }
+
+  const admin = getSupabaseAdmin();
+  const persistentCount = await countRecentGksAsks(
+    admin,
+    user.id,
+    new Date(Date.now() - 60 * 60 * 1000).toISOString()
+  );
+  if (persistentCount !== null && persistentCount >= 20) {
+    return NextResponse.json(
+      { error: "rate_limited", retry_after_seconds: 60 * 60 },
+      { status: 429 }
+    );
   }
 
   const body = await request.json().catch(() => null);
@@ -169,7 +186,6 @@ export async function POST(request: Request) {
   };
 
   try {
-    const admin = getSupabaseAdmin();
     const { id: questionId, askCount } = await upsertQuestion(admin, {
       program,
       question,
