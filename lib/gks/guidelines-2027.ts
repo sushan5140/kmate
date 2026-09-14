@@ -134,6 +134,14 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
     keywords: ["first round", "scan", "scanned", "upload", "document", "recommendation", "embassy"],
   },
   {
+    id: "first-round-no-apostille",
+    topic: "apostille",
+    page: 14,
+    claim:
+      "For the Embassy Track first round, required certificates are submitted as scanned copies online. Apostille or consular confirmation is not required at this first online submission stage; applicants who pass the first round must then prepare the authenticated certificates required for NIIED's second round.",
+    keywords: ["first round apostille", "apostille first round", "first round", "apostille", "consular", "scanned copies", "embassy"],
+  },
+  {
     id: "second-round-original",
     topic: "documents",
     page: 14,
