@@ -58,10 +58,10 @@ export function SavedGksRulesList() {
           Use the Save button beside a guideline rule or AI answer. Saved items stay in this browser.
         </p>
         <Link
-          href="/official-guidelines"
+          href="/gks"
           className="mt-4 inline-flex h-9 items-center rounded-full bg-ink px-4 text-[12px] font-medium text-white"
         >
-          Browse 2027 guideline workspace
+          Back to GKS Assistant
         </Link>
       </Card>
     );
