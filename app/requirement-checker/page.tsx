@@ -106,6 +106,10 @@ export default async function RequirementCheckerPage({
   });
 
   const showGksU2027 = program === "GKS-U" || (!program && defaults.program === "GKS-U");
+  const selectedProgram = (program || defaults.program || "GKS-U") as "GKS-U" | "GKS-G";
+  const selectedCycle =
+    requirementDataset.program_cycles?.[selectedProgram] ??
+    (selectedProgram === "GKS-U" ? "2027" : requirementDataset.cycle);
   const toolTrack = program === "GKS-U" && track ? track : defaults.track;
   const toolSubtype = program === "GKS-U" && track ? subtype : defaults.subtype;
   const toolPath =
@@ -128,7 +132,7 @@ export default async function RequirementCheckerPage({
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-[12px] font-medium text-muted">
           <Database className="h-3.5 w-3.5" />
-          {requirementDataset.cycle} · {requirementDataset.record_count} records
+          {selectedProgram} {selectedCycle} · {requirementDataset.record_count} cycle-tagged records
         </span>
       </header>
 
@@ -177,7 +181,8 @@ export default async function RequirementCheckerPage({
                 different requirements.
               </Guide>
               <Guide icon={<ExternalLink className="h-3.5 w-3.5" />}>
-                Open the official source on each result before you rely on it. Requirement details change.
+                Open the official source on each result before you rely on it. Each result shows whether its
+                university-specific detail is current-cycle or carried forward from an older official source.
               </Guide>
               <Guide icon={<ShieldCheck className="h-3.5 w-3.5" />}>
                 Where a source does not state something, this says{" "}
@@ -187,7 +192,9 @@ export default async function RequirementCheckerPage({
               </Guide>
             </ul>
             <p className="border-t border-hairline pt-3 text-[11.5px] text-muted">
-              {`Based on the latest verified ${requirementDataset.cycle} GKS information in KMate's dataset (${requirementDataset.record_count} university records).`}
+              {selectedProgram === "GKS-U"
+                ? "2027 national route/type/UIC eligibility is current. University-specific language, process and extra-document details keep their own source-cycle label and are never silently presented as 2027 when only an older official source is available."
+                : `Based on the latest verified ${selectedCycle} ${selectedProgram} information in KMate's dataset (${requirementDataset.record_count} cycle-tagged records).`}
             </p>
           </Card>
         </aside>
