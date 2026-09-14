@@ -6,24 +6,24 @@ import { Card, MicroLabel } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { OfficialAnswer } from "@/components/gks/official-answer";
 import { CombinedAnswer } from "@/components/gks/combined-answer";
-import { CommunityAnswers } from "@/components/gks/community-answers";
 import { DiscussionThread } from "@/components/gks/discussion-thread";
 import { AnswerTypes } from "@/components/gks/answer-types";
 import { cn } from "@/lib/cn";
-import type { AnswerView, AskResult, DiscussionView, Program, ThreadState } from "@/components/gks/types";
+import type { AskResult, DiscussionView, Program, ThreadState } from "@/components/gks/types";
 
 const PROGRAM_LABELS: Record<Program, string> = {
   UG: "Undergraduate (GKS-U)",
   G: "Graduate (GKS-G)",
 };
 
-type Tab = "official" | "community" | "discussion";
+type Tab = "official" | "discussion";
 
 const ERROR_MESSAGES: Record<string, string> = {
   rate_limited: "You've asked a lot of questions in a short time — try again in a few minutes.",
   not_configured: "The scholarship assistant isn't set up yet. Try again later.",
-  rag_unreachable: "Couldn't reach the assistant service. Try again in a moment.",
-  rag_error: "The assistant service had a problem answering that. Try rephrasing your question.",
+  graduate_guideline_not_configured: "Graduate guideline retrieval isn't configured yet. Try again later.",
+  graduate_guideline_unreachable: "Couldn't reach the graduate guideline source. Try again in a moment.",
+  graduate_guideline_error: "The graduate guideline source had a problem. Try rephrasing your question.",
   invalid_question: "Ask a real question — a few words won't be enough to search on.",
   invalid_program: "Choose Undergraduate or Graduate first.",
 };
@@ -94,8 +94,7 @@ export function GksAssistant({
       const asked = data as AskResult;
       setResult(asked);
       setThread(asked.thread ?? null);
-      // The official layer is the answer with authority, so it always opens
-      // first -- even when the community tab has more in it.
+      // The guideline layer is the only evidence used by the AI.
       setTab("official");
     } catch {
       setError("Couldn't reach the server.");
@@ -123,13 +122,11 @@ export function GksAssistant({
     }
   }
 
-  const answers: AnswerView[] = thread?.answers ?? [];
   const discussion: DiscussionView[] = thread?.discussion ?? [];
   const showResult = result && !result.needs_clarification;
 
   const TABS: { key: Tab; label: string; count: number | null }[] = [
     { key: "official", label: "Official answer", count: null },
-    { key: "community", label: "Community answers", count: answers.length },
     { key: "discussion", label: "Discussion", count: discussion.length },
   ];
 
@@ -250,14 +247,6 @@ export function GksAssistant({
 
               <Card className="mt-4">
                 {tab === "official" && <OfficialAnswer result={result} />}
-                {tab === "community" && (
-                  <CommunityAnswers
-                    questionId={thread?.questionId ?? null}
-                    answers={answers}
-                    conflict={result.conflict}
-                    onAnswers={(next) => setThread((t) => (t ? { ...t, answers: next } : t))}
-                  />
-                )}
                 {tab === "discussion" && (
                   <DiscussionThread
                     questionId={thread?.questionId ?? null}
@@ -279,8 +268,8 @@ export function GksAssistant({
               <MicroLabel>What you should do</MicroLabel>
               <p className="mt-2 text-[13.5px] leading-relaxed text-ink">
                 {result.official_sources_found === 0
-                  ? "This hasn't been officially confirmed yet. Check the current NIIED/embassy/university guidelines or ask your embassy directly before relying on community reports."
-                  : "Cross-check this against the official source(s) above for your specific cycle and embassy/university before relying on it — requirements change between years."}
+                  ? "This hasn't been confirmed by the official guideline evidence retrieved here. Check the current NIIED, embassy, or university instructions before acting on it."
+                  : "Use the cited official source and page for your application stage. Embassy and university instructions can add local submission details."}
               </p>
             </Card>
 
@@ -297,14 +286,11 @@ export function GksAssistant({
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-2.5 py-1 text-[11.5px] font-medium text-muted">
                     <Sparkles className="h-3.5 w-3.5" />
-                    {result.mode === "grok_generated"
-                      ? "Grok synthesis"
-                      : result.mode === "rag_generated"
-                        ? "AI-assisted"
-                        : "Retrieval only"}
+                    {result.mode === "grok_generated" ? "Grok guideline synthesis" : "Official excerpts only"}
                   </span>
                   <span className="text-[11.5px] text-muted">
-                    {result.official_sources_found} official · {result.community_cases_found} community cases
+                    {result.official_sources_found} official evidence item{result.official_sources_found === 1 ? "" : "s"}
+                    {result.synthesis_status ? ` · xAI status=${result.synthesis_status}` : ""}
                   </span>
                 </div>
                 <div className="mt-2 overflow-x-auto">
@@ -334,20 +320,7 @@ export function GksAssistant({
                           </td>
                         </tr>
                       ))}
-                      {result.evidence.community.map((c, i) => (
-                        <tr key={`c${i}`} className="border-t border-hairline">
-                          <td className="py-1 pr-3">community</td>
-                          <td className="py-1 pr-3 tabular-nums">{c.score.toFixed(3)}</td>
-                          <td className="py-1 pr-3">{c.program}</td>
-                          <td className="py-1 pr-3">{c.category}</td>
-                          <td className="py-1 pr-3">{c.cluster_id}</td>
-                          <td className="py-1 pr-3">
-                            {c.answer_confidence}
-                            {c.possible_conflict ? " · conflict" : ""}
-                            {c.answers?.[0]?.usefulness ? ` · ${c.answers[0].usefulness}` : ""}
-                          </td>
-                        </tr>
-                      ))}
+
                     </tbody>
                   </table>
                 </div>
