@@ -6,6 +6,10 @@ import { getApplicationWorkspace } from "@/lib/readiness";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { universitySlotsFor } from "@/lib/readiness/application";
 import { ReadinessWorkspace } from "@/components/readiness/readiness-workspace";
+import { GksU2027RouteDashboard } from "@/components/official-guidelines/gks-u-2027-route-dashboard";
+import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
+import { GksU2027FormAssistant } from "@/components/official-guidelines/gks-u-2027-form-assistant";
+import { GksU2027ManualChecklist } from "@/components/official-guidelines/gks-u-2027-manual-checklist";
 
 export const metadata: Metadata = {
   title: "Application Readiness — KMate",
@@ -98,12 +102,19 @@ export default async function ApplicationReadinessPage({
     if (meta?.majorSuggestions.length) majorSuggestions[u.name] = meta.majorSuggestions;
   }
 
+  const showGksU2027 = program === "GKS-U";
+  const routePath =
+    track === "embassy" ? (subtype === "r_gks" ? "r_gks" : "general") : null;
+  const savedUniversityNames = universities.map((u) => u.name);
+  const toolMajor =
+    universities.find((u) => u.major.trim().length > 0)?.major ?? defaults.major;
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
+    <main className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="text-[22px] font-semibold tracking-tight text-ink">Application Readiness</h1>
       <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
-        Your 2026 GKS application in one place: the documents every applicant files, plus whatever each
-        university you have chosen additionally requires.
+        Your GKS application in one place: route, document progress, forms, fallback planning, and whatever each
+        selected university additionally requires.
       </p>
 
       <div className="mt-4 flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
@@ -115,6 +126,15 @@ export default async function ApplicationReadinessPage({
           no rule for is never presented as <span className="font-medium text-ink">not required</span>.
         </p>
       </div>
+
+      {showGksU2027 && (
+        <GksU2027RouteDashboard
+          defaultPath={routePath}
+          savedUniversities={savedUniversityNames}
+          unresolvedUniversities={usingDefaults ? defaults.unresolvedUniversities : []}
+          defaultMajor={toolMajor}
+        />
+      )}
 
       <div className="mt-6">
         <ReadinessWorkspace
@@ -129,6 +149,19 @@ export default async function ApplicationReadinessPage({
           workspace={workspace}
         />
       </div>
+
+      {showGksU2027 && (
+        <>
+          <GksU2027SmartTools
+            mode="readiness"
+            defaultPath={routePath}
+            savedUniversities={savedUniversityNames}
+            defaultMajor={toolMajor}
+          />
+          <GksU2027FormAssistant defaultRoute={routePath} />
+          <GksU2027ManualChecklist />
+        </>
+      )}
     </main>
   );
 }

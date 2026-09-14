@@ -43,7 +43,7 @@ export default async function FaqTrendsPage({
       <h1 className="text-[22px] font-semibold tracking-tight text-ink">FAQ Trends</h1>
       <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted">
         See what GKS applicants ask most often, and save the questions you want to revisit. Opening one asks
-        it in the GKS Assistant, so you get the official answer alongside community experience.
+        it in the GKS Assistant, where the answer is grounded only in the official guideline.
       </p>
 
       <div className="mt-6">

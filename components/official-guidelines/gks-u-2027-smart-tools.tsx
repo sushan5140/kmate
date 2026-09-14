@@ -107,12 +107,22 @@ export function GksU2027SmartTools({
   defaultPath,
   savedUniversities,
   defaultMajor,
+  mode = "all",
 }: {
   defaultPath: "general" | "r_gks" | null;
   savedUniversities: string[];
   defaultMajor: string;
+  mode?: "all" | "readiness" | "requirements";
 }) {
-  const [tab, setTab] = useState<ToolTab>("rules");
+  const initialTab: ToolTab =
+    mode === "readiness" ? "documents" : mode === "requirements" ? "validator" : "rules";
+  const [tab, setTab] = useState<ToolTab>(initialTab);
+  const visibleTabs =
+    mode === "readiness"
+      ? TABS.filter((item) => item.key === "documents" || item.key === "fallback")
+      : mode === "requirements"
+        ? TABS.filter((item) => item.key === "validator" || item.key === "score")
+        : TABS;
   const [route, setRoute] = useState<RouteType>(defaultPath ?? "general");
   const [graduation, setGraduation] = useState<GraduationStatus>("graduated");
   const [documentStage, setDocumentStage] = useState<"first" | "second">("first");
@@ -263,9 +273,19 @@ export function GksU2027SmartTools({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
-            Smart 2027 workspace
+            {mode === "readiness"
+              ? "2027 application planning"
+              : mode === "requirements"
+                ? "2027 rule checks"
+                : "Smart 2027 workspace"}
           </p>
-          <h2 className="mt-1 text-[20px] font-semibold text-ink">Turn the guideline into application actions</h2>
+          <h2 className="mt-1 text-[20px] font-semibold text-ink">
+            {mode === "readiness"
+              ? "Documents and fallback planning"
+              : mode === "requirements"
+                ? "Validate choices and official evaluation advantages"
+                : "Turn the guideline into application actions"}
+          </h2>
           <p className="mt-1 max-w-2xl text-[12.75px] leading-relaxed text-muted">
             These tools use the 2027 GKS-U rules. They do not estimate your chance of winning.
           </p>
@@ -279,7 +299,7 @@ export function GksU2027SmartTools({
       </div>
 
       <div className="mt-4 flex gap-1.5 overflow-x-auto border-b border-hairline pb-3">
-        {TABS.map((item) => {
+        {visibleTabs.map((item) => {
           const Icon = item.icon;
           return (
             <button

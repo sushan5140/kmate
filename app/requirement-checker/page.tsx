@@ -7,6 +7,9 @@ import { buildCheckerOptions, subtypeEvidence, trackEvidence } from "@/lib/requi
 import type { CheckerInput } from "@/lib/requirements/matcher";
 import { RequirementForm } from "@/components/requirements/requirement-form";
 import { RequirementResults } from "@/components/requirements/requirement-results";
+import { getProfileDefaults } from "@/lib/readiness/profile";
+import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
+import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
 
 export const metadata: Metadata = {
   title: "University Requirement Checker — KMate",
@@ -29,8 +32,9 @@ export default async function RequirementCheckerPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  await requireOnboarded("/requirement-checker");
+  const user = await requireOnboarded("/requirement-checker");
   const params = await searchParams;
+  const defaults = await getProfileDefaults(user.id);
   const options = buildCheckerOptions();
 
   // Every selection is validated against the dataset's own option tree before
@@ -100,6 +104,14 @@ export default async function RequirementCheckerPage({
     }
     return notes.length === r.notes.length ? r : { ...r, notes };
   });
+
+  const showGksU2027 = program === "GKS-U" || (!program && defaults.program === "GKS-U");
+  const toolTrack = program === "GKS-U" && track ? track : defaults.track;
+  const toolSubtype = program === "GKS-U" && track ? subtype : defaults.subtype;
+  const toolPath =
+    toolTrack === "embassy" ? (toolSubtype === "r_gks" ? "r_gks" : "general") : null;
+  const toolUniversities = university ? [university] : defaults.universities;
+  const toolMajor = major || defaults.major;
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -180,6 +192,18 @@ export default async function RequirementCheckerPage({
           </Card>
         </aside>
       </div>
+
+      {showGksU2027 && (
+        <section className="mt-10 border-t border-hairline pt-8">
+          <GksU2027TrackComparator defaultPath={toolPath} defaultMajor={toolMajor} />
+          <GksU2027SmartTools
+            mode="requirements"
+            defaultPath={toolPath}
+            savedUniversities={toolUniversities}
+            defaultMajor={toolMajor}
+          />
+        </section>
+      )}
     </main>
   );
 }
