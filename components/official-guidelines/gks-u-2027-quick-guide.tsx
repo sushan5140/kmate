@@ -7,6 +7,8 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
+import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
 
 const QUICK_FACTS = [
   {
@@ -131,6 +133,16 @@ export function GksU2027QuickGuide() {
                   </div>
                   <p className="mt-1 text-[14px] font-semibold text-ink">{fact.value}</p>
                   <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{fact.note}</p>
+                  <div className="mt-3">
+                    <GuidelineRuleActions
+                      id={"quick-fact-" + fact.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
+                      title={fact.label}
+                      text={fact.value + ". " + fact.note}
+                      page={fact.page}
+                      sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+                      compact
+                    />
+                  </div>
                 </div>
               </div>
             </Card>
@@ -169,6 +181,17 @@ export function GksU2027QuickGuide() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-3">
+                    <GuidelineRuleActions
+                      id={"quick-section-" + section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}
+                      title={section.title}
+                      text={section.items.join(" ")}
+                      page={section.page}
+                      sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+                      askQuestion={"Explain the 2027 GKS-U " + section.title + " rules using only the official guideline."}
+                      compact
+                    />
+                  </div>
                 </div>
               </div>
             </Card>
