@@ -1,0 +1,108 @@
+import {
+  GKS_U_2027_EVIDENCE,
+  GKS_U_2027_SOURCE,
+  type GksU2027GuidelineEvidence,
+} from "@/lib/gks/guidelines-2027";
+
+const STOP = new Set([
+  "the","a","an","and","or","but","to","of","for","in","on","at","by","with","from","as",
+  "is","are","was","were","be","been","being","do","does","did","can","could","should","would",
+  "will","may","might","must","i","me","my","we","our","you","your","it","this","that","these",
+  "those","what","when","where","which","who","how","why","please","tell","about","need","needed",
+]);
+
+const TOPIC_LABELS: Record<string, string> = {
+  eligibility: "eligibility rules",
+  grades: "grade / CGPA rules",
+  deadline: "application deadlines",
+  university_choice: "university-choice rules",
+  documents: "document submission rules",
+  apostille: "apostille / consular-confirmation rules",
+  language: "language-test rules",
+  evaluation: "evaluation and bonus-point rules",
+  fallback: "Embassy-to-University fallback rules",
+  passport: "passport rules",
+  recommendation: "recommendation-letter rules",
+  graduation: "graduation requirements",
+};
+
+function tokens(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z0-9%.-]+/g) ?? []).filter(
+    (t) => t.length > 1 && !STOP.has(t)
+  );
+}
+
+function scoreEvidence(question: string, item: GksU2027GuidelineEvidence): number {
+  const q = question.toLowerCase();
+  const qt = new Set(tokens(question));
+  const claimTokens = new Set(tokens(item.claim));
+
+  let score = 0;
+  for (const t of qt) {
+    if (claimTokens.has(t)) score += 1;
+  }
+
+  for (const keyword of item.keywords) {
+    const k = keyword.toLowerCase();
+    if (q.includes(k)) score += k.includes(" ") ? 3 : 2;
+  }
+
+  if (q.includes(item.topic.replace("_", " "))) score += 2;
+  return score;
+}
+
+export function retrieveGksU2027(question: string, limit = 6) {
+  const ranked = GKS_U_2027_EVIDENCE
+    .map((item) => ({ item, score: scoreEvidence(question, item) }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.item.page - b.item.page)
+    .slice(0, limit);
+
+  return ranked.map(({ item, score }) => ({
+    layer: "official" as const,
+    score: Number((Math.min(score / 12, 1)).toFixed(4)),
+    program: "UG" as const,
+    category: item.topic,
+    claim: item.claim,
+    source_title: GKS_U_2027_SOURCE.title,
+    source_url: GKS_U_2027_SOURCE.sourceUrl,
+    cycle: GKS_U_2027_SOURCE.cycle,
+    page: item.page,
+    content_type: "prose" as const,
+    extraction_quality: "clean" as const,
+  }));
+}
+
+export function guidelineCoverage(question: string, official: ReturnType<typeof retrieveGksU2027>) {
+  const q = question.toLowerCase();
+  const asked = new Set<string>();
+
+  const topicTerms: Record<string, string[]> = {
+    eligibility: ["eligible", "eligibility", "citizenship", "nationality", "age", "parent"],
+    grades: ["grade", "gpa", "cgpa", "percentage", "rank", "marks"],
+    deadline: ["deadline", "date", "when", "submission", "apply"],
+    university_choice: ["university", "universities", "choice", "type a", "type b", "department", "major"],
+    documents: ["document", "documents", "scan", "original", "upload", "submit"],
+    apostille: ["apostille", "apostilled", "consular", "notary", "notarized", "authentication"],
+    language: ["topik", "ielts", "toefl", "language", "english", "korean"],
+    evaluation: ["evaluation", "score", "points", "bonus", "advantage"],
+    fallback: ["fail", "failed", "fallback", "university track", "backup"],
+    passport: ["passport"],
+    recommendation: ["recommendation", "recommender", "teacher", "principal"],
+    graduation: ["graduate", "graduation", "expected graduation", "diploma"],
+  };
+
+  for (const [topic, terms] of Object.entries(topicTerms)) {
+    if (terms.some((term) => q.includes(term))) asked.add(topic);
+  }
+
+  const covered = new Set(official.map((item) => item.category).filter(Boolean) as string[]);
+  const unsupported = [...asked].filter((topic) => !covered.has(topic));
+
+  return {
+    question_concepts: [...asked],
+    covered: [...asked].filter((topic) => covered.has(topic)),
+    unsupported,
+    unsupported_labels: unsupported.map((topic) => TOPIC_LABELS[topic] ?? topic.replaceAll("_", " ")),
+  };
+}
