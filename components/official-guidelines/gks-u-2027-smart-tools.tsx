@@ -17,10 +17,12 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
 import {
   GKS_U_2027_TYPE_A,
   GKS_U_2027_TYPE_B,
   GKS_U_2027_UIC_BACHELOR_DEPARTMENTS,
+  GKS_U_2027_SOURCE,
 } from "@/lib/gks/guidelines-2027";
 
 type ToolTab = "rules" | "documents" | "validator" | "score" | "fallback";
@@ -200,6 +202,47 @@ export function GksU2027SmartTools({
             : 50
     : 50;
 
+  const tabRule = {
+    rules: {
+      title: "My 2027 GKS route rules",
+      text:
+        route === "general"
+          ? "Embassy General allows up to three universities and requires at least one Type B choice."
+          : route === "r_gks"
+            ? "R-GKS allows up to two universities and all selected universities must be Type B."
+            : "University Track allows one university and one department only.",
+      page: "p.6",
+    },
+    documents: {
+      title: "2027 GKS document stages",
+      text:
+        "Embassy first-round required certificates are uploaded as scanned copies. First-round successful candidates later submit the required original/certified documents for NIIED's second round.",
+      page: "pp.12–15",
+    },
+    validator: {
+      title: "2027 university-choice rule",
+      text:
+        route === "general"
+          ? "Embassy General allows up to three universities and requires at least one Type B choice."
+          : route === "r_gks"
+            ? "R-GKS allows up to two Type B universities."
+            : "University Track allows one university and one department only.",
+      page: "p.6",
+    },
+    score: {
+      title: "2027 evaluation advantages",
+      text:
+        "TOPIK level 3 or above receives quantitative additional points, and applicants to science and engineering departments receive additional points equal to 5% of total allocated points.",
+      page: "pp.19–20",
+    },
+    fallback: {
+      title: "Embassy to University Track fallback",
+      text:
+        "Applicants who fail the Embassy first round may apply through University Track if the university deadline remains open; applicants who pass the Embassy first round, including backup candidates, cannot apply again through University Track.",
+      page: "pp.9–11",
+    },
+  }[tab];
+
   function updateChoice(index: number, value: string) {
     setChoices((current) => {
       const next = [...current];
@@ -253,6 +296,18 @@ export function GksU2027SmartTools({
             </button>
           );
         })}
+      </div>
+
+      <div className="mt-3 flex justify-end">
+        <GuidelineRuleActions
+          id={"smart-tool-" + tab + "-" + route}
+          title={tabRule.title}
+          text={tabRule.text}
+          page={tabRule.page}
+          sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
+          askQuestion={"Explain the 2027 GKS-U rule for " + tabRule.title + " using only the official guideline."}
+          compact
+        />
       </div>
 
       {tab === "rules" && (
