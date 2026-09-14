@@ -24,6 +24,7 @@ const TOPIC_LABELS: Record<string, string> = {
   passport: "passport rules",
   recommendation: "recommendation-letter rules",
   graduation: "graduation requirements",
+  benefits: "scholarship benefits",
 };
 
 function tokens(text: string): string[] {
@@ -66,6 +67,7 @@ function scoreEvidence(question: string, item: GksU2027GuidelineEvidence): numbe
     graduation: ["graduate", "graduation", "expected graduate"],
     eligibility: ["eligible", "eligibility", "citizenship", "nationality", "age"],
     evaluation: ["evaluation", "bonus", "additional points", "score advantage"],
+    benefits: ["benefit", "benefits", "allowance", "stipend", "tuition", "airfare", "flight", "scholarship period"],
   };
 
   const intentTerms = topicIntent[item.topic] ?? [];
@@ -130,6 +132,7 @@ export function guidelineCoverage(question: string, official: ReturnType<typeof 
     passport: ["passport"],
     recommendation: ["recommendation", "recommender", "teacher", "principal"],
     graduation: ["graduate", "graduation", "expected graduation", "diploma"],
+    benefits: ["benefit", "benefits", "allowance", "stipend", "tuition", "airfare", "flight", "scholarship period"],
   };
 
   for (const [topic, terms] of Object.entries(topicTerms)) {
