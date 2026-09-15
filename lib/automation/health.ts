@@ -53,6 +53,7 @@ export interface JobHealth {
   lastRunAt: string | null;
   lastOk: boolean | null;
   lastError: string | null;
+  lastStats: Record<string, unknown> | null;
   stale: boolean;
   hoursSinceRun: number | null;
   state: HealthState;
@@ -100,6 +101,7 @@ export async function getSourceHealth(now: Date = new Date()): Promise<SourceHea
 
 /** The jobs expected to run on a schedule, and whether they actually are. */
 export const SCHEDULED_JOBS = [
+  "university-catalog",
   "notice-scout",
   "scholarships",
   "scholarships-freshness",
@@ -112,7 +114,7 @@ export async function getJobHealth(now: Date = new Date()): Promise<JobHealth[]>
   for (const job of SCHEDULED_JOBS) {
     const { data } = await admin
       .from("automation_runs")
-      .select("started_at, ok, error")
+      .select("started_at, ok, error, stats")
       .eq("job", job)
       .order("started_at", { ascending: false })
       .limit(1)
@@ -129,6 +131,10 @@ export async function getJobHealth(now: Date = new Date()): Promise<JobHealth[]>
       lastRunAt: data?.started_at ?? null,
       lastOk: data?.ok ?? null,
       lastError: data?.error ?? null,
+      lastStats:
+        data?.stats && typeof data.stats === "object"
+          ? (data.stats as Record<string, unknown>)
+          : null,
       // Never having run at all is the loudest possible staleness.
       stale,
       hoursSinceRun: h === null ? null : Math.round(h),

@@ -9,7 +9,7 @@ import {
   maxUniversityChoices,
   validateUniversityChoices,
 } from "@/lib/validation/university-eligibility";
-import type { GksUEmbassyPath, Track } from "@/lib/constants";
+import type { GksUApplicationRoute, GksUEmbassyPath, Track } from "@/lib/constants";
 
 interface EligibilityRow {
   id: string;
@@ -37,17 +37,48 @@ export interface SelectedUniversity {
 interface UniversityPickerProps {
   track: Track;
   gksUEmbassyPath: GksUEmbassyPath | null;
+  gksUApplicationRoute?: GksUApplicationRoute | null;
   selected: SelectedUniversity[];
   onChange: (selected: SelectedUniversity[]) => void;
 }
 
-function pickEligibility(eligibility: EligibilityRow[]): EligibilityRow | undefined {
-  return eligibility.find((e) => e.category.startsWith("embassy_")) ?? eligibility[0];
+function pickEligibility(
+  eligibility: EligibilityRow[],
+  track: Track,
+  route: GksUApplicationRoute | null,
+  embassyPath: GksUEmbassyPath | null
+): EligibilityRow | undefined {
+  if (track === "gks_g") {
+    return eligibility.find((row) => row.category === "type_a" || row.category === "type_b");
+  }
+
+  if (route === "university") {
+    return (
+      eligibility.find((row) => row.category === "uic_bachelors") ??
+      eligibility.find((row) => row.category === "associate_degree")
+    );
+  }
+
+  if (route === "embassy" && embassyPath === "r_gks") {
+    return eligibility.find((row) => row.category === "embassy_type_b_rgks");
+  }
+
+  if (route === "embassy") {
+    return eligibility.find((row) => row.category.startsWith("embassy_"));
+  }
+
+  return undefined;
 }
 
-export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }: UniversityPickerProps) {
+export function UniversityPicker({
+  track,
+  gksUEmbassyPath,
+  gksUApplicationRoute = null,
+  selected,
+  onChange,
+}: UniversityPickerProps) {
   const [query, setQuery] = useState("");
-  const maxChoices = maxUniversityChoices(track, gksUEmbassyPath);
+  const maxChoices = maxUniversityChoices(track, gksUEmbassyPath, gksUApplicationRoute);
   const [results, setResults] = useState<UniversitySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +103,8 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
   function addUniversity(uni: UniversitySearchResult) {
     if (selected.length >= maxChoices) return;
     if (selected.some((s) => s.universityId === uni.id)) return;
-    const eligibility = pickEligibility(uni.eligibility);
+    const eligibility = pickEligibility(uni.eligibility, track, gksUApplicationRoute, gksUEmbassyPath);
+    if (!eligibility) return;
     onChange([
       ...selected,
       {
@@ -100,7 +132,8 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
   const validation = validateUniversityChoices(
     track,
     gksUEmbassyPath,
-    selected.map((s) => ({ category: s.category ?? "", embassyType: s.embassyType }))
+    selected.map((s) => ({ category: s.category ?? "", embassyType: s.embassyType })),
+    gksUApplicationRoute
   );
 
   return (
@@ -193,7 +226,8 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
       )}
 
       <p className="mt-2 text-[12.5px] text-muted">
-        Drag, or use the arrows, to reorder by priority. {describeUniversityQuota(track, gksUEmbassyPath)}
+        Drag, or use the arrows, to reorder by priority.{" "}
+        {describeUniversityQuota(track, gksUEmbassyPath, gksUApplicationRoute)}
       </p>
       {!validation.valid && (
         <p className="mt-1 text-[12.5px] text-red-600">{validation.message}</p>

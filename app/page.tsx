@@ -17,76 +17,76 @@ import { Reveal } from "@/components/marketing/reveal";
 
 const DEAD_ENDS = [
   {
-    source: "Facebook · GKS Scholarship 2027 (42.3k members)",
-    text: "“Anyone else applying GKS-U for mechanical engineering?? Please reply 🙏”",
-    meta: "214 comments · buried in the feed within an hour",
+    source: "Official rules",
+    text: "Which rule applies to my route, university and application stage?",
+    meta: "National guidelines, embassy instructions and university requirements live in different places.",
   },
   {
-    source: "Discord · #gks-general",
-    text: "“is this server still active?”",
-    meta: "Last real conversation: two application cycles ago",
+    source: "Application tracking",
+    text: "What have I completed, and what am I still missing?",
+    meta: "Generic notes do not understand GKS routes, document stages or university-specific extras.",
   },
   {
-    source: "Reddit · r/gks",
-    text: "“Embassy track interview — what did they ask you?”",
-    meta: "3 replies, all from a different track, a different year",
+    source: "Applicant communities",
+    text: "Who is actually applying through the same route and targeting the same universities?",
+    meta: "Large groups are useful, but they are not structured around your exact application.",
   },
 ];
 
 const HOW_IT_WORKS = [
   {
     step: "01",
-    title: "Set up your profile",
-    body: "Track, major, application year, and your three university choices. That combination is the whole point.",
+    title: "Set your application route",
+    body: "Choose GKS-U or GKS-G, your route, major, application year and route-appropriate universities.",
   },
   {
     step: "02",
-    title: "See your overlap",
-    body: "Discover shows the applicants who share your track, your major, your target universities — not 40,000 strangers.",
+    title: "Check the official rules",
+    body: "Use cycle-tagged guidelines, requirement checks and source links instead of relying on remembered advice.",
   },
   {
     step: "03",
-    title: "Prep with evidence",
-    body: "Study full profiles of scholars who got in — grades, extracurriculars, results — and drill the interview questions they were actually asked.",
+    title: "Build the application",
+    body: "Track documents, forms, university extras, deadlines and interview preparation from one workspace.",
   },
   {
     step: "04",
-    title: "Swap contacts when ready",
-    body: "Send a request. If they accept, contacts unlock for both of you. Until then, everything stays hidden.",
+    title: "Prepare with your cohort",
+    body: "Find relevant applicants, connect intentionally and use private in-app messaging after both sides opt in.",
   },
 ];
 
 const ELSEWHERE = [
-  "A 42,000-member group where your question scrolls away in an hour",
-  "Discord servers that went quiet two application cycles ago",
-  "“I got in!!” posts with no GPA, no TOPIK level, no details",
-  "Advice from someone on a different track, in a different year",
-  "WhatsApp groups a stranger added you to at 3am",
+  "National, embassy and university rules split across separate pages",
+  "Old-cycle advice that still looks current",
+  "Generic checklists that do not understand your application route",
+  "Applicant groups with no structured university or major matching",
+  "No clear distinction between official rules and community experience",
 ];
 
 const HERE = [
-  "Only GKS applicants, filtered to your track, major, and universities",
-  "Full scholar profiles — grades, ECs, awards, and the rejections too",
-  "Interview questions tagged by category, from people who sat the interview",
-  "Contact info hidden until both sides opt in",
-  "Small on purpose. This is a cohort, not an audience",
+  "Cycle-tagged GKS rules with official source links and conservative fallbacks",
+  "Application Readiness tied to your route and target universities",
+  "Requirement Checker that labels older university-specific detail instead of hiding its age",
+  "Guideline-grounded GKS Assistant with community anecdotes kept out of official answers",
+  "Applicant discovery and private in-app connections alongside the application tools",
 ];
 
 const PRIVACY_PILLARS = [
   {
     icon: EyeOff,
-    title: "Hidden by default",
-    body: "Your Instagram, Telegram, WhatsApp — none of it appears on your profile. Ever. Other applicants see your track, major, and bio. That's it.",
+    title: "Private by default",
+    body: "Your public profile shows only the applicant information needed for useful matching. Private contact methods stay out of the public profile.",
   },
   {
     icon: UserRoundCheck,
-    title: "Two-sided reveal",
-    body: "Contacts unlock only after you send a request and the other person accepts. Either side can revoke, and everything goes dark again.",
+    title: "Connection before conversation",
+    body: "Applicants send and accept connection requests before using in-app messaging. You decide who can reach you.",
   },
   {
     icon: Flag,
-    title: "Block and report, built in",
-    body: "One tap to block. Reports go to a real moderation queue, not a void. Blocked means gone — from search, from requests, from everything.",
+    title: "Block and report built in",
+    body: "Blocking, reporting and moderation are first-class product flows rather than an afterthought.",
   },
 ];
 
@@ -110,17 +110,16 @@ export default async function LandingPage() {
                 For GKS-U &amp; GKS-G applicants
               </span>
               <h1 className="text-balance mt-5 text-[38px] font-semibold leading-[1.08] tracking-[-0.02em] text-ink sm:text-[52px]">
-                Find the{" "}
+                Build your{" "}
                 <em className="font-serif font-normal italic tracking-normal text-primary">
-                  right people
+                  GKS application
                 </em>{" "}
-                to prepare with.
+                with the rules in reach.
               </h1>
               <p className="text-balance mt-5 max-w-lg text-[16px] leading-relaxed text-muted">
-                You&apos;ve rewritten the SOP three times. Triple checked the
-                transcripts. What you don&apos;t have is anyone applying to your same
-                three universities — someone who gets what this particular
-                application actually feels like at 1am.
+                Check official rules, track your documents, compare university requirements,
+                prepare for interviews, and find applicants working through a similar route —
+                without mixing old-cycle advice into current guidance.
               </p>
 
               <div className="mt-8 flex items-center gap-5">
@@ -156,15 +155,14 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-5xl px-6 py-20">
           <Reveal className="max-w-xl">
             <h2 className="text-balance text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-              Everyone applying to GKS is looking for each other.{" "}
+              GKS information is everywhere.{" "}
               <em className="font-serif font-normal italic text-muted">
-                Nobody can find anyone.
+                Your application should not be.
               </em>
             </h2>
             <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              The people who could actually help you exist — they&apos;re just
-              scattered across megagroups, dead servers, and threads from three
-              years ago. You know this because you&apos;ve looked.
+              KMate brings the application workflow together while keeping a hard line
+              between current official rules, older source material, and community experience.
             </p>
           </Reveal>
 
@@ -195,7 +193,7 @@ export default async function LandingPage() {
             How it works
           </p>
           <h2 className="text-balance mt-3 max-w-lg text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-            Four steps between you and the group chat that matters.
+            From route selection to a submission-ready workflow.
           </h2>
         </Reveal>
 
@@ -227,14 +225,13 @@ export default async function LandingPage() {
               Your cohort, filtered to the people who matter.
             </h2>
             <p className="mt-4 text-[14.5px] leading-relaxed text-muted">
-              Every profile carries a track, a major, an application year, and
-              three university choices. Which means one search shows you the
-              applicants who share yours — and when a university matches, you
-              see whether it&apos;s their first choice or their backup.
+              Profiles carry a GKS program, major, application year and route-appropriate
+              university choices. Discover uses those fields to surface applicants with
+              meaningful overlap instead of a generic social feed.
             </p>
             <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
-              Not a feed. Not an algorithm. A filtered list of the dozen people
-              in the world working on your exact problem.
+              The community layer is there to support the application, not replace the
+              official rules that decide it.
             </p>
           </Reveal>
           <Reveal delay={0.12}>
@@ -261,13 +258,12 @@ export default async function LandingPage() {
             <em className="font-serif font-normal italic text-muted">rehearsed in advance.</em>
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-muted">
-            Every question in the bank was reported by someone who sat the
-            interview — sorted into the six categories panels actually draw
-            from, upvoted when they keep coming up. The curveballs included.
+            Practice from a structured question bank grouped by interview theme,
+            then keep your own answer drafts alongside the preparation workflow.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-muted">
-            Draft your answer under each question. It autosaves as you type,
-            and it&apos;s visible to exactly one person: you.
+            Your drafts stay private to your account while community-contributed
+            material remains clearly separate from official guideline answers.
           </p>
         </Reveal>
         <Reveal delay={0.15} className="mt-10">
@@ -290,17 +286,16 @@ export default async function LandingPage() {
               Connect
             </p>
             <h2 className="text-balance mt-3 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">
-              Contacts stay locked until both of you say yes.
+              Connect first. Message inside KMate when both sides agree.
             </h2>
             <p className="mt-4 text-[14.5px] leading-relaxed text-muted">
-              Your Instagram, Telegram, and WhatsApp live behind a request.
-              Send one, and the other person sees who you are — your track,
-              major, and bio — before deciding. Accept, and contacts unlock
-              for both sides at once.
+              Send a connection request with your applicant profile visible for context.
+              If the other person accepts, in-app messaging becomes available without
+              exposing private contact methods on the public profile.
             </p>
             <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
-              No DMs from strangers. No scraping your handle out of a comment
-              thread. You decide who can reach you, every single time.
+              You can revoke, block or report when needed, and your external contact
+              details remain in your private contact vault.
             </p>
           </Reveal>
           <Reveal delay={0.12}>
@@ -437,14 +432,13 @@ export default async function LandingPage() {
           <Reveal>
             <MessagesSquare className="mx-auto h-6 w-6 text-white/40" />
             <h2 className="text-balance mt-5 text-[28px] font-semibold leading-tight tracking-[-0.015em] text-white sm:text-[36px]">
-              The application is yours alone.{" "}
+              One place for the application.{" "}
               <em className="font-serif font-normal italic text-white/70">
-                The waiting doesn&apos;t have to be.
+                Clear sources for every important rule.
               </em>
             </h2>
             <p className="mx-auto mt-4 max-w-md text-[14.5px] leading-relaxed text-white/60">
-              Sign in, set your track and major, and see who else is already in
-              it with you.
+              Sign in, set your GKS route, and turn the official requirements into an application you can actually manage.
             </p>
             <div className="mt-8">
               <Link

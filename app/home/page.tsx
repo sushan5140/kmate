@@ -290,7 +290,19 @@ export default async function HomePage() {
         </Card>
       )}
 
-      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <details className="group mt-4 rounded-2xl border border-hairline bg-white">
+        <summary className="cursor-pointer list-none px-4 py-3.5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[13.5px] font-semibold text-ink">Explore more KMate tools</p>
+              <p className="mt-0.5 text-[11.5px] text-muted">
+                Community, interview prep, official resources and account tools
+              </p>
+            </div>
+            <ArrowDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" />
+          </div>
+        </summary>
+        <div className="grid grid-cols-2 gap-3 border-t border-hairline p-4 lg:grid-cols-3">
         <Link href="/application-readiness">
           <Card interactive className="h-full">
             <FolderCheck className="h-4 w-4 text-muted" />
@@ -434,14 +446,12 @@ export default async function HomePage() {
             </p>
           </Card>
         </Link>
-      </div>
+        </div>
+      </details>
 
-      <div className="mt-8 flex flex-col items-center gap-3 border-t border-hairline pt-6">
-        <p className="text-[12.5px] text-muted">15 features, all reachable from home or the ••• menu</p>
-        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted">
-          <ArrowDown className="h-3.5 w-3.5" />
-        </span>
-      </div>
+      <p className="mt-6 border-t border-hairline pt-5 text-center text-[11.5px] text-muted">
+        Your application stays first. Everything else is available here or from the grouped navigation.
+      </p>
     </main>
   );
 }

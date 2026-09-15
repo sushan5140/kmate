@@ -5,6 +5,9 @@ export interface UniversityCatalogSyncResult {
   universitiesUpserted: number;
   eligibilityRowsUpserted: number;
   staleGksURowsRemoved: number;
+  expectedGksURows: number;
+  verifiedGksURows: number;
+  catalogVerified: true;
 }
 
 export async function syncUniversityCatalog(): Promise<UniversityCatalogSyncResult> {
@@ -90,5 +93,38 @@ export async function syncUniversityCatalog(): Promise<UniversityCatalogSyncResu
     }
   }
 
-  return { universitiesUpserted, eligibilityRowsUpserted, staleGksURowsRemoved };
+  const { data: verifiedRows, error: verifyError } = await admin
+    .from("university_eligibility")
+    .select("category, university:universities!inner(name)")
+    .eq("track", "gks_u");
+
+  if (verifyError) {
+    throw new Error(`Could not verify reconciled GKS-U eligibility: ${verifyError.message}`);
+  }
+
+  const actualGksU = new Set(
+    ((verifiedRows ?? []) as unknown as {
+      category: string;
+      university: { name: string } | null;
+    }[])
+      .filter((row) => row.university?.name)
+      .map((row) => `${row.university!.name}|${row.category}`)
+  );
+
+  const missing = [...desiredGksU].filter((key) => !actualGksU.has(key));
+  const extra = [...actualGksU].filter((key) => !desiredGksU.has(key));
+  if (missing.length || extra.length) {
+    throw new Error(
+      `GKS-U catalog verification failed after sync: missing=${missing.join(",") || "none"}; extra=${extra.join(",") || "none"}`
+    );
+  }
+
+  return {
+    universitiesUpserted,
+    eligibilityRowsUpserted,
+    staleGksURowsRemoved,
+    expectedGksURows: desiredGksU.size,
+    verifiedGksURows: actualGksU.size,
+    catalogVerified: true,
+  };
 }

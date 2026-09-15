@@ -21,7 +21,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "KMate",
   description:
-    "Find other Global Korea Scholarship applicants targeting your major and universities, prep for interviews together, and connect safely.",
+    "GKS application intelligence, readiness tracking, official guideline support, university requirement checks, interview preparation, and privacy-aware applicant connections.",
 };
 
 export default function RootLayout({

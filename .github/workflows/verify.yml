@@ -36,3 +36,9 @@ jobs:
 
       - name: Readiness regression
         run: npm run test:readiness
+
+      - name: Release audit
+        run: npm run test:release
+
+      - name: Production build
+        run: npm run build
