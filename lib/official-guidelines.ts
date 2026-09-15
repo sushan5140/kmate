@@ -6,8 +6,10 @@ export interface OfficialGuideline {
   track: Track;
   title: string;
   description: string;
-  /** PDF URL. Local /public paths are served directly; remote PDFs are proxied for download. */
+  /** Direct PDF URL when verified; otherwise the official notice page for the current attachment. */
   url: string;
+  /** Defaults to pdf. Use notice when KMate intentionally avoids a stale/unverified direct-PDF mirror. */
+  assetType?: "pdf" | "notice";
   /** Optional official notice page that published the PDF. */
   sourceUrl?: string;
   /** Friendly download filename for remote PDFs whose URL does not end in .pdf. */
@@ -21,9 +23,11 @@ export interface OfficialGuideline {
 /**
  * Official guideline PDFs surfaced in KMate.
  *
- * The current 2027 GKS-U English PDF is published by NIIED through Study in Korea.
- * KMate links the official NIIED notice as the source of record and uses the Korean
- * Education Centre in India's government-hosted PDF mirror for direct viewing/download.
+ * The current 2027 GKS-U English guideline is published by NIIED through Study in Korea.
+ * Study in Korea replaced the attachment with the 0914 revision. KMate therefore links
+ * the official notice as the source of record instead of pretending an older mirror is
+ * the current PDF. A direct PDF link should only be restored after its exact attachment
+ * URL/version is verified against the notice.
  *
  * Older GKS-U PDFs remain visible as an archive so applicants can distinguish the
  * current cycle from the 2026 original/revised documents.
@@ -35,13 +39,14 @@ export const OFFICIAL_GUIDELINES: Record<Track, OfficialGuideline[]> = {
       track: "gks_u",
       title: "GKS-U 2027 Application Guidelines",
       description:
-        "Current official application guidelines for the 2027 Global Korea Scholarship — Undergraduate Degrees.",
-      url: "https://kecindia.org/api/download/291",
+        "Current official 2027 GKS-U guideline. Study in Korea currently lists the English attachment as the 0914 revision, so KMate opens the official notice instead of serving an older mirrored PDF as current.",
+      url:
+        "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
       sourceUrl:
         "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
-      downloadFilename: "2027-GKS-U-Application-Guidelines-English.pdf",
+      assetType: "notice",
       isCurrent: true,
-      versionLabel: "Current — Sep 2026",
+      versionLabel: "Current — 0914 revision",
     },
     {
       id: "gks-u-2026-revised",
