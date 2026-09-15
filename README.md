@@ -1,17 +1,20 @@
 # KMate
 
-A community and preparation platform built specifically for **Global Korea Scholarship (GKS)** applicants.
+An application-intelligence and preparation platform built specifically for **Global Korea Scholarship (GKS)** applicants.
 
-KMate is designed around a problem I encountered while preparing for GKS: applicants are scattered across large social groups, but finding people with the same track, major, application year or target universities is unnecessarily difficult.
+KMate turns scattered GKS rules and applicant tasks into one workflow: current-cycle guideline support, route-aware university checks, document readiness, deadline context, interview preparation and privacy-aware applicant connections.
 
-Instead of another general forum, KMate focuses on structured applicant discovery, preparation resources and privacy-aware connections.
+Community is part of the product, but it is not the source of truth for official rules. Current guideline evidence stays separate from applicant experience.
 
 ## What KMate includes
 
 - Applicant profiles for GKS-U and GKS-G
-- Discovery by track, major, year and target universities
-- Connection requests with contact details hidden by default
-- Two-sided contact reveal after acceptance
+- Explicit GKS-U Embassy vs University Track route handling
+- 2027 GKS-U guideline-grounded assistant and quick-reference tools
+- Route-aware Application Readiness and Requirement Checker
+- Cycle-tagged university eligibility and university-specific detail
+- Discovery by program, major, year and target universities
+- Connection requests and private in-app messaging
 - Revoke, block and report flows
 - Scholar/application profile data and preparation resources
 - Interview-question resources
@@ -37,15 +40,17 @@ Contact information stays hidden until both sides establish a connection, and ad
 
 ## Why I built it
 
-GKS applicants frequently rely on large Facebook, Reddit, Discord, Telegram or WhatsApp groups. Those communities can be helpful, but they are not structured around questions such as:
+A GKS application spans national guidelines, embassy or university instructions, document preparation, deadlines, interview preparation and applicant communities. Those pieces are useful individually, but they are easy to mix across cycles or routes.
 
-- Who is applying through the same track as me?
-- Who is targeting the same university?
-- Who is in the same major?
-- What did successful applicants actually prepare?
-- Which requirements apply to my track?
+KMate is designed around questions such as:
 
-KMate turns those questions into product features rather than leaving applicants to search through unrelated posts.
+- Which official rule applies to my route and stage?
+- Which university-specific detail is current, and which one still needs reverification?
+- What documents are ready, missing or conditional?
+- Which applicants share my program, major or target universities?
+- Which preparation material is official guidance and which is community experience?
+
+KMate turns those questions into one application workflow rather than one more general forum.
 
 ## Engineering highlights
 
@@ -95,6 +100,6 @@ GKS rules, participating universities and document requirements can change each 
 
 ## Project status
 
-Actively developed personal project.
+Launch-candidate personal project. Release changes are gated by lint, TypeScript, 2027 GKS integrity checks, readiness regression tests and a dedicated release audit before preview/production deployment.
 
-This repository is one of my main software projects and combines full-stack development, structured scholarship data, privacy design and applicant-community tooling.
+This repository combines full-stack development, structured scholarship data, privacy design, applicant workflow tooling and a deliberately conservative official-source policy.
