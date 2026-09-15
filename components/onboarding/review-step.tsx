@@ -1,7 +1,13 @@
 "use client";
 
 import { TrackBadge } from "@/components/ui/track-badge";
-import { CONTACT_TYPE_LABELS, type Track } from "@/lib/constants";
+import {
+  CONTACT_TYPE_LABELS,
+  type GksUApplicationRoute,
+  type GksUEmbassyPath,
+  type Track,
+} from "@/lib/constants";
+import { gksURouteLabel } from "@/lib/gks/application-route";
 import type { SelectedUniversity } from "@/components/onboarding/university-picker";
 import type { ContactValue } from "@/components/onboarding/contacts-step";
 
@@ -9,6 +15,8 @@ interface ReviewStepProps {
   username: string;
   bio: string;
   track: Track;
+  gksUApplicationRoute?: GksUApplicationRoute | null;
+  gksUEmbassyPath?: GksUEmbassyPath | null;
   major: string;
   universities: SelectedUniversity[];
   applicationYear: number;
@@ -28,6 +36,8 @@ export function ReviewStep({
   username,
   bio,
   track,
+  gksUApplicationRoute = null,
+  gksUEmbassyPath = null,
   major,
   universities,
   applicationYear,
@@ -50,9 +60,14 @@ export function ReviewStep({
       </div>
 
       <div className="flex flex-col divide-y divide-hairline">
-        <Row label="Track">
+        <Row label="Program">
           <TrackBadge track={track} />
         </Row>
+        {track === "gks_u" && (
+          <Row label="Application route">
+            {gksURouteLabel(gksUApplicationRoute, gksUEmbassyPath)}
+          </Row>
+        )}
         <Row label="Major">{major}</Row>
         <Row label="Universities">
           <span className="flex flex-col items-end gap-0.5">
@@ -78,8 +93,8 @@ export function ReviewStep({
       </div>
 
       <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
-        You can change any of this later from Settings — including your username,
-        track, universities, and contacts.
+        You can update your route, universities, major, year, username and contacts later from your profile.
+        Your GKS-U / GKS-G program itself stays fixed after onboarding.
       </p>
     </div>
   );
