@@ -3,20 +3,19 @@ import { runNoticeScout } from "@/lib/notices/scout";
 import { runScholarshipDiscovery, runScholarshipFreshness } from "@/lib/scholarships/discovery";
 import { runDeadlineAssistant } from "@/lib/assistant/run";
 import { recordRun } from "./health";
+import { syncUniversityCatalog } from "@/lib/gks/university-sync";
 
 /**
  * The single scheduled job.
  *
- * Four stages that previously wanted four cron entries. Collapsing them into
- * one orchestrator removes the deployment-plan dependency entirely -- Vercel's
- * Hobby tier allows two daily crons, and declaring three would have failed at
- * deploy time on that plan. One entry works everywhere.
+ * The one orchestrator keeps scheduled work inside a single Vercel cron.
  *
  * Order is load-bearing, not cosmetic:
- *   1. notice scout            discovers notices and queues them for review
- *   2. scholarship discovery   writes scholarship rows, including deadlines
- *   3. scholarship freshness   ages those rows -- must see step 2's writes
- *   4. deadline assistant      proposes from notices a human has approved
+ *   1. university catalog      reconciles current-cycle GKS eligibility rows
+ *   2. notice scout            discovers notices and queues them for review
+ *   3. scholarship discovery   writes scholarship rows, including deadlines
+ *   4. scholarship freshness   ages those rows -- must see step 3's writes
+ *   5. deadline assistant      proposes from notices a human has approved
  *
  * Every stage is isolated. A stage that throws is recorded and the run
  * continues, because these stages are independent in the only direction that
@@ -43,6 +42,7 @@ export interface DailyMaintenanceResult {
 type Stage = { name: string; run: () => Promise<object> };
 
 const STAGES: Stage[] = [
+  { name: "university-catalog", run: () => syncUniversityCatalog() },
   { name: "notice-scout", run: () => runNoticeScout() },
   // Wrapped: discovery returns an array, and automation_runs.stats is a
   // jsonb OBJECT of counters. Keeps the per-source detail without storing a
