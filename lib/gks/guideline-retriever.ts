@@ -12,6 +12,20 @@ const STOP = new Set([
   "those","what","when","where","which","who","how","why","please","tell","about","need","needed",
 ]);
 
+export interface RetrievedGksU2027Evidence {
+  layer: "official";
+  score: number;
+  program: "UG";
+  category: GksU2027GuidelineEvidence["topic"];
+  claim: string;
+  source_title: string;
+  source_url: string;
+  cycle: string;
+  page: number;
+  content_type: "prose";
+  extraction_quality: "clean" | "needs_review";
+}
+
 const TOPIC_LABELS: Record<string, string> = {
   eligibility: "eligibility rules",
   grades: "grade / CGPA rules",
@@ -110,13 +124,13 @@ function scorePageMap(question: string, entry: (typeof GKS_U_2027_PAGE_MAP)[numb
   return score;
 }
 
-export function retrieveGksU2027(question: string, limit = 6) {
+export function retrieveGksU2027(question: string, limit = 6): RetrievedGksU2027Evidence[] {
   const structured = GKS_U_2027_EVIDENCE
     .map((item) => ({ item, score: scoreEvidence(question, item) }))
     .filter((x) => x.score > 1)
     .sort((a, b) => b.score - a.score || a.item.page - b.item.page);
 
-  const results = structured.slice(0, limit).map(({ item, score }) => ({
+  const results: RetrievedGksU2027Evidence[] = structured.slice(0, limit).map(({ item, score }) => ({
     layer: "official" as const,
     score: Number((Math.min(score / 12, 1)).toFixed(4)),
     program: "UG" as const,
