@@ -28,15 +28,9 @@ export interface ApplicationConfig {
  *
  * Read from the quotas KMate already encodes in
  * lib/validation/university-eligibility.ts rather than restated here, so the
- * two cannot drift. One deliberate difference: that module adds a KMate-only
- * `BONUS_PICKS` allowance on top of the official figure for its planning
- * picker. Readiness models the real application, so it uses the official
- * quota without the bonus.
- *
- * The direct-to-university routes (UIC, Associate Degree) carry no embassy
- * quota at all -- the same module says so -- so they fall back to the
- * platform-wide cap of 4 rather than borrowing an embassy number that does not
- * apply to them.
+ * planning picker and readiness workspace cannot drift. GKS-U University
+ * Track is an official one-university / one-department route, whether the
+ * applicant uses UIC or the separate Associate Degree program.
  */
 const PLATFORM_CAP = 4;
 
@@ -48,7 +42,9 @@ export function universitySlotsFor(program: string, track: string, subtype: stri
     // below says the quota narrows once R-GKS is picked.
     return subtype === "r_gks" ? OFFICIAL_UNIVERSITY_QUOTA.r_gks : OFFICIAL_UNIVERSITY_QUOTA.general_overseas;
   }
-  if (program === "GKS-U" && track === "university") return PLATFORM_CAP;
+  if (program === "GKS-U" && track === "university") {
+    return OFFICIAL_UNIVERSITY_QUOTA.gks_u_university;
+  }
   return PLATFORM_CAP;
 }
 
@@ -60,7 +56,10 @@ export function describeSlots(program: string, track: string, subtype: string): 
       ? `Regional (R-GKS) applicants may name up to ${n} universities.`
       : `Embassy Track applicants may name up to ${n} universities. Choosing R-GKS narrows this to ${OFFICIAL_UNIVERSITY_QUOTA.r_gks}.`;
   }
-  return `Applying directly through a university carries no embassy quota — up to ${n} here.`;
+  if (program === "GKS-U" && track === "university") {
+    return `GKS-U University Track allows ${n} university and one department only.`;
+  }
+  return `This workspace allows up to ${n} universities for the selected route.`;
 }
 
 /* ------------------------------------------------------------------ *
