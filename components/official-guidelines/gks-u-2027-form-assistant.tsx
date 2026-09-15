@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Check,
@@ -131,17 +131,24 @@ export function GksU2027FormAssistant({
   const [route, setRoute] = useState<RouteMode>(defaultRoute ? "embassy" : "embassy");
   const [activeForm, setActiveForm] = useState(1);
   const [done, setDone] = useState<Record<number, boolean>>({});
+  const storageLoaded = useRef(false);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) setDone(JSON.parse(saved) as Record<number, boolean>);
-    } catch {
-      // Local progress is optional; the assistant works without storage.
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved) setDone(JSON.parse(saved) as Record<number, boolean>);
+      } catch {
+        // Local progress is optional; the assistant works without storage.
+      } finally {
+        storageLoaded.current = true;
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
+    if (!storageLoaded.current) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
     } catch {
