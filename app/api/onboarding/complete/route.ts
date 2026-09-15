@@ -3,11 +3,12 @@ import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validation/username";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
-import { TRACKS, GKS_U_EMBASSY_PATHS, CONTACT_TYPES } from "@/lib/constants";
+import { TRACKS, GKS_U_APPLICATION_ROUTES, GKS_U_EMBASSY_PATHS, CONTACT_TYPES } from "@/lib/constants";
 import { validApplicationYears } from "@/lib/deadline";
 
 interface CompleteOnboardingBody {
   track: string;
+  gksUApplicationRoute?: string | null;
   gksUEmbassyPath?: string | null;
   major: string;
   applicationYear: number;
@@ -24,11 +25,43 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as CompleteOnboardingBody;
-  const { track, gksUEmbassyPath, major, applicationYear, username, bio, universityChoices, contacts } = body;
+  const {
+    track,
+    gksUApplicationRoute,
+    gksUEmbassyPath,
+    major,
+    applicationYear,
+    username,
+    bio,
+    universityChoices,
+    contacts,
+  } = body;
 
   if (!TRACKS.includes(track as (typeof TRACKS)[number])) {
     return NextResponse.json({ error: "invalid_track" }, { status: 400 });
   }
+  if (
+    gksUApplicationRoute &&
+    !GKS_U_APPLICATION_ROUTES.includes(
+      gksUApplicationRoute as (typeof GKS_U_APPLICATION_ROUTES)[number]
+    )
+  ) {
+    return NextResponse.json({ error: "invalid_gks_u_route" }, { status: 400 });
+  }
+  if (track === "gks_u") {
+    if (!gksUApplicationRoute) {
+      return NextResponse.json({ error: "gks_u_route_required" }, { status: 400 });
+    }
+    if (gksUApplicationRoute === "embassy" && !gksUEmbassyPath) {
+      return NextResponse.json({ error: "embassy_path_required" }, { status: 400 });
+    }
+    if (gksUApplicationRoute === "university" && gksUEmbassyPath) {
+      return NextResponse.json({ error: "university_track_cannot_have_embassy_path" }, { status: 400 });
+    }
+  } else if (gksUApplicationRoute || gksUEmbassyPath) {
+    return NextResponse.json({ error: "gks_u_route_not_applicable" }, { status: 400 });
+  }
+
   if (
     gksUEmbassyPath &&
     !GKS_U_EMBASSY_PATHS.includes(gksUEmbassyPath as (typeof GKS_U_EMBASSY_PATHS)[number])
@@ -74,18 +107,46 @@ export async function POST(request: Request) {
   // real eligibility rows (never trust client-computed embassy types).
   const eligibilityIds = universityChoices.map((c) => c.eligibilityId).filter((id): id is string => Boolean(id));
   const { data: eligibilityRows } = eligibilityIds.length
-    ? await admin.from("university_eligibility").select("id, category, embassy_type").in("id", eligibilityIds)
-    : { data: [] as { id: string; category: string; embassy_type: string | null }[] };
+    ? await admin
+        .from("university_eligibility")
+        .select("id, university_id, track, category, embassy_type")
+        .in("id", eligibilityIds)
+    : {
+        data: [] as {
+          id: string;
+          university_id: string;
+          track: string;
+          category: string;
+          embassy_type: string | null;
+        }[],
+      };
 
-  const validationChoices = universityChoices.map((c) => {
-    const row = eligibilityRows?.find((r) => r.id === c.eligibilityId);
-    return { category: row?.category ?? "", embassyType: (row?.embassy_type as "type_a" | "type_b" | null) ?? null };
+  const validationChoices = universityChoices.map((choice) => {
+    const row = eligibilityRows?.find((eligibility) => eligibility.id === choice.eligibilityId);
+    if (
+      !row ||
+      row.university_id !== choice.universityId ||
+      row.track !== track
+    ) {
+      return null;
+    }
+    return {
+      category: row.category,
+      embassyType: (row.embassy_type as "type_a" | "type_b" | null) ?? null,
+    };
   });
+
+  if (validationChoices.some((choice) => choice === null)) {
+    return NextResponse.json({ error: "invalid_university_eligibility" }, { status: 400 });
+  }
 
   const result = validateUniversityChoices(
     track as "gks_u" | "gks_g",
     (gksUEmbassyPath as "general_overseas" | "r_gks" | null) ?? null,
-    validationChoices
+    validationChoices as { category: string; embassyType: "type_a" | "type_b" | null }[],
+    track === "gks_u"
+      ? (gksUApplicationRoute as "embassy" | "university")
+      : null
   );
   if (!result.valid) {
     return NextResponse.json({ error: result.message ?? "invalid_university_selection" }, { status: 400 });
