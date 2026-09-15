@@ -453,7 +453,7 @@ async function securityChecks() {
   ok(fresh.every((s) => (s.hoursSinceSuccess ?? 1e9) <= SOURCE_STALE_HOURS), "healthy sources are within the window");
 
   const jobs = await getJobHealth(now);
-  ok(jobs.length === 4, `${jobs.length} scheduled jobs tracked`);
+  ok(jobs.length === 5, `${jobs.length} scheduled jobs tracked`);
   ok(jobs.every((j) => typeof j.stale === "boolean"), "every job gets a verdict");
   ok(jobs.filter((j) => j.lastRunAt === null).every((j) => j.stale), "a job that has never run is flagged stale -- this is what 'the cron never fired' looks like");
 
