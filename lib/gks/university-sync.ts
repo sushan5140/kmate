@@ -1,4 +1,3 @@
-import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { buildUniversityEligibilityCatalog } from "@/lib/gks/university-catalog";
 
