@@ -72,6 +72,8 @@ export default async function AdminDeadlinesPage() {
   // nothing is healthy, not broken.
   const unhealthySources = sources.filter((s) => s.state !== "healthy");
   const unhealthyJobs = jobs.filter((j) => j.state !== "healthy");
+  const catalogJob = jobs.find((job) => job.job === "university-catalog");
+  const catalogStats = catalogJob?.lastStats ?? null;
   const STATE_LABEL: Record<string, string> = {
     failing: "failing",
     stale: "stale",
@@ -121,6 +123,16 @@ export default async function AdminDeadlinesPage() {
               </li>
             ))}
           </ul>
+        )}
+
+        {catalogStats?.catalogVerified === true && (
+          <p className="mt-2 rounded-lg bg-canvas px-3 py-2 text-[12px] text-muted">
+            University catalog verified after the last maintenance run:{" "}
+            <span className="font-medium text-ink">
+              {String(catalogStats.verifiedGksURows ?? "—")} / {String(catalogStats.expectedGksURows ?? "—")}
+            </span>{" "}
+            current GKS-U eligibility rows matched the source catalog.
+          </p>
         )}
       </div>
 
