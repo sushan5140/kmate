@@ -604,6 +604,24 @@ export const GKS_U_2027_TYPE_B = [
 ] as const;
 
 
+export const GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS: Record<string, readonly string[]> = {
+  "Dong-Eui Institute of Technology": ["Electrical Engineering", "Mechanical Engineering"],
+  "Kyungbok University": ["Software Convergence"],
+  "Osan University": ["Mechanical Engineering"],
+};
+
+export const GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES = [
+  "Busan Institute of Science and Technology",
+  "Cheju Halla University",
+  "Dong-Eui Institute of Technology",
+  "Induk University",
+  "Korea University of Media Arts",
+  "Kyungbok University",
+  "Kyung-In Women's University",
+  "Kyungnam College of Information & Technology",
+  "Yeungnam University College",
+] as const;
+
 export const GKS_U_2027_UIC_BACHELOR_DEPARTMENTS: Record<string, readonly string[]> = {
   "Ajou University": ["School of AI and Computer Engineering"],
   "Daegu University": ["Division of Electronic Engineering"],
