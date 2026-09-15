@@ -2,8 +2,10 @@ import "server-only";
 import { requirementDataset } from "./index";
 import type { GKSProgram, RequirementRecord } from "./schema";
 import {
+  GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES,
   GKS_U_2027_TYPE_A,
   GKS_U_2027_TYPE_B,
+  GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS,
   GKS_U_2027_UIC_BACHELOR_DEPARTMENTS,
 } from "@/lib/gks/guidelines-2027";
 
@@ -274,16 +276,15 @@ export function buildCheckerOptions(): CheckerOptions {
         a.localeCompare(b)
       );
       const embassyTypeB = [...GKS_U_2027_TYPE_B].sort((a, b) => a.localeCompare(b));
-      const uicUniversities = Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS).sort((a, b) =>
+      const uicUniversities = [
+        ...new Set([
+          ...Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS),
+          ...Object.keys(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS),
+        ]),
+      ].sort((a, b) => a.localeCompare(b));
+      const associateUniversities = [...GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES].sort((a, b) =>
         a.localeCompare(b)
       );
-      const associateUniversities = [
-        ...new Set(
-          inProgram
-            .filter((r) => r.flags.associate_degree || r.degree_level === "associate")
-            .map((r) => r.university)
-        ),
-      ].sort((a, b) => a.localeCompare(b));
 
       tracks[program] = [
         {
@@ -330,7 +331,10 @@ export function buildCheckerOptions(): CheckerOptions {
       for (const university of uicUniversities) {
         const forUni = inProgram.filter((r) => r.university === university);
         const needsGender = forUni.some(genderRuleFor);
-        const currentMajors = [...(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS[university] ?? [])];
+        const currentMajors = [
+          ...(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS[university] ?? []),
+          ...(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS[university] ?? []),
+        ];
         const majorSuggestions = [...new Set([...currentMajors, ...forUni.flatMap(majorRulesFor)])];
         meta[`${program}|university|${university}`] = { needsGender, majorSuggestions };
       }
