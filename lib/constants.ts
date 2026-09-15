@@ -28,6 +28,9 @@ export const EMBASSY_TYPE_LABELS: Record<EmbassyType, string> = {
 export const GKS_U_EMBASSY_PATHS = ["general_overseas", "r_gks"] as const;
 export type GksUEmbassyPath = (typeof GKS_U_EMBASSY_PATHS)[number];
 
+export const GKS_U_APPLICATION_ROUTES = ["embassy", "university"] as const;
+export type GksUApplicationRoute = (typeof GKS_U_APPLICATION_ROUTES)[number];
+
 export const CONTACT_TYPES = [
   "instagram",
   "tiktok",
