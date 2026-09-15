@@ -23,7 +23,7 @@ const ROWS = [
   {
     label: "Where you apply",
     embassy: "Study in Korea online system",
-    university: "Directly through the university's own application method",
+    university: "Directly through the university’s own application method",
   },
   {
     label: "2027 application window",
@@ -169,7 +169,7 @@ export function GksU2027TrackComparator({
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
                 University Track
               </p>
-              <p className="mt-1 text-[15px] font-semibold text-ink">UIC Bachelor's</p>
+              <p className="mt-1 text-[15px] font-semibold text-ink">UIC Bachelor’s</p>
               {defaultMajor && (
                 <p className="mt-1 text-[11.5px] text-muted">
                   Your saved major: {defaultMajor}
@@ -188,7 +188,7 @@ export function GksU2027TrackComparator({
             <div className="rounded-xl bg-canvas p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Submission</p>
               <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
-                Apply according to the university's own method and schedule.
+                Apply according to the university’s own method and schedule.
               </p>
             </div>
             <div className="rounded-xl bg-canvas p-3">
@@ -201,8 +201,8 @@ export function GksU2027TrackComparator({
           <div className="mt-4">
             <GuidelineRuleActions
               id="track-comparator-university"
-              title="University Track — UIC Bachelor's"
-              text="University Track applicants apply to one university and one department according to the university's own method and schedule. The route proceeds from the university first round to NIIED second round, with no third university round."
+              title="University Track — UIC Bachelor’s"
+              text="University Track applicants apply to one university and one department according to the university’s own method and schedule. The route proceeds from the university first round to NIIED second round, with no third university round."
               page="pp.6, 9–11"
               sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
               compact
@@ -250,14 +250,14 @@ export function GksU2027TrackComparator({
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
             <p className="text-[12.5px] leading-relaxed text-ink">
-              If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university's deadline is still open.
+              If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university’s deadline is still open.
             </p>
           </div>
           <div className="mt-2.5 pl-6">
             <GuidelineRuleActions
               id="fallback-after-embassy-fail"
               title="Embassy first-round fallback"
-              text="If an applicant fails the Embassy Track first round, they may apply through University Track if the university's application deadline is still open."
+              text="If an applicant fails the Embassy Track first round, they may apply through University Track if the university’s application deadline is still open."
               page="pp.9–11"
               sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
               compact
