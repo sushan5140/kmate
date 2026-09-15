@@ -464,7 +464,7 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
   {
     id: "scholarship-period",
     topic: "benefits",
-    page: 23,
+    page: 22,
     claim:
       "The standard scholarship period is 5-7 years for a bachelor's program (1 year of Korean language study plus 4-6 years of degree study) and 3-4 years for an associate program (1 year of Korean language study plus 2-3 years of degree study).",
     keywords: ["scholarship period", "how many years", "duration", "bachelor years", "associate years", "korean language year"],
@@ -472,7 +472,7 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
   {
     id: "tuition-benefit",
     topic: "benefits",
-    page: 23,
+    page: 22,
     claim:
       "For the degree program, NIIED supports tuition up to 5 million KRW; the university covers the amount above 5 million KRW and the admission fee.",
     keywords: ["tuition", "5 million", "admission fee", "university pays", "niied tuition"],
@@ -480,7 +480,7 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
   {
     id: "language-program-fee-benefit",
     topic: "benefits",
-    page: 23,
+    page: 22,
     claim:
       "The Korean language program fee benefit is 5.2 million KRW per year for scholars in the Korean language program.",
     keywords: ["language program fee", "5.2 million", "korean language fee"],
@@ -488,7 +488,7 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
   {
     id: "monthly-allowance-benefit",
     topic: "benefits",
-    page: 23,
+    page: 22,
     claim:
       "The annual all-inclusive allowance stated in the 2027 guideline is 13,560,000 KRW during the Korean language program and 14,400,000 KRW during the degree program.",
     keywords: ["monthly allowance", "allowance", "13,560,000", "14,400,000", "living expenses", "stipend"],
@@ -496,15 +496,23 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
   {
     id: "airfare-benefit",
     topic: "benefits",
+    page: 22,
+    claim:
+      "GKS provides an economy-class flight ticket at actual expense.",
+    keywords: ["airfare", "flight ticket", "economy", "actual expense"],
+  },
+  {
+    id: "airfare-residing-korea-exception",
+    topic: "benefits",
     page: 23,
     claim:
-      "GKS provides an economy-class flight ticket at actual expense, but entry airfare is not provided to newly selected scholars already residing in Korea at the time of the final announcement.",
-    keywords: ["airfare", "flight ticket", "economy", "already in korea", "entry airfare"],
+      "Entry airfare is not provided to newly selected scholars who are residing in Korea at the time of the final announcement.",
+    keywords: ["airfare", "already in korea", "residing in korea", "entry airfare"],
   },
   {
     id: "benefit-all-inclusive-note",
     topic: "benefits",
-    page: 23,
+    page: 22,
     claim:
       "The allowance is described as an all-inclusive subsidy covering living expenses, accommodation, health insurance, Korean proficiency grants, TOPIK application fees, settlement allowance, and degree-completion grants; amounts may be subject to change.",
     keywords: ["health insurance", "accommodation", "settlement allowance", "topik fee", "degree completion grant", "living expense"],
