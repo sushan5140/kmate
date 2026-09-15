@@ -148,7 +148,7 @@ export function retrieveGksU2027(question: string, limit = 6) {
         program: "UG" as const,
         category: entry.topics[0] ?? "documents",
         claim: entry.summary,
-        source_title: GKS_U_2027_SOURCE.title + " — page-level locator",
+        source_title: GKS_U_2027_SOURCE.title,
         source_url: GKS_U_2027_SOURCE.sourceUrl,
         cycle: GKS_U_2027_SOURCE.cycle,
         page: entry.page,
