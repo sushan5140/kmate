@@ -41,6 +41,16 @@ function cleanRule(value: unknown): SavedRulePayload | null {
   return { id, title, text, savedAt, kind, page, sourceUrl, question };
 }
 
+async function authMetadataFor(userId: string): Promise<Record<string, unknown> | null> {
+  const admin = getSupabaseAdmin();
+  const { data, error } = await admin.auth.admin.getUserById(userId);
+  if (error || !data.user) {
+    console.error("[gks:saved-rules] could not read auth metadata", error?.message ?? "user_missing");
+    return null;
+  }
+  return (data.user.user_metadata ?? {}) as Record<string, unknown>;
+}
+
 function rulesFromMetadata(metadata: Record<string, unknown> | null | undefined): SavedRulePayload[] {
   const raw = metadata?.[META_KEY];
   if (!Array.isArray(raw)) return [];
@@ -59,9 +69,13 @@ function rulesFromMetadata(metadata: Record<string, unknown> | null | undefined)
 export async function GET() {
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  return NextResponse.json({
-    items: rulesFromMetadata((user.user_metadata ?? {}) as Record<string, unknown>),
-  });
+
+  const metadata = await authMetadataFor(user.id);
+  if (metadata === null) {
+    return NextResponse.json({ error: "sync_unavailable" }, { status: 503 });
+  }
+
+  return NextResponse.json({ items: rulesFromMetadata(metadata) });
 }
 
 export async function PUT(request: Request) {
@@ -86,8 +100,12 @@ export async function PUT(request: Request) {
     .sort((a, b) => Date.parse(b.savedAt) - Date.parse(a.savedAt))
     .slice(0, MAX_RULES);
 
+  const currentMetadata = await authMetadataFor(user.id);
+  if (currentMetadata === null) {
+    return NextResponse.json({ error: "sync_unavailable" }, { status: 503 });
+  }
+
   const admin = getSupabaseAdmin();
-  const currentMetadata = ((user.user_metadata ?? {}) as Record<string, unknown>);
   const { error } = await admin.auth.admin.updateUserById(user.id, {
     user_metadata: { ...currentMetadata, [META_KEY]: items },
   });
