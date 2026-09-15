@@ -16,7 +16,7 @@ Instead of another general forum, KMate focuses on structured applicant discover
 - Scholar/application profile data and preparation resources
 - Interview-question resources
 - GKS document/apostille guidance with source links and last-checked dates
-- University eligibility data and validation logic
+- Cycle-tagged university eligibility data and official university-choice validation
 - Admin moderation and audited access to sensitive management actions
 
 ## Privacy model
@@ -59,7 +59,7 @@ Contact details are not publicly exposed. Connection state controls when informa
 
 ### GKS-specific data
 
-University eligibility and application rules are represented as structured data instead of being hard-coded into isolated pages. Separate tooling supports yearly data refreshes as NIIED changes participating universities and rules.
+University eligibility and application rules are represented as structured, cycle-tagged data instead of being hard-coded into isolated pages. GKS-U is refreshed against the 2027 NIIED/Study in Korea guideline while older university-specific detail is explicitly labeled by its source cycle. The university seed reconciles stale eligibility rows instead of silently carrying previous-cycle options forward.
 
 ### Admin and moderation
 
@@ -81,9 +81,17 @@ npm run dev
 
 A configured Supabase project and the required environment variables are needed for authenticated features.
 
+Before merging changes that affect GKS rules or readiness data, run:
+
+```bash
+npm run verify:quick
+```
+
+When `data/gks-universities.json` is refreshed for a new cycle, run `npm run seed:universities` against the intended Supabase project so stale eligibility rows are reconciled and new current-cycle universities are inserted.
+
 ## Data accuracy
 
-GKS rules, participating universities and document requirements can change each application cycle. KMate is not an official NIIED service. Applicants should always verify final requirements against the current **Study in Korea / NIIED** guidelines.
+GKS rules, participating universities and document requirements can change each application cycle. KMate is not an official NIIED service. Current-cycle national rules are kept separate from older university-specific source material, and previous-cycle data is never meant to be presented as current. Applicants should always verify final requirements against the current **Study in Korea / NIIED** guidelines and their first-round institution.
 
 ## Project status
 
