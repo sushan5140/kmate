@@ -40,7 +40,6 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const perfStarted = performance.now();
   const user = await requireOnboarded("/home");
   const admin = getSupabaseAdmin();
 
@@ -111,7 +110,6 @@ export default async function HomePage() {
       .or(`user_a_id.eq.${user.id},user_b_id.eq.${user.id}`),
   ]);
 
-  const initialQueriesMs = performance.now() - perfStarted;
   const conversationIds = (conversationRows ?? []).map((c) => c.id);
 
   // Discover: count of other applicants sharing >=1 major or university.
@@ -136,7 +134,6 @@ export default async function HomePage() {
       : Promise.resolve({ count: 0 }),
   ]);
 
-  const secondaryQueriesMs = performance.now() - perfStarted - initialQueriesMs;
   const unreadMessageCount = unreadMessages.count ?? 0;
   for (const row of majorMatches.data ?? []) sharedIds.add(row.id);
   for (const row of universityMatches.data ?? []) sharedIds.add((row as { user_id: string }).user_id);
@@ -159,20 +156,6 @@ export default async function HomePage() {
   // by the matcher. Only status='active' rows are returned, so a revoked or
   // superseded verification stops reaching applicants immediately.
   const liveDeadlines = await getLiveVerifiedDeadlines();
-
-  const totalMs = performance.now() - perfStarted;
-  console.info(
-    "[kmate:perf]",
-    JSON.stringify({
-      route: "/home",
-      total_ms: Math.round(totalMs),
-      initial_queries_ms: Math.round(initialQueriesMs),
-      secondary_queries_ms: Math.round(secondaryQueriesMs),
-      approved_notices: approvedNotices.length,
-      live_deadlines: liveDeadlines.length,
-      conversation_count: conversationIds.length,
-    })
-  );
 
   const scholarshipPool = newestScholarships ?? [];
   const spotlight = pickSpotlight(scholarshipPool, user.id);
