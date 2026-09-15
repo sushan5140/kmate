@@ -1,0 +1,3 @@
+KMate influencer-ready release preview
+Source branch: release-kmate-influencer-ready
+Purpose: trigger the single intentional Vercel preview after all CI gates passed.
