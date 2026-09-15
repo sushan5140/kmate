@@ -76,7 +76,7 @@ ok(fs.existsSync(path.join(REPO, "app/api/cron/daily-maintenance/route.ts")), "t
 console.log("=== 2. orchestrator stage order ===");
 ok(
   JSON.stringify(DAILY_STAGE_ORDER) ===
-    JSON.stringify(["notice-scout", "scholarships", "scholarships-freshness", "deadline-assistant"]),
+    JSON.stringify(["university-catalog", "notice-scout", "scholarships", "scholarships-freshness", "deadline-assistant"]),
   `stages run in order: ${DAILY_STAGE_ORDER.join(" -> ")}`
 );
 ok(
