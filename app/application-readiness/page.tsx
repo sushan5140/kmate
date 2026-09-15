@@ -127,6 +127,21 @@ export default async function ApplicationReadinessPage({
         </p>
       </div>
 
+      <nav className="mt-4 flex flex-wrap gap-2 text-[11.5px]" aria-label="Readiness page sections">
+        <a href="#application-setup" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
+          1 · Route &amp; setup
+        </a>
+        <a href="#application-checklist" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
+          2 · Checklist
+        </a>
+        {showGksU2027 && (
+          <a href="#supporting-tools" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
+            3 · Forms &amp; final checks
+          </a>
+        )}
+      </nav>
+
+      <div id="application-setup">
       {showGksU2027 && (
         <GksU2027RouteDashboard
           defaultPath={routePath}
@@ -135,8 +150,9 @@ export default async function ApplicationReadinessPage({
           defaultMajor={toolMajor}
         />
       )}
+      </div>
 
-      <div className="mt-6">
+      <div id="application-checklist" className="mt-6 scroll-mt-6">
         <ReadinessWorkspace
           key={`${program}|${track}|${subtype}|${universities.map((u) => u.name).join(",")}`}
           options={options}
@@ -151,7 +167,7 @@ export default async function ApplicationReadinessPage({
       </div>
 
       {showGksU2027 && (
-        <section className="mt-10 border-t border-hairline pt-8">
+        <section id="supporting-tools" className="mt-10 scroll-mt-6 border-t border-hairline pt-8">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
               2027 supporting tools
