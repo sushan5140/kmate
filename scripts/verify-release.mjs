@@ -23,7 +23,7 @@ ok(
   "No extra branch may be silently enabled for Vercel"
 );
 
-ok(exists("app/about/page.tsx"), "Landing page /about destination must exist");
+ok(exists("app/(info)/about/page.tsx"), "Landing page /about destination must exist");
 const landing = read("app/page.tsx");
 ok(landing.includes('href="/about"'), "Landing page must link to the About page");
 for (const stale of [
