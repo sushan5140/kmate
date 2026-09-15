@@ -11,7 +11,9 @@ import {
 import { Card } from "@/components/ui/card";
 import {
   readSavedGksRules,
+  reconcileSavedGksRules,
   removeGksRule,
+  pushAccountSavedGksRules,
   type SavedGksRule,
 } from "@/lib/gks/saved-rules";
 
@@ -33,6 +35,7 @@ export function SavedGksRulesList() {
   useEffect(() => {
     const sync = () => setItems(readSavedGksRules());
     sync();
+    void reconcileSavedGksRules().then(setItems);
     window.addEventListener("storage", sync);
     window.addEventListener("kmate:gks-rules-changed", sync as EventListener);
     return () => {
@@ -55,7 +58,7 @@ export function SavedGksRulesList() {
         <Bookmark className="mx-auto h-5 w-5 text-muted" />
         <p className="mt-2 text-[14px] font-semibold text-ink">No saved GKS rules yet</p>
         <p className="mx-auto mt-1 max-w-xl text-[12.5px] leading-relaxed text-muted">
-          Use the Save button beside a guideline rule or AI answer. Saved items stay in this browser.
+          Use the Save button beside a guideline rule or AI answer. Saved items sync to your KMate account and keep a browser cache for offline fallback.
         </p>
         <Link
           href="/gks"
@@ -104,7 +107,11 @@ export function SavedGksRulesList() {
 
                 <button
                   type="button"
-                  onClick={() => setItems(removeGksRule(item.id))}
+                  onClick={() => {
+                    const next = removeGksRule(item.id);
+                    setItems(next);
+                    void pushAccountSavedGksRules(next);
+                  }}
                   className="inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3 text-[11px] font-medium text-danger ring-1 ring-hairline-strong hover:bg-canvas"
                 >
                   <Trash2 className="h-3.5 w-3.5" />

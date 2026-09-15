@@ -6,6 +6,7 @@ interface OfficialEvidence {
   source_url?: string | null;
   cycle?: string | null;
   page?: number | null;
+  extraction_quality?: "clean" | "needs_review" | null;
 }
 
 export interface SynthesisInput {
@@ -71,6 +72,7 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
     cycle: item.cycle,
     source_title: item.source_title,
     source_url: item.source_url,
+    extraction_quality: item.extraction_quality,
   }));
 
   const controller = new AbortController();
@@ -101,6 +103,8 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
               "Then explain the rule in 2-4 concise sentences and cite the supplied page number(s) as 'p.X'.",
               "Do not invent deadlines, document rules, exceptions, scores, university requirements, or interpretations.",
               "Where two stages differ, state the distinction explicitly (for example first round versus NIIED second round).",
+              "Evidence marked extraction_quality='clean' is reviewed structured evidence and takes priority.",
+              "Evidence marked extraction_quality='needs_review' is a page-level locator fallback from the earlier English attachment baseline. Use it only when it directly supports a broad point, never to override clean evidence, and avoid inventing details not present in its summary.",
             ].join("\n"),
           },
           {

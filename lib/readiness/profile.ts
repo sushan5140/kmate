@@ -90,7 +90,11 @@ export async function getProfileDefaults(userId: string): Promise<ProfileDefault
     subtype = "r_gks";
   }
 
-  const resolver = createNameResolver(requirementDataset.records.map((r) => r.university));
+  const resolver = createNameResolver(
+    requirementDataset.records
+      .filter((record) => !program || record.program === program)
+      .map((record) => record.university)
+  );
   const rows = ((data.university_choices ?? []) as unknown as ChoiceRow[])
     .slice()
     .sort((a, b) => a.priority - b.priority);

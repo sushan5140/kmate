@@ -59,6 +59,7 @@ export interface CountryOverride {
   source: { label: string; url: string }[];
   lastCheckedDate: string;
   caveat: string;
+  verifiedCycleByTrack: Partial<Record<Track, string>>;
 }
 
 export const APOSTILLE_DISCLAIMER =
@@ -168,9 +169,10 @@ export const APOSTILLE_COUNTRY_OVERRIDES: CountryOverride[] = [
       { label: "Embassy of Korea in Nepal — 2026 GKS-G notice", url: "https://np.mofa.go.kr/np-en/brd/m_25533/view.do?seq=164" },
       { label: "Embassy of Korea in Nepal — 2026 GKS-U notice", url: "https://overseas.mofa.go.kr/np-en/brd/m_25533/view.do?seq=151" },
     ],
-    lastCheckedDate: "2026-07-25",
+    lastCheckedDate: "2026-09-14",
+    verifiedCycleByTrack: { gks_g: "2026", gks_u: "2026" },
     caveat:
-      "Requirements can change between application cycles and may differ by circumstance. Always confirm current requirements with your embassy's official GKS notice before starting the authentication process.",
+      "This notice is current-cycle evidence for 2026 GKS-G, but it is previous-cycle evidence for 2027 GKS-U. Do not carry it forward to a 2027 undergraduate application unless the Korean Embassy in Nepal republishes or confirms the same process.",
   },
   {
     country: "Bangladesh",
@@ -180,9 +182,10 @@ export const APOSTILLE_COUNTRY_OVERRIDES: CountryOverride[] = [
       "A genuine exception to the general default, not just a local process detail: birth, family-relation, and educational certificates need an E-Apostille issued by Bangladesh's own Ministry of Foreign Affairs. The notice explicitly states consular confirmation by the Korean Embassy in Bangladesh is NOT required on top of the E-Apostille — the E-Apostille alone is sufficient here. The E-Apostille cover sheet must be scanned together with the underlying certificate; the cover sheet alone is not accepted. Certificates issued outside Bangladesh still need their own proper attestation from wherever they were issued.",
     hagueConventionMember: "Yes (implied by E-Apostille availability)",
     source: [{ label: "Embassy of Korea in Bangladesh — 2026 GKS-G notice", url: "https://www.mofa.go.kr/bd-en/brd/m_2124/view.do?seq=760090" }],
-    lastCheckedDate: "2026-07-25",
+    lastCheckedDate: "2026-09-14",
+    verifiedCycleByTrack: { gks_g: "2026" },
     caveat:
-      "Requirements can change between application cycles and may differ by circumstance. Always confirm current requirements with your embassy's official GKS notice before starting the authentication process.",
+      "This is verified for the 2026 GKS-G notice only. KMate has not verified the same Bangladesh-specific override for 2027 GKS-U, so undergraduate applicants should follow the current 2027 national rule unless the embassy publishes a current-cycle instruction.",
   },
   {
     country: "Myanmar",
@@ -192,8 +195,9 @@ export const APOSTILLE_COUNTRY_OVERRIDES: CountryOverride[] = [
       "The general default's 'apostille or consular confirmation' becomes a specific three-step chain in practice: (1) notarization at a public notary office, (2) legalization of that notarized document by Myanmar's own MOFA, (3) presenting the legalized original, a photocopy, and a passport photocopy to the Korean Embassy's consular section for final confirmation. At the first-round application stage itself, none of this is required yet — but original documents with English notarization were described as mandatory even at that first stage for the undergraduate track.",
     hagueConventionMember: "No",
     source: [{ label: "Embassy of Korea in Myanmar — GKS-U notice (2025 cycle)", url: "https://overseas.mofa.go.kr/mm-en/brd/m_2088/view.do?seq=760471" }],
-    lastCheckedDate: "2026-07-25",
+    lastCheckedDate: "2026-09-14",
+    verifiedCycleByTrack: { gks_u: "2025" },
     caveat:
-      "This entry is sourced from a 2025-cycle notice — confirm against the current 2026 notice directly before relying on it. Requirements can change between cycles.",
+      "Archived reference only. This procedure comes from a 2025 GKS-U notice and is not presented as a 2027 rule. Check the Korean Embassy in Myanmar's current GKS-U notice before taking any authentication step.",
   },
 ];

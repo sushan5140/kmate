@@ -50,6 +50,13 @@ const ALIASES: Record<string, string> = {
   // --- acronym present on one side only ---
   "Hankuk University of Foreign Studies": "Hankuk University of Foreign Studies (HUFS)",
 
+  // --- current 2027 guideline spellings -> requirement-dataset spellings ---
+  "Dongguk University": "Dongguk University (Seoul)",
+  "KyungHee University": "Kyung Hee University",
+  "Seoul National University of Science and Technology":
+    "Seoul National University of Science and Technology (SeoulTech)",
+  "Sungkyunkwan University": "Sungkyunkwan University (SKKU)",
+
   // Hanyang's main campus. The requirement dataset names it plainly and lists
   // ERICA as a separate university; the profile list qualifies the main campus
   // as "(Seoul)". Both of the dataset's own names already match exactly, so

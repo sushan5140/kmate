@@ -29,12 +29,15 @@ export interface ReadinessSource {
 export interface ReadinessChecklistDataset {
   schema_version: string;
   cycle: string;
+  program_cycles?: Record<"GKS-U" | "GKS-G", string>;
+  generated_at?: string;
   dataset: string;
   policy: {
     never_treat_missing_as_not_required: boolean;
     submission_method_is_first_round_institution_specific: boolean;
     authentication_rules_can_be_country_specific: boolean;
     university_extras_must_come_from_requirement_checker: boolean;
+    cycle_is_program_specific?: boolean;
     status_values: ReadinessStatus[];
   };
   official_sources: ReadinessSource[];

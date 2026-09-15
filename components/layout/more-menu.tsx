@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { MoreHorizontal, ShieldCheck, LockKeyhole, Flag, Info, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import { Button } from "@/components/ui/button";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { NAV_GROUP_LABELS, NAV_GROUP_ORDER, navItemsByGroup } from "@/lib/nav-items";
 
 function ReportProblemForm({ onDone }: { onDone: () => void }) {
   const [reason, setReason] = useState("");
@@ -104,17 +104,30 @@ function MoreMenuContent({
         so the desktop dropdown (already redundant with the always-visible
         Sidebar) stays exactly as it was.
       */}
-      <div className="border-y border-hairline py-1 md:hidden">
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas"
-          >
-            <item.icon className="h-4 w-4 text-muted" /> {item.label}
-          </Link>
-        ))}
+      <div className="max-h-[62vh] overflow-y-auto border-y border-hairline py-1 md:hidden">
+        {NAV_GROUP_ORDER.map((group) => {
+          const items = navItemsByGroup(group);
+          if (!items.length) return null;
+          return (
+            <div key={group} className="py-1">
+              {group !== "overview" && (
+                <p className="px-4 pb-1 pt-2 text-[9.5px] font-semibold uppercase tracking-[0.13em] text-muted/60">
+                  {NAV_GROUP_LABELS[group]}
+                </p>
+              )}
+              {items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  className="flex items-center gap-2.5 px-4 py-2 text-[13.25px] text-ink hover:bg-canvas"
+                >
+                  <item.icon className="h-4 w-4 text-muted" /> {item.label}
+                </Link>
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">

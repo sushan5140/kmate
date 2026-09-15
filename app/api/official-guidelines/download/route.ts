@@ -24,6 +24,12 @@ export async function GET(request: Request) {
   if (!guideline) {
     return NextResponse.json({ error: "invalid_id" }, { status: 400 });
   }
+  if (guideline.assetType === "notice") {
+    return NextResponse.json(
+      { error: "current_attachment_available_on_official_notice", source_url: guideline.sourceUrl ?? guideline.url },
+      { status: 409 }
+    );
+  }
   if (!guideline.url.startsWith("http")) {
     return NextResponse.json({ error: "not_a_remote_file" }, { status: 400 });
   }

@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "dataset": "KMate University Requirement Checker",
-  "cycle": "2026",
-  "generated_from": "Frozen Requirements",
+  "cycle": "mixed",
+  "generated_from": "2027 GKS-U national guideline + cycle-tagged official university sources",
   "record_count": 184,
   "matching_policy": {
     "never_infer_missing_requirement": true,
@@ -33,8 +33,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -69,8 +77,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -99,15 +115,23 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "Mechanical Engineering Major; Computer Engineering Major. Official source states 5 students per major per year for 2026–2028.",
+        "majors_departments": "Mechanical Engineering Major; Computer Engineering Major",
         "language": "TOEFL iBT 59 / IELTS 5.5 / CEFR B2 / NEW TEPS 202 or above. Official GKS page states no Korean-language training required for this English Track.",
         "process_extra_documents": "First round by email; successful first-round candidates later submit original hard-copy documents."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -136,15 +160,23 @@
       ],
       "university_type": "A",
       "requirements": {
-        "majors_departments": "Software Engineering under Department of Software and Computer Engineering, College of Computing and Informatics.",
+        "majors_departments": "School of AI and Computer Engineering",
         "language": "Official Ajou UIC overview: required TOPIK is higher than Level 3 or according to NIIED guideline. TOPIK Level 5+ successful candidates may enter degree program without Korean-language program.",
         "process_extra_documents": "1-year Korean-language program + 4-year Software Engineering degree, subject to TOPIK exemption rule."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -209,15 +241,23 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Konyang University's official 2026 GKS-U package verifies the UIC fields Artificial Intelligence and Smart Security. A separate Embassy Track row is retained for Konyang's Type B Embassy route.",
+        "majors_departments": "Artificial Intelligence; Smart Security",
         "language": "No single Konyang-wide numeric IELTS/TOPIK threshold is stated on the notice page itself. Track/department-specific language conditions must come from the corresponding official 2026 Konyang overview file.",
         "process_extra_documents": "Konyang's Sep 5 notice originally used Study in Korea online application. Its official Oct 2 IMPORTANT NOTICE superseded that method after the National Information Resources Service incident made online submission unavailable. Applicants—including those who had already applied online—were required to resubmit the complete application documents by Oct 31. The Oct 2 notice also replaced the UIC and general University Overview PDFs with new 1002 versions."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified UIC majors + separate Embassy/UIC overviews + final Oct 2 offline-resubmission correction",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified UIC majors + separate Embassy/UIC overviews + final Oct 2 offline-resubmission correction",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -261,8 +301,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only + official 2026 overview/department XLSX provenance + major-entry/graduation language rules",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only + official 2026 overview/department XLSX provenance + major-entry/graduation language rules",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -297,8 +345,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -1925,15 +1981,23 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Inje University's official 2026 GKS-U notice limits University Track UIC applications to four departments: AI Software; Mechanical and Electrical Automotive Engineering; Food Nutrition and Food Engineering; Medical Information Technology. Applicants whose intended field is outside these four use the separate Embassy Track row.",
+        "majors_departments": "AI Software; Food Nutrition and Food Engineering; Medical Information Technology; Mechanical and Electrical Automotive Engineering",
         "language": "TOPIK, TOEFL and IELTS score reports are NOT mandatory for the 2026 Inje GKS-U application, although submitted scores may help during selection.",
         "process_extra_documents": "University Track deadline was Oct 31, 2025, 18:00 KST. Evaluation consisted of document review followed by an online interview. Applicants passing the interview had to send required originals by Nov 24. Official certificates had to carry Apostille or Korean consular confirmation. If an original could not be reissued, Inje allowed an Apostille/consular confirmation on a notarized copy. Simple photocopies or ordinary notarized copies of already-apostilled documents were not accepted; a certified true copy issued by a Korean embassy or the government agency that issued the original Apostille document was accepted."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC majors + non-mandatory language scores + detailed original-document authentication rules",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC majors + non-mandatory language scores + detailed original-document authentication rules",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4028,7 +4092,7 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Kookmin University's official 2026 GKS-UIC notice states that ONLY Software is available for the 2026 UIC application. The Software admission unit is the GKS-UIC selectable program; Kookmin's department page may also describe Artificial Intelligence curricula, but AI is not a separate 2026 GKS-UIC application choice.",
+        "majors_departments": "Software",
         "language": "No separate Kookmin-wide TOPIK/IELTS minimum is stated on the 2026 UIC notice page. Do not substitute Kookmin's ordinary international-admission language rules.",
         "process_extra_documents": "After the Study in Korea system became unavailable, Kookmin required applicants to (1) submit its Google Form and (2) send ONE original hard-copy document set by post. Official academic records, graduation certificate, citizenship/family-relationship proof and similar official documents had to be originals accompanied by Apostille or Korean consular confirmation. Documents had to arrive by Oct 31, 2025, 17:00 KST. Applicants who had already applied online still had to resubmit by Google Form + post. First-round results were scheduled for Nov 21, 2025."
       },
@@ -4044,8 +4108,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC major + revised Google Form/postal/original-document rules",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC major + revised Google Form/postal/original-document rules",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4074,15 +4146,23 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Sungshin Women's University's official 2026 GKS-UIC notice identifies School of Mathematics, Statistics and Data Science — Big Data Science Major as the UIC bachelor's program. Sungshin explicitly clarifies that the admission-unit wording may mention Statistics/Big Data Science, but GKS-UIC scholars actually pursue Big Data Science. Other majors are available through Embassy Track.",
+        "majors_departments": "Statistics/Big Data Science Major",
         "language": "TOPIK is NOT mandatory for every UIC applicant; only applicants who already hold a TOPIK score are required to submit it. UIC courses are offered in Korean or English, and scholars complete one year of Korean-language training before the degree program. For Embassy Track, male applicants are eligible ONLY for the International School of Korean Culture and Technology; other Sungshin majors are not open to male applicants.",
         "process_extra_documents": "After the Study in Korea online-system suspension, Sungshin required UIC applicants to submit through its university Google Form while still sending original documents by post or in person within the designated deadline. Sungshin also requires its own eligibility-confirmation/request form and Agreement to Release Information in addition to the GKS application forms."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC major + TOPIK treatment + revised submission + Embassy gender/major restriction",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC major + TOPIK treatment + revised submission + Embassy gender/major restriction",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4111,7 +4191,7 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Daegu University's official English site has a dedicated 2026 GKS-U University Track (UIC) notice. The official 2026 GKS-U data identifies Division of Electronic Engineering as Daegu University's UIC bachelor's field.",
+        "majors_departments": "Division of Electronic Engineering",
         "language": "No Daegu-wide numeric IELTS/TOPIK minimum is stated in the university's application-method change notice. Any UIC-specific language rule must come from Daegu's 2026 UIC university information rather than its ordinary international-admission guide.",
         "process_extra_documents": "Daegu University's Oct 9 official notice states that the Study in Korea system was suspended and online applications were unavailable. University Track (UIC) applicants therefore had to submit application documents directly to Daegu University in person or by mail within the deadline. Applicants who had already completed online submission also had to resubmit all required documents. Daegu attached revised English/Korean GKS-U guidelines and revised application forms."
       },
@@ -4127,8 +4207,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC field + official final direct-to-Daegu submission correction",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC field + official final direct-to-Daegu submission correction",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4157,15 +4245,23 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Official 2026 GKS-U guideline lists two Dong-A bachelor's UIC fields: Food Science and Nutrition; Medicinal Biotechnology.",
+        "majors_departments": "Food Science and Nutrition; Medicinal Biotechnology",
         "language": "The central 2026 UIC table does not state one Dong-A-wide IELTS/TOPIK threshold. Any program-specific language condition must come from Dong-A's 2026 UIC university information.",
         "process_extra_documents": "UIC is University Track only. Dong-A's own official site independently published the 2026 GKS-U UIC second-round results, confirming active participation. This row upgrades the earlier participation-only entry with the exact UIC fields."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified exact two UIC fields + university participation cross-check",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact two UIC fields + university participation cross-check",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4194,7 +4290,7 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Official 2026 GKS-U guideline: Mechanical Engineering is Keimyung University's bachelor's UIC field.",
+        "majors_departments": "Mechanical Engineering",
         "language": "The central UIC table does not state a Keimyung-specific application-stage language threshold. Ordinary international-admission language rules are not substituted.",
         "process_extra_documents": "UIC is University Track only and applicants choose one university and one department. This exact-major row supplements the earlier Keimyung participation-only UIC row."
       },
@@ -4210,8 +4306,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC field from official 2026 GKS-U guideline",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC field from official 2026 GKS-U guideline",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4240,7 +4344,7 @@
       ],
       "university_type": null,
       "requirements": {
-        "majors_departments": "Yeungnam University's official 2026 GKS-U University Track UIC file identifies Environmental Engineering as its bachelor's UIC field. Yeungnam separately hosts the 2026 UIC Overview and UIC Available Departments XLSX, while Embassy R-GKS uses a different University Overview/Available Departments set.",
+        "majors_departments": "Environmental Engineering",
         "language": "No separate university-wide numeric IELTS/TOPIK threshold is stated on the main 2026 GKS-U notice for the UIC route. Any language condition must come from the UIC Overview/Available Departments attachment and must not be borrowed from Embassy Track or ordinary admissions.",
         "process_extra_documents": "UIC application period: Sep 15-Oct 31, 2025, 18:00 KST. University Track applications had to be submitted by post to Yeungnam's International Student Support Team and arrive by the deadline. Yeungnam instructs applicants NOT to use a stapler except for Apostille documents. Only 4-year undergraduate programs are available under GKS-U; programs longer than four years are excluded."
       },
@@ -4256,8 +4360,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC field + official UIC attachments + postal/no-stapler/4-year-only rules",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC field + official UIC attachments + postal/no-stapler/4-year-only rules",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4293,8 +4405,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified two UIC associate-degree fields",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified two UIC associate-degree fields",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4330,8 +4450,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC major/language/process",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC major/language/process",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4367,8 +4495,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified exact UIC field + Korean-medium/process rules",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified exact UIC field + Korean-medium/process rules",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4403,8 +4539,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4439,8 +4583,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; detailed mirror data withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; detailed mirror data withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4475,8 +4627,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4511,8 +4671,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; detailed fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; detailed fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4547,8 +4715,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4583,8 +4759,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type A participation verified + official university guideline hosted",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified + official university guideline hosted",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4619,8 +4803,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4655,8 +4847,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; detailed fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; detailed fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4691,8 +4891,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4727,8 +4935,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4763,8 +4979,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only route + exact 2026 POSTECH overview/application-guide provenance + official selection chain",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only route + exact 2026 POSTECH overview/application-guide provenance + official selection chain",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -4799,8 +5023,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4835,8 +5067,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; detailed fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; detailed fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4871,8 +5111,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4907,8 +5155,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4943,8 +5199,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -4979,8 +5243,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5015,8 +5287,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; GKS-U-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; GKS-U-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5051,8 +5331,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific details withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5087,8 +5375,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5123,8 +5419,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5159,8 +5463,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5195,8 +5507,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; detailed 2026 mirror explicitly quarantined",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; detailed 2026 mirror explicitly quarantined",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5231,8 +5551,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Embassy participation from Chosun's own undergraduate result announcement",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Embassy participation from Chosun's own undergraduate result announcement",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5267,8 +5595,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only + exact official attachment set + final revised offline-resubmission schedule",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only + exact official attachment set + final revised offline-resubmission schedule",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -5303,8 +5639,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5339,8 +5683,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5375,8 +5727,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B Embassy participation + university-issued final Embassy submission method",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B Embassy participation + university-issued final Embassy submission method",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5411,8 +5771,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5447,8 +5815,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type B Embassy participation verified; track kept separate from UIC",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B Embassy participation verified; track kept separate from UIC",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5483,8 +5859,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B Embassy route + exact 2026 overview filename + university-issued revised direct-submission process",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B Embassy route + exact 2026 overview filename + university-issued revised direct-submission process",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5519,8 +5903,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5555,8 +5947,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only + exact FINAL 2026 XLSX/PDF provenance + embassy first-round handling",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only + exact FINAL 2026 XLSX/PDF provenance + embassy first-round handling",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -5591,8 +5991,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5627,8 +6035,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Type B + official Hoseo University Overview attachment; original online-method wording flagged as superseded",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Type B + official Hoseo University Overview attachment; original online-method wording flagged as superseded",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5663,8 +6079,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5699,8 +6123,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; GKS-U details withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; GKS-U details withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5736,8 +6168,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 Embassy/R-GKS third-round role + exact revised department/overview/contact attachment provenance",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 Embassy/R-GKS third-round role + exact revised department/overview/contact attachment provenance",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5772,8 +6212,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B route + exact 2026 department/overview attachment provenance; original online-method wording marked superseded",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B route + exact 2026 department/overview attachment provenance; original online-method wording marked superseded",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5808,8 +6256,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 Type B participation verified + official institutional GKS operation; 2026 university-specific fields still withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 Type B participation verified + official institutional GKS operation; 2026 university-specific fields still withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5844,8 +6300,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only + exact official attachment set; original online method explicitly superseded",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only + exact official attachment set; original online method explicitly superseded",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -5880,8 +6344,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5916,8 +6388,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific details withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific details withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5952,8 +6432,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; GKS-U-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; GKS-U-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -5988,8 +6476,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6026,8 +6522,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B General/R-GKS Embassy route + official revised 2026 selection schedule hosted by Jeju",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B General/R-GKS Embassy route + official revised 2026 selection schedule hosted by Jeju",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6062,8 +6566,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified official department/overview attachments + offline-resubmission + campus-distinction rule",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified official department/overview attachments + offline-resubmission + campus-distinction rule",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6108,8 +6620,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy-only route + conditional Maritime Sciences medical-document rule + revised submission handling",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy-only route + conditional Maritime Sciences medical-document rule + revised submission handling",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -6144,8 +6664,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B + exact official 2026 JBNU attachment set + Oct 2 revised-notice linkage",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B + exact official 2026 JBNU attachment set + Oct 2 revised-notice linkage",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6180,8 +6708,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type B participation verified; campus kept separate from Korea University Seoul",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; campus kept separate from Korea University Seoul",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6209,15 +6745,23 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "Inje University's 2026 GKS-U notice confirms four University Track UIC departments — AI Software; Mechanical and Electrical Automotive Engineering; Food Nutrition and Food Engineering; Medical Information Technology — and explicitly instructs applicants whose intended field is not one of those four to use Embassy Track.",
+        "majors_departments": "AI Software; Food Nutrition and Food Engineering; Medical Information Technology; Mechanical and Electrical Automotive Engineering",
         "language": "Inje states that TOPIK, TOEFL and IELTS reports are not mandatory for its 2026 GKS-U application, though scores may support evaluation. The notice does not provide a complete Embassy-track department list, so KMate must not infer one from Inje's ordinary undergraduate catalog.",
         "process_extra_documents": "For UIC: online application by Oct 31, document review + online interview, then authenticated originals by Nov 24 for interview passers. Apostille/consular confirmation rules are strict: simple copies of authenticated documents are not accepted, while qualifying certified true copies from a Korean embassy or the issuing government agency may be accepted."
       },
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "Verified Embassy fallback rule + exact UIC/authentication/language-score rules; Embassy major list still pending",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy fallback rule + exact UIC/authentication/language-score rules; Embassy major list still pending",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6245,7 +6789,7 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "The official 2026 GKS-U guideline lists Keimyung University among the Type B Embassy Track universities. This Embassy Track row is separate from Keimyung's University Track UIC field, Mechanical Engineering, already captured in the workbook.",
+        "majors_departments": "Mechanical Engineering",
         "language": "No Keimyung-wide 2026 Embassy-Track GKS-U IELTS/TOPIK threshold has been verified from a current undergraduate GKS-specific university file. The UIC row's department information is not generalized to Embassy Track.",
         "process_extra_documents": "2026 Type B Embassy participation is verified through NIIED/Study in Korea. Keimyung's detailed 2026 GKS-G graduate schedule and Pharmacy R&D rules remain graduate-only. Exact Embassy-eligible undergraduate departments and extra-document rules remain withheld pending direct 2026 GKS-U University Information extraction."
       },
@@ -6261,8 +6805,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type B Embassy participation verified; track kept separate from UIC",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B Embassy participation verified; track kept separate from UIC",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6297,8 +6849,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; university-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; university-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6326,15 +6886,23 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "Konyang's own 2026 GKS-U notice provides a dedicated [EMBASSY Track] 2026 GKS-U Overview(Konyang Univ.) together with the UIC Overview and 2026 Available Departments file. This directly verifies the Embassy-track university-specific package rather than relying only on the central Type B list.",
+        "majors_departments": "Artificial Intelligence; Smart Security",
         "language": "No university-wide Embassy-track IELTS/TOPIK threshold is stated on the notice page. Embassy-specific language requirements must come from Konyang's Embassy Track Overview/Available Departments file and are not inherited from the UIC AI/Smart Security program.",
         "process_extra_documents": "After the Study in Korea outage, Konyang's Oct 2 revised notice required direct resubmission of complete application documents by Oct 31 even for applicants who had already applied online. Konyang uploaded a new Oct 2 University Overview and revised application forms/guidelines for the corrected process."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified Type B Embassy package + university-specific overview + final offline-resubmission process",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Type B Embassy package + university-specific overview + final offline-resubmission process",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6362,15 +6930,23 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "The official 2026 GKS-U guideline lists KOREATECH among the Type B Embassy Track universities. This Embassy Track row is separate from KOREATECH's University Track UIC English Track, where Mechanical Engineering and Computer Engineering are already recorded in the workbook.",
+        "majors_departments": "Mechanical Engineering Major; Computer Engineering Major",
         "language": "No KOREATECH-wide 2026 Embassy-Track GKS-U IELTS/TOPIK threshold is populated from the UIC English Track rules. The UIC English-test thresholds and no-Korean-language-training rule apply to that UIC track and are not automatically Embassy Track requirements.",
         "process_extra_documents": "2026 Type B Embassy participation is verified through NIIED/Study in Korea. KOREATECH's official site separately documents the UIC English Track, but exact Embassy-eligible undergraduate departments and any university-specific extra documents remain tied to its 2026 GKS University Information."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type B Embassy participation verified; UIC rules kept isolated",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B Embassy participation verified; UIC rules kept isolated",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6405,8 +6981,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Embassy-only route + official department files",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Embassy-only route + official department files",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": true,
@@ -6441,8 +7025,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Embassy participation from official PNU result",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Embassy participation from official PNU result",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6471,7 +7063,7 @@
       ],
       "university_type": "B",
       "requirements": {
-        "majors_departments": "Yeungnam University's official 2026 GKS-U notice directly hosts the 2026 University Overview, UIC Overview, general Available Departments XLSX, and UIC Available Departments XLSX. Yeungnam accepts Embassy Track applications under R-GKS and a separate University Track UIC application.",
+        "majors_departments": "Environmental Engineering",
         "language": "The notice page does not impose one university-wide numeric IELTS/TOPIK threshold for Embassy Track. Any department-specific rule must come from the attached University Overview/Available Departments files.",
         "process_extra_documents": "Official application periods: Embassy Track (R-GKS) Sep 15-Sep 30, 2025; University Track (UIC) Sep 15-Oct 31, 2025. UIC documents must arrive by post by the deadline. Programs longer than four years are unavailable under GKS-U, with medicine, dentistry, architecture and pharmacy given as examples. Yeungnam advises not to staple documents except apostilled documents."
       },
@@ -6487,8 +7079,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Embassy R-GKS + UIC framework + official university files",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Embassy R-GKS + UIC framework + official university files",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6523,8 +7123,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; detailed mirror data withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; detailed mirror data withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6559,8 +7167,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6595,8 +7211,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type B participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6631,8 +7255,16 @@
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Type A + official undergraduate GKS page; attachment-label inconsistency flagged",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Type A + official undergraduate GKS page; attachment-label inconsistency flagged",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6667,8 +7299,16 @@
       "structured_rules": [],
       "verification": {
         "level": "partial",
-        "status": "2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A participation verified; undergraduate-specific fields withheld",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2026",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6696,15 +7336,23 @@
       ],
       "university_type": "A",
       "requirements": {
-        "majors_departments": "The official 2026 GKS-U guideline lists Ajou University among the Type A Embassy Track universities. Ajou's separate University Track UIC program, Software Engineering, is already captured in the workbook from Ajou's own 2026 UIC overview.",
+        "majors_departments": "School of AI and Computer Engineering",
         "language": "No Ajou-wide 2026 Embassy-Track GKS-U IELTS/TOPIK threshold is inferred from the UIC program. The UIC Korean-language/TOPIK progression rules apply to that program and are not automatically Embassy Track admission requirements.",
         "process_extra_documents": "2026 Type A Embassy participation is verified through NIIED/Study in Korea. Ajou's UIC Software Engineering route remains track-specific; exact Embassy-eligible undergraduate departments, language requirements and additional documents remain pending direct University Information extraction."
       },
       "structured_rules": [],
       "verification": {
         "level": "verified",
-        "status": "2026 GKS-U Type A Embassy participation verified; UIC rules kept isolated",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. 2026 GKS-U Type A Embassy participation verified; UIC rules kept isolated",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6732,7 +7380,7 @@
       ],
       "university_type": "A",
       "requirements": {
-        "majors_departments": "The official 2026 Study in Korea GKS-U list includes Kookmin University among the Type A Embassy Track universities. Kookmin's own Global Korea Scholarship page also confirms that applicants may apply through either the Embassy Track or a Kookmin University Track route. Kookmin's 2026 UIC program is recorded separately in this workbook as Software only.",
+        "majors_departments": "Software",
         "language": "No Kookmin-wide 2026 Embassy-Track IELTS/TOPIK threshold has been verified from a current GKS-U Embassy-specific university file. The UIC Software program's rules are not generalized to Embassy Track.",
         "process_extra_documents": "Embassy Track applicants apply through the Korean embassy and may select Kookmin as one of their university choices under the NIIED process. Exact 2026 Embassy-eligible undergraduate departments, performance-test/portfolio requirements, and department-specific language rules remain tied to Kookmin's 2026 University Information and are not inferred from ordinary admissions."
       },
@@ -6748,8 +7396,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified 2026 GKS-U Type A Embassy participation; UIC kept separate",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified 2026 GKS-U Type A Embassy participation; UIC kept separate",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6777,7 +7433,7 @@
       ],
       "university_type": "A",
       "requirements": {
-        "majors_departments": "Sungshin's official 2026 GKS-UIC notice explicitly states that majors other than Big Data Science are available through Embassy Track. For male applicants, however, Embassy Track eligibility is restricted to the International School of Korean Culture and Technology; applications to other Sungshin majors are not permitted.",
+        "majors_departments": "Statistics/Big Data Science Major",
         "language": "No university-wide Embassy-Track TOPIK/IELTS minimum is established by the UIC FAQ. TOPIK is not mandatory for all UIC applicants, but that UIC statement is not automatically promoted into every Embassy department unless the Embassy-track University Information confirms it.",
         "process_extra_documents": "Embassy Track applicants must follow their Korean embassy's deadline, document-submission and interview procedure. KMate should enforce the male-applicant restriction at university/major selection rather than displaying all Sungshin majors indiscriminately."
       },
@@ -6793,8 +7449,16 @@
       ],
       "verification": {
         "level": "verified",
-        "status": "Verified Embassy availability + enforceable male-applicant major restriction",
-        "last_verified": "2026-08-26"
+        "status": "2027 national participation/type refreshed; university-specific detail source remains cycle-tagged 2026 pending 2027 reverification. Verified Embassy availability + enforceable male-applicant major restriction",
+        "last_verified": "2026-08-26",
+        "national_cycle": "2027",
+        "detail_cycle": "2026",
+        "freshness": "mixed_cycle",
+        "field_cycles": {
+          "majors_departments": "2027",
+          "language": "2026",
+          "process_extra_documents": "2026"
+        }
       },
       "flags": {
         "embassy_only": false,
@@ -6811,5 +7475,10 @@
         "https://ipsi.sungshin.ac.kr/guide/dataroom.htm?bbsid=notice&bltn_seq=34524&ctg_cd=all&mode=view"
       ]
     }
-  ]
+  ],
+  "program_cycles": {
+    "GKS-U": "2027",
+    "GKS-G": "2026"
+  },
+  "generated_at": "2026-09-14"
 }

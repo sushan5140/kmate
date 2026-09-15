@@ -30,6 +30,15 @@ export default async function ApostillePage() {
     .maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_g";
   const dualTrackAccess = profile?.dual_track_access ?? false;
+  const expectedCycle = track === "gks_u" ? "2027" : "2026";
+  const currentOverrides = APOSTILLE_COUNTRY_OVERRIDES.filter(
+    (item) => item.verifiedCycleByTrack[track] === expectedCycle
+  );
+  const previousOverrides = APOSTILLE_COUNTRY_OVERRIDES.filter(
+    (item) =>
+      Boolean(item.verifiedCycleByTrack[track]) &&
+      item.verifiedCycleByTrack[track] !== expectedCycle
+  );
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -72,18 +81,52 @@ export default async function ApostillePage() {
         </>
       )}
 
-      <h2 className="mt-8 text-[16px] font-semibold text-ink">Confirmed country-specific differences</h2>
+      <h2 className="mt-8 text-[16px] font-semibold text-ink">
+        Country-specific embassy notices
+      </h2>
       <p className="mt-1 text-[13px] leading-relaxed text-muted">
-        These countries have an official embassy notice describing something genuinely different from the general
-        default above — not just local logistics. Not finding your country here doesn&apos;t mean nothing&apos;s
-        different for you; it means no such notice has been found and confirmed yet. When in doubt, check your own
-        embassy&apos;s current GKS notice.
+        KMate now keeps local embassy procedures tied to the exact GKS cycle they were verified for. A previous-cycle
+        notice is never presented as a current {expectedCycle} rule.
       </p>
-      <div className="mt-4 flex flex-col gap-4">
-        {APOSTILLE_COUNTRY_OVERRIDES.map((c) => (
-          <CountryOverrideCard key={c.country} data={c} />
-        ))}
-      </div>
+
+      {currentOverrides.length > 0 ? (
+        <div className="mt-4 flex flex-col gap-4">
+          {currentOverrides.map((item) => (
+            <CountryOverrideCard
+              key={item.country}
+              data={item}
+              track={track}
+              expectedCycle={expectedCycle}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card className="mt-4 bg-canvas">
+          <p className="text-[12.75px] leading-relaxed text-muted">
+            No country-specific override in KMate has been verified for your {expectedCycle}{" "}
+            {track === "gks_u" ? "GKS-U" : "GKS-G"} cycle yet. Use the national rule above and check your Korean
+            embassy&apos;s current-cycle notice before starting authentication.
+          </p>
+        </Card>
+      )}
+
+      {previousOverrides.length > 0 && (
+        <details className="mt-4 rounded-2xl border border-hairline bg-white">
+          <summary className="cursor-pointer list-none px-4 py-3.5 text-[12.5px] font-semibold text-ink">
+            Previous-cycle embassy notices — reference only
+          </summary>
+          <div className="flex flex-col gap-4 border-t border-hairline p-4">
+            {previousOverrides.map((item) => (
+              <CountryOverrideCard
+                key={item.country}
+                data={item}
+                track={track}
+                expectedCycle={expectedCycle}
+              />
+            ))}
+          </div>
+        </details>
+      )}
 
       <Card className="mt-6 bg-canvas">
         <p className="text-[12.5px] leading-relaxed text-muted">

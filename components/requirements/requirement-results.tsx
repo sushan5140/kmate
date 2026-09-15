@@ -206,6 +206,33 @@ function RecordPanel({ result, index, total }: { result: CheckerResult; index: n
         />
       </dl>
 
+      {record.program === "GKS-U" && record.verification.national_cycle && (
+        <div className="grid gap-2 rounded-xl border border-hairline bg-canvas/60 px-3.5 py-3 sm:grid-cols-2">
+          <div>
+            <MicroLabel>National GKS structure</MicroLabel>
+            <p className="mt-1 text-[12.5px] font-medium text-ink">
+              {record.verification.national_cycle} checked
+            </p>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted">
+              Route/type participation is matched against the current national guideline.
+            </p>
+          </div>
+          <div>
+            <MicroLabel>University-specific detail</MicroLabel>
+            <p className="mt-1 text-[12.5px] font-medium text-ink">
+              {record.verification.detail_cycle
+                ? `Source cycle ${record.verification.detail_cycle}`
+                : "Cycle not stated"}
+            </p>
+            <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted">
+              {record.verification.detail_cycle === record.verification.national_cycle
+                ? "Current-cycle university detail."
+                : "Older official detail is shown only as conditional context until the university's current package is reverified."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {record.flags.details_withheld && (
         <div className="flex items-start gap-2 rounded-xl bg-gold/10 px-3.5 py-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
@@ -217,15 +244,20 @@ function RecordPanel({ result, index, total }: { result: CheckerResult; index: n
       )}
 
       <Section icon={<Languages className="h-3.5 w-3.5" />} title="Language Requirements">
+        <CycleTag cycle={record.verification.field_cycles?.language ?? record.verification.detail_cycle} />
         <Field value={record.requirements.language} />
       </Section>
 
       <Section icon={<ListChecks className="h-3.5 w-3.5" />} title="Other Requirements">
-        <MicroLabel>Verified majors / departments</MicroLabel>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <MicroLabel>Verified majors / departments</MicroLabel>
+          <CycleTag cycle={record.verification.field_cycles?.majors_departments ?? record.verification.detail_cycle} />
+        </div>
         <Field value={record.requirements.majors_departments} />
       </Section>
 
       <Section icon={<FileText className="h-3.5 w-3.5" />} title="Process &amp; Extra Documents">
+        <CycleTag cycle={record.verification.field_cycles?.process_extra_documents ?? record.verification.detail_cycle} />
         <Field value={record.requirements.process_extra_documents} />
       </Section>
 
@@ -330,6 +362,15 @@ function Section({
       </div>
       <div className="mt-2">{children}</div>
     </section>
+  );
+}
+
+function CycleTag({ cycle }: { cycle?: string | null }) {
+  if (!cycle) return null;
+  return (
+    <span className="mb-1.5 inline-flex rounded-full bg-canvas px-2 py-0.5 text-[10.5px] font-medium text-muted">
+      Source cycle {cycle}
+    </span>
   );
 }
 

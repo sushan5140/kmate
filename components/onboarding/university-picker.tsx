@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { Reorder } from "framer-motion";
 import { X, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { useDebouncedCallback } from "@/lib/hooks/use-debounced-callback";
-import { validateUniversityChoices, describeUniversityQuota } from "@/lib/validation/university-eligibility";
+import {
+  describeUniversityQuota,
+  maxUniversityChoices,
+  validateUniversityChoices,
+} from "@/lib/validation/university-eligibility";
 import type { GksUEmbassyPath, Track } from "@/lib/constants";
 
 interface EligibilityRow {
@@ -43,6 +47,7 @@ function pickEligibility(eligibility: EligibilityRow[]): EligibilityRow | undefi
 
 export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }: UniversityPickerProps) {
   const [query, setQuery] = useState("");
+  const maxChoices = maxUniversityChoices(track, gksUEmbassyPath);
   const [results, setResults] = useState<UniversitySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -65,7 +70,7 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
   }, [query, track]);
 
   function addUniversity(uni: UniversitySearchResult) {
-    if (selected.length >= 4) return;
+    if (selected.length >= maxChoices) return;
     if (selected.some((s) => s.universityId === uni.id)) return;
     const eligibility = pickEligibility(uni.eligibility);
     onChange([
@@ -120,7 +125,7 @@ export function UniversityPicker({ track, gksUEmbassyPath, selected, onChange }:
                 <button
                   type="button"
                   onClick={() => addUniversity(uni)}
-                  disabled={selected.some((s) => s.universityId === uni.id) || selected.length >= 4}
+                  disabled={selected.some((s) => s.universityId === uni.id) || selected.length >= maxChoices}
                   className="flex w-full items-center justify-between px-3 py-2 text-left text-[14px] text-ink hover:bg-canvas disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <span>{uni.name}</span>

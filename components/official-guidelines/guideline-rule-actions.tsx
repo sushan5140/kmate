@@ -6,6 +6,8 @@ import { Bookmark, MessageCircleQuestion } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
   isGksRuleSaved,
+  pushAccountSavedGksRules,
+  reconcileSavedGksRules,
   toggleGksRule,
   type SavedGksRule,
 } from "@/lib/gks/saved-rules";
@@ -44,6 +46,7 @@ export function GuidelineRuleActions({
   useEffect(() => {
     const sync = () => setSaved(isGksRuleSaved(id));
     sync();
+    void reconcileSavedGksRules().then(sync);
     window.addEventListener("storage", sync);
     window.addEventListener("kmate:gks-rules-changed", sync as EventListener);
     return () => {
@@ -73,6 +76,7 @@ export function GuidelineRuleActions({
         onClick={() => {
           const next = toggleGksRule(bookmark);
           setSaved(next.saved);
+          void pushAccountSavedGksRules(next.items);
         }}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-full font-medium ring-1 ring-hairline-strong transition-colors",

@@ -1,6 +1,14 @@
 import "server-only";
 import { requirementDataset } from "./index";
 import type { GKSProgram, RequirementRecord } from "./schema";
+import { createNameResolver } from "@/lib/readiness/university-names";
+import {
+  GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES,
+  GKS_U_2027_TYPE_A,
+  GKS_U_2027_TYPE_B,
+  GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS,
+  GKS_U_2027_UIC_BACHELOR_DEPARTMENTS,
+} from "@/lib/gks/guidelines-2027";
 
 /**
  * Builds the cascading option tree for the Requirement Checker form.
@@ -63,7 +71,7 @@ interface TrackSpec {
 }
 
 /**
- * The real 2026 track shape per program. Two levels, always: the top level is
+ * The current track shape per program. Two levels, always: the top level is
  * the route an applicant applies through, the second is the program type
  * within it.
  *
@@ -145,7 +153,7 @@ const UNIVERSITY_ONLY = ["uic", "rd", "global_network", "research"];
  * verifies the route. The records are kept in the dataset and are not given an
  * "Other" bucket -- they are simply withheld from track filtering.
  *
- * GKS-U never reaches the last case: all 83 of its records name a track.
+ * GKS-U current route options are supplied directly from the 2027 national guideline above; this fallback applies to dataset-driven programs.
  */
 export function trackEvidence(
   record: RequirementRecord,
@@ -259,6 +267,92 @@ export function buildCheckerOptions(): CheckerOptions {
 
   for (const program of programs.map((p) => p.value)) {
     const inProgram = records.filter((r) => r.program === program);
+
+    // GKS-U route/university availability is driven by the current 2027
+    // national guideline, not by last cycle's university-detail records.
+    // The records remain useful for university-specific details, but they no
+    // longer decide whether a university appears as a current 2027 option.
+    if (program === "GKS-U") {
+      const requirementNameResolver = createNameResolver(inProgram.map((record) => record.university));
+      const currentName = (name: string) => requirementNameResolver.resolve(name) ?? name;
+
+      const embassyAll = [...GKS_U_2027_TYPE_A, ...GKS_U_2027_TYPE_B]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
+      const embassyTypeB = [...GKS_U_2027_TYPE_B]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
+      const uicUniversities = [
+        ...new Set([
+          ...Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS),
+          ...Object.keys(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS),
+        ].map(currentName)),
+      ].sort((a, b) => a.localeCompare(b));
+      const associateUniversities = [...GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
+
+      tracks[program] = [
+        {
+          value: "embassy",
+          label: TRACK_LABELS.embassy,
+          count: embassyAll.length,
+          subtypes: [
+            { value: "general", label: "General", count: embassyAll.length },
+            { value: "r_gks", label: "R-GKS", count: embassyTypeB.length },
+          ],
+        },
+        {
+          value: "university",
+          label: TRACK_LABELS.university,
+          count: uicUniversities.length + associateUniversities.length,
+          subtypes: [
+            { value: "uic", label: "UIC", count: uicUniversities.length },
+            ...(associateUniversities.length
+              ? [{ value: "associate", label: "Associate Degree", count: associateUniversities.length }]
+              : []),
+          ],
+        },
+      ];
+
+      universities[`${program}|embassy`] = embassyAll;
+      universities[`${program}|embassy|general`] = embassyAll;
+      universities[`${program}|embassy|r_gks`] = embassyTypeB;
+      universities[`${program}|university`] = [...new Set([...uicUniversities, ...associateUniversities])].sort(
+        (a, b) => a.localeCompare(b)
+      );
+      universities[`${program}|university|uic`] = uicUniversities;
+      if (associateUniversities.length) {
+        universities[`${program}|university|associate`] = associateUniversities;
+      }
+
+      for (const university of embassyAll) {
+        const forUni = inProgram.filter((r) => r.university === university);
+        const needsGender = forUni.some(genderRuleFor);
+        const majorSuggestions = [...new Set(forUni.flatMap(majorRulesFor))];
+        if (needsGender || majorSuggestions.length) {
+          meta[`${program}|embassy|${university}`] = { needsGender, majorSuggestions };
+        }
+      }
+      for (const university of uicUniversities) {
+        const forUni = inProgram.filter((r) => r.university === university);
+        const needsGender = forUni.some(genderRuleFor);
+        const currentSourceName =
+          [...Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS), ...Object.keys(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS)]
+            .find((name) => currentName(name) === university) ?? university;
+        const currentMajors = [
+          ...(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS[currentSourceName] ?? []),
+          ...(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS[currentSourceName] ?? []),
+        ];
+        const majorSuggestions = [...new Set([...currentMajors, ...forUni.flatMap(majorRulesFor)])];
+        meta[`${program}|university|${university}`] = { needsGender, majorSuggestions };
+      }
+
+      continue;
+    }
 
     const counts = new Map<string, number>();
     for (const record of inProgram) {

@@ -14,7 +14,11 @@ export const metadata: Metadata = {
 
 function GuidelineCard({ guideline }: { guideline: OfficialGuideline }) {
   const isExternal = guideline.url.startsWith("http");
-  const downloadHref = isExternal ? `/api/official-guidelines/download?id=${guideline.id}` : guideline.url;
+  const isNoticeOnly = guideline.assetType === "notice";
+  const downloadHref =
+    !isNoticeOnly && isExternal
+      ? `/api/official-guidelines/download?id=${guideline.id}`
+      : guideline.url;
 
   return (
     <Card className={guideline.isCurrent ? "border-primary/25 bg-primary-soft/25" : undefined}>
@@ -38,7 +42,7 @@ function GuidelineCard({ guideline }: { guideline: OfficialGuideline }) {
           <p className="mt-2 text-[14.5px] font-medium text-ink">{guideline.title}</p>
           <p className="mt-1 text-[13px] leading-relaxed text-muted">{guideline.description}</p>
 
-          {guideline.sourceUrl && (
+          {guideline.sourceUrl && guideline.sourceUrl !== guideline.url && (
             <a
               href={guideline.sourceUrl}
               target="_blank"
@@ -49,6 +53,12 @@ function GuidelineCard({ guideline }: { guideline: OfficialGuideline }) {
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
+          {isNoticeOnly && (
+            <p className="mt-2 text-[11.5px] leading-relaxed text-muted">
+              The official notice contains the current attachment. KMate intentionally does not cache a direct
+              PDF URL here while NIIED is revising the attachment.
+            </p>
+          )}
         </div>
 
         <div className="flex shrink-0 gap-2 sm:flex-col sm:items-stretch">
@@ -58,15 +68,17 @@ function GuidelineCard({ guideline }: { guideline: OfficialGuideline }) {
             rel="noopener noreferrer"
             className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-medium text-white transition-colors hover:bg-ink/90"
           >
-            View PDF <ExternalLink className="h-3.5 w-3.5" />
+            {isNoticeOnly ? "Open official notice" : "View PDF"} <ExternalLink className="h-3.5 w-3.5" />
           </a>
-          <a
-            href={downloadHref}
-            download={isExternal ? undefined : guideline.downloadFilename ?? guideline.url.split("/").pop()}
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-medium text-ink ring-1 ring-hairline-strong transition-colors hover:bg-canvas"
-          >
-            <Download className="h-3.5 w-3.5" /> Download
-          </a>
+          {!isNoticeOnly && (
+            <a
+              href={downloadHref}
+              download={isExternal ? undefined : guideline.downloadFilename ?? guideline.url.split("/").pop()}
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-medium text-ink ring-1 ring-hairline-strong transition-colors hover:bg-canvas"
+            >
+              <Download className="h-3.5 w-3.5" /> Download
+            </a>
+          )}
         </div>
       </div>
     </Card>

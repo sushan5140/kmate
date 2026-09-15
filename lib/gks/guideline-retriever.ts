@@ -3,6 +3,7 @@ import {
   GKS_U_2027_SOURCE,
   type GksU2027GuidelineEvidence,
 } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_PAGE_MAP } from "@/lib/gks/gks-u-2027-page-map";
 
 const STOP = new Set([
   "the","a","an","and","or","but","to","of","for","in","on","at","by","with","from","as",
@@ -10,6 +11,20 @@ const STOP = new Set([
   "will","may","might","must","i","me","my","we","our","you","your","it","this","that","these",
   "those","what","when","where","which","who","how","why","please","tell","about","need","needed",
 ]);
+
+export interface RetrievedGksU2027Evidence {
+  layer: "official";
+  score: number;
+  program: "UG";
+  category: GksU2027GuidelineEvidence["topic"];
+  claim: string;
+  source_title: string;
+  source_url: string;
+  cycle: string;
+  page: number;
+  content_type: "prose";
+  extraction_quality: "clean" | "needs_review";
+}
 
 const TOPIC_LABELS: Record<string, string> = {
   eligibility: "eligibility rules",
@@ -24,6 +39,7 @@ const TOPIC_LABELS: Record<string, string> = {
   passport: "passport rules",
   recommendation: "recommendation-letter rules",
   graduation: "graduation requirements",
+  benefits: "scholarship benefits",
 };
 
 function tokens(text: string): string[] {
@@ -66,6 +82,7 @@ function scoreEvidence(question: string, item: GksU2027GuidelineEvidence): numbe
     graduation: ["graduate", "graduation", "expected graduate"],
     eligibility: ["eligible", "eligibility", "citizenship", "nationality", "age"],
     evaluation: ["evaluation", "bonus", "additional points", "score advantage"],
+    benefits: ["benefit", "benefits", "allowance", "stipend", "tuition", "airfare", "flight", "scholarship period"],
   };
 
   const intentTerms = topicIntent[item.topic] ?? [];
@@ -91,14 +108,29 @@ function scoreEvidence(question: string, item: GksU2027GuidelineEvidence): numbe
   return score;
 }
 
-export function retrieveGksU2027(question: string, limit = 6) {
-  const ranked = GKS_U_2027_EVIDENCE
+function scorePageMap(question: string, entry: (typeof GKS_U_2027_PAGE_MAP)[number]): number {
+  const q = question.toLowerCase();
+  const qt = new Set(tokens(question));
+  const summaryTokens = new Set(tokens(entry.summary));
+  let score = 0;
+
+  for (const token of qt) {
+    if (summaryTokens.has(token)) score += 1;
+  }
+  for (const keyword of entry.keywords) {
+    const k = keyword.toLowerCase();
+    if (q.includes(k)) score += k.includes(" ") ? 4 : 2;
+  }
+  return score;
+}
+
+export function retrieveGksU2027(question: string, limit = 6): RetrievedGksU2027Evidence[] {
+  const structured = GKS_U_2027_EVIDENCE
     .map((item) => ({ item, score: scoreEvidence(question, item) }))
     .filter((x) => x.score > 1)
-    .sort((a, b) => b.score - a.score || a.item.page - b.item.page)
-    .slice(0, limit);
+    .sort((a, b) => b.score - a.score || a.item.page - b.item.page);
 
-  return ranked.map(({ item, score }) => ({
+  const results: RetrievedGksU2027Evidence[] = structured.slice(0, limit).map(({ item, score }) => ({
     layer: "official" as const,
     score: Number((Math.min(score / 12, 1)).toFixed(4)),
     program: "UG" as const,
@@ -111,6 +143,36 @@ export function retrieveGksU2027(question: string, limit = 6) {
     content_type: "prose" as const,
     extraction_quality: "clean" as const,
   }));
+
+  // Broad-recall fallback across all 45 pages. These page summaries locate
+  // relevant guideline sections when an atomic fact has not yet been curated.
+  // They are deliberately lower-confidence than the reviewed structured rules
+  // because the official English attachment was revised on 0914 after the
+  // baseline used to build this page map.
+  if (results.length < limit) {
+    const usedPages = new Set(results.map((item) => item.page));
+    const pageFallbacks = GKS_U_2027_PAGE_MAP
+      .map((entry) => ({ entry, score: scorePageMap(question, entry) }))
+      .filter((x) => x.score > 1 && !usedPages.has(x.entry.page))
+      .sort((a, b) => b.score - a.score || a.entry.page - b.entry.page)
+      .slice(0, limit - results.length)
+      .map(({ entry, score }) => ({
+        layer: "official" as const,
+        score: Number((Math.min(score / 20, 0.55)).toFixed(4)),
+        program: "UG" as const,
+        category: entry.topics[0] ?? "documents",
+        claim: entry.summary,
+        source_title: GKS_U_2027_SOURCE.title,
+        source_url: GKS_U_2027_SOURCE.sourceUrl,
+        cycle: GKS_U_2027_SOURCE.cycle,
+        page: entry.page,
+        content_type: "prose" as const,
+        extraction_quality: "needs_review" as const,
+      }));
+    results.push(...pageFallbacks);
+  }
+
+  return results;
 }
 
 export function guidelineCoverage(question: string, official: ReturnType<typeof retrieveGksU2027>) {
@@ -130,6 +192,7 @@ export function guidelineCoverage(question: string, official: ReturnType<typeof 
     passport: ["passport"],
     recommendation: ["recommendation", "recommender", "teacher", "principal"],
     graduation: ["graduate", "graduation", "expected graduation", "diploma"],
+    benefits: ["benefit", "benefits", "allowance", "stipend", "tuition", "airfare", "flight", "scholarship period"],
   };
 
   for (const [topic, terms] of Object.entries(topicTerms)) {

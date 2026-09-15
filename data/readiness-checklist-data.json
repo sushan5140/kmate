@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "cycle": "2026",
+  "schema_version": "1.1.0",
+  "cycle": "mixed",
   "dataset": "KMate GKS Application Readiness Checklist",
   "policy": {
     "never_treat_missing_as_not_required": true,
@@ -12,20 +12,15 @@
       "conditional",
       "optional",
       "not_stated"
-    ]
+    ],
+    "cycle_is_program_specific": true
   },
   "official_sources": [
     {
-      "id": "gks_u_niied",
-      "label": "Study in Korea — 2026 GKS-U Application Guidelines",
-      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4385",
-      "scope": "GKS-U national guideline"
-    },
-    {
-      "id": "gks_u_revised_embassy",
-      "label": "Korean Embassy — revised 2026 GKS-U direct-submission notice",
-      "url": "https://overseas.mofa.go.kr/bd-en/brd/m_2124/view.do?seq=760082",
-      "scope": "2026 revised GKS-U example showing first-round institution may alter submission handling"
+      "id": "gks_u_niied_2027",
+      "label": "Study in Korea — 2027 GKS-U Application Guidelines",
+      "url": "https://www.studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
+      "scope": "GKS-U 2027 national guideline"
     },
     {
       "id": "gks_g_niied",
@@ -50,10 +45,9 @@
           "status": "required",
           "form": "Form 1",
           "source_ids": [
-            "gks_u_niied",
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "notes": "Use the official 2026 GKS-U application form."
+          "notes": "Embassy Track: complete in Study in Korea for the first round; successful first-round applicants print and sign the form for NIIED's second round. University Track follows the university's own first-round method."
         },
         {
           "id": "u_personal_statement",
@@ -62,8 +56,9 @@
           "status": "required",
           "form": "Form 2",
           "source_ids": [
-            "gks_u_revised_embassy"
-          ]
+            "gks_u_niied_2027"
+          ],
+          "notes": "May be written in English or Korean. Embassy Track applicants complete it in the online system for the first round."
         },
         {
           "id": "u_study_plan",
@@ -72,8 +67,20 @@
           "status": "required",
           "form": "Form 3",
           "source_ids": [
-            "gks_u_revised_embassy"
-          ]
+            "gks_u_niied_2027"
+          ],
+          "notes": "May be written in English or Korean. Keep the intended field/department consistent with the rest of the application."
+        },
+        {
+          "id": "u_recommendation",
+          "label": "Recommendation Letter",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 4",
+          "source_ids": [
+            "gks_u_niied_2027"
+          ],
+          "notes": "One letter is required. Embassy Track uploads a scanned copy for the first round; successful first-round applicants submit the original letter for NIIED's second round."
         },
         {
           "id": "u_applicant_agreement",
@@ -82,7 +89,7 @@
           "status": "required",
           "form": "Form 5",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ]
         },
         {
@@ -92,7 +99,17 @@
           "status": "required",
           "form": "Form 6",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
+          ]
+        },
+        {
+          "id": "u_personal_info_consent",
+          "label": "Consent to Collect and Use Personal Information",
+          "category": "gks_form",
+          "status": "required",
+          "form": "Form 7",
+          "source_ids": [
+            "gks_u_niied_2027"
           ]
         },
         {
@@ -101,9 +118,9 @@
           "category": "certificate",
           "status": "required",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "notes": "Evidence normally covers the applicant/parents and the relationship between them. Exact accepted documents and authentication depend on the first-round institution/country."
+          "notes": "Embassy Track uploads a scanned copy for the first round. Successful first-round applicants submit the required authenticated original/certified document for NIIED's second round."
         },
         {
           "id": "u_graduation_certificate",
@@ -111,9 +128,9 @@
           "category": "academic",
           "status": "required",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "notes": "Use the final or expected-graduation document allowed by the 2026 guideline and first-round institution."
+          "notes": "Expected graduates must satisfy the 2027 guideline's graduation deadline and later provide the final document when required."
         },
         {
           "id": "u_transcript",
@@ -121,49 +138,68 @@
           "category": "academic",
           "status": "required",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ]
         },
         {
-          "id": "u_recommendation",
-          "label": "Recommendation letter",
+          "id": "u_associate_graduation",
+          "label": "Associate-degree graduation / expected graduation certificate",
+          "category": "academic",
+          "status": "conditional",
+          "source_ids": [
+            "gks_u_niied_2027"
+          ],
+          "condition": "Required if the applicant is applying on the basis of an associate-degree program."
+        },
+        {
+          "id": "u_associate_transcript",
+          "label": "Associate-degree academic transcript",
+          "category": "academic",
+          "status": "conditional",
+          "source_ids": [
+            "gks_u_niied_2027"
+          ],
+          "condition": "Required if applicable to the applicant's academic pathway."
+        },
+        {
+          "id": "u_special_status",
+          "label": "Overseas Korean / adoptee / Korean-citizenship-renunciation / Korean War veteran-descendant proof",
           "category": "supporting",
           "status": "conditional",
           "source_ids": [
-            "gks_u_niied",
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "condition": "Submission timing/method may be set by the first-round embassy or university.",
-          "notes": "Do not mark missing automatically; some first-round institutions request it later."
+          "condition": "Required only for applicants claiming the relevant status."
         },
         {
           "id": "u_language_score",
-          "label": "TOPIK / English proficiency score",
+          "label": "TOPIK / English proficiency score report",
           "category": "supporting",
           "status": "optional",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "notes": "Optional at the national checklist level unless the selected university/department has a verified requirement."
+          "notes": "Submit if necessary. University/department-specific language rules may be stricter and belong in Requirement Checker."
         },
         {
           "id": "u_awards",
-          "label": "Awards / certificates / supporting achievements",
+          "label": "Awards / activity / achievement certificates",
           "category": "supporting",
           "status": "optional",
           "source_ids": [
-            "gks_u_revised_embassy"
-          ]
+            "gks_u_niied_2027"
+          ],
+          "notes": "Up to five documents from high school onward."
         },
         {
           "id": "u_passport",
           "label": "Passport copy",
           "category": "identity",
-          "status": "conditional",
+          "status": "optional",
           "source_ids": [
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "condition": "Required when requested by the first-round institution."
+          "notes": "Submit if necessary, especially when other citizenship evidence does not clearly show citizenship information."
         },
         {
           "id": "u_authentication",
@@ -171,11 +207,10 @@
           "category": "authentication",
           "status": "conditional",
           "source_ids": [
-            "gks_u_niied",
-            "gks_u_revised_embassy"
+            "gks_u_niied_2027"
           ],
-          "condition": "Depends on document type, issuing country, language, and first-round institution.",
-          "notes": "Never present a country-wide authentication rule without an official country/embassy source."
+          "condition": "Embassy Track first round uses scanned copies; authentication generally becomes relevant for required certificates submitted after passing Round 1. Country-specific embassy instructions can add local steps.",
+          "notes": "Use the Apostille Guide for the stage distinction and country-specific cautions."
         }
       ]
     },
@@ -338,5 +373,10 @@
         }
       ]
     }
-  }
+  },
+  "program_cycles": {
+    "GKS-U": "2027",
+    "GKS-G": "2026"
+  },
+  "generated_at": "2026-09-14"
 }

@@ -33,7 +33,7 @@ export default async function SavedGksRulesPage() {
             Bookmarked official rules and guideline-grounded AI answers
           </h1>
           <p className="mt-1 max-w-2xl text-[12.75px] leading-relaxed text-muted">
-            Saved items stay in this browser. They are a personal reference list, not a replacement for the current official guideline.
+            Saved items sync with your KMate account across signed-in devices, with a browser cache for resilience. They are a personal reference list, not a replacement for the current official guideline.
           </p>
         </div>
       </div>

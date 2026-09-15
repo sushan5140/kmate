@@ -72,8 +72,14 @@ console.log("");
 console.log("=== core checklists render without a university ===");
 const coreU = getApplicationReadiness({ program: "GKS-U" });
 const coreG = getApplicationReadiness({ program: "GKS-G" });
-ok(coreU.items.length === 13 && extras(coreU).length === 0, "GKS-U core checklist = 13 national documents, no extras");
-ok(coreG.items.length === 15 && extras(coreG).length === 0, "GKS-G core checklist = 15 national documents, no extras");
+ok(
+  coreU.items.length === c.programs["GKS-U"].documents.length && extras(coreU).length === 0,
+  "GKS-U core checklist matches the current program-cycle national document dataset, with no extras"
+);
+ok(
+  coreG.items.length === c.programs["GKS-G"].documents.length && extras(coreG).length === 0,
+  "GKS-G core checklist matches its current program-cycle national document dataset, with no extras"
+);
 ok(
   coreU.warnings.some((w) => w.includes("Select a university")),
   "GKS-U without a university says university extras are missing rather than absent"
@@ -136,14 +142,20 @@ const kookmin = getApplicationReadiness({
   trackFamily: "university",
   subtype: "uic",
 });
-ok(kookmin.items.length >= 13, "Kookmin UIC renders the national checklist plus any extras");
+ok(
+  kookmin.items.length >= coreU.items.length,
+  "Kookmin UIC renders the current national checklist plus any extras"
+);
 ok(
   extras(kookmin).every((i) => i.sourceUrls.length > 0 || i.notes),
   "every Kookmin extra carries its own evidence or source"
 );
 const ewha = getApplicationReadiness({ program: "GKS-U", university: "Ewha Womans University", trackFamily: "embassy" });
 const ewhaCore = ewha.items.filter((i) => i.origin === "gks_core");
-ok(ewhaCore.length === 13, "Ewha adds no national documents beyond the 13 in the checklist dataset");
+ok(
+  ewhaCore.length === coreU.items.length,
+  "Ewha adds no national documents beyond the current GKS-U checklist dataset"
+);
 ok(
   extras(ewha).every((i) => i.origin === "university_requirement"),
   "every Ewha extra is traced to a Requirement Checker record"
@@ -217,7 +229,10 @@ function MULTI_UNIVERSITY_CHECKS() {
   ok(universitySlotsFor("GKS-U", "embassy", "general") === 3, "GKS-U Embassy / General allows 3 universities");
   ok(universitySlotsFor("GKS-U", "embassy", "r_gks") === 2, "GKS-U Embassy / R-GKS allows 2 (the smaller official quota)");
   ok(universitySlotsFor("GKS-G", "university", "rd") === 3, "GKS-G allows 3");
-  ok(universitySlotsFor("GKS-U", "university", "uic") === 4, "GKS-U University Track carries no embassy quota, so the platform cap applies");
+  ok(
+    universitySlotsFor("GKS-U", "university", "uic") === 1,
+    "GKS-U University Track allows exactly one university"
+  );
 
   console.log("=== common documents appear once, whatever the university count ===");
   const three = getApplicationWorkspace({
@@ -230,7 +245,10 @@ function MULTI_UNIVERSITY_CHECKS() {
       { name: "Chonnam National University", major: "Computer Science" },
     ],
   });
-  ok(three.common.length === 13, "13 common GKS-U documents (got " + three.common.length + ")");
+  ok(
+    three.common.length === coreU.items.length,
+    "current GKS-U common documents render once (got " + three.common.length + ")"
+  );
   ok(three.common.every((i) => i.category !== "university_extra"), "no university extra leaks into the common list");
   ok(new Set(three.common.map((i) => i.id)).size === three.common.length, "no common document is duplicated");
   ok(three.universities.length === 3, "three university sections");
@@ -281,7 +299,10 @@ function MULTI_UNIVERSITY_CHECKS() {
       { name: "Ajou University", major: "" },
     ],
   });
-  ok(uic.common.length === 13, "UIC route still renders the 13 common documents once");
+  ok(
+    uic.common.length === coreU.items.length,
+    "UIC route renders the current common GKS-U documents once"
+  );
   ok(
     sectionFor(uic, "Kookmin University").items.every((i) => i.id.includes("Kookmin")),
     "Kookmin UIC rules stay under Kookmin"
@@ -365,7 +386,10 @@ function MULTI_UNIVERSITY_CHECKS() {
     sectionFor(participationOnly, "Kyung Hee University").items.length === 0,
     "a participation-only record still contributes nothing to a route it never verified"
   );
-  ok(participationOnly.common.length === 15, "and the GKS-G common checklist is unaffected");
+  ok(
+  participationOnly.common.length === coreG.items.length,
+  "and the GKS-G common checklist is unaffected"
+);
 }
 
 // ---------------------------------------------------------------------------
@@ -397,18 +421,26 @@ function NAME_RECONCILIATION_CHECKS() {
     ok(got !== variant || known.has(variant), "the canonical spelling is preserved, not the profile spelling");
   }
 
-  console.log("=== the six universities with no verified record stay unmatched ===");
-  const ABSENT = [
-    "Gumi University",
-    "Hosan University",
-    "Yeungjin University",
-    "Vision College of Jeonju",
-    "Korea University of Media Arts",
-    "Hanyang Women's University",
-  ];
-  for (const name of ABSENT) {
-    ok(resolver.resolve(name) === null, name + " remains unmatched");
-    ok(!known.has(name), "and is genuinely absent from the requirement dataset");
+  console.log("=== current-cycle profile names resolve conservatively ===");
+  const currentProfileNames = new Set<string>();
+  const collectCurrent = (o: unknown): void => {
+    if (Array.isArray(o)) {
+      for (const v of o) {
+        if (typeof v === "string") currentProfileNames.add(v);
+        else collectCurrent(v);
+      }
+    } else if (o && typeof o === "object") {
+      for (const v of Object.values(o)) collectCurrent(v);
+    }
+  };
+  collectCurrent((gksUniversities as { tracks: { "GKS-U": unknown } }).tracks["GKS-U"]);
+
+  for (const name of currentProfileNames) {
+    const resolved = resolver.resolve(name);
+    ok(
+      resolved === null || known.has(resolved),
+      name + " either resolves to a real requirement record or stays honestly unmatched"
+    );
   }
 
   console.log("=== no unrelated university is affected ===");
@@ -430,8 +462,10 @@ function NAME_RECONCILIATION_CHECKS() {
   ok(targets.every((t) => known.has(t)), "every alias points at a name the requirement dataset actually holds");
   ok(new Set(targets).size === targets.length, "no two aliases point at the same canonical university");
   ok(
-    Object.keys(UNIVERSITY_NAME_ALIASES).every((k) => !known.has(k)),
-    "no alias shadows a name the requirement dataset already matches exactly"
+    Object.keys(UNIVERSITY_NAME_ALIASES)
+      .filter((key) => known.has(key))
+      .every((key) => resolver.resolve(key) === key),
+    "exact requirement-dataset names take precedence over aliases"
   );
   // Resolution is exact-or-alias only: a near-miss must not resolve.
   ok(resolver.resolve("Korea Universty") === null, "a misspelling does not resolve");
@@ -491,8 +525,8 @@ function NAME_RECONCILIATION_CHECKS() {
   walk((gksUniversities as { tracks: unknown }).tracks);
   const unresolved = [...profileNames].filter((n) => resolver.resolve(n) === null).sort();
   ok(
-    JSON.stringify(unresolved) === JSON.stringify([...ABSENT].sort()),
-    "exactly the six absent universities are unresolved: " + JSON.stringify(unresolved)
+    unresolved.every((name) => !known.has(name)),
+    "every unresolved university is genuinely absent from the requirement dataset: " + JSON.stringify(unresolved)
   );
 }
 

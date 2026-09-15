@@ -30,6 +30,13 @@ export interface RequirementRecord {
     level: VerificationLevel;
     status: string | null;
     last_verified: string | null;
+    /** National GKS cycle this record's route/type participation was checked against. */
+    national_cycle?: string | null;
+    /** Cycle of the university-specific detail source behind language/process text. */
+    detail_cycle?: string | null;
+    /** Per-field provenance when one field was refreshed independently. */
+    field_cycles?: Partial<Record<"majors_departments" | "language" | "process_extra_documents", string>>;
+    freshness?: "current" | "mixed_cycle" | "needs_reverification";
   };
   flags: {
     embassy_only: boolean;
@@ -49,6 +56,8 @@ export interface RequirementDataset {
   schema_version: string;
   dataset: string;
   cycle: string;
+  program_cycles?: Record<GKSProgram, string>;
+  generated_at?: string;
   generated_from: string;
   record_count: number;
   matching_policy: {

@@ -56,12 +56,29 @@ export function checkRequirements(
     if (record.flags.details_withheld) {
       notes.push("Some university-specific details are withheld because the official source did not state them clearly.");
     }
+    if (
+      record.program === "GKS-U" &&
+      record.verification.national_cycle === "2027" &&
+      record.verification.detail_cycle &&
+      record.verification.detail_cycle !== "2027"
+    ) {
+      notes.push(
+        `2027 national participation/type has been refreshed, but some university-specific details shown here come from a ${record.verification.detail_cycle} official source and must be rechecked against the university's 2027 package before you rely on them.`
+      );
+    }
     if (!record.requirements.language) notes.push("Language requirement not stated.");
     if (!record.requirements.majors_departments) notes.push("Major/department requirement not stated.");
 
     let verdict: CheckerResult["verdict"] = "verified";
     if (record.verification.level === "not_stated") verdict = "not_stated";
-    else if (record.verification.level === "partial" || record.flags.details_withheld) verdict = "conditional";
+    else if (
+      record.verification.level === "partial" ||
+      record.flags.details_withheld ||
+      record.verification.freshness === "mixed_cycle" ||
+      record.verification.freshness === "needs_reverification"
+    ) {
+      verdict = "conditional";
+    }
 
     // Safety rule: absence of a structured match must never be treated as ineligibility.
     // It means only that the dataset cannot make a hard eligibility claim.

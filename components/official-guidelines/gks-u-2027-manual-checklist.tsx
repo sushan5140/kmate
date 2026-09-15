@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BadgeCheck,
   CalendarCheck2,
@@ -69,17 +69,24 @@ const STORAGE_KEY = "kmate:gks-u-2027-manual-checklist";
 
 export function GksU2027ManualChecklist() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const storageLoaded = useRef(false);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) setChecked(JSON.parse(saved) as Record<string, boolean>);
-    } catch {
-      // Optional browser-only progress.
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved) setChecked(JSON.parse(saved) as Record<string, boolean>);
+      } catch {
+        // Optional browser-only progress.
+      } finally {
+        storageLoaded.current = true;
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
+    if (!storageLoaded.current) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
     } catch {

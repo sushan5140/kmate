@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
 import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
 type EmbassyPath = "general" | "r_gks";
 
@@ -22,23 +23,23 @@ const ROWS = [
   {
     label: "Where you apply",
     embassy: "Study in Korea online system",
-    university: "Directly through the university's own application method",
+    university: "Directly through the university’s own application method",
   },
   {
     label: "2027 application window",
-    embassy: "Sep 15, 11:00 → Sep 30, 18:00 KST",
-    university: "September–November 2026; exact dates vary by university",
+    embassy: GKS_U_2027_POLICY.embassyApplication.display,
+    university: GKS_U_2027_POLICY.universityTrackWindow.display + "; exact dates vary by university",
   },
   {
     label: "University choices",
-    embassyGeneral: "Up to 3 universities; at least 1 must be Type B",
-    embassyRgks: "Up to 2 universities; all choices must be Type B",
-    university: "1 university + 1 department",
+    embassyGeneral: GKS_U_2027_POLICY.choiceRules.general.display,
+    embassyRgks: GKS_U_2027_POLICY.choiceRules.r_gks.display,
+    university: GKS_U_2027_POLICY.choiceRules.university.display,
   },
   {
     label: "First-round documents",
-    embassy: "Complete forms online; upload scanned certificates and recommendation",
-    university: "Follow that university's submission method and any additional document instructions",
+    embassy: GKS_U_2027_POLICY.documents.embassyFirstRound,
+    university: GKS_U_2027_POLICY.documents.universityFirstRound,
   },
   {
     label: "Selection structure",
@@ -47,7 +48,7 @@ const ROWS = [
   },
   {
     label: "If Embassy Round 1 fails",
-    embassy: "You may still apply through University Track if its deadline is still open",
+    embassy: GKS_U_2027_POLICY.fallback.afterEmbassyRound1Fail,
     university: "This is the fallback route permitted after an Embassy first-round failure",
   },
 ] as const;
@@ -64,8 +65,8 @@ export function GksU2027TrackComparator({
   const choiceRule = useMemo(
     () =>
       embassyPath === "r_gks"
-        ? "Up to 2 universities; all choices must be Type B"
-        : "Up to 3 universities; at least 1 must be Type B",
+        ? GKS_U_2027_POLICY.choiceRules.r_gks.display
+        : GKS_U_2027_POLICY.choiceRules.general.display,
     [embassyPath]
   );
 
@@ -168,7 +169,7 @@ export function GksU2027TrackComparator({
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
                 University Track
               </p>
-              <p className="mt-1 text-[15px] font-semibold text-ink">UIC Bachelor's</p>
+              <p className="mt-1 text-[15px] font-semibold text-ink">UIC Bachelor’s</p>
               {defaultMajor && (
                 <p className="mt-1 text-[11.5px] text-muted">
                   Your saved major: {defaultMajor}
@@ -187,7 +188,7 @@ export function GksU2027TrackComparator({
             <div className="rounded-xl bg-canvas p-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Submission</p>
               <p className="mt-1 text-[12.75px] leading-relaxed text-ink">
-                Apply according to the university's own method and schedule.
+                Apply according to the university’s own method and schedule.
               </p>
             </div>
             <div className="rounded-xl bg-canvas p-3">
@@ -200,8 +201,8 @@ export function GksU2027TrackComparator({
           <div className="mt-4">
             <GuidelineRuleActions
               id="track-comparator-university"
-              title="University Track — UIC Bachelor's"
-              text="University Track applicants apply to one university and one department according to the university's own method and schedule. The route proceeds from the university first round to NIIED second round, with no third university round."
+              title="University Track — UIC Bachelor’s"
+              text="University Track applicants apply to one university and one department according to the university’s own method and schedule. The route proceeds from the university first round to NIIED second round, with no third university round."
               page="pp.6, 9–11"
               sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
               compact
@@ -249,14 +250,14 @@ export function GksU2027TrackComparator({
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
             <p className="text-[12.5px] leading-relaxed text-ink">
-              If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university's deadline is still open.
+              If you fail the Embassy first round, the 2027 guideline permits you to apply through University Track, provided the university’s deadline is still open.
             </p>
           </div>
           <div className="mt-2.5 pl-6">
             <GuidelineRuleActions
               id="fallback-after-embassy-fail"
               title="Embassy first-round fallback"
-              text="If an applicant fails the Embassy Track first round, they may apply through University Track if the university's application deadline is still open."
+              text="If an applicant fails the Embassy Track first round, they may apply through University Track if the university’s application deadline is still open."
               page="pp.9–11"
               sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
               compact

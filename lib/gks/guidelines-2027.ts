@@ -10,7 +10,8 @@ export type GuidelineTopic =
   | "fallback"
   | "passport"
   | "recommendation"
-  | "graduation";
+  | "graduation"
+  | "benefits";
 
 export interface GksU2027GuidelineEvidence {
   id: string;
@@ -301,6 +302,222 @@ export const GKS_U_2027_EVIDENCE: GksU2027GuidelineEvidence[] = [
     keywords: ["evaluation", "competency", "academic", "activities", "contribution", "future", "documents"],
   },
   {
+    id: "parents-passport-faq",
+    topic: "passport",
+    page: 34,
+    claim:
+      "A parent's passport copy is not automatically required. The applicant must submit an official document proving the family relationship, and additional citizenship evidence such as a passport copy is needed if that document does not include citizenship information.",
+    keywords: ["parents passport", "parent passport", "birth certificate", "family register", "family relationship", "citizenship proof"],
+  },
+  {
+    id: "absent-parent-citizenship-faq",
+    topic: "eligibility",
+    page: 34,
+    claim:
+      "If a parent's citizenship proof cannot be issued because the parent is absent, for example due to divorce or death, the applicant should provide supplementary documents explaining the reason, such as a divorce certificate or death certificate.",
+    keywords: ["deceased parent", "dead parent", "divorce", "parent absent", "parent citizenship", "death certificate"],
+  },
+  {
+    id: "different-parent-citizenship-faq",
+    topic: "eligibility",
+    page: 34,
+    claim:
+      "An applicant and their parents may hold different citizenships. Eligibility is possible as long as the applicant holds citizenship of an invited country and neither the applicant nor the parent or parents hold Korean citizenship; UIC is open worldwide except Korea.",
+    keywords: ["different citizenship", "parents different nationality", "mixed nationality", "uic worldwide"],
+  },
+  {
+    id: "korea-exchange-study-faq",
+    topic: "eligibility",
+    page: 35,
+    claim:
+      "Previous exchange study in Korea does not by itself make an applicant ineligible. However, a high-school diploma from a school located in Korea, including an international school, or an associate degree from a university located in Korea makes the applicant ineligible for GKS-U.",
+    keywords: ["exchange student", "studied in korea", "korea high school", "international school", "associate degree korea"],
+  },
+  {
+    id: "existing-bachelor-ineligible-faq",
+    topic: "eligibility",
+    page: 35,
+    claim:
+      "An applicant who already has a bachelor's degree is not eligible to apply for a GKS-U bachelor's degree, even for a different major.",
+    keywords: ["already bachelor", "bachelor degree holder", "second bachelor", "different major", "another bachelor"],
+  },
+  {
+    id: "provisional-graduation-faq",
+    topic: "graduation",
+    page: 36,
+    claim:
+      "A provisional or temporary graduation certificate is judged case by case, but it must clearly state the graduation date. A temporary certificate without a graduation date is not accepted, and a successful candidate who applied with a provisional document must submit the final diploma or graduation certificate by December 31, 2026.",
+    keywords: ["provisional certificate", "temporary certificate", "graduation date", "final diploma", "december 31"],
+  },
+  {
+    id: "top20-below80-faq",
+    topic: "grades",
+    page: 37,
+    claim:
+      "An applicant whose converted percentage is below 80% can still meet the academic requirement by ranking within the top 20% of the class, supported by an official certificate or letter from the school.",
+    keywords: ["below 80", "less than 80", "top 20", "class rank", "rank certificate"],
+  },
+  {
+    id: "semester-grades-blank-faq",
+    topic: "grades",
+    page: 37,
+    claim:
+      "If the official transcript does not provide GPA by semester or year, those semester or year fields in the application may be left blank, but the applicant must provide the CGPA or at least the percentile for the entire curriculum period.",
+    keywords: ["semester gpa", "year gpa", "blank", "only cgpa", "entire curriculum", "percentile"],
+  },
+  {
+    id: "no-direct-niied-application-faq",
+    topic: "documents",
+    page: 39,
+    claim:
+      "Applicants cannot submit application documents directly to NIIED. Embassy Track applicants submit through Study in Korea to the relevant embassy route, while University Track applicants follow the relevant university's own submission method.",
+    keywords: ["direct niied", "submit to niied", "where submit", "application method", "online application", "university website"],
+  },
+  {
+    id: "apostille-country-branch-faq",
+    topic: "apostille",
+    page: 40,
+    claim:
+      "For required-certificate legalization, applicants from Apostille Convention countries use an apostille. Applicants from non-member countries, or where a document genuinely cannot be apostilled, should obtain consular or other possible confirmation from the Korean embassy or consulate as described in the guideline.",
+    keywords: ["apostille convention", "hague", "member country", "non member", "consular confirmation", "cannot apostille"],
+  },
+  {
+    id: "authenticated-copy-nonreturn-faq",
+    topic: "apostille",
+    page: 41,
+    claim:
+      "Documents submitted to NIIED are not returned. If an original graduation certificate cannot be re-issued, the guideline advises obtaining apostille or consular confirmation on a certified true copy rather than sending an irreplaceable original without a replacement plan.",
+    keywords: ["return original", "documents returned", "cannot reissue", "certified copy", "graduation certificate"],
+  },
+  {
+    id: "recommendation-up-to-two-faq",
+    topic: "recommendation",
+    page: 42,
+    claim:
+      "One recommendation letter is required, but an applicant may optionally submit letters from up to two referees. The guideline recommends a person who can thoroughly assess the applicant's academic ability, such as a teacher, principal, or department chair.",
+    keywords: ["two recommendation", "2 recommendation", "two referees", "teacher", "principal", "department chair"],
+  },
+  {
+    id: "university-recommendation-sealed-faq",
+    topic: "recommendation",
+    page: 43,
+    claim:
+      "For University Track, the recommender's completed recommendation letter should be placed in a sealed envelope, signed across the back flap by the recommender, and submitted to the chosen university in its sealed state.",
+    keywords: ["sealed recommendation", "sealed envelope", "back flap", "sign across", "university track recommendation"],
+  },
+  {
+    id: "duplicate-university-track-faq",
+    topic: "fallback",
+    page: 43,
+    claim:
+      "University Track applicants may apply to only one university and one department. Applying to multiple universities through University Track can lead to exclusion from later evaluation or cancellation even after selection; Embassy and University tracks cannot be used simultaneously.",
+    keywords: ["duplicate application", "multiple university track", "both tracks", "simultaneous", "cancel scholarship"],
+  },
+  {
+    id: "round1-results-faq",
+    topic: "deadline",
+    page: 44,
+    claim:
+      "First-round results are announced by each first-round institution: Embassy Track results are expected by October 16, while University Track universities notify applicants individually in November. Later results are posted on the Study in Korea GKS notice board.",
+    keywords: ["first round result", "october 16", "november", "selection result", "accepted", "result date"],
+  },
+  {
+    id: "language-program-topik3-faq",
+    topic: "language",
+    page: 44,
+    claim:
+      "GKS scholars normally must achieve at least TOPIK level 3 during the one-year Korean language program to proceed to the degree program, and a university or department may require a higher TOPIK level for degree entry.",
+    keywords: ["language program", "topik 3", "one year korean", "degree entry", "topik after selection"],
+  },
+  {
+    id: "language-program-same-university-faq",
+    topic: "language",
+    page: 44,
+    claim:
+      "GKS scholars take the Korean language program at the same university where they will conduct the degree program.",
+    keywords: ["language institute", "same university", "korean language university", "different region"],
+  },
+  {
+    id: "language-program-exemption-faq",
+    topic: "language",
+    page: 45,
+    claim:
+      "Applicants who already hold valid TOPIK level 5 or 6 at application must submit the certificate and are exempt from the yearlong Korean language program, starting the degree in March 2027. A TOPIK 5 or 6 obtained after the initial application deadline may still qualify if the valid certificate is submitted to NIIED by December 24, 2026 as specified in the guideline.",
+    keywords: ["topik 5", "topik 6", "language exemption", "exempt korean", "december 24", "march 2027"],
+  },
+  {
+    id: "language-program-six-month-exemption-faq",
+    topic: "language",
+    page: 45,
+    claim:
+      "A scholar who attains TOPIK level 5 or 6 during the first six months of the Korean language program is exempt from the remaining six months and starts the degree program in the following semester, September 2027.",
+    keywords: ["six months", "6 months", "topik 5 during language", "september 2027", "early degree start"],
+  },
+  {
+    id: "no-university-change-faq",
+    topic: "university_choice",
+    page: 45,
+    claim:
+      "Changing the final university choice or transferring to another university during the Korean language program or degree program is not permitted.",
+    keywords: ["change university", "transfer university", "final university", "during language program", "during degree"],
+  },
+  {
+    id: "scholarship-period",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "The standard scholarship period is 5-7 years for a bachelor's program (1 year of Korean language study plus 4-6 years of degree study) and 3-4 years for an associate program (1 year of Korean language study plus 2-3 years of degree study).",
+    keywords: ["scholarship period", "how many years", "duration", "bachelor years", "associate years", "korean language year"],
+  },
+  {
+    id: "tuition-benefit",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "For the degree program, NIIED supports tuition up to 5 million KRW; the university covers the amount above 5 million KRW and the admission fee.",
+    keywords: ["tuition", "5 million", "admission fee", "university pays", "niied tuition"],
+  },
+  {
+    id: "language-program-fee-benefit",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "The Korean language program fee benefit is 5.2 million KRW per year for scholars in the Korean language program.",
+    keywords: ["language program fee", "5.2 million", "korean language fee"],
+  },
+  {
+    id: "monthly-allowance-benefit",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "The annual all-inclusive allowance stated in the 2027 guideline is 13,560,000 KRW during the Korean language program and 14,400,000 KRW during the degree program.",
+    keywords: ["monthly allowance", "allowance", "13,560,000", "14,400,000", "living expenses", "stipend"],
+  },
+  {
+    id: "airfare-benefit",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "GKS provides an economy-class flight ticket at actual expense.",
+    keywords: ["airfare", "flight ticket", "economy", "actual expense"],
+  },
+  {
+    id: "airfare-residing-korea-exception",
+    topic: "benefits",
+    page: 23,
+    claim:
+      "Entry airfare is not provided to newly selected scholars who are residing in Korea at the time of the final announcement.",
+    keywords: ["airfare", "already in korea", "residing in korea", "entry airfare"],
+  },
+  {
+    id: "benefit-all-inclusive-note",
+    topic: "benefits",
+    page: 22,
+    claim:
+      "The allowance is described as an all-inclusive subsidy covering living expenses, accommodation, health insurance, Korean proficiency grants, TOPIK application fees, settlement allowance, and degree-completion grants; amounts may be subject to change.",
+    keywords: ["health insurance", "accommodation", "settlement allowance", "topik fee", "degree completion grant", "living expense"],
+  },
+  {
     id: "fallback-fail-first",
     topic: "fallback",
     page: 9,
@@ -394,6 +611,24 @@ export const GKS_U_2027_TYPE_B = [
   "Yeungnam University",
 ] as const;
 
+
+export const GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS: Record<string, readonly string[]> = {
+  "Dong-Eui Institute of Technology": ["Electrical Engineering", "Mechanical Engineering"],
+  "Kyungbok University": ["Software Convergence"],
+  "Osan University": ["Mechanical Engineering"],
+};
+
+export const GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES = [
+  "Busan Institute of Science and Technology",
+  "Cheju Halla University",
+  "Dong-Eui Institute of Technology",
+  "Induk University",
+  "Korea University of Media Arts",
+  "Kyungbok University",
+  "Kyung-In Women's University",
+  "Kyungnam College of Information & Technology",
+  "Yeungnam University College",
+] as const;
 
 export const GKS_U_2027_UIC_BACHELOR_DEPARTMENTS: Record<string, readonly string[]> = {
   "Ajou University": ["School of AI and Computer Engineering"],

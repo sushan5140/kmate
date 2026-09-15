@@ -166,6 +166,26 @@ async function logAsk(admin: SupabaseClient, questionId: string, userId: string)
 }
 
 /**
+ * Persistent ask count used to protect paid AI calls across serverless
+ * instances. The in-memory limiter still handles burst traffic; this database
+ * count closes the cold-start / multi-instance gap.
+ */
+export async function countRecentGksAsks(
+  admin: SupabaseClient,
+  userId: string,
+  sinceIso: string
+): Promise<number | null> {
+  const { count, error } = await admin
+    .from("gks_question_asks")
+    .select("question_id", { count: "exact", head: true })
+    .eq("asked_by", userId)
+    .gte("asked_at", sinceIso);
+
+  if (error) return null;
+  return count ?? 0;
+}
+
+/**
  * Persists the imported answers the RAG returned for this question.
  *
  * Idempotent on (question, external_key), so re-asking re-attaches to the

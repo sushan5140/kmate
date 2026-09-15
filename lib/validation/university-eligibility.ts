@@ -11,29 +11,38 @@ export interface EligibilityValidationResult {
 }
 
 /**
- * NIIED's official embassy-track quotas are GKS-G: 3, General/Overseas: 3,
- * R-GKS (regional): 2 -- all both Type B for R-GKS, >=1 Type B for
- * General/Overseas. KMate grants every embassy-track applicant one bonus
- * pick on top of their official quota (product decision, not a NIIED rule),
- * so the enforced caps here are one higher than the official figures. The
- * direct-to-university (UIC/associate-degree) path has no embassy quota at
- * all, so it's only ever bound by the platform-wide 1-4 cap below.
+ * Official selection caps only. KMate must never add a "bonus" university
+ * beyond the limit stated by the GKS guideline.
+ *
+ * GKS-U 2027:
+ * - Embassy General / Overseas Koreans & Adoptees: up to 3, >=1 Type B.
+ * - Embassy R-GKS: up to 2, all Type B.
+ * - University Track (UIC / Associate): 1 university.
+ *
+ * GKS-G keeps the current official Embassy cap encoded by KMate: up to 3.
  */
-export const OFFICIAL_UNIVERSITY_QUOTA: Record<"gks_g" | "general_overseas" | "r_gks", number> = {
+export const OFFICIAL_UNIVERSITY_QUOTA: Record<
+  "gks_g" | "general_overseas" | "r_gks" | "gks_u_university",
+  number
+> = {
   gks_g: 3,
   general_overseas: 3,
   r_gks: 2,
+  gks_u_university: 1,
 };
-const BONUS_PICKS = 1;
 
-/**
- * Encodes the PRD's plain-English university-selection rules. This is the
- * most assumption-laden logic in the app: the PRD's rules ("General/Overseas
- * up to 3 w/ >=1 Type B", "R-GKS up to 2 both Type B") imply a GKS-U
- * embassy-path sub-choice that isn't a literal field in the PRD's data
- * model -- modeled here as `gksUEmbassyPath`. Isolated in this one file so
- * a correction, once the real onboarding copy/rules are confirmed, is cheap.
- */
+export function maxUniversityChoices(
+  track: Track,
+  gksUEmbassyPath: GksUEmbassyPath | null
+): number {
+  if (track === "gks_g") return OFFICIAL_UNIVERSITY_QUOTA.gks_g;
+  if (gksUEmbassyPath === "r_gks") return OFFICIAL_UNIVERSITY_QUOTA.r_gks;
+  if (gksUEmbassyPath === "general_overseas") {
+    return OFFICIAL_UNIVERSITY_QUOTA.general_overseas;
+  }
+  return OFFICIAL_UNIVERSITY_QUOTA.gks_u_university;
+}
+
 export function validateUniversityChoices(
   track: Track,
   gksUEmbassyPath: GksUEmbassyPath | null,
@@ -42,27 +51,23 @@ export function validateUniversityChoices(
   if (choices.length < 1) {
     return { valid: false, message: "Pick at least 1 university." };
   }
-  if (choices.length > 4) {
-    return { valid: false, message: "You can pick at most 4 universities." };
+
+  const cap = maxUniversityChoices(track, gksUEmbassyPath);
+  if (choices.length > cap) {
+    return {
+      valid: false,
+      message:
+        track === "gks_u" && gksUEmbassyPath === null
+          ? "GKS-U University Track allows only 1 university."
+          : `You can pick at most ${cap} universit${cap === 1 ? "y" : "ies"} for this route.`,
+    };
   }
 
   if (track === "gks_g") {
-    const cap = OFFICIAL_UNIVERSITY_QUOTA.gks_g + BONUS_PICKS;
-    if (choices.length > cap) {
-      return { valid: false, message: `GKS-G applicants can pick up to ${cap} universities.` };
-    }
     return { valid: true };
   }
 
-  // track === 'gks_u'
   if (gksUEmbassyPath === "r_gks") {
-    const cap = OFFICIAL_UNIVERSITY_QUOTA.r_gks + BONUS_PICKS;
-    if (choices.length > cap) {
-      return {
-        valid: false,
-        message: `R-GKS applicants can pick up to ${cap} universities, all Type B.`,
-      };
-    }
     const allTypeB = choices.every((c) => c.embassyType === "type_b");
     if (!allTypeB) {
       return {
@@ -74,13 +79,6 @@ export function validateUniversityChoices(
   }
 
   if (gksUEmbassyPath === "general_overseas") {
-    const cap = OFFICIAL_UNIVERSITY_QUOTA.general_overseas + BONUS_PICKS;
-    if (choices.length > cap) {
-      return {
-        valid: false,
-        message: `General/Overseas Korean applicants can pick up to ${cap} universities.`,
-      };
-    }
     const hasTypeB = choices.some((c) => c.embassyType === "type_b");
     if (!hasTypeB) {
       return { valid: false, message: "Include at least 1 Type B university." };
@@ -88,25 +86,32 @@ export function validateUniversityChoices(
     return { valid: true };
   }
 
-  // No embassy path chosen (e.g. applying via the direct-to-university
-  // UIC/associate-degree track) -- no embassy quota applies, just the
-  // general 1-4 cap.
+  // Direct GKS-U University Track: exactly one current UIC/associate route
+  // university. An Embassy-only eligibility row must not be accepted here.
+  const allowedUniversityTrackCategories = new Set(["uic_bachelors", "associate_degree"]);
+  if (!choices.every((choice) => allowedUniversityTrackCategories.has(choice.category))) {
+    return {
+      valid: false,
+      message: "Choose a university listed for the GKS-U University Track (UIC or Associate Degree).",
+    };
+  }
+
   return { valid: true };
 }
 
-/** Track-aware helper text for the university picker, surfacing the bonus pick explicitly. */
-export function describeUniversityQuota(track: Track, gksUEmbassyPath: GksUEmbassyPath | null): string {
+/** Track-aware helper text using only the official limits KMate enforces. */
+export function describeUniversityQuota(
+  track: Track,
+  gksUEmbassyPath: GksUEmbassyPath | null
+): string {
   if (track === "gks_g") {
-    const official = OFFICIAL_UNIVERSITY_QUOTA.gks_g;
-    return `NIIED's official cap is ${official} universities -- KMate gives you ${BONUS_PICKS} bonus pick, so you can choose up to ${official + BONUS_PICKS}.`;
+    return `Official cap: up to ${OFFICIAL_UNIVERSITY_QUOTA.gks_g} universities.`;
   }
   if (gksUEmbassyPath === "r_gks") {
-    const official = OFFICIAL_UNIVERSITY_QUOTA.r_gks;
-    return `Regional (R-GKS)'s official cap is ${official} universities, both Type B -- KMate gives you ${BONUS_PICKS} bonus pick, so you can choose up to ${official + BONUS_PICKS} (all Type B).`;
+    return `R-GKS: up to ${OFFICIAL_UNIVERSITY_QUOTA.r_gks} universities, all Type B.`;
   }
   if (gksUEmbassyPath === "general_overseas") {
-    const official = OFFICIAL_UNIVERSITY_QUOTA.general_overseas;
-    return `General/Overseas Korean's official cap is ${official} universities -- KMate gives you ${BONUS_PICKS} bonus pick, so you can choose up to ${official + BONUS_PICKS} (at least 1 must be Type B).`;
+    return `Embassy General / Overseas: up to ${OFFICIAL_UNIVERSITY_QUOTA.general_overseas} universities, with at least 1 Type B.`;
   }
-  return "Applying directly through a university has no embassy quota -- pick up to 4.";
+  return "University Track: 1 university only; choose a current UIC or Associate Degree institution.";
 }

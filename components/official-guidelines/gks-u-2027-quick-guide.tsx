@@ -10,12 +10,13 @@ import {
 import { Card } from "@/components/ui/card";
 import { GuidelineRuleActions } from "@/components/official-guidelines/guideline-rule-actions";
 import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
+import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
 const QUICK_FACTS = [
   {
     icon: CalendarDays,
     label: "Embassy application",
-    value: "Sep 15, 11:00 → Sep 30, 18:00",
+    value: GKS_U_2027_POLICY.embassyApplication.display,
     note: "Korea Standard Time · online through Study in Korea",
     page: "pp. 9–10",
   },
@@ -29,14 +30,14 @@ const QUICK_FACTS = [
   {
     icon: Building2,
     label: "Embassy choices",
-    value: "Up to 3 universities",
+    value: "Up to " + GKS_U_2027_POLICY.choiceRules.general.maxUniversities + " universities",
     note: "General track must include at least one Type B university",
     page: "p. 6",
   },
   {
     icon: BadgeCheck,
     label: "Final result",
-    value: "Expected Jan 7, 2027",
+    value: "Expected Jan 7, " + GKS_U_2027_POLICY.cycle,
     note: "Study in Korea announcement",
     page: "pp. 10–11",
   },
