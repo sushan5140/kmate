@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { CURRENT_GKS_U_UNIVERSITY_NAMES } from "@/lib/gks/university-catalog";
 import type {
   EmbassyType,
   QuestionCategory,
@@ -183,7 +184,15 @@ export const getCachedUniversitySearch = unstable_cache(
     // failure -- matches this route's original behavior of surfacing
     // search_failed instead of silently returning no results.
     if (error) throw new Error(`university search query failed: ${error.message}`);
-    return (data ?? []) as unknown as CachedUniversity[];
+    const rows = (data ?? []) as unknown as CachedUniversity[];
+
+    // Fail closed on stale undergraduate catalog rows. The DB is reconciled
+    // daily, but this guard prevents an old GKS-U university from reappearing
+    // in onboarding even if a sync has not run yet.
+    if (track === "gks_u") {
+      return rows.filter((row) => CURRENT_GKS_U_UNIVERSITY_NAMES.has(row.name));
+    }
+    return rows;
   },
   ["university-search"],
   { revalidate: 60 * 60 * 24, tags: ["universities"] }
