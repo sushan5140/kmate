@@ -10,10 +10,16 @@ import { UniversityPicker, type SelectedUniversity } from "@/components/onboardi
 import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
 import { validApplicationYears } from "@/lib/deadline";
-import { TRACK_LABELS, type GksUEmbassyPath, type Track } from "@/lib/constants";
+import {
+  TRACK_LABELS,
+  type GksUApplicationRoute,
+  type GksUEmbassyPath,
+  type Track,
+} from "@/lib/constants";
 
 export interface ProfileEditInitialData {
   track: Track;
+  gksUApplicationRoute: GksUApplicationRoute | null;
   gksUEmbassyPath: GksUEmbassyPath | null;
   major: string;
   applicationYear: number;
@@ -46,6 +52,9 @@ export function ProfileEditForm({
   dualTrackAccess?: boolean;
 }) {
   const router = useRouter();
+  const [gksUApplicationRoute, setGksUApplicationRoute] = useState<GksUApplicationRoute | null>(
+    initial.gksUApplicationRoute
+  );
   const [gksUEmbassyPath, setGksUEmbassyPath] = useState<GksUEmbassyPath | null>(initial.gksUEmbassyPath);
   const [major, setMajor] = useState(initial.major);
   const [universities, setUniversities] = useState<SelectedUniversity[]>(initial.universities);
@@ -55,12 +64,14 @@ export function ProfileEditForm({
   const [bio, setBio] = useState(initial.bio);
 
   const [viewTrack, setViewTrack] = useState<Track>(initial.track);
+  const [previewRoute, setPreviewRoute] = useState<GksUApplicationRoute | null>(null);
   const [previewEmbassyPath, setPreviewEmbassyPath] = useState<GksUEmbassyPath | null>(null);
   const [previewUniversities, setPreviewUniversities] = useState<SelectedUniversity[]>([]);
   const previewing = viewTrack !== initial.track;
 
   function setViewTrackAndResetPreview(track: Track) {
     setViewTrack(track);
+    setPreviewRoute(null);
     setPreviewEmbassyPath(null);
     setPreviewUniversities([]);
   }
@@ -78,6 +89,7 @@ export function ProfileEditForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          gksUApplicationRoute,
           gksUEmbassyPath,
           major,
           applicationYear,
@@ -104,6 +116,10 @@ export function ProfileEditForm({
   }
 
   const usernameChanged = username !== initial.username;
+  const routeIncomplete =
+    initial.track === "gks_u" &&
+    (!gksUApplicationRoute ||
+      (gksUApplicationRoute === "embassy" && !gksUEmbassyPath));
 
   return (
     <div className="flex flex-col gap-6">
@@ -145,24 +161,75 @@ export function ProfileEditForm({
         )}
 
         {viewTrack === "gks_u" && (
-          <div className="mt-2 flex flex-col gap-1.5">
-            {(
-              [
-                { value: "general_overseas", label: "Embassy Track -- General / Overseas Korean" },
-                { value: "r_gks", label: "Embassy Track -- Regional (R-GKS)" },
-                { value: null, label: "Directly through a university (UIC / associate degree)" },
-              ] as const
-            ).map((option) => (
-              <label key={option.label} className="flex items-center gap-2 text-[13px] text-ink">
-                <input
-                  type="radio"
-                  name="embassy-path-edit"
-                  checked={(previewing ? previewEmbassyPath : gksUEmbassyPath) === option.value}
-                  onChange={() => (previewing ? setPreviewEmbassyPath(option.value) : setGksUEmbassyPath(option.value))}
-                />
-                {option.label}
-              </label>
-            ))}
+          <div className="mt-3">
+            <p className="text-[12.5px] font-medium text-ink">Application route</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {(
+                [
+                  { value: "embassy", label: "Embassy Track", note: "General / Overseas Korean or R-GKS" },
+                  { value: "university", label: "University Track", note: "UIC or Associate Degree" },
+                ] as const
+              ).map((option) => {
+                const activeRoute = previewing ? previewRoute : gksUApplicationRoute;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      if (previewing) {
+                        setPreviewRoute(option.value);
+                        setPreviewEmbassyPath(null);
+                        setPreviewUniversities([]);
+                      } else {
+                        setGksUApplicationRoute(option.value);
+                        setGksUEmbassyPath(null);
+                        setUniversities([]);
+                      }
+                    }}
+                    className={`rounded-xl border p-3 text-left ${
+                      activeRoute === option.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-white"
+                    }`}
+                  >
+                    <span className="text-[13px] font-medium text-ink">{option.label}</span>
+                    <span className="mt-0.5 block text-[11.5px] text-muted">{option.note}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {(previewing ? previewRoute : gksUApplicationRoute) === "embassy" && (
+              <div className="mt-3 rounded-xl bg-canvas p-3">
+                <p className="text-[12px] font-medium text-ink">Embassy route</p>
+                <div className="mt-2 flex flex-col gap-2">
+                  {(
+                    [
+                      { value: "general_overseas", label: "General / Overseas Korean" },
+                      { value: "r_gks", label: "Regional (R-GKS)" },
+                    ] as const
+                  ).map((option) => (
+                    <label key={option.value} className="flex items-center gap-2 text-[13px] text-ink">
+                      <input
+                        type="radio"
+                        name={previewing ? "preview-embassy-path" : "embassy-path-edit"}
+                        checked={(previewing ? previewEmbassyPath : gksUEmbassyPath) === option.value}
+                        onChange={() => {
+                          if (previewing) {
+                            setPreviewEmbassyPath(option.value);
+                            setPreviewUniversities([]);
+                          } else {
+                            setGksUEmbassyPath(option.value);
+                            setUniversities([]);
+                          }
+                        }}
+                      />
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -183,6 +250,7 @@ export function ProfileEditForm({
             <UniversityPicker
               track={viewTrack}
               gksUEmbassyPath={previewEmbassyPath}
+              gksUApplicationRoute={previewRoute}
               selected={previewUniversities}
               onChange={setPreviewUniversities}
             />
@@ -190,6 +258,7 @@ export function ProfileEditForm({
             <UniversityPicker
               track={initial.track}
               gksUEmbassyPath={gksUEmbassyPath}
+              gksUApplicationRoute={gksUApplicationRoute}
               selected={universities}
               onChange={setUniversities}
             />
@@ -236,7 +305,10 @@ export function ProfileEditForm({
       )}
 
       <div>
-        <Button onClick={save} disabled={saving || previewing || (usernameChanged && !usernameAvailable)}>
+        <Button
+          onClick={save}
+          disabled={saving || previewing || routeIncomplete || (usernameChanged && !usernameAvailable)}
+        >
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </div>
