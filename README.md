@@ -26,7 +26,7 @@ Community is part of the product, but it is not the source of truth for official
 
 KMate is intentionally designed so applicants do not need to expose personal contact details publicly.
 
-Contact information stays hidden until both sides establish a connection, and administrative access to sensitive information is separately gated and logged.
+External contact information stays in a private contact vault rather than appearing on public profiles. Accepted connections can use KMate's in-app messaging, while administrative access to sensitive information is separately gated and logged.
 
 ## Stack
 
@@ -36,7 +36,7 @@ Contact information stays hidden until both sides establish a connection, and ad
 - Supabase Auth / Database / SSR
 - Tailwind CSS
 - Playwright
-- Anthropic SDK integration for selected AI-assisted features
+- xAI/Grok and Anthropic SDK integrations for selected AI-assisted features
 
 ## Why I built it
 
@@ -92,7 +92,7 @@ Before merging changes that affect GKS rules or readiness data, run:
 npm run verify:quick
 ```
 
-When `data/gks-universities.json` is refreshed for a new cycle, run `npm run seed:universities` against the intended Supabase project so stale eligibility rows are reconciled and new current-cycle universities are inserted.
+When `data/gks-universities.json` is refreshed for a new cycle, `npm run seed:universities` can reconcile it manually. Production also reconciles and verifies the catalog in daily maintenance, and records the verification result in automation health.
 
 ## Data accuracy
 
