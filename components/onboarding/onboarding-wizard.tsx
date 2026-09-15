@@ -15,7 +15,7 @@ import { ReviewStep } from "@/components/onboarding/review-step";
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { isValidUsernameFormat } from "@/lib/validation/username";
 import { validApplicationYears } from "@/lib/deadline";
-import type { GksUEmbassyPath, Track } from "@/lib/constants";
+import type { GksUApplicationRoute, GksUEmbassyPath, Track } from "@/lib/constants";
 
 const STEPS = ["username", "bio", "track", "major", "universities", "year", "contacts", "review"] as const;
 type Step = (typeof STEPS)[number];
@@ -56,6 +56,7 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
   const [bio, setBio] = useState("");
 
   const [track, setTrack] = useState<Track | null>(null);
+  const [gksUApplicationRoute, setGksUApplicationRoute] = useState<GksUApplicationRoute | null>(null);
   const [gksUEmbassyPath, setGksUEmbassyPath] = useState<GksUEmbassyPath | null>(null);
   const [recommendation, setRecommendation] = useState<Track | null>(null);
   const [quizOpen, setQuizOpen] = useState(false);
@@ -78,14 +79,18 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
       case "bio":
         return true;
       case "track":
-        return track !== null;
+        if (!track) return false;
+        if (track !== "gks_u") return true;
+        if (!gksUApplicationRoute) return false;
+        return gksUApplicationRoute === "university" || gksUEmbassyPath !== null;
       case "major":
         return major.trim().length > 0;
       case "universities":
         return validateUniversityChoices(
           track!,
           gksUEmbassyPath,
-          universities.map((u) => ({ category: u.category ?? "", embassyType: u.embassyType }))
+          universities.map((u) => ({ category: u.category ?? "", embassyType: u.embassyType })),
+          gksUApplicationRoute
         ).valid;
       case "year":
         return Boolean(applicationYear);
@@ -113,6 +118,7 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           track,
+          gksUApplicationRoute,
           gksUEmbassyPath,
           major,
           applicationYear,
@@ -182,7 +188,11 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
           <div className="mt-4 flex gap-3">
             <button
               type="button"
-              onClick={() => setTrack("gks_u")}
+              onClick={() => {
+                setTrack("gks_u");
+                setUniversities([]);
+                setApplicationYear(0);
+              }}
               className={`flex-1 rounded-xl border p-4 text-left ${
                 track === "gks_u" ? "border-primary bg-primary/5" : "border-border bg-white"
               }`}
@@ -192,7 +202,13 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
             </button>
             <button
               type="button"
-              onClick={() => setTrack("gks_g")}
+              onClick={() => {
+                setTrack("gks_g");
+                setGksUApplicationRoute(null);
+                setGksUEmbassyPath(null);
+                setUniversities([]);
+                setApplicationYear(0);
+              }}
               className={`flex-1 rounded-xl border p-4 text-left ${
                 track === "gks_g" ? "border-primary bg-primary/5" : "border-border bg-white"
               }`}
@@ -219,26 +235,60 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
 
           {track === "gks_u" && (
             <div className="mt-4">
-              <p className="text-[13px] font-medium text-ink">How are you applying?</p>
-              <div className="mt-2 flex flex-col gap-2">
+              <p className="text-[13px] font-medium text-ink">Which GKS-U route are you using?</p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 {(
                   [
-                    { value: "general_overseas", label: "Embassy Track -- General / Overseas Korean" },
-                    { value: "r_gks", label: "Embassy Track -- Regional (R-GKS)" },
-                    { value: null, label: "Directly through a university (UIC / associate degree)" },
+                    { value: "embassy", label: "Embassy Track", note: "General / Overseas Korean or R-GKS" },
+                    { value: "university", label: "University Track", note: "UIC or Associate Degree" },
                   ] as const
                 ).map((option) => (
-                  <label key={option.label} className="flex items-center gap-2 text-[13.5px] text-ink">
-                    <input
-                      type="radio"
-                      name="embassy-path"
-                      checked={gksUEmbassyPath === option.value}
-                      onChange={() => setGksUEmbassyPath(option.value)}
-                    />
-                    {option.label}
-                  </label>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setGksUApplicationRoute(option.value);
+                      setGksUEmbassyPath(null);
+                      setUniversities([]);
+                    }}
+                    className={`rounded-xl border p-3 text-left ${
+                      gksUApplicationRoute === option.value
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-white"
+                    }`}
+                  >
+                    <span className="text-[13.5px] font-medium text-ink">{option.label}</span>
+                    <span className="mt-0.5 block text-[11.5px] text-muted">{option.note}</span>
+                  </button>
                 ))}
               </div>
+
+              {gksUApplicationRoute === "embassy" && (
+                <div className="mt-3 rounded-xl bg-canvas p-3">
+                  <p className="text-[12.5px] font-medium text-ink">Embassy route</p>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {(
+                      [
+                        { value: "general_overseas", label: "General / Overseas Korean" },
+                        { value: "r_gks", label: "Regional (R-GKS)" },
+                      ] as const
+                    ).map((option) => (
+                      <label key={option.value} className="flex items-center gap-2 text-[13px] text-ink">
+                        <input
+                          type="radio"
+                          name="embassy-path"
+                          checked={gksUEmbassyPath === option.value}
+                          onChange={() => {
+                            setGksUEmbassyPath(option.value);
+                            setUniversities([]);
+                          }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -248,6 +298,12 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
               onRecommend={(rec) => {
                 setRecommendation(rec);
                 setTrack(rec);
+                if (rec !== "gks_u") {
+                  setGksUApplicationRoute(null);
+                  setGksUEmbassyPath(null);
+                }
+                setUniversities([]);
+                setApplicationYear(0);
                 setQuizOpen(false);
               }}
             />
@@ -271,6 +327,7 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
             <UniversityPicker
               track={track!}
               gksUEmbassyPath={gksUEmbassyPath}
+              gksUApplicationRoute={gksUApplicationRoute}
               selected={universities}
               onChange={setUniversities}
             />
