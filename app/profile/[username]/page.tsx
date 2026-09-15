@@ -16,7 +16,8 @@ import { ProfileEditForm, type ProfileEditInitialData } from "@/components/profi
 import { EditContactsForm } from "@/components/settings/edit-contacts-form";
 import { DeleteAccountButton } from "@/components/settings/delete-account-button";
 import type { ContactValue } from "@/components/onboarding/contacts-step";
-import type { GksUEmbassyPath, Track } from "@/lib/constants";
+import type { GksUApplicationRoute, GksUEmbassyPath, Track } from "@/lib/constants";
+import { resolveGksUApplicationRoute } from "@/lib/gks/application-route";
 
 /**
  * `from` is an attacker-influencable query param (a shared link could carry
@@ -91,6 +92,13 @@ export default async function ProfilePage({
   const universities = ((profile.university_choices ?? []) as unknown as UniversityChoiceRow[]).sort(
     (a, b) => a.priority - b.priority
   );
+  const gksUApplicationRoute: GksUApplicationRoute | null =
+    profile.track === "gks_u"
+      ? resolveGksUApplicationRoute(
+          profile.gks_u_embassy_path as GksUEmbassyPath | null,
+          universities.map((choice) => choice.eligibility?.category)
+        )
+      : null;
 
   // --- Own profile: tabbed edit view, no public-view/connection logic needed ---
   if (isSelf) {
@@ -118,6 +126,7 @@ export default async function ProfilePage({
                 initial={
                   {
                     track: profile.track as Track,
+                    gksUApplicationRoute,
                     gksUEmbassyPath: profile.gks_u_embassy_path as GksUEmbassyPath | null,
                     major: profile.major ?? "",
                     applicationYear: profile.application_year ?? new Date().getFullYear(),
