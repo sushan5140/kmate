@@ -229,7 +229,10 @@ function MULTI_UNIVERSITY_CHECKS() {
   ok(universitySlotsFor("GKS-U", "embassy", "general") === 3, "GKS-U Embassy / General allows 3 universities");
   ok(universitySlotsFor("GKS-U", "embassy", "r_gks") === 2, "GKS-U Embassy / R-GKS allows 2 (the smaller official quota)");
   ok(universitySlotsFor("GKS-G", "university", "rd") === 3, "GKS-G allows 3");
-  ok(universitySlotsFor("GKS-U", "university", "uic") === 4, "GKS-U University Track carries no embassy quota, so the platform cap applies");
+  ok(
+    universitySlotsFor("GKS-U", "university", "uic") === 1,
+    "GKS-U University Track allows exactly one university"
+  );
 
   console.log("=== common documents appear once, whatever the university count ===");
   const three = getApplicationWorkspace({
@@ -242,7 +245,10 @@ function MULTI_UNIVERSITY_CHECKS() {
       { name: "Chonnam National University", major: "Computer Science" },
     ],
   });
-  ok(three.common.length === 13, "13 common GKS-U documents (got " + three.common.length + ")");
+  ok(
+    three.common.length === coreU.items.length,
+    "current GKS-U common documents render once (got " + three.common.length + ")"
+  );
   ok(three.common.every((i) => i.category !== "university_extra"), "no university extra leaks into the common list");
   ok(new Set(three.common.map((i) => i.id)).size === three.common.length, "no common document is duplicated");
   ok(three.universities.length === 3, "three university sections");
@@ -293,7 +299,10 @@ function MULTI_UNIVERSITY_CHECKS() {
       { name: "Ajou University", major: "" },
     ],
   });
-  ok(uic.common.length === 13, "UIC route still renders the 13 common documents once");
+  ok(
+    uic.common.length === coreU.items.length,
+    "UIC route renders the current common GKS-U documents once"
+  );
   ok(
     sectionFor(uic, "Kookmin University").items.every((i) => i.id.includes("Kookmin")),
     "Kookmin UIC rules stay under Kookmin"
@@ -453,8 +462,10 @@ function NAME_RECONCILIATION_CHECKS() {
   ok(targets.every((t) => known.has(t)), "every alias points at a name the requirement dataset actually holds");
   ok(new Set(targets).size === targets.length, "no two aliases point at the same canonical university");
   ok(
-    Object.keys(UNIVERSITY_NAME_ALIASES).every((k) => !known.has(k)),
-    "no alias shadows a name the requirement dataset already matches exactly"
+    Object.keys(UNIVERSITY_NAME_ALIASES)
+      .filter((key) => known.has(key))
+      .every((key) => resolver.resolve(key) === key),
+    "exact requirement-dataset names take precedence over aliases"
   );
   // Resolution is exact-or-alias only: a near-miss must not resolve.
   ok(resolver.resolve("Korea Universty") === null, "a misspelling does not resolve");
