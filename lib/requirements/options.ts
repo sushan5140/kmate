@@ -1,6 +1,7 @@
 import "server-only";
 import { requirementDataset } from "./index";
 import type { GKSProgram, RequirementRecord } from "./schema";
+import { createNameResolver } from "@/lib/readiness/university-names";
 import {
   GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES,
   GKS_U_2027_TYPE_A,
@@ -272,19 +273,27 @@ export function buildCheckerOptions(): CheckerOptions {
     // The records remain useful for university-specific details, but they no
     // longer decide whether a university appears as a current 2027 option.
     if (program === "GKS-U") {
-      const embassyAll = [...GKS_U_2027_TYPE_A, ...GKS_U_2027_TYPE_B].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      const embassyTypeB = [...GKS_U_2027_TYPE_B].sort((a, b) => a.localeCompare(b));
+      const requirementNameResolver = createNameResolver(inProgram.map((record) => record.university));
+      const currentName = (name: string) => requirementNameResolver.resolve(name) ?? name;
+
+      const embassyAll = [...GKS_U_2027_TYPE_A, ...GKS_U_2027_TYPE_B]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
+      const embassyTypeB = [...GKS_U_2027_TYPE_B]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
       const uicUniversities = [
         ...new Set([
           ...Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS),
           ...Object.keys(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS),
-        ]),
+        ].map(currentName)),
       ].sort((a, b) => a.localeCompare(b));
-      const associateUniversities = [...GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES].sort((a, b) =>
-        a.localeCompare(b)
-      );
+      const associateUniversities = [...GKS_U_2027_ASSOCIATE_DEGREE_UNIVERSITIES]
+        .map(currentName)
+        .filter((name, index, all) => all.indexOf(name) === index)
+        .sort((a, b) => a.localeCompare(b));
 
       tracks[program] = [
         {
@@ -331,9 +340,12 @@ export function buildCheckerOptions(): CheckerOptions {
       for (const university of uicUniversities) {
         const forUni = inProgram.filter((r) => r.university === university);
         const needsGender = forUni.some(genderRuleFor);
+        const currentSourceName =
+          [...Object.keys(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS), ...Object.keys(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS)]
+            .find((name) => currentName(name) === university) ?? university;
         const currentMajors = [
-          ...(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS[university] ?? []),
-          ...(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS[university] ?? []),
+          ...(GKS_U_2027_UIC_BACHELOR_DEPARTMENTS[currentSourceName] ?? []),
+          ...(GKS_U_2027_UIC_ASSOCIATE_DEPARTMENTS[currentSourceName] ?? []),
         ];
         const majorSuggestions = [...new Set([...currentMajors, ...forUni.flatMap(majorRulesFor)])];
         meta[`${program}|university|${university}`] = { needsGender, majorSuggestions };
