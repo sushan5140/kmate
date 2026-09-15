@@ -104,6 +104,28 @@ for (const group of ["overview", "application", "resources", "preparation", "com
   ok(nav.includes(`${group}:`), `Navigation group missing: ${group}`);
 }
 
+const universitySearch = read("lib/cached-content.ts");
+ok(
+  universitySearch.includes("CURRENT_GKS_U_UNIVERSITY_NAMES") &&
+    universitySearch.includes('track === "gks_u"'),
+  "GKS-U university search must fail closed against the current-cycle catalog"
+);
+
+const dailyMaintenance = read("lib/automation/daily.ts");
+ok(
+  dailyMaintenance.includes('{ name: "university-catalog"') &&
+    dailyMaintenance.indexOf('"university-catalog"') < dailyMaintenance.indexOf('"notice-scout"'),
+  "Daily maintenance must reconcile the university catalog before applicant-facing automation"
+);
+
+const universitySync = read("lib/gks/university-sync.ts");
+ok(
+  universitySync.includes("staleGksURowsRemoved") &&
+    universitySync.includes('.eq("track", "gks_u")') &&
+    universitySync.includes(".delete()"),
+  "University sync must reconcile stale GKS-U eligibility instead of only upserting"
+);
+
 const oldReadinessSourceLeak = JSON.stringify(readiness.programs?.["GKS-U"] ?? {}).includes("official 2026 GKS-U");
 ok(!oldReadinessSourceLeak, "Current GKS-U readiness rules still contain a 2026 application-form instruction");
 
