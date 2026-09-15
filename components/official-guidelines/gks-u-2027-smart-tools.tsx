@@ -49,7 +49,7 @@ const ALL_EMBASSY = [...GKS_U_2027_TYPE_A, ...GKS_U_2027_TYPE_B].sort((a, b) =>
 const ROUTE_LABELS: Record<RouteType, string> = {
   general: "Embassy Track — General",
   r_gks: "Embassy Track — R-GKS",
-  university: "University Track — UIC Bachelor's",
+  university: "University Track — UIC Bachelor’s",
 };
 
 const FIRST_ROUND_DOCS = [
@@ -337,7 +337,7 @@ export function GksU2027SmartTools({
               >
                 <option value="general">Embassy — General</option>
                 <option value="r_gks">Embassy — R-GKS</option>
-                <option value="university">University — UIC Bachelor's</option>
+                <option value="university">University — UIC Bachelor’s</option>
               </select>
             </div>
 
@@ -356,7 +356,7 @@ export function GksU2027SmartTools({
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Application window</p>
                 <p className="mt-1 text-[13px] leading-relaxed text-ink">
                   {route === "university"
-                    ? GKS_U_2027_POLICY.universityTrackWindow.display + ", according to each university's own schedule."
+                    ? GKS_U_2027_POLICY.universityTrackWindow.display + ", according to each university’s own schedule."
                     : GKS_U_2027_POLICY.embassyApplication.display + " through Study in Korea."}
                 </p>
               </div>
@@ -450,7 +450,7 @@ export function GksU2027SmartTools({
 
             {route === "university" && documentStage === "first" && (
               <div className="mt-4 rounded-xl bg-gold/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-ink">
-                University Track first-round submission follows each university's own method and may include additional university-specific documents.
+                University Track first-round submission follows each university’s own method and may include additional university-specific documents.
               </div>
             )}
 
@@ -493,7 +493,7 @@ export function GksU2027SmartTools({
               >
                 <option value="general">Embassy — General</option>
                 <option value="r_gks">Embassy — R-GKS</option>
-                <option value="university">University — UIC Bachelor's</option>
+                <option value="university">University — UIC Bachelor’s</option>
               </select>
             </div>
 
@@ -602,14 +602,14 @@ export function GksU2027SmartTools({
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Korean language band</p>
                 <p className="mt-1 text-[20px] font-semibold text-ink">{topikBand}%</p>
                 <p className="mt-1 text-[11.5px] leading-relaxed text-muted">
-                  of the institution's allocated Korean-language score.
+                  of the institution’s allocated Korean-language score.
                 </p>
               </div>
               <div className="rounded-xl bg-canvas p-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">English language band</p>
                 <p className="mt-1 text-[20px] font-semibold text-ink">{ieltsBand}%</p>
                 <p className="mt-1 text-[11.5px] leading-relaxed text-muted">
-                  of the institution's allocated English-language score based on IELTS.
+                  of the institution’s allocated English-language score based on IELTS.
                 </p>
               </div>
             </div>
