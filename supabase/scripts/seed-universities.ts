@@ -27,7 +27,9 @@ function parseUniversityJson(json: typeof universitiesJson): Map<string, Eligibi
 
   function addRow(name: string, row: EligibilityRow) {
     const existing = byUniversity.get(name) ?? [];
-    existing.push(row);
+    if (!existing.some((item) => item.track === row.track && item.category === row.category)) {
+      existing.push(row);
+    }
     byUniversity.set(name, existing);
   }
 
@@ -40,6 +42,14 @@ function parseUniversityJson(json: typeof universitiesJson): Map<string, Eligibi
   }
   for (const name of gksU.university_track_uic_bachelors) {
     addRow(name, { track: "gks_u", category: "uic_bachelors", embassy_type: null, specialization: null });
+  }
+  // The current DB schema has one associate-degree eligibility category. That
+  // is sufficient for profile/university selection because both UIC associate
+  // and the separate Associate Degree route are University Track choices.
+  // The exact UIC-vs-separate-program distinction is preserved in the source
+  // JSON and in the Requirement Checker, where it affects department options.
+  for (const name of gksU.university_track_uic_associate) {
+    addRow(name, { track: "gks_u", category: "associate_degree", embassy_type: null, specialization: null });
   }
   for (const name of gksU.university_track_associate_degree) {
     addRow(name, { track: "gks_u", category: "associate_degree", embassy_type: null, specialization: null });
@@ -78,6 +88,53 @@ async function main() {
   const admin = getSupabaseAdmin();
   const byUniversity = parseUniversityJson(universitiesJson);
 
+  // Reconcile GKS-U rather than only upserting. An upsert-only yearly refresh
+  // leaves universities from the previous cycle selectable forever. Existing
+  // profile choices keep their university_id; if their old eligibility row is
+  // no longer current, its nullable eligibility_id is cleared before deletion.
+  const desiredGksU = new Set<string>();
+  for (const [name, rows] of byUniversity) {
+    for (const row of rows) {
+      if (row.track === "gks_u") desiredGksU.add(`${name}|${row.category}`);
+    }
+  }
+
+  const { data: existingGksU, error: existingError } = await admin
+    .from("university_eligibility")
+    .select("id, category, university:universities!inner(name)")
+    .eq("track", "gks_u");
+
+  if (existingError) {
+    throw new Error(`Could not read existing GKS-U eligibility rows: ${existingError.message}`);
+  }
+
+  let staleEligibilityCount = 0;
+  for (const existing of (existingGksU ?? []) as unknown as {
+    id: string;
+    category: string;
+    university: { name: string } | null;
+  }[]) {
+    const name = existing.university?.name;
+    if (!name || desiredGksU.has(`${name}|${existing.category}`)) continue;
+
+    const { error: detachError } = await admin
+      .from("university_choices")
+      .update({ eligibility_id: null })
+      .eq("eligibility_id", existing.id);
+    if (detachError) {
+      throw new Error(`Could not detach stale eligibility for ${name}: ${detachError.message}`);
+    }
+
+    const { error: deleteError } = await admin
+      .from("university_eligibility")
+      .delete()
+      .eq("id", existing.id);
+    if (deleteError) {
+      throw new Error(`Could not delete stale eligibility for ${name}: ${deleteError.message}`);
+    }
+    staleEligibilityCount++;
+  }
+
   let universityCount = 0;
   let eligibilityCount = 0;
 
@@ -113,7 +170,9 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${universityCount} universities, ${eligibilityCount} eligibility rows.`);
+  console.log(
+    `Seeded ${universityCount} universities, ${eligibilityCount} eligibility rows; removed ${staleEligibilityCount} stale GKS-U eligibility rows.`
+  );
 }
 
 main().then(
