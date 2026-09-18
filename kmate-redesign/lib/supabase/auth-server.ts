@@ -3,7 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { buildLoginUrl, isSafeNext, withNext } from "@/lib/auth/safe-next";
+import { isSafeNext } from "@/lib/auth/safe-next";
+import { DEMO_USER_ID } from "@/lib/demo-mode";
 
 /**
  * Session-aware Supabase client for Server Components and Route Handlers --
@@ -64,7 +65,9 @@ export interface AuthenticatedUser {
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   const h = await headers();
   const userId = h.get("x-kmate-user-id");
-  return userId ? { id: userId, email: h.get("x-kmate-user-email") } : null;
+  return userId
+    ? { id: userId, email: h.get("x-kmate-user-email") }
+    : { id: DEMO_USER_ID, email: null };
 }
 
 /**
@@ -73,26 +76,9 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
  * Server Component page that requires a fully set-up profile (/home,
  * /discover, /requests, etc).
  */
-export async function requireOnboarded(nextPath: string): Promise<AuthenticatedUser> {
-  const destination = await currentDestination(nextPath);
+export async function requireOnboarded(_nextPath: string): Promise<AuthenticatedUser> {
   const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect(buildLoginUrl(destination));
-  }
-
-  const { data: profile } = await getSupabaseAdmin()
-    .from("profiles")
-    .select("onboarding_completed_at")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.onboarding_completed_at) {
-    // The destination rides through onboarding too, so someone who signs in
-    // mid-setup still lands on the page they originally asked for.
-    redirect(withNext("/onboarding", destination));
-  }
-
-  return user;
+  return user ?? { id: DEMO_USER_ID, email: null };
 }
 
 /**
