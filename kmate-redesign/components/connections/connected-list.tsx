@@ -55,24 +55,24 @@ export function ConnectedList({ items: initial, fromUrl }: { items: ConnectedPer
   }
 
   if (items.length === 0) {
-    return <p className="text-[13.5px] text-muted">No connections yet -- accepted requests show up here.</p>;
+    return <div className="rounded-[20px] border border-dashed border-hairline-strong bg-surface/55 px-5 py-10 text-center"><p className="text-[12px] font-semibold text-muted">No connections yet — accepted requests will appear here.</p></div>;
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((person) => (
-        <Card key={person.id} className="flex flex-col gap-3">
+        <Card key={person.id} className="flex min-h-[210px] flex-col gap-4">
           <div className="flex items-start justify-between gap-2">
             <Link
               href={`/profile/${person.username}?from=${encodeURIComponent(fromUrl)}`}
-              className="font-semibold text-ink hover:underline"
+              className="text-[14px] font-extrabold tracking-[-0.015em] text-ink hover:text-primary"
             >
               @{person.username}
             </Link>
             <TrackBadge track={person.track} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 rounded-[14px] bg-canvas/55 p-3">
             <div>
               <MicroLabel>Major</MicroLabel>
               <p className="mt-0.5 truncate text-[13px] text-ink">{person.major ?? "—"}</p>
@@ -87,7 +87,7 @@ export function ConnectedList({ items: initial, fromUrl }: { items: ConnectedPer
               way connected users reach each other. The underlying contact
               methods still exist (profile Contact vault) -- they are simply no
               longer the primary contact surface here. */}
-          <div className="flex items-center gap-2">
+          <div className="mt-auto flex items-center gap-2">
             <MessageButton otherUserId={person.id} />
           </div>
 
