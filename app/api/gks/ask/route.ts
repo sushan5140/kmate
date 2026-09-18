@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-server";
+import { DEMO_USER_ID } from "@/lib/demo-mode";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { retrieveGksU2027, guidelineCoverage } from "@/lib/gks/guideline-retriever";
@@ -50,10 +51,11 @@ interface RagAskResponse {
  * layer; its community evidence is discarded.
  */
 export async function POST(request: Request) {
-  const user = await getAuthenticatedUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const authenticatedUser = await getAuthenticatedUser();
+  const demoMode = !authenticatedUser;
+  const user = authenticatedUser ?? { id: DEMO_USER_ID, email: null };
 
-  const rateLimit = checkRateLimit(`gks-ask:${user.id}`, 20, 60 * 60 * 1000);
+  const rateLimit = checkRateLimit(`gks-ask:${demoMode ? "raw-preview" : user.id}`, 20, 60 * 60 * 1000);
   if (!rateLimit.allowed) {
     return NextResponse.json(
       { error: "rate_limited", retry_after_seconds: rateLimit.retryAfterSeconds },
@@ -62,12 +64,14 @@ export async function POST(request: Request) {
   }
 
   const admin = getSupabaseAdmin();
-  const persistentCount = await countRecentGksAsks(
-    admin,
-    user.id,
-    new Date(Date.now() - 60 * 60 * 1000).toISOString()
-  );
-  if (persistentCount !== null && persistentCount >= 20) {
+  const persistentCount = demoMode
+    ? null
+    : await countRecentGksAsks(
+        admin,
+        user.id,
+        new Date(Date.now() - 60 * 60 * 1000).toISOString()
+      );
+  if (!demoMode && persistentCount !== null && persistentCount >= 20) {
     return NextResponse.json(
       { error: "rate_limited", retry_after_seconds: 60 * 60 },
       { status: 429 }
@@ -184,6 +188,14 @@ export async function POST(request: Request) {
       community: [],
     },
   };
+
+  if (demoMode) {
+    return NextResponse.json({
+      ...data,
+      preview_mode: true,
+      thread: null,
+    });
+  }
 
   try {
     const { id: questionId, askCount } = await upsertQuestion(admin, {
