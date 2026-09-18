@@ -3,6 +3,7 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ChatApp, type ConversationSummary } from "@/components/chat/chat-app";
 import type { Track } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Messages — KMate",
@@ -97,12 +98,20 @@ export default async function MessagesPage({
     : null;
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">Messages</h1>
-      <p className="mt-1.5 text-[13.5px] text-muted">
-        Private 1:1 chats with applicants you&apos;ve connected with.
-      </p>
-      <div className="mt-6">
+    <main className="mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <div className="hidden sm:block">
+        <PageHeader
+          eyebrow="Community"
+          title="Messages"
+          description="Private 1:1 conversations with applicants you have chosen to connect with."
+          meta={
+            <span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[10.5px] font-bold text-muted ring-1 ring-hairline">
+              {summaries.length} conversation{summaries.length === 1 ? "" : "s"}
+            </span>
+          }
+        />
+      </div>
+      <div className="sm:mt-6">
         <ChatApp currentUserId={user.id} conversations={summaries} initialActiveId={activeId} />
       </div>
     </main>
