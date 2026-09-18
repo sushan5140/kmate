@@ -30,11 +30,6 @@ interface SessionPayload {
 
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const rateLimit = checkRateLimit(`mock-interview-session:${user.id}`, 20, 60 * 60 * 1000);
-  if (!rateLimit.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-
   const body = (await request.json()) as SessionPayload;
 
   if (!(MOCK_INTERVIEW_CATEGORIES as readonly string[]).includes(body.category)) {
@@ -46,6 +41,15 @@ export async function POST(request: Request) {
   if (!Array.isArray(body.questions) || body.questions.length === 0) {
     return NextResponse.json({ error: "no_questions" }, { status: 400 });
   }
+
+  if (!user) {
+    const rateLimit = checkRateLimit("mock-interview-session:raw-preview", 20, 60 * 60 * 1000);
+    if (!rateLimit.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    return NextResponse.json({ ok: true, sessionId: "raw-preview", previewMode: true });
+  }
+
+  const rateLimit = checkRateLimit(`mock-interview-session:${user.id}`, 20, 60 * 60 * 1000);
+  if (!rateLimit.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
   const admin = getSupabaseAdmin();
 
