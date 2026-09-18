@@ -1,454 +1,343 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  EyeOff,
-  Flag,
-  MessagesSquare,
+  ArrowRight,
+  BookOpenCheck,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  FileCheck2,
+  GraduationCap,
+  MessageCircle,
+  Search,
   ShieldCheck,
-  UserRoundCheck,
+  Sparkles,
+  UsersRound,
 } from "lucide-react";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
-import { ConnectionGraph } from "@/components/marketing/connection-graph";
-import { DiscoverMockup } from "@/components/marketing/discover-mockup";
-import { InterviewMockup } from "@/components/marketing/interview-mockup";
-import { ConnectMockup } from "@/components/marketing/connect-mockup";
-import { GksTimeline } from "@/components/marketing/gks-timeline";
-import { Reveal } from "@/components/marketing/reveal";
 
-const DEAD_ENDS = [
+const WORKSPACE = [
   {
-    source: "Official rules",
-    text: "Which rule applies to my route, university and application stage?",
-    meta: "National guidelines, embassy instructions and university requirements live in different places.",
+    icon: FileCheck2,
+    title: "Application readiness",
+    body: "See documents, forms, university extras and route-specific requirements in one checklist.",
+    meta: "Your application state",
   },
   {
-    source: "Application tracking",
-    text: "What have I completed, and what am I still missing?",
-    meta: "Generic notes do not understand GKS routes, document stages or university-specific extras.",
+    icon: BookOpenCheck,
+    title: "Official guidance",
+    body: "Keep current GKS rules, source links and cycle labels beside the decisions they affect.",
+    meta: "Evidence before advice",
   },
   {
-    source: "Applicant communities",
-    text: "Who is actually applying through the same route and targeting the same universities?",
-    meta: "Large groups are useful, but they are not structured around your exact application.",
+    icon: GraduationCap,
+    title: "University requirements",
+    body: "Compare eligible universities without hiding when a university-specific source belongs to an older cycle.",
+    meta: "Route-aware choices",
+  },
+  {
+    icon: UsersRound,
+    title: "Applicant network",
+    body: "Find applicants by program, major, year and target university, then connect privately.",
+    meta: "Relevant people only",
   },
 ];
 
-const HOW_IT_WORKS = [
+const SOURCE_STATES = [
   {
-    step: "01",
-    title: "Set your application route",
-    body: "Choose GKS-U or GKS-G, your route, major, application year and route-appropriate universities.",
+    label: "Current official rule",
+    tone: "bg-success-soft text-success",
+    text: "Grounded in the current national guideline or a current official notice.",
   },
   {
-    step: "02",
-    title: "Check the official rules",
-    body: "Use cycle-tagged guidelines, requirement checks and source links instead of relying on remembered advice.",
+    label: "Older university source",
+    tone: "bg-gold-soft text-gold",
+    text: "Useful context, but shown with its source cycle instead of pretending it is current.",
   },
   {
-    step: "03",
-    title: "Build the application",
-    body: "Track documents, forms, university extras, deadlines and interview preparation from one workspace.",
-  },
-  {
-    step: "04",
-    title: "Prepare with your cohort",
-    body: "Find relevant applicants, connect intentionally and use private in-app messaging after both sides opt in.",
+    label: "Community experience",
+    tone: "bg-primary-soft text-primary",
+    text: "Applicant experience stays helpful without becoming an official requirement.",
   },
 ];
 
-const ELSEWHERE = [
-  "National, embassy and university rules split across separate pages",
-  "Old-cycle advice that still looks current",
-  "Generic checklists that do not understand your application route",
-  "Applicant groups with no structured university or major matching",
-  "No clear distinction between official rules and community experience",
+const STEPS = [
+  ["01", "Set your route", "Choose your GKS program, route, year, major and target universities."],
+  ["02", "Build the file", "Turn the route into a real checklist with source-aware requirements."],
+  ["03", "Prepare the interview", "Use the question database and your own private answer drafts."],
+  ["04", "Find your cohort", "Connect with applicants whose application actually overlaps yours."],
 ];
 
-const HERE = [
-  "Cycle-tagged GKS rules with official source links and conservative fallbacks",
-  "Application Readiness tied to your route and target universities",
-  "Requirement Checker that labels older university-specific detail instead of hiding its age",
-  "Guideline-grounded GKS Assistant with community anecdotes kept out of official answers",
-  "Applicant discovery and private in-app connections alongside the application tools",
-];
+function ProductPreview() {
+  return (
+    <div className="relative mx-auto w-full max-w-[520px]">
+      <div className="absolute -inset-10 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+      <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-surface/95 shadow-[0_35px_100px_-45px_rgba(23,33,29,.42)]">
+        <div className="flex h-12 items-center justify-between border-b border-hairline px-4">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-[9px] bg-ink text-[10px] font-extrabold text-white">K</span>
+            <span className="text-[11.5px] font-extrabold text-ink">Application workspace</span>
+          </div>
+          <span className="rounded-full bg-success-soft px-2.5 py-1 text-[9.5px] font-extrabold text-success">
+            2027 · GKS-U
+          </span>
+        </div>
 
-const PRIVACY_PILLARS = [
-  {
-    icon: EyeOff,
-    title: "Private by default",
-    body: "Your public profile shows only the applicant information needed for useful matching. Private contact methods stay out of the public profile.",
-  },
-  {
-    icon: UserRoundCheck,
-    title: "Connection before conversation",
-    body: "Applicants send and accept connection requests before using in-app messaging. You decide who can reach you.",
-  },
-  {
-    icon: Flag,
-    title: "Block and report built in",
-    body: "Blocking, reporting and moderation are first-class product flows rather than an afterthought.",
-  },
-];
+        <div className="grid gap-3 p-4 sm:grid-cols-[1.15fr_.85fr] sm:p-5">
+          <div className="rounded-[20px] bg-ink p-5 text-white">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-white/55">
+                Application pulse
+              </span>
+              <CalendarDays className="h-4 w-4 text-white/55" />
+            </div>
+            <p className="mt-7 text-[28px] font-extrabold tracking-[-0.04em]">68%</p>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-white/60">
+              Your core file is taking shape. Three items need attention next.
+            </p>
+            <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-[68%] rounded-full bg-[#87c9b4]" />
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-hairline bg-canvas/70 p-4">
+            <span className="text-[9.5px] font-extrabold uppercase tracking-[0.13em] text-muted/70">
+              Next up
+            </span>
+            <div className="mt-3 space-y-2.5">
+              {[
+                "Personal statement",
+                "University document check",
+                "Apostille review",
+              ].map((item, index) => (
+                <div key={item} className="flex items-center gap-2.5 rounded-xl bg-surface px-3 py-2.5 shadow-xs">
+                  <span className={index === 0 ? "h-2 w-2 rounded-full bg-gks-u" : "h-2 w-2 rounded-full bg-primary/35"} />
+                  <span className="text-[10.5px] font-semibold text-ink">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-hairline bg-surface p-4 sm:col-span-2">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <span className="text-[9.5px] font-extrabold uppercase tracking-[0.13em] text-muted/70">
+                  Source clarity
+                </span>
+                <p className="mt-1 text-[12px] font-bold text-ink">Know what is official before you act on it.</p>
+              </div>
+              <ShieldCheck className="h-5 w-5 shrink-0 text-primary" />
+            </div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              {[
+                ["Current rule", "Official"],
+                ["PNU detail", "Cycle tagged"],
+                ["Interview tip", "Community"],
+              ].map(([title, tag]) => (
+                <div key={title} className="rounded-[14px] bg-canvas/75 px-3 py-2.5">
+                  <p className="text-[10.5px] font-bold text-ink">{title}</p>
+                  <p className="mt-0.5 text-[9.5px] font-semibold text-muted">{tag}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute -bottom-4 -left-3 hidden items-center gap-2 rounded-[14px] border border-white/80 bg-white/92 px-3 py-2.5 shadow-card backdrop-blur-xl sm:flex">
+        <CheckCircle2 className="h-4 w-4 text-success" />
+        <div>
+          <p className="text-[10px] font-extrabold text-ink">Requirement matched</p>
+          <p className="text-[9px] text-muted">Embassy Track · R-GKS</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default async function LandingPage() {
   const user = await getAuthenticatedUser();
-  if (user) {
-    redirect("/home");
-  }
+  if (user) redirect("/home");
 
   return (
     <main className="overflow-x-clip">
-      {/* ---------------------------------------------------------------- */}
-      {/* Hero                                                              */}
-      {/* ---------------------------------------------------------------- */}
       <section className="relative">
-        <div className="grid-texture pointer-events-none absolute inset-0" aria-hidden />
-        <div className="relative mx-auto grid max-w-5xl gap-14 px-6 pb-24 pt-20 sm:pt-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
-          <div>
-            <Reveal>
-              <span className="inline-flex items-center rounded-full bg-ink/[0.04] px-3 py-1 text-[12px] font-medium uppercase tracking-wide text-muted ring-1 ring-hairline">
-                For GKS-U &amp; GKS-G applicants
-              </span>
-              <h1 className="text-balance mt-5 text-[38px] font-semibold leading-[1.08] tracking-[-0.02em] text-ink sm:text-[52px]">
-                Build your{" "}
-                <em className="font-serif font-normal italic tracking-normal text-primary">
-                  GKS application
-                </em>{" "}
-                with the rules in reach.
-              </h1>
-              <p className="text-balance mt-5 max-w-lg text-[16px] leading-relaxed text-muted">
-                Check official rules, track your documents, compare university requirements,
-                prepare for interviews, and find applicants working through a similar route —
-                without mixing old-cycle advice into current guidance.
-              </p>
+        <div className="grid-texture pointer-events-none absolute inset-x-0 top-0 h-[760px]" aria-hidden />
+        <div className="relative mx-auto grid max-w-[1180px] gap-14 px-4 pb-24 pt-16 sm:px-6 sm:pt-24 lg:grid-cols-[1.02fr_.98fr] lg:items-center lg:gap-16 lg:pb-28 lg:pt-28">
+          <div className="max-w-[640px]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-hairline bg-surface/80 px-3 py-1.5 text-[10.5px] font-extrabold uppercase tracking-[0.12em] text-muted shadow-xs backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              GKS application intelligence
+            </div>
 
-              <div className="mt-8 flex items-center gap-5">
-                <Link
-                  href="/login"
-                  className="inline-flex h-11 items-center rounded-full bg-ink px-6 text-[14px] font-medium text-white shadow-xs transition-all duration-150 hover:shadow-card active:scale-[0.97]"
-                >
-                  Sign in with Google
-                </Link>
-                <Link
-                  href="/about"
-                  className="text-[14px] font-medium text-muted transition-colors hover:text-ink"
-                >
-                  Learn more →
-                </Link>
-              </div>
-            </Reveal>
+            <h1 className="text-balance mt-6 text-[43px] font-extrabold leading-[0.99] tracking-[-0.052em] text-ink sm:text-[60px] lg:text-[68px]">
+              One place to build the application.
+              <span className="mt-2 block font-serif text-[1.03em] font-normal italic tracking-[-0.025em] text-primary">
+                One trail of sources to trust.
+              </span>
+            </h1>
+
+            <p className="mt-6 max-w-[585px] text-[15px] font-medium leading-7 text-muted sm:text-[16px]">
+              KMate turns GKS rules, documents, university requirements, deadlines, interview prep,
+              and applicant discovery into one focused workspace without mixing old-cycle advice into current guidance.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/login"
+                className="pressable inline-flex h-12 items-center gap-2 rounded-[15px] bg-ink px-5 text-[13px] font-bold text-white shadow-card"
+              >
+                Open your workspace
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/about"
+                className="pressable inline-flex h-12 items-center rounded-[15px] border border-hairline-strong bg-surface/80 px-5 text-[13px] font-bold text-ink shadow-xs hover:bg-white"
+              >
+                How KMate works
+              </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-semibold text-muted">
+              {["Current-cycle labels", "Private applicant connections", "Official sources linked"].map((item) => (
+                <span key={item} className="inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <Reveal delay={0.15} className="relative mx-auto w-full max-w-sm lg:mx-0 lg:max-w-none">
-            <div className="glow-wash pointer-events-none absolute -inset-10" aria-hidden />
-            <div className="relative">
-              <ConnectionGraph />
-            </div>
-          </Reveal>
+          <ProductPreview />
         </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Problem                                                           */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="border-y border-hairline bg-surface/60">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <Reveal className="max-w-xl">
-            <h2 className="text-balance text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-              GKS information is everywhere.{" "}
-              <em className="font-serif font-normal italic text-muted">
-                Your application should not be.
-              </em>
-            </h2>
-            <p className="mt-4 text-[15px] leading-relaxed text-muted">
-              KMate brings the application workflow together while keeping a hard line
-              between current official rules, older source material, and community experience.
-            </p>
-          </Reveal>
+      <section id="workspace" className="border-y border-hairline bg-surface/52">
+        <div className="mx-auto max-w-[1180px] px-4 py-20 sm:px-6 lg:py-24">
+          <div className="grid gap-8 lg:grid-cols-[.82fr_1.18fr] lg:gap-14">
+            <div className="max-w-[480px]">
+              <p className="kmate-kicker text-primary">The workspace</p>
+              <h2 className="text-balance mt-3 text-[31px] font-extrabold leading-[1.05] tracking-[-0.038em] text-ink sm:text-[40px]">
+                Built around the decisions that actually move a GKS application forward.
+              </h2>
+              <p className="mt-4 text-[14px] font-medium leading-7 text-muted">
+                The application stays primary. Community, AI, interview practice, and reference tools sit around it instead of becoming the product hierarchy.
+              </p>
+            </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {DEAD_ENDS.map((item, i) => (
-              <Reveal key={item.source} delay={i * 0.1}>
-                <div className="h-full rounded-2xl bg-canvas p-4 ring-1 ring-hairline">
-                  <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted/70">
-                    {item.source}
-                  </p>
-                  <p className="mt-2.5 text-[13.5px] font-medium leading-relaxed text-ink/80">
-                    {item.text}
-                  </p>
-                  <p className="mt-3 text-[11.5px] italic text-muted">{item.meta}</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {WORKSPACE.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-[22px] border border-hairline bg-canvas/62 p-5 sm:p-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-surface text-primary shadow-xs ring-1 ring-hairline">
+                      <Icon className="h-4.5 w-4.5" />
+                    </div>
+                    <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.13em] text-muted/65">{item.meta}</p>
+                    <h3 className="mt-1.5 text-[16px] font-extrabold tracking-[-0.018em] text-ink">{item.title}</h3>
+                    <p className="mt-2 text-[12.5px] font-medium leading-6 text-muted">{item.body}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1180px] px-4 py-20 sm:px-6 lg:py-24">
+        <div className="grid gap-10 lg:grid-cols-[.95fr_1.05fr] lg:items-center lg:gap-16">
+          <div className="order-2 rounded-[28px] border border-hairline bg-surface p-5 shadow-card sm:p-7 lg:order-1">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <p className="text-[12px] font-extrabold text-ink">Source status travels with the information</p>
+            </div>
+            <div className="mt-5 space-y-3">
+              {SOURCE_STATES.map((state) => (
+                <div key={state.label} className="rounded-[18px] border border-hairline bg-canvas/55 p-4">
+                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[9.5px] font-extrabold ${state.tone}`}>
+                    {state.label}
+                  </span>
+                  <p className="mt-2.5 text-[12px] font-medium leading-5 text-muted">{state.text}</p>
                 </div>
-              </Reveal>
+              ))}
+            </div>
+          </div>
+
+          <div className="order-1 lg:order-2">
+            <p className="kmate-kicker text-primary">Source clarity</p>
+            <h2 className="text-balance mt-3 text-[31px] font-extrabold leading-[1.05] tracking-[-0.038em] text-ink sm:text-[40px]">
+              A rule, an old university page, and an applicant story are not the same kind of evidence.
+            </h2>
+            <p className="mt-5 max-w-[560px] text-[14px] font-medium leading-7 text-muted">
+              KMate keeps those layers visible. That means useful context can stay useful without quietly turning into a current official requirement.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-hairline bg-ink text-white">
+        <div className="mx-auto max-w-[1180px] px-4 py-20 sm:px-6 lg:py-24">
+          <div className="max-w-[620px]">
+            <p className="kmate-kicker text-[#9fcbbb]">One workflow</p>
+            <h2 className="text-balance mt-3 text-[31px] font-extrabold leading-[1.05] tracking-[-0.038em] sm:text-[40px]">
+              From choosing a route to walking into the interview prepared.
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map(([step, title, body]) => (
+              <div key={step} className="border-t border-white/15 pt-5">
+                <p className="font-serif text-[34px] italic text-[#9fcbbb]">{step}</p>
+                <h3 className="mt-3 text-[14px] font-extrabold">{title}</h3>
+                <p className="mt-2 text-[12px] font-medium leading-6 text-white/58">{body}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* How it works                                                      */}
-      {/* ---------------------------------------------------------------- */}
-      <section id="how-it-works" className="mx-auto max-w-5xl px-6 py-20">
-        <Reveal>
-          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-            How it works
-          </p>
-          <h2 className="text-balance mt-3 max-w-lg text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-            From route selection to a submission-ready workflow.
-          </h2>
-        </Reveal>
-
-        <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-          {HOW_IT_WORKS.map((item, i) => (
-            <Reveal key={item.step} delay={i * 0.08}>
-              <div className="relative">
-                <span className="font-serif text-[40px] italic leading-none text-primary/30">
-                  {item.step}
-                </span>
-                <h3 className="mt-3 text-[15px] font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{item.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Deep dive: Discover                                               */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <Reveal>
-            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-              Discover
-            </p>
-            <h2 className="text-balance mt-3 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">
-              Your cohort, filtered to the people who matter.
+      <section className="mx-auto max-w-[1180px] px-4 py-20 sm:px-6 lg:py-24">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-[26px] border border-hairline bg-surface p-6 md:col-span-2 sm:p-8">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-primary-soft text-primary">
+              <Search className="h-5 w-5" />
+            </div>
+            <h2 className="mt-8 max-w-[580px] text-[27px] font-extrabold leading-[1.08] tracking-[-0.032em] text-ink sm:text-[34px]">
+              Find applicants by the application they are actually building.
             </h2>
-            <p className="mt-4 text-[14.5px] leading-relaxed text-muted">
-              Profiles carry a GKS program, major, application year and route-appropriate
-              university choices. Discover uses those fields to surface applicants with
-              meaningful overlap instead of a generic social feed.
+            <p className="mt-4 max-w-[620px] text-[13px] font-medium leading-6 text-muted">
+              Program, route, major, application year and target universities create useful overlap. No public phone-number wall required.
             </p>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
-              The community layer is there to support the application, not replace the
-              official rules that decide it.
-            </p>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <div className="relative">
-              <div className="glow-wash pointer-events-none absolute -inset-8" aria-hidden />
-              <div className="relative">
-                <DiscoverMockup />
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Interview DB                                                      */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
-        <Reveal className="max-w-2xl">
-          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-            Interview DB
-          </p>
-          <h2 className="text-balance mt-3 text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-            The highest-stakes fifteen minutes of the application,{" "}
-            <em className="font-serif font-normal italic text-muted">rehearsed in advance.</em>
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-muted">
-            Practice from a structured question bank grouped by interview theme,
-            then keep your own answer drafts alongside the preparation workflow.
-          </p>
-          <p className="mt-3 text-[15px] leading-relaxed text-muted">
-            Your drafts stay private to your account while community-contributed
-            material remains clearly separate from official guideline answers.
-          </p>
-        </Reveal>
-        <Reveal delay={0.15} className="mt-10">
-          <div className="relative">
-            <div className="glow-wash pointer-events-none absolute -inset-8" aria-hidden />
-            <div className="relative">
-              <InterviewMockup />
-            </div>
           </div>
-        </Reveal>
+
+          <div className="rounded-[26px] bg-primary p-6 text-white sm:p-8">
+            <MessageCircle className="h-5 w-5 text-white/70" />
+            <h3 className="mt-8 text-[22px] font-extrabold leading-tight tracking-[-0.025em]">Connect first. Message second.</h3>
+            <p className="mt-3 text-[12.5px] font-medium leading-6 text-white/70">
+              Private in-app messaging opens after a connection is accepted, with block and report controls built in.
+            </p>
+          </div>
+        </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Deep dive: Connect                                                */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-6 py-16">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <Reveal>
-            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-              Connect
-            </p>
-            <h2 className="text-balance mt-3 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[28px]">
-              Connect first. Message inside KMate when both sides agree.
+      <section className="px-4 pb-20 sm:px-6 lg:pb-28">
+        <div className="mx-auto max-w-[1180px] overflow-hidden rounded-[30px] bg-[#dce9e2] px-5 py-10 sm:px-10 sm:py-12 lg:flex lg:items-center lg:justify-between lg:gap-12">
+          <div className="max-w-[650px]">
+            <p className="kmate-kicker text-primary">Start from your route</p>
+            <h2 className="mt-3 text-[30px] font-extrabold leading-[1.06] tracking-[-0.04em] text-ink sm:text-[40px]">
+              Make the application easier to see before you make it harder to finish.
             </h2>
-            <p className="mt-4 text-[14.5px] leading-relaxed text-muted">
-              Send a connection request with your applicant profile visible for context.
-              If the other person accepts, in-app messaging becomes available without
-              exposing private contact methods on the public profile.
+            <p className="mt-4 text-[13px] font-medium leading-6 text-muted">
+              Sign in, set your GKS route, and let KMate organize the next decisions around it.
             </p>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
-              You can revoke, block or report when needed, and your external contact
-              details remain in your private contact vault.
-            </p>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <div className="relative">
-              <div className="glow-wash pointer-events-none absolute -inset-8" aria-hidden />
-              <div className="relative">
-                <ConnectMockup />
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Timeline                                                          */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="border-y border-hairline bg-surface/60">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <Reveal>
-            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-              The GKS year
-            </p>
-            <h2 className="text-balance mt-3 max-w-xl text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-              You need different people at different stages.{" "}
-              <em className="font-serif font-normal italic text-muted">
-                The application runs on a calendar.
-              </em>
-            </h2>
-            <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-muted">
-              The GKS-G cycle, roughly. GKS-U runs the same shape from
-              September. Whichever track you&apos;re on, the person you need in
-              February is not the person you need in June.
-            </p>
-          </Reveal>
-          <Reveal delay={0.15} className="mt-12">
-            <GksTimeline />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Comparison                                                        */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
-        <Reveal>
-          <h2 className="text-balance max-w-xl text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-            You could keep refreshing the megagroup.
-          </h2>
-        </Reveal>
-
-        <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          <Reveal>
-            <div className="h-full rounded-[24px] bg-canvas p-6 ring-1 ring-hairline sm:p-8">
-              <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-muted/70">
-                Everywhere else
-              </p>
-              <ul className="mt-5 flex flex-col gap-4">
-                {ELSEWHERE.map((item) => (
-                  <li key={item} className="flex gap-3 text-[14px] leading-relaxed text-muted">
-                    <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-muted/40" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="relative h-full overflow-hidden rounded-[24px] bg-surface p-6 shadow-card ring-1 ring-primary/25 sm:p-8">
-              <div className="glow-wash pointer-events-none absolute inset-0 opacity-70" aria-hidden />
-              <div className="relative">
-                <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-                  KMate
-                </p>
-                <ul className="mt-5 flex flex-col gap-4">
-                  {HERE.map((item) => (
-                    <li key={item} className="flex gap-3 text-[14px] font-medium leading-relaxed text-ink">
-                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Privacy                                                           */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="mx-auto max-w-5xl px-6 pb-24 pt-4">
-        <Reveal>
-          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
-            Private by design
-          </p>
-          <h2 className="text-balance mt-3 max-w-lg text-[26px] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[32px]">
-            Built for people who&apos;d rather not be found by everyone.
-          </h2>
-        </Reveal>
-
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {PRIVACY_PILLARS.map((pillar, i) => {
-            const Icon = pillar.icon;
-            return (
-              <Reveal key={pillar.title} delay={i * 0.1}>
-                <div className="h-full rounded-[24px] bg-surface p-6 shadow-card ring-1 ring-hairline">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
-                    <Icon className="h-4.5 w-4.5" strokeWidth={2} />
-                  </div>
-                  <h3 className="mt-4 text-[15px] font-semibold text-ink">{pillar.title}</h3>
-                  <p className="mt-2 text-[13px] leading-relaxed text-muted">{pillar.body}</p>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Closing CTA                                                       */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="relative overflow-hidden bg-ink">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-            maskImage: "radial-gradient(ellipse 70% 80% at 50% 30%, black 40%, transparent 90%)",
-          }}
-          aria-hidden
-        />
-        <div className="relative mx-auto max-w-2xl px-6 py-24 text-center">
-          <Reveal>
-            <MessagesSquare className="mx-auto h-6 w-6 text-white/40" />
-            <h2 className="text-balance mt-5 text-[28px] font-semibold leading-tight tracking-[-0.015em] text-white sm:text-[36px]">
-              One place for the application.{" "}
-              <em className="font-serif font-normal italic text-white/70">
-                Clear sources for every important rule.
-              </em>
-            </h2>
-            <p className="mx-auto mt-4 max-w-md text-[14.5px] leading-relaxed text-white/60">
-              Sign in, set your GKS route, and turn the official requirements into an application you can actually manage.
-            </p>
-            <div className="mt-8">
-              <Link
-                href="/login"
-                className="inline-flex h-11 items-center rounded-full bg-white px-6 text-[14px] font-medium text-ink shadow-pop transition-all duration-150 hover:shadow-lg active:scale-[0.97]"
-              >
-                Sign in with Google
-              </Link>
-            </div>
-          </Reveal>
+          </div>
+          <Link
+            href="/login"
+            className="pressable mt-7 inline-flex h-12 shrink-0 items-center gap-2 rounded-[15px] bg-ink px-5 text-[13px] font-bold text-white shadow-card lg:mt-0"
+          >
+            Sign in with Google
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
     </main>
