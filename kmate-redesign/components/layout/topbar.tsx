@@ -11,7 +11,15 @@ function subscribeToHistory(onChange: () => void) {
   return () => window.removeEventListener("popstate", onChange);
 }
 
-export function TopBar({ username, isAdmin }: { username: string | null; isAdmin: boolean }) {
+export function TopBar({
+  username,
+  isAdmin,
+  demoMode = false,
+}: {
+  username: string | null;
+  isAdmin: boolean;
+  demoMode?: boolean;
+}) {
   const [hasUnread, setHasUnread] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -24,6 +32,7 @@ export function TopBar({ username, isAdmin }: { username: string | null; isAdmin
   const showBack = canGoBack && pathname !== "/home";
 
   useEffect(() => {
+    if (demoMode) return;
     let cancelled = false;
     async function poll() {
       try {
@@ -38,7 +47,7 @@ export function TopBar({ username, isAdmin }: { username: string | null; isAdmin
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [demoMode]);
 
   return (
     <header className="sticky top-0 z-30 flex h-[58px] items-center justify-between border-b border-hairline bg-surface/88 px-3 backdrop-blur-xl md:hidden">
@@ -62,15 +71,17 @@ export function TopBar({ username, isAdmin }: { username: string | null; isAdmin
       </div>
 
       <div className="flex items-center gap-0.5">
-        <Link
-          href="/requests"
-          aria-label="Notifications"
-          className="pressable relative flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-ink/[0.04]"
-        >
-          <Bell className="h-[18px] w-[18px]" />
-          {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gks-u ring-2 ring-surface" />}
-        </Link>
-        <MoreMenu username={username} isAdmin={isAdmin} />
+        {!demoMode && (
+          <Link
+            href="/requests"
+            aria-label="Notifications"
+            className="pressable relative flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-ink/[0.04]"
+          >
+            <Bell className="h-[18px] w-[18px]" />
+            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gks-u ring-2 ring-surface" />}
+          </Link>
+        )}
+        <MoreMenu username={username} isAdmin={isAdmin} demoMode={demoMode} />
       </div>
     </header>
   );
