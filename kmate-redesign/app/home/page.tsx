@@ -181,7 +181,7 @@ export default async function HomePage() {
       </section>
 
       {demoMode ? (
-        <div className="mt-5 flex items-start gap-3 rounded-[11px] border border-primary/12 bg-primary-soft/55 px-4 py-3"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Raw preview</p><p className="mt-1 text-[11px] font-medium leading-5 text-muted">Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.</p></div></div>
+        <div className="mt-5 flex items-start gap-3 rounded-[11px] border border-primary/12 bg-primary-soft px-4 py-3"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Raw preview</p><p className="mt-1 text-[11px] font-medium leading-5 text-muted">Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.</p></div></div>
       ) : (
         <div className="mt-5 flex flex-col gap-3">
           <WarningBanner />
