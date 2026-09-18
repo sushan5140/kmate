@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* KMate product UI reset */
+
 :root {
   --color-canvas: #f6f7f4;
   --color-surface: #ffffff;
