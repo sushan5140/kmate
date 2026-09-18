@@ -227,6 +227,7 @@ export default async function ProfilePage({
             {viewer && <ReportBlockMenu targetType="profile" targetId={profile.id} blockedUserId={profile.id} />}
           </div>
         </div>
+        </div>
 
         <div className="p-5 sm:p-7">
         <div className="grid grid-cols-2 gap-4 rounded-[16px] bg-canvas/55 p-4">
