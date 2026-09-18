@@ -1,1 +1,5 @@
-export { default } from "../kmate-redesign/app/page";
+import { redirect } from "next/navigation";
+
+export default function RawEntry() {
+  redirect("/home");
+}
