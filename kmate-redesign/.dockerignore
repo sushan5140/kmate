@@ -1,0 +1,35 @@
+# Build context is the repo root but the image only needs gks-rag/ plus the
+# official guideline PDFs. Everything below is the Next.js app, local state, or
+# regenerable build output.
+node_modules
+.next
+.git
+.vercel
+.vscode
+.claude
+.playwright-mcp
+app
+components
+lib
+data
+supabase
+public/*
+!public/official-guidelines/
+meno-j
+meno-j-v1-backup
+reel-assets
+*.md
+!gks-rag/README.md
+!gks-rag/DEPLOYMENT.md
+
+# Local Python state and generated artifacts -- rebuilt inside the image.
+gks-rag/.venv
+gks-rag/index
+gks-rag/**/__pycache__
+gks-rag/data/official/official_knowledge.jsonl
+gks-rag/data/community/community_knowledge.jsonl
+gks-rag/tests/*_results.json
+
+# Never ship secrets.
+.env
+.env.*

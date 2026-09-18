@@ -1,0 +1,13 @@
+# Local development, index building, and the Docker image.
+-r requirements.txt
+
+# Local ASGI server (Vercel supplies its own).
+uvicorn[standard]>=0.30
+
+# Index build: PDF parsing for official guideline ingestion.
+pypdf>=4.0
+pdfplumber>=0.11
+
+# Optional generated answers (not enabled in production).
+openai>=1.0
+python-dotenv>=1.0

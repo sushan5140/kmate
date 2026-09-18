@@ -1,0 +1,73 @@
+{
+  "_comment": [
+    "Provenance manifest for the official GKS guideline PDFs that feed the official",
+    "knowledge layer. Ingestion reads ONLY the local `path` below -- it never downloads",
+    "at build time -- and refuses to run if a file's sha256 no longer matches, so a",
+    "changed or swapped PDF can never be ingested silently.",
+    "",
+    "`active`: true  = ingested into the index and retrievable by the assistant.",
+    "          false = kept for version history / audit ONLY. Still hash-verified on",
+    "                  every build so the archived copy can't drift, but never ingested,",
+    "                  so it can never surface as official evidence.",
+    "Superseded editions must stay archived rather than being deleted: they are the",
+    "record of what an applicant was told at the time, and `superseded_by` keeps the",
+    "chain auditable.",
+    "",
+    "To check whether NIIED/the publisher has changed a document since it was captured:",
+    "  python -m app.check_sources          (reports drift, writes nothing)",
+    "Refreshing a source is a deliberate, reviewed action: download the new file, verify",
+    "it by hand, then update `sha256`, `retrieved_at` and `cycle` here in the same commit."
+  ],
+  "sources": [
+    {
+      "id": "gks-u-2026-revised",
+      "scholarship": "GKS",
+      "program": "UG",
+      "cycle": "2026",
+      "active": true,
+      "title": "GKS-U 2026 Application Guidelines (Revised)",
+      "edition": "Revised — 2025.10",
+      "path": "public/official-guidelines/gks-u-2026-revised.pdf",
+      "source_url": "/official-guidelines/gks-u-2026-revised.pdf",
+      "origin_url": null,
+      "retrieved_at": "2025-07-23",
+      "sha256": "f27e91f556d08dae29a5b4bad5830fa54a91722cec23218b1f41d932cb6dbd78",
+      "bytes": 1254058,
+      "supersedes": "gks-u-2026-original",
+      "notes": "The sole active 2026 UG source. Already committed to KMate before the RAG work (see lib/official-guidelines.ts); origin_url unknown, mirrored locally. Issued after the October 2025 NIRS fire took the Study in Korea portal offline; this is the edition that actually governed the cycle."
+    },
+    {
+      "id": "gks-u-2026-original",
+      "scholarship": "GKS",
+      "program": "UG",
+      "cycle": "2026",
+      "active": false,
+      "title": "GKS-U 2026 Application Guidelines (Original)",
+      "edition": "Original — 2025.09",
+      "path": "public/official-guidelines/gks-u-2026-original.pdf",
+      "source_url": "/official-guidelines/gks-u-2026-original.pdf",
+      "origin_url": null,
+      "retrieved_at": "2025-07-23",
+      "sha256": "cff1d10c8790124d583b8183111aa1cc39d1845b227d9d1384a8c596fe51c931",
+      "bytes": 1304143,
+      "superseded_by": "gks-u-2026-revised",
+      "excluded_reason": "Superseded. Retained for version history and audit only, never ingested. It directly contradicts the active revision on facts an applicant would act on -- Embassy Track deadline (Sept 30 vs Oct 17), first-round result dates (Oct 17/Nov 14 vs Oct 27/Nov 21), submission method (online via Study in Korea vs direct to embassy/university), document counts, and the Evaluation Preference list (7 items vs 5). Indexing both would let retrieval answer with a rule that was withdrawn.",
+      "notes": "Still surfaced to users in KMate's Official Guidelines page (lib/official-guidelines.ts) with a 'what changed' note -- that is a deliberate transparency feature and is separate from RAG retrieval."
+    },
+    {
+      "id": "gks-g-2026",
+      "scholarship": "GKS",
+      "program": "G",
+      "cycle": "2026",
+      "active": true,
+      "title": "GKS-G 2026 Application Guidelines",
+      "path": "public/official-guidelines/gks-g-2026.pdf",
+      "source_url": "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf",
+      "origin_url": "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf",
+      "retrieved_at": "2026-08-18",
+      "sha256": "9ee370994b2ef189f5f9c0f7f2eb76f69b7d316c75c14b956de9911d1c58e860",
+      "bytes": 1202067,
+      "notes": "No local copy existed in KMate -- lib/official-guidelines.ts only linked out to origin_url. Fetched once from that exact URL and committed here so rebuilds are reproducible and offline."
+    }
+  ]
+}

@@ -1,0 +1,1154 @@
+[
+  {
+    "track": "gks_g",
+    "university": "Kyungpook National University",
+    "total_selected_count": 47,
+    "embassy_track_count": 20,
+    "university_track_count": 27,
+    "distinct_country_count": 25,
+    "degree_level_breakdown": "Master's:39;Doctoral:7;Research:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Korea University",
+    "total_selected_count": 82,
+    "embassy_track_count": 78,
+    "university_track_count": 4,
+    "distinct_country_count": 50,
+    "degree_level_breakdown": "Master's:73;Doctoral:9"
+  },
+  {
+    "track": "gks_g",
+    "university": "Chonnam National University",
+    "total_selected_count": 40,
+    "embassy_track_count": 15,
+    "university_track_count": 25,
+    "distinct_country_count": 24,
+    "degree_level_breakdown": "Master's:32;Doctoral:8"
+  },
+  {
+    "track": "gks_g",
+    "university": "Korea University Of Technology And Education",
+    "total_selected_count": 16,
+    "embassy_track_count": 4,
+    "university_track_count": 12,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Master's:11;Doctoral:5"
+  },
+  {
+    "track": "gks_g",
+    "university": "Mokwon University",
+    "total_selected_count": 6,
+    "embassy_track_count": 0,
+    "university_track_count": 6,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:5;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Pusan National University",
+    "total_selected_count": 84,
+    "embassy_track_count": 24,
+    "university_track_count": 60,
+    "distinct_country_count": 37,
+    "degree_level_breakdown": "Master's:73;Doctoral:10;Research:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Busan University Of Foreign Studies",
+    "total_selected_count": 20,
+    "embassy_track_count": 6,
+    "university_track_count": 14,
+    "distinct_country_count": 14,
+    "degree_level_breakdown": "Master's:20"
+  },
+  {
+    "track": "gks_g",
+    "university": "Jeonbuk National University",
+    "total_selected_count": 38,
+    "embassy_track_count": 18,
+    "university_track_count": 20,
+    "distinct_country_count": 21,
+    "degree_level_breakdown": "Master's:34;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sungkyunkwan University",
+    "total_selected_count": 39,
+    "embassy_track_count": 29,
+    "university_track_count": 10,
+    "distinct_country_count": 23,
+    "degree_level_breakdown": "Master's:37;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hankuk University Of Foreign Studies",
+    "total_selected_count": 32,
+    "embassy_track_count": 28,
+    "university_track_count": 4,
+    "distinct_country_count": 24,
+    "degree_level_breakdown": "Master's:29;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "Daegu University",
+    "total_selected_count": 20,
+    "embassy_track_count": 4,
+    "university_track_count": 16,
+    "distinct_country_count": 13,
+    "degree_level_breakdown": "Master's:19;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Yonsei Univesity",
+    "total_selected_count": 19,
+    "embassy_track_count": 19,
+    "university_track_count": 0,
+    "distinct_country_count": 16,
+    "degree_level_breakdown": "Master's:15;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Kyung Hee University",
+    "total_selected_count": 39,
+    "embassy_track_count": 34,
+    "university_track_count": 5,
+    "distinct_country_count": 22,
+    "degree_level_breakdown": "Master's:37;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sun Moon University",
+    "total_selected_count": 8,
+    "embassy_track_count": 0,
+    "university_track_count": 8,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:7;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Yonsei University",
+    "total_selected_count": 21,
+    "embassy_track_count": 16,
+    "university_track_count": 5,
+    "distinct_country_count": 16,
+    "degree_level_breakdown": "Master's:20;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Seoul National University",
+    "total_selected_count": 58,
+    "embassy_track_count": 43,
+    "university_track_count": 15,
+    "distinct_country_count": 36,
+    "degree_level_breakdown": "Master's:46;Doctoral:12"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hanyang University",
+    "total_selected_count": 29,
+    "embassy_track_count": 24,
+    "university_track_count": 5,
+    "distinct_country_count": 21,
+    "degree_level_breakdown": "Master's:29"
+  },
+  {
+    "track": "gks_g",
+    "university": "Keimyung University",
+    "total_selected_count": 43,
+    "embassy_track_count": 9,
+    "university_track_count": 34,
+    "distinct_country_count": 19,
+    "degree_level_breakdown": "Master's:42;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Incheon National University",
+    "total_selected_count": 5,
+    "embassy_track_count": 5,
+    "university_track_count": 0,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Master's:4;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Dongguk University",
+    "total_selected_count": 16,
+    "embassy_track_count": 9,
+    "university_track_count": 7,
+    "distinct_country_count": 14,
+    "degree_level_breakdown": "Master's:16"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sookmyung Women's University",
+    "total_selected_count": 9,
+    "embassy_track_count": 2,
+    "university_track_count": 7,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Master's:9"
+  },
+  {
+    "track": "gks_g",
+    "university": "Kongju National University",
+    "total_selected_count": 27,
+    "embassy_track_count": 3,
+    "university_track_count": 24,
+    "distinct_country_count": 17,
+    "degree_level_breakdown": "Master's:25;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hannam University",
+    "total_selected_count": 9,
+    "embassy_track_count": 0,
+    "university_track_count": 9,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Master's:5;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Ewha Womans University",
+    "total_selected_count": 72,
+    "embassy_track_count": 62,
+    "university_track_count": 10,
+    "distinct_country_count": 41,
+    "degree_level_breakdown": "Master's:64;Doctoral:8"
+  },
+  {
+    "track": "gks_g",
+    "university": "Chung-Ang University",
+    "total_selected_count": 42,
+    "embassy_track_count": 37,
+    "university_track_count": 5,
+    "distinct_country_count": 32,
+    "degree_level_breakdown": "Master's:41;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "KDI School Of Public Policy And Management",
+    "total_selected_count": 30,
+    "embassy_track_count": 4,
+    "university_track_count": 26,
+    "distinct_country_count": 23,
+    "degree_level_breakdown": "Master's:30"
+  },
+  {
+    "track": "gks_g",
+    "university": "Pukyong National University",
+    "total_selected_count": 23,
+    "embassy_track_count": 2,
+    "university_track_count": 21,
+    "distinct_country_count": 11,
+    "degree_level_breakdown": "Master's:20;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "Dongseo University",
+    "total_selected_count": 30,
+    "embassy_track_count": 6,
+    "university_track_count": 24,
+    "distinct_country_count": 19,
+    "degree_level_breakdown": "Master's:30"
+  },
+  {
+    "track": "gks_g",
+    "university": "Incheon University",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "Kangwon National University",
+    "total_selected_count": 31,
+    "embassy_track_count": 7,
+    "university_track_count": 24,
+    "distinct_country_count": 22,
+    "degree_level_breakdown": "Master's:30;Research:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Gyeongsang National University",
+    "total_selected_count": 35,
+    "embassy_track_count": 2,
+    "university_track_count": 33,
+    "distinct_country_count": 16,
+    "degree_level_breakdown": "Master's:27;Doctoral:8"
+  },
+  {
+    "track": "gks_g",
+    "university": "KUNSAN National University",
+    "total_selected_count": 18,
+    "embassy_track_count": 0,
+    "university_track_count": 18,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Master's:13;Doctoral:5"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sunchon National University",
+    "total_selected_count": 22,
+    "embassy_track_count": 0,
+    "university_track_count": 22,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Master's:21;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Pai Chai University",
+    "total_selected_count": 10,
+    "embassy_track_count": 3,
+    "university_track_count": 7,
+    "distinct_country_count": 8,
+    "degree_level_breakdown": "Master's:9;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Soonchunhyang University",
+    "total_selected_count": 12,
+    "embassy_track_count": 1,
+    "university_track_count": 11,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:12"
+  },
+  {
+    "track": "gks_g",
+    "university": "Inje University",
+    "total_selected_count": 55,
+    "embassy_track_count": 5,
+    "university_track_count": 50,
+    "distinct_country_count": 14,
+    "degree_level_breakdown": "Master's:49;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "university": "Jeju National University",
+    "total_selected_count": 51,
+    "embassy_track_count": 1,
+    "university_track_count": 50,
+    "distinct_country_count": 14,
+    "degree_level_breakdown": "Doctoral:27;Master's:24"
+  },
+  {
+    "track": "gks_g",
+    "university": "Chungnam National University",
+    "total_selected_count": 36,
+    "embassy_track_count": 9,
+    "university_track_count": 27,
+    "distinct_country_count": 21,
+    "degree_level_breakdown": "Master's:30;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "university": "Kookmin University",
+    "total_selected_count": 52,
+    "embassy_track_count": 11,
+    "university_track_count": 41,
+    "distinct_country_count": 21,
+    "degree_level_breakdown": "Master's:39;Doctoral:13"
+  },
+  {
+    "track": "gks_g",
+    "university": "Seoul National University Of Science And Technology",
+    "total_selected_count": 39,
+    "embassy_track_count": 3,
+    "university_track_count": 36,
+    "distinct_country_count": 17,
+    "degree_level_breakdown": "Master's:33;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "university": "Ajou University",
+    "total_selected_count": 32,
+    "embassy_track_count": 7,
+    "university_track_count": 25,
+    "distinct_country_count": 20,
+    "degree_level_breakdown": "Master's:30;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Inha University",
+    "total_selected_count": 8,
+    "embassy_track_count": 4,
+    "university_track_count": 4,
+    "distinct_country_count": 8,
+    "degree_level_breakdown": "Master's:7;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hoseo University",
+    "total_selected_count": 11,
+    "embassy_track_count": 4,
+    "university_track_count": 7,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Master's:9;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sogang University",
+    "total_selected_count": 22,
+    "embassy_track_count": 15,
+    "university_track_count": 7,
+    "distinct_country_count": 18,
+    "degree_level_breakdown": "Master's:18;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Gwangju Institute of Science and Technology(GIST)",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Seokyeong University",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "university": "Silla University",
+    "total_selected_count": 5,
+    "embassy_track_count": 0,
+    "university_track_count": 5,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:4;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Chungbuk National University",
+    "total_selected_count": 19,
+    "embassy_track_count": 1,
+    "university_track_count": 18,
+    "distinct_country_count": 14,
+    "degree_level_breakdown": "Master's:17;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Konkuk University",
+    "total_selected_count": 12,
+    "embassy_track_count": 7,
+    "university_track_count": 5,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Master's:8;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Kyungsung University",
+    "total_selected_count": 18,
+    "embassy_track_count": 2,
+    "university_track_count": 16,
+    "distinct_country_count": 13,
+    "degree_level_breakdown": "Master's:18"
+  },
+  {
+    "track": "gks_g",
+    "university": "Daejeon University",
+    "total_selected_count": 4,
+    "embassy_track_count": 1,
+    "university_track_count": 3,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "university": "Cheongju University",
+    "total_selected_count": 8,
+    "embassy_track_count": 2,
+    "university_track_count": 6,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Master's:8"
+  },
+  {
+    "track": "gks_g",
+    "university": "Dankook University",
+    "total_selected_count": 7,
+    "embassy_track_count": 3,
+    "university_track_count": 4,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Master's:7"
+  },
+  {
+    "track": "gks_g",
+    "university": "Wonkwang University",
+    "total_selected_count": 12,
+    "embassy_track_count": 3,
+    "university_track_count": 9,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Master's:10;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Changwon National University",
+    "total_selected_count": 9,
+    "embassy_track_count": 1,
+    "university_track_count": 8,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:8;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Konyang University",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Master's:2;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Dong-A University",
+    "total_selected_count": 56,
+    "embassy_track_count": 9,
+    "university_track_count": 47,
+    "distinct_country_count": 23,
+    "degree_level_breakdown": "Master's:50;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "university": "Chosun University",
+    "total_selected_count": 6,
+    "embassy_track_count": 0,
+    "university_track_count": 6,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:5;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Semyung University",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hongik University",
+    "total_selected_count": 19,
+    "embassy_track_count": 8,
+    "university_track_count": 11,
+    "distinct_country_count": 16,
+    "degree_level_breakdown": "Master's:18;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Hanyang University ERICA",
+    "total_selected_count": 7,
+    "embassy_track_count": 4,
+    "university_track_count": 3,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:4;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "The Graduate School of Korean Studies, AKS",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "university": "Yeungnam University",
+    "total_selected_count": 19,
+    "embassy_track_count": 2,
+    "university_track_count": 17,
+    "distinct_country_count": 11,
+    "degree_level_breakdown": "Master's:13;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "university": "University of Ulsan",
+    "total_selected_count": 7,
+    "embassy_track_count": 1,
+    "university_track_count": 6,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Master's:5;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Korea Advanced Institute of Science and Technology(KAIST)",
+    "total_selected_count": 26,
+    "embassy_track_count": 6,
+    "university_track_count": 20,
+    "distinct_country_count": 17,
+    "degree_level_breakdown": "Master's:18;Doctoral:8"
+  },
+  {
+    "track": "gks_g",
+    "university": "Seoul Theological University",
+    "total_selected_count": 10,
+    "embassy_track_count": 0,
+    "university_track_count": 10,
+    "distinct_country_count": 6,
+    "degree_level_breakdown": "Master's:10"
+  },
+  {
+    "track": "gks_g",
+    "university": "University of Seoul",
+    "total_selected_count": 3,
+    "embassy_track_count": 1,
+    "university_track_count": 2,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "Duksung Women's University",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Sejong University",
+    "total_selected_count": 4,
+    "embassy_track_count": 1,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:3;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Gyeongguk National University",
+    "total_selected_count": 9,
+    "embassy_track_count": 0,
+    "university_track_count": 9,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:8;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Pohang University Of Science And Technology (POSTECH)",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "university": "Tongmyong University",
+    "total_selected_count": 2,
+    "embassy_track_count": 0,
+    "university_track_count": 2,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "university": "Gyeongkuk National University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "university": "Pohang University of Science and Technology",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Korea University of Technology and Education",
+    "total_selected_count": 16,
+    "embassy_track_count": 5,
+    "university_track_count": 11,
+    "distinct_country_count": 12,
+    "degree_level_breakdown": "Bachelor's(UIC):11;Bachelor's:5"
+  },
+  {
+    "track": "gks_u",
+    "university": "Ajou University",
+    "total_selected_count": 10,
+    "embassy_track_count": 3,
+    "university_track_count": 7,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Bachelor's(UIC):7;Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Pusan National University",
+    "total_selected_count": 22,
+    "embassy_track_count": 22,
+    "university_track_count": 0,
+    "distinct_country_count": 19,
+    "degree_level_breakdown": "Bachelor's:22"
+  },
+  {
+    "track": "gks_u",
+    "university": "Chonnam National University",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Bachelor's:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Dongseo University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Keimyung University",
+    "total_selected_count": 10,
+    "embassy_track_count": 5,
+    "university_track_count": 5,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Bachelor's:5;Bachelor's(UIC):5"
+  },
+  {
+    "track": "gks_u",
+    "university": "Yeungjin University",
+    "total_selected_count": 4,
+    "embassy_track_count": 0,
+    "university_track_count": 4,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Associate:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Inje University",
+    "total_selected_count": 18,
+    "embassy_track_count": 3,
+    "university_track_count": 15,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Bachelor's(UIC):15;Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Konyang University",
+    "total_selected_count": 13,
+    "embassy_track_count": 2,
+    "university_track_count": 11,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Bachelor's(UIC):11;Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Hosan University",
+    "total_selected_count": 4,
+    "embassy_track_count": 0,
+    "university_track_count": 4,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Associate:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Daegu University",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Bachelor's(UIC):3;Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Ewha Womans University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Gyeongkuk National University",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "University of Seoul",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Yeungnam University",
+    "total_selected_count": 7,
+    "embassy_track_count": 1,
+    "university_track_count": 6,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Bachelor's(UIC):6;Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Chung-Ang University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Inha University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Hanyang University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Kyungbok University",
+    "total_selected_count": 10,
+    "embassy_track_count": 0,
+    "university_track_count": 10,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Associate(UIC):6;Associate:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Seoul National University",
+    "total_selected_count": 10,
+    "embassy_track_count": 10,
+    "university_track_count": 0,
+    "distinct_country_count": 9,
+    "degree_level_breakdown": "Bachelor's:10"
+  },
+  {
+    "track": "gks_u",
+    "university": "Korea University",
+    "total_selected_count": 12,
+    "embassy_track_count": 12,
+    "university_track_count": 0,
+    "distinct_country_count": 8,
+    "degree_level_breakdown": "Bachelor's:12"
+  },
+  {
+    "track": "gks_u",
+    "university": "Dong-A University",
+    "total_selected_count": 16,
+    "embassy_track_count": 5,
+    "university_track_count": 11,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Bachelor's(UIC):11;Bachelor's:5"
+  },
+  {
+    "track": "gks_u",
+    "university": "Hongik University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Kangwon National University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Chungbuk National University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Hankuk University Of Foreign Studies",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Osan University",
+    "total_selected_count": 8,
+    "embassy_track_count": 0,
+    "university_track_count": 8,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Associate(UIC):5;Associate:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Dong Eui Institute of Technology",
+    "total_selected_count": 12,
+    "embassy_track_count": 0,
+    "university_track_count": 12,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Associate(UIC):8;Associate:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Korea University of Media Arts",
+    "total_selected_count": 2,
+    "embassy_track_count": 0,
+    "university_track_count": 2,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Associate:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Vision College of Jeonju",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Associate:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Kookmin University",
+    "total_selected_count": 8,
+    "embassy_track_count": 1,
+    "university_track_count": 7,
+    "distinct_country_count": 7,
+    "degree_level_breakdown": "Bachelor's(UIC):7;Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Sungshin Women's University",
+    "total_selected_count": 5,
+    "embassy_track_count": 0,
+    "university_track_count": 5,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's(UIC):5"
+  },
+  {
+    "track": "gks_u",
+    "university": "Jeonbuk National University",
+    "total_selected_count": 5,
+    "embassy_track_count": 5,
+    "university_track_count": 0,
+    "distinct_country_count": 5,
+    "degree_level_breakdown": "Bachelor's:5"
+  },
+  {
+    "track": "gks_u",
+    "university": "Pukyong National University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Kyungpook National University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Busan University of Foreign Studies",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_country_count": 4,
+    "degree_level_breakdown": "Bachelor's:4"
+  },
+  {
+    "track": "gks_u",
+    "university": "Cheongju University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Gumi University",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Associate:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "KyungHee University",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Dongguk University",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Mokwon University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Gyeongsang National University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Pai Chai University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Yonsei University",
+    "total_selected_count": 12,
+    "embassy_track_count": 12,
+    "university_track_count": 0,
+    "distinct_country_count": 10,
+    "degree_level_breakdown": "Bachelor's:12"
+  },
+  {
+    "track": "gks_u",
+    "university": "University of Ulsan",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Sunchon National University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Soonchunhyang University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Hanyang Women’s University",
+    "total_selected_count": 3,
+    "embassy_track_count": 0,
+    "university_track_count": 3,
+    "distinct_country_count": 3,
+    "degree_level_breakdown": "Associate:3"
+  },
+  {
+    "track": "gks_u",
+    "university": "Kyungsung University",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Semyung University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Korea Maritime & Ocean University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Shinhan University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "university": "Ulsan National Institute of Science and Technology",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_country_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "university": "Chungnam National University",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_country_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  }
+]

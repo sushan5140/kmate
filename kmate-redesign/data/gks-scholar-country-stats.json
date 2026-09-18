@@ -1,0 +1,1820 @@
+[
+  {
+    "track": "gks_g",
+    "country": "Afghanistan",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Albania",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Algeria",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Doctoral:3;Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Angola",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Argentina",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Armenia",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Australia",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Austria",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Azerbaijan",
+    "total_selected_count": 9,
+    "embassy_track_count": 5,
+    "university_track_count": 4,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Master's:8;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Bahamas, The",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Bahrain",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Bangladesh",
+    "total_selected_count": 62,
+    "embassy_track_count": 6,
+    "university_track_count": 56,
+    "distinct_university_count": 26,
+    "degree_level_breakdown": "Master's:51;Doctoral:11"
+  },
+  {
+    "track": "gks_g",
+    "country": "Belarus",
+    "total_selected_count": 4,
+    "embassy_track_count": 2,
+    "university_track_count": 2,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Belgium",
+    "total_selected_count": 5,
+    "embassy_track_count": 5,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Benin",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Bolivia",
+    "total_selected_count": 5,
+    "embassy_track_count": 3,
+    "university_track_count": 2,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Botswana",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Brazil",
+    "total_selected_count": 16,
+    "embassy_track_count": 6,
+    "university_track_count": 10,
+    "distinct_university_count": 11,
+    "degree_level_breakdown": "Master's:14;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Brunei",
+    "total_selected_count": 4,
+    "embassy_track_count": 3,
+    "university_track_count": 1,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Bulgaria",
+    "total_selected_count": 8,
+    "embassy_track_count": 8,
+    "university_track_count": 0,
+    "distinct_university_count": 7,
+    "degree_level_breakdown": "Master's:8"
+  },
+  {
+    "track": "gks_g",
+    "country": "Cambodia",
+    "total_selected_count": 38,
+    "embassy_track_count": 9,
+    "university_track_count": 29,
+    "distinct_university_count": 25,
+    "degree_level_breakdown": "Master's:38"
+  },
+  {
+    "track": "gks_g",
+    "country": "Cameroon",
+    "total_selected_count": 5,
+    "embassy_track_count": 0,
+    "university_track_count": 5,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:3;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Canada",
+    "total_selected_count": 4,
+    "embassy_track_count": 3,
+    "university_track_count": 1,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Canada (Quebec)",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Chile",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:2;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "China",
+    "total_selected_count": 25,
+    "embassy_track_count": 22,
+    "university_track_count": 3,
+    "distinct_university_count": 12,
+    "degree_level_breakdown": "Doctoral:15;Master's:10"
+  },
+  {
+    "track": "gks_g",
+    "country": "Colombia",
+    "total_selected_count": 11,
+    "embassy_track_count": 2,
+    "university_track_count": 9,
+    "distinct_university_count": 11,
+    "degree_level_breakdown": "Master's:11"
+  },
+  {
+    "track": "gks_g",
+    "country": "Costa Rica",
+    "total_selected_count": 5,
+    "embassy_track_count": 4,
+    "university_track_count": 1,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Cote d'Ivoire",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Croatia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Cuba",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Czech Republic",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Dominican Republic",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "DR Congo",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Ecuador",
+    "total_selected_count": 8,
+    "embassy_track_count": 8,
+    "university_track_count": 0,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Master's:7;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Egypt",
+    "total_selected_count": 19,
+    "embassy_track_count": 5,
+    "university_track_count": 14,
+    "distinct_university_count": 15,
+    "degree_level_breakdown": "Master's:12;Doctoral:7"
+  },
+  {
+    "track": "gks_g",
+    "country": "El Salvador",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Estonia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Ethiopia",
+    "total_selected_count": 17,
+    "embassy_track_count": 8,
+    "university_track_count": 9,
+    "distinct_university_count": 13,
+    "degree_level_breakdown": "Master's:9;Doctoral:6;Research:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Finland",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "France",
+    "total_selected_count": 7,
+    "embassy_track_count": 6,
+    "university_track_count": 1,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:6;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Gambia, The",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Georgia",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Germany",
+    "total_selected_count": 7,
+    "embassy_track_count": 6,
+    "university_track_count": 1,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:6;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Ghana",
+    "total_selected_count": 20,
+    "embassy_track_count": 7,
+    "university_track_count": 13,
+    "distinct_university_count": 13,
+    "degree_level_breakdown": "Master's:20"
+  },
+  {
+    "track": "gks_g",
+    "country": "Greece",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:3;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Guatemala",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Honduras",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Hong Kong",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Hungary",
+    "total_selected_count": 5,
+    "embassy_track_count": 3,
+    "university_track_count": 2,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "India",
+    "total_selected_count": 91,
+    "embassy_track_count": 22,
+    "university_track_count": 69,
+    "distinct_university_count": 36,
+    "degree_level_breakdown": "Master's:73;Doctoral:18"
+  },
+  {
+    "track": "gks_g",
+    "country": "Indonesia",
+    "total_selected_count": 170,
+    "embassy_track_count": 25,
+    "university_track_count": 145,
+    "distinct_university_count": 51,
+    "degree_level_breakdown": "Master's:148;Doctoral:22"
+  },
+  {
+    "track": "gks_g",
+    "country": "Indonesia M M",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Iran",
+    "total_selected_count": 19,
+    "embassy_track_count": 3,
+    "university_track_count": 16,
+    "distinct_university_count": 13,
+    "degree_level_breakdown": "Master's:10;Doctoral:9"
+  },
+  {
+    "track": "gks_g",
+    "country": "Iraq",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:2;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Ireland",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Israel",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Italy",
+    "total_selected_count": 15,
+    "embassy_track_count": 10,
+    "university_track_count": 5,
+    "distinct_university_count": 10,
+    "degree_level_breakdown": "Master's:10;Doctoral:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Jamaica",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Jordan",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Kazakhstan",
+    "total_selected_count": 55,
+    "embassy_track_count": 18,
+    "university_track_count": 37,
+    "distinct_university_count": 36,
+    "degree_level_breakdown": "Master's:53;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Kenya",
+    "total_selected_count": 8,
+    "embassy_track_count": 5,
+    "university_track_count": 3,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Master's:8"
+  },
+  {
+    "track": "gks_g",
+    "country": "Kyrgyzstan",
+    "total_selected_count": 22,
+    "embassy_track_count": 11,
+    "university_track_count": 11,
+    "distinct_university_count": 15,
+    "degree_level_breakdown": "Master's:22"
+  },
+  {
+    "track": "gks_g",
+    "country": "Laos",
+    "total_selected_count": 14,
+    "embassy_track_count": 11,
+    "university_track_count": 3,
+    "distinct_university_count": 11,
+    "degree_level_breakdown": "Master's:14"
+  },
+  {
+    "track": "gks_g",
+    "country": "Latvia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Lebanon",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Libya",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:2;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Lithuania",
+    "total_selected_count": 2,
+    "embassy_track_count": 0,
+    "university_track_count": 2,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Madagascar",
+    "total_selected_count": 5,
+    "embassy_track_count": 4,
+    "university_track_count": 1,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:3;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Malawi",
+    "total_selected_count": 5,
+    "embassy_track_count": 1,
+    "university_track_count": 4,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Malaysia",
+    "total_selected_count": 30,
+    "embassy_track_count": 18,
+    "university_track_count": 12,
+    "distinct_university_count": 18,
+    "degree_level_breakdown": "Master's:29;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Mauritius",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Mexico",
+    "total_selected_count": 25,
+    "embassy_track_count": 5,
+    "university_track_count": 20,
+    "distinct_university_count": 17,
+    "degree_level_breakdown": "Master's:24;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Moldova",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Mongolia",
+    "total_selected_count": 74,
+    "embassy_track_count": 11,
+    "university_track_count": 63,
+    "distinct_university_count": 36,
+    "degree_level_breakdown": "Master's:64;Doctoral:10"
+  },
+  {
+    "track": "gks_g",
+    "country": "Montenegro",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Morocco",
+    "total_selected_count": 7,
+    "embassy_track_count": 5,
+    "university_track_count": 2,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Master's:6;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Mozambique",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Myanmar",
+    "total_selected_count": 53,
+    "embassy_track_count": 13,
+    "university_track_count": 40,
+    "distinct_university_count": 32,
+    "degree_level_breakdown": "Master's:49;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Myanmar Mo",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Myanmar SU",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Myanmar EI",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Nepal",
+    "total_selected_count": 12,
+    "embassy_track_count": 3,
+    "university_track_count": 9,
+    "distinct_university_count": 8,
+    "degree_level_breakdown": "Master's:9;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Nepal B",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Netherlands",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:2;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "New Zealand",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Nicaragua",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Nigeria",
+    "total_selected_count": 24,
+    "embassy_track_count": 7,
+    "university_track_count": 17,
+    "distinct_university_count": 18,
+    "degree_level_breakdown": "Master's:23;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "North Macedonia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Norway",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Oman",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Pakistan",
+    "total_selected_count": 109,
+    "embassy_track_count": 4,
+    "university_track_count": 105,
+    "distinct_university_count": 31,
+    "degree_level_breakdown": "Master's:73;Doctoral:36"
+  },
+  {
+    "track": "gks_g",
+    "country": "Palestine",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Panama",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Paraguay",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Peru",
+    "total_selected_count": 10,
+    "embassy_track_count": 7,
+    "university_track_count": 3,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Master's:10"
+  },
+  {
+    "track": "gks_g",
+    "country": "Philippines",
+    "total_selected_count": 42,
+    "embassy_track_count": 17,
+    "university_track_count": 25,
+    "distinct_university_count": 26,
+    "degree_level_breakdown": "Master's:36;Doctoral:6"
+  },
+  {
+    "track": "gks_g",
+    "country": "Philippines DE",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Poland",
+    "total_selected_count": 10,
+    "embassy_track_count": 3,
+    "university_track_count": 7,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Master's:8;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Romania",
+    "total_selected_count": 5,
+    "embassy_track_count": 4,
+    "university_track_count": 1,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Russia",
+    "total_selected_count": 57,
+    "embassy_track_count": 20,
+    "university_track_count": 37,
+    "distinct_university_count": 27,
+    "degree_level_breakdown": "Master's:54;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Rwanda",
+    "total_selected_count": 9,
+    "embassy_track_count": 4,
+    "university_track_count": 5,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Master's:9"
+  },
+  {
+    "track": "gks_g",
+    "country": "Saudi Arabia",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Senegal",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Serbia",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Singapore",
+    "total_selected_count": 5,
+    "embassy_track_count": 5,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:5"
+  },
+  {
+    "track": "gks_g",
+    "country": "Slovenia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Somalia",
+    "total_selected_count": 3,
+    "embassy_track_count": 1,
+    "university_track_count": 2,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "South Africa",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Spain",
+    "total_selected_count": 4,
+    "embassy_track_count": 3,
+    "university_track_count": 1,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Master's:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Sri Lanka",
+    "total_selected_count": 17,
+    "embassy_track_count": 4,
+    "university_track_count": 13,
+    "distinct_university_count": 14,
+    "degree_level_breakdown": "Master's:17"
+  },
+  {
+    "track": "gks_g",
+    "country": "Sudan",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Sweden",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Switzerland",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Syria",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Taiwan",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Tajikistan",
+    "total_selected_count": 7,
+    "embassy_track_count": 2,
+    "university_track_count": 5,
+    "distinct_university_count": 7,
+    "degree_level_breakdown": "Master's:7"
+  },
+  {
+    "track": "gks_g",
+    "country": "Tanzania",
+    "total_selected_count": 15,
+    "embassy_track_count": 5,
+    "university_track_count": 10,
+    "distinct_university_count": 8,
+    "degree_level_breakdown": "Master's:11;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Thailand",
+    "total_selected_count": 35,
+    "embassy_track_count": 14,
+    "university_track_count": 21,
+    "distinct_university_count": 27,
+    "degree_level_breakdown": "Master's:33;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Timor-Leste",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Master's:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Togo",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Trinidad and Tobago",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Tunisia",
+    "total_selected_count": 7,
+    "embassy_track_count": 5,
+    "university_track_count": 2,
+    "distinct_university_count": 7,
+    "degree_level_breakdown": "Master's:5;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Türkiye",
+    "total_selected_count": 22,
+    "embassy_track_count": 10,
+    "university_track_count": 12,
+    "distinct_university_count": 18,
+    "degree_level_breakdown": "Master's:20;Doctoral:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Turkmenistan",
+    "total_selected_count": 9,
+    "embassy_track_count": 7,
+    "university_track_count": 2,
+    "distinct_university_count": 8,
+    "degree_level_breakdown": "Master's:9"
+  },
+  {
+    "track": "gks_g",
+    "country": "Uganda",
+    "total_selected_count": 8,
+    "embassy_track_count": 5,
+    "university_track_count": 3,
+    "distinct_university_count": 7,
+    "degree_level_breakdown": "Master's:7;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "UK",
+    "total_selected_count": 6,
+    "embassy_track_count": 6,
+    "university_track_count": 0,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Master's:5;Doctoral:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Ukraine",
+    "total_selected_count": 17,
+    "embassy_track_count": 16,
+    "university_track_count": 1,
+    "distinct_university_count": 12,
+    "degree_level_breakdown": "Master's:17"
+  },
+  {
+    "track": "gks_g",
+    "country": "USA",
+    "total_selected_count": 20,
+    "embassy_track_count": 16,
+    "university_track_count": 4,
+    "distinct_university_count": 13,
+    "degree_level_breakdown": "Master's:17;Doctoral:3"
+  },
+  {
+    "track": "gks_g",
+    "country": "Uzbekistan",
+    "total_selected_count": 42,
+    "embassy_track_count": 19,
+    "university_track_count": 23,
+    "distinct_university_count": 23,
+    "degree_level_breakdown": "Master's:34;Doctoral:7;Research:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Venezuela",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Vietnam",
+    "total_selected_count": 104,
+    "embassy_track_count": 32,
+    "university_track_count": 72,
+    "distinct_university_count": 36,
+    "degree_level_breakdown": "Master's:100;Doctoral:4"
+  },
+  {
+    "track": "gks_g",
+    "country": "Vietnam VU",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_g",
+    "country": "Zambia",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Master's:2"
+  },
+  {
+    "track": "gks_g",
+    "country": "Zimbabwe",
+    "total_selected_count": 1,
+    "embassy_track_count": 0,
+    "university_track_count": 1,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Master's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Ghana",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Gabon",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Guatemala",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Nigeria",
+    "total_selected_count": 8,
+    "embassy_track_count": 4,
+    "university_track_count": 4,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Bachelor's:4;Associate:2;Bachelor's(UIC):2"
+  },
+  {
+    "track": "gks_u",
+    "country": "South Africa",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Nepal",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Dominican Republic",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Timor-Leste",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Laos",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Russia",
+    "total_selected_count": 12,
+    "embassy_track_count": 6,
+    "university_track_count": 6,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Bachelor's:6;Bachelor's(UIC):3;Associate:2;Associate(UIC):1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Rwanda",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Bachelor's:4"
+  },
+  {
+    "track": "gks_u",
+    "country": "Madagascar",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Malaysia",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Mexico",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Morocco",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Mozambique",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Mongolia",
+    "total_selected_count": 24,
+    "embassy_track_count": 2,
+    "university_track_count": 22,
+    "distinct_university_count": 14,
+    "degree_level_breakdown": "Bachelor's(UIC):17;Associate:3;Associate(UIC):2;Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Myanmar",
+    "total_selected_count": 27,
+    "embassy_track_count": 3,
+    "university_track_count": 24,
+    "distinct_university_count": 12,
+    "degree_level_breakdown": "Bachelor's(UIC):12;Associate(UIC):6;Associate:6;Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Bangladesh",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Bachelor's(UIC):3;Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Venezuela",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Vietnam",
+    "total_selected_count": 8,
+    "embassy_track_count": 2,
+    "university_track_count": 6,
+    "distinct_university_count": 8,
+    "degree_level_breakdown": "Bachelor's(UIC):4;Associate:2;Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Bolivia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Bulgaria",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Brazil",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Brunei",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Saudi Arabia",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Sri Lanka",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:2;Bachelor's(UIC):1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Sweden",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Syria",
+    "total_selected_count": 2,
+    "embassy_track_count": 1,
+    "university_track_count": 1,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's(UIC):1;Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Azerbaijan",
+    "total_selected_count": 4,
+    "embassy_track_count": 1,
+    "university_track_count": 3,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Bachelor's(UIC):2;Associate:1;Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Afghanistan",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Angola",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Ecuador",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Ethiopia",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:2;Bachelor's(UIC):1"
+  },
+  {
+    "track": "gks_u",
+    "country": "El Salvador",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Yemen",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Jordan",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Uganda",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Uzbekistan",
+    "total_selected_count": 22,
+    "embassy_track_count": 3,
+    "university_track_count": 19,
+    "distinct_university_count": 11,
+    "degree_level_breakdown": "Bachelor's(UIC):11;Associate:4;Associate(UIC):4;Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Ukraine",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Bachelor's:4"
+  },
+  {
+    "track": "gks_u",
+    "country": "Iran",
+    "total_selected_count": 9,
+    "embassy_track_count": 3,
+    "university_track_count": 6,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Bachelor's(UIC):5;Bachelor's:3;Associate(UIC):1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Egypt",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "India",
+    "total_selected_count": 9,
+    "embassy_track_count": 4,
+    "university_track_count": 5,
+    "distinct_university_count": 9,
+    "degree_level_breakdown": "Bachelor's:4;Bachelor's(UIC):3;Associate(UIC):2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Indonesia",
+    "total_selected_count": 9,
+    "embassy_track_count": 4,
+    "university_track_count": 5,
+    "distinct_university_count": 6,
+    "degree_level_breakdown": "Bachelor's:4;Associate:3;Bachelor's(UIC):2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Equatorial Guinea",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Zimbabwe",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Chile",
+    "total_selected_count": 4,
+    "embassy_track_count": 4,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:4"
+  },
+  {
+    "track": "gks_u",
+    "country": "Kazakhstan",
+    "total_selected_count": 12,
+    "embassy_track_count": 5,
+    "university_track_count": 7,
+    "distinct_university_count": 10,
+    "degree_level_breakdown": "Bachelor's:5;Bachelor's(UIC):5;Associate:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Cambodia",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Canada",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Kenya",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Colombia",
+    "total_selected_count": 4,
+    "embassy_track_count": 3,
+    "university_track_count": 1,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Bachelor's:3;Associate:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Cuba",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Kyrgyzstan",
+    "total_selected_count": 10,
+    "embassy_track_count": 2,
+    "university_track_count": 8,
+    "distinct_university_count": 7,
+    "degree_level_breakdown": "Bachelor's(UIC):6;Bachelor's:2;Associate:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Tajikistan",
+    "total_selected_count": 3,
+    "embassy_track_count": 2,
+    "university_track_count": 1,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:2;Associate(UIC):1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Tanzania",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Thailand",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Turkmenistan",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Turkiye",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Trinidad and Tobago",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Panama",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Paraguay",
+    "total_selected_count": 4,
+    "embassy_track_count": 2,
+    "university_track_count": 2,
+    "distinct_university_count": 3,
+    "degree_level_breakdown": "Bachelor's:2;Associate(UIC):2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Pakistan",
+    "total_selected_count": 5,
+    "embassy_track_count": 3,
+    "university_track_count": 2,
+    "distinct_university_count": 4,
+    "degree_level_breakdown": "Bachelor's:3;Bachelor's(UIC):2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Peru",
+    "total_selected_count": 3,
+    "embassy_track_count": 3,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:3"
+  },
+  {
+    "track": "gks_u",
+    "country": "Poland",
+    "total_selected_count": 2,
+    "embassy_track_count": 2,
+    "university_track_count": 0,
+    "distinct_university_count": 2,
+    "degree_level_breakdown": "Bachelor's:2"
+  },
+  {
+    "track": "gks_u",
+    "country": "Fiji",
+    "total_selected_count": 1,
+    "embassy_track_count": 1,
+    "university_track_count": 0,
+    "distinct_university_count": 1,
+    "degree_level_breakdown": "Bachelor's:1"
+  },
+  {
+    "track": "gks_u",
+    "country": "Philippines",
+    "total_selected_count": 5,
+    "embassy_track_count": 2,
+    "university_track_count": 3,
+    "distinct_university_count": 5,
+    "degree_level_breakdown": "Bachelor's:2;Associate:2;Bachelor's(UIC):1"
+  }
+]

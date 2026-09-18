@@ -1,0 +1,9 @@
+# RUNTIME dependencies only. This is what Vercel installs into the function, so
+# every addition here costs bundle size against the 250 MB unzipped limit.
+# Build-time tooling (PDF parsing, uvicorn, OpenAI) lives in requirements-dev.txt.
+fastapi>=0.115
+pydantic>=2.8
+scikit-learn>=1.5
+scipy>=1.11
+numpy>=1.26
+joblib>=1.4

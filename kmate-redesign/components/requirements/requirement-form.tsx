@@ -1,0 +1,379 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
+import { Check, RotateCcw, Search } from "lucide-react";
+import { Card, MicroLabel } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
+import type { CheckerOptions } from "@/lib/requirements/options";
+
+/**
+ * The Program -> Track -> Program type -> University -> Major flow.
+ *
+ * Selections live in the URL rather than component state alone, so a checked
+ * result is linkable and the back button works. The dataset itself stays on
+ * the server; this component only ever sees the names it renders.
+ */
+export function RequirementForm({
+  options,
+  initial,
+  children,
+}: {
+  options: CheckerOptions;
+  initial: { program: string; track: string; subtype: string; university: string; major: string; gender: string };
+  /** The results for the checked selection, rendered below the form. */
+  children?: React.ReactNode;
+}) {
+  const router = useRouter();
+  const [program, setProgram] = useState(initial.program);
+  const [track, setTrack] = useState(initial.track);
+  const [subtype, setSubtype] = useState(initial.subtype);
+  const [university, setUniversity] = useState(initial.university);
+  const [major, setMajor] = useState(initial.major);
+  const [gender, setGender] = useState(initial.gender);
+
+  // useTransition rather than a hand-managed `pending` flag. The previous
+  // version set pending=true before router.push and had nothing to clear it,
+  // so after one check the button stayed disabled forever and every later
+  // check silently did nothing -- leaving the previous university's result on
+  // screen. isPending is owned by React and clears when the navigation
+  // commits, so there is no longer a flag anyone can forget to reset.
+  const [isPending, startTransition] = useTransition();
+
+  const trackOptions = useMemo(
+    () => (program ? options.tracks[program] ?? [] : []),
+    [options, program]
+  );
+  const subtypeOptions = useMemo(
+    () => trackOptions.find((t) => t.value === track)?.subtypes ?? [],
+    [trackOptions, track]
+  );
+  // Top-level track first, then narrowed by subtype when one is chosen.
+  const universityOptions = useMemo(() => {
+    if (!program || !track) return [];
+    if (subtype) return options.universities[`${program}|${track}|${subtype}`] ?? [];
+    return options.universities[`${program}|${track}`] ?? [];
+  }, [options, program, track, subtype]);
+  const meta = useMemo(
+    () =>
+      options.meta[`${program}|${track}|${university}`] ?? {
+        needsGender: false,
+        majorSuggestions: [] as string[],
+      },
+    [options, program, track, university]
+  );
+
+  // Each step invalidates everything downstream, so a stale university can
+  // never survive a track change and be submitted against the wrong track.
+  function pickProgram(value: string) {
+    setProgram(value === program ? "" : value);
+    setTrack("");
+    setSubtype("");
+    setUniversity("");
+    setMajor("");
+    setGender("");
+  }
+  function pickTrack(value: string) {
+    setTrack(value === track ? "" : value);
+    setSubtype("");
+    setUniversity("");
+    setMajor("");
+    setGender("");
+  }
+  function pickSubtype(value: string) {
+    setSubtype(value === subtype ? "" : value);
+    setUniversity("");
+    setMajor("");
+    setGender("");
+  }
+  function pickUniversity(value: string) {
+    setUniversity(value);
+    setMajor("");
+    setGender("");
+  }
+
+  function check() {
+    if (!program || !track || !university) return;
+    const params = new URLSearchParams({ program, track, university, check: "1" });
+    if (subtype) params.set("subtype", subtype);
+    if (major.trim()) params.set("major", major.trim());
+    if (gender) params.set("gender", gender);
+    startTransition(() => router.push(`/requirement-checker?${params.toString()}`));
+  }
+
+  function reset() {
+    setProgram("");
+    setTrack("");
+    setSubtype("");
+    setUniversity("");
+    setMajor("");
+    setGender("");
+    // The bare URL carries no selection, so the page re-renders with empty
+    // props and the keyed remount (see page.tsx) gives a clean instance --
+    // nothing from the previous selection can survive.
+    startTransition(() => router.push("/requirement-checker"));
+  }
+
+  const ready = Boolean(program && track && university);
+
+  // True when the form no longer matches the selection the results below were
+  // computed for. Showing a Chonnam result under a Korea University selection
+  // is worse than showing nothing, so the results are withheld until the user
+  // checks again.
+  const stale =
+    program !== initial.program ||
+    track !== initial.track ||
+    subtype !== initial.subtype ||
+    university !== initial.university ||
+    major.trim() !== initial.major ||
+    gender !== initial.gender;
+
+  // Presentation only -- how far along the five steps the applicant is.
+  const stepsDone = [program, track, subtype, university, major.trim()].filter(Boolean).length;
+
+  return (
+    <>
+      <Card className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <MicroLabel>Find a university&apos;s requirements</MicroLabel>
+          <p className="mt-1 text-[13px] leading-relaxed text-muted">
+            Each step narrows the list using the dataset&apos;s own routes.
+          </p>
+        </div>
+        <div className="flex items-center gap-1" aria-hidden>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span
+              key={i}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-200",
+                i < stepsDone ? "w-6 bg-primary" : "w-3 bg-canvas"
+              )}
+            />
+          ))}
+        </div>
+      </div>
+
+      <Step index={1} label="GKS program" done={Boolean(program)}>
+        <div className="flex flex-wrap gap-1.5">
+          {options.programs.map((p) => (
+            <Chip key={p.value} active={program === p.value} onClick={() => pickProgram(p.value)}>
+              {p.label}
+            </Chip>
+          ))}
+        </div>
+      </Step>
+
+      {/* Top-level routes only. The sub-routes live in their own step below,
+          so an internal classification family is never rendered as a peer of
+          Embassy Track or University Track. */}
+      <Step index={2} label="Track" done={Boolean(track)} disabled={!program}>
+        {!program ? (
+          <p className="text-[12.5px] text-muted">Choose a program first.</p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {trackOptions.map((t) => (
+              <Chip key={t.value} active={track === t.value} onClick={() => pickTrack(t.value)}>
+                {t.label}
+                <span className="ml-2 rounded-full bg-current/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums">{t.count}</span>
+              </Chip>
+            ))}
+          </div>
+        )}
+      </Step>
+
+      {/* Only the sub-routes this track actually supports in the dataset.
+          Optional: leaving it unset keeps every university on the track, the
+          safe default when the applicant doesn't know their type yet. */}
+      <Step index={3} label="Program type (optional)" done={Boolean(subtype)} disabled={!track}>
+        {!track ? (
+          <p className="text-[12.5px] text-muted">Choose a track first.</p>
+        ) : subtypeOptions.length === 0 ? (
+          <p className="text-[12.5px] text-muted">
+            This track has no separate program types in the dataset.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-1.5">
+            {subtypeOptions.map((s) => (
+              <Chip key={s.value} small active={subtype === s.value} onClick={() => pickSubtype(s.value)}>
+                {s.label}
+                <span className="ml-2 rounded-full bg-current/10 px-1.5 py-0.5 text-[10.5px] font-semibold tabular-nums">{s.count}</span>
+              </Chip>
+            ))}
+          </div>
+        )}
+      </Step>
+
+      <Step index={4} label="University" done={Boolean(university)} disabled={!track}>
+        {!track ? (
+          <p className="text-[12.5px] text-muted">Choose a track first.</p>
+        ) : (
+          <>
+            <select
+              value={university}
+              onChange={(e) => pickUniversity(e.target.value)}
+              className="h-11 w-full rounded-xl border border-hairline-strong bg-white px-3.5 text-[13.5px] text-ink outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-soft"
+            >
+              <option value="">Select a university…</option>
+              {universityOptions.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-[11.5px] text-muted">
+              {universityOptions.length} universities listed for this selection.
+            </p>
+          </>
+        )}
+      </Step>
+
+      <Step index={5} label="Major / department (optional)" done={false} disabled={!university} last={!meta.needsGender}>
+        {!university ? (
+          <p className="text-[12.5px] text-muted">Choose a university first.</p>
+        ) : (
+          <>
+            <input
+              type="text"
+              value={major}
+              onChange={(e) => setMajor(e.target.value.slice(0, 120))}
+              placeholder="e.g. Software"
+              className="h-11 w-full rounded-xl border border-hairline-strong bg-white px-3.5 text-[13.5px] text-ink outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary-soft"
+            />
+            {meta.majorSuggestions.length > 0 && (
+              <div className="mt-2">
+                <p className="text-[11.5px] text-muted">
+                  Majors named in this university&apos;s verified rules:
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {meta.majorSuggestions.map((m) => (
+                    <Chip key={m} small active={major === m} onClick={() => setMajor(m)}>
+                      {m}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </Step>
+
+      {/* Only asked for when a structured rule at this university actually
+          uses it -- no profile detail is collected speculatively. */}
+      {meta.needsGender && (
+        <Step index={6} label="Gender" done={Boolean(gender)} last>
+          <p className="mb-1.5 text-[12px] text-muted">
+            This university has a verified rule that depends on gender.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { value: "female", label: "Female" },
+              { value: "male", label: "Male" },
+              { value: "other", label: "Other" },
+              { value: "prefer_not_to_say", label: "Prefer not to say" },
+            ].map((g) => (
+              <Chip key={g.value} small active={gender === g.value} onClick={() => setGender(g.value)}>
+                {g.label}
+              </Chip>
+            ))}
+          </div>
+        </Step>
+      )}
+
+      <div className="flex items-center justify-between gap-3 border-t border-hairline pt-3.5">
+        <button
+          type="button"
+          onClick={reset}
+          className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-muted hover:text-ink"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </button>
+        <Button onClick={check} disabled={!ready || isPending}>
+          <Search className="h-3.5 w-3.5" />
+          {isPending ? "Checking…" : "Check requirements"}
+        </Button>
+      </div>
+      </Card>
+
+      {/* Results are withheld while the form has moved on from what was
+          checked -- otherwise changing the university leaves the previous
+          university's requirements sitting underneath it. */}
+      {children && !stale && children}
+      {children && stale && !isPending && (
+        <p className="text-[12.5px] text-muted">
+          Your selection has changed. Check requirements again to see results for it.
+        </p>
+      )}
+    </>
+  );
+}
+
+function Step({
+  index,
+  label,
+  done,
+  disabled,
+  last,
+  children,
+}: {
+  index: number;
+  label: string;
+  done: boolean;
+  disabled?: boolean;
+  /** Suppresses the connecting rail below the final step. */
+  last?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("relative pl-8", disabled && "opacity-55")}>
+      {/* A rail down the left edge ties the steps together instead of leaving
+          five loose rows stacked on top of each other. */}
+      {!last && (
+        <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%-0.5rem)] w-px bg-hairline" />
+      )}
+      <div className="flex items-center gap-2">
+        <span
+          className={cn(
+            "absolute left-0 flex h-[23px] w-[23px] items-center justify-center rounded-full text-[11px] font-semibold ring-4 ring-surface transition-colors",
+            done ? "bg-primary text-white" : "bg-canvas text-muted"
+          )}
+        >
+          {done ? <Check className="h-3 w-3" /> : index}
+        </span>
+        <MicroLabel>{label}</MicroLabel>
+      </div>
+      <div className="mt-2">{children}</div>
+    </div>
+  );
+}
+
+function Chip({
+  active,
+  onClick,
+  small,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  small?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "inline-flex items-center rounded-full border font-medium transition-all duration-150 active:scale-[0.97]",
+        small ? "px-2.5 py-1 text-[12px]" : "px-3.5 py-1.5 text-[13px]",
+        active
+          ? "border-primary bg-primary/10 text-primary shadow-xs"
+          : "border-hairline-strong bg-white text-muted hover:border-border hover:text-ink"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
