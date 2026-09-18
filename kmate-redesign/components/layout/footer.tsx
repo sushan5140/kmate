@@ -2,19 +2,14 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-6 py-8 text-center text-[13px] text-muted sm:flex-row sm:justify-between sm:text-left">
-        <p>
-          KMate is an independent GKS application and applicant platform. Not affiliated with
-          NIIED or the Korean government.
+    <footer className="border-t border-hairline bg-surface/55">
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-8 text-[12px] leading-relaxed text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <p className="max-w-2xl">
+          KMate is an independent GKS application workspace. It is not affiliated with NIIED or the Korean government.
         </p>
-        <nav className="flex items-center gap-4">
-          <Link href="/about" className="hover:text-ink">
-            About
-          </Link>
-          <Link href="/guidelines" className="hover:text-ink">
-            Guidelines
-          </Link>
+        <nav className="flex items-center gap-4 font-semibold">
+          <Link href="/about" className="transition-colors hover:text-ink">About</Link>
+          <Link href="/guidelines" className="transition-colors hover:text-ink">Guidelines</Link>
         </nav>
       </div>
     </footer>
