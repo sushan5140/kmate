@@ -3,6 +3,8 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ChatApp, type ConversationSummary } from "@/components/chat/chat-app";
 import type { Track } from "@/lib/constants";
+import { DemoChatWorkspace } from "@/components/chat/demo-chat-workspace";
+import { isDemoUserId } from "@/lib/demo-mode";
 import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
@@ -27,6 +29,25 @@ export default async function MessagesPage({
 }) {
   const user = await requireOnboarded("/messages");
   const { c: requestedConversationId } = await searchParams;
+
+  if (isDemoUserId(user.id)) {
+    return (
+      <main className="mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+        <div className="hidden sm:block">
+          <PageHeader
+            eyebrow="Community"
+            title="Messages"
+            description="Preview KMate's private messaging workspace without exposing any real applicant conversations."
+            meta={<span className="inline-flex rounded-full bg-primary-soft px-2.5 py-1 text-[10.5px] font-extrabold text-primary">Raw preview · fictional data</span>}
+          />
+        </div>
+        <div className="sm:mt-6">
+          <DemoChatWorkspace />
+        </div>
+      </main>
+    );
+  }
+
   const admin = getSupabaseAdmin();
 
   const { data: convRows } = await admin
