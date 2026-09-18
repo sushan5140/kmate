@@ -8,9 +8,9 @@ export function Card({ className, interactive, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-[22px] border border-hairline bg-surface/92 p-5 shadow-card transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out sm:p-6",
+        "rounded-[18px] border border-border bg-surface p-5 shadow-card transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out sm:p-6",
         interactive &&
-          "interactive-card cursor-pointer hover:-translate-y-[2px] hover:border-primary/20 hover:shadow-card-hover active:translate-y-0 active:scale-[0.99]",
+          "interactive-card cursor-pointer hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card-hover active:translate-y-0 active:scale-[0.99]",
         className
       )}
       {...props}
@@ -22,7 +22,7 @@ export function MicroLabel({ className, ...props }: React.HTMLAttributes<HTMLSpa
   return (
     <span
       className={cn(
-        "text-[10.5px] font-extrabold uppercase tracking-[0.13em] text-muted/80",
+        "text-[10px] font-extrabold uppercase tracking-[0.14em] text-muted/75",
         className
       )}
       {...props}

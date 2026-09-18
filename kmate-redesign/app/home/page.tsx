@@ -166,11 +166,11 @@ export default async function HomePage() {
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
 
   return (
-    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-      <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <main className="workspace-page mx-auto w-full max-w-[1220px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <section className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <MicroLabel>Your workspace</MicroLabel>
-          <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.035em] text-ink sm:text-[34px]">
+          <h1 className="mt-2 text-[32px] font-extrabold tracking-[-0.045em] text-ink sm:text-[40px]">
             {demoMode ? "KMate workspace" : <>Welcome back{profile?.username ? `, @${profile.username}` : ""}</>}
           </h1>
           <p className="mt-1.5 text-[12.5px] font-medium text-muted">
@@ -181,7 +181,7 @@ export default async function HomePage() {
       </section>
 
       {demoMode ? (
-        <div className="mt-5 rounded-[18px] border border-primary/15 bg-[linear-gradient(100deg,rgba(27,110,91,.10),rgba(75,103,167,.05),rgba(202,109,77,.05))] px-4 py-3 shadow-xs">
+        <div className="mt-5 flex items-start gap-3 rounded-[12px] border border-border bg-white px-4 py-3 shadow-xs"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gks-g" />
           <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">Raw preview mode</p>
           <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
             Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.
@@ -225,7 +225,7 @@ export default async function HomePage() {
           </div>
         </Card>
 
-        <Card className="grid grid-cols-2 gap-2 p-3 lg:grid-cols-1">
+        <Card className="grid grid-cols-2 gap-2 border-0 bg-transparent p-0 shadow-none lg:grid-cols-1">
           {[
             { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users, tone: "bg-gks-g/10 text-gks-g" },
             { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle, tone: "bg-primary-soft text-primary" },
@@ -237,7 +237,7 @@ export default async function HomePage() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[16px] px-3 py-3 transition-[background-color,transform] hover:-translate-y-[1px] hover:bg-white hover:shadow-xs"
+                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[12px] border border-border bg-white px-3 py-3 shadow-xs transition-[background-color,transform,border-color,box-shadow] hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card"
               >
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] ${item.tone}`}>
                   <Icon className="h-4 w-4" />
@@ -270,7 +270,7 @@ export default async function HomePage() {
       <ToolDirectory />
 
       {spotlight && (
-        <Card className="mt-4 overflow-hidden border-gold/12 p-0">
+        <Card className="mt-4 overflow-hidden border-border p-0">
           <div className="grid md:grid-cols-[1fr_auto]">
             <div className="p-5 sm:p-6">
               <MicroLabel>Scholarship spotlight</MicroLabel>
@@ -299,7 +299,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 border-t border-gold/10 bg-gold/[0.045] px-5 py-4 md:border-l md:border-t-0">
+            <div className="flex items-center gap-3 border-t border-border bg-canvas/55 px-5 py-4 md:border-l md:border-t-0">
               <Link href="/scholarships" className="text-[11.5px] font-extrabold text-primary hover:underline">
                 Browse scholarships
               </Link>

@@ -1,40 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --color-canvas: #f5f2ea;
-  --color-surface: #fffdf8;
-  --color-ink: #17241e;
-  --color-muted: #66716b;
+  --color-canvas: #f6f7f4;
+  --color-surface: #ffffff;
+  --color-ink: #13231c;
+  --color-muted: #69736d;
 
-  --color-primary: #1b6e5b;
-  --color-primary-hover: #145847;
-  --color-primary-soft: rgba(27, 110, 91, 0.10);
-  --color-primary-soft-strong: rgba(27, 110, 91, 0.16);
+  --color-primary: #16745f;
+  --color-primary-hover: #105c4b;
+  --color-primary-soft: rgba(22, 116, 95, 0.10);
 
-  --color-border: #dfddd4;
-  --color-hairline: rgba(23, 36, 30, 0.085);
-  --color-hairline-strong: rgba(23, 36, 30, 0.15);
+  --color-border: #e2e5df;
+  --color-hairline: rgba(19, 35, 28, 0.08);
+  --color-hairline-strong: rgba(19, 35, 28, 0.14);
 
-  --color-success: #2b8065;
-  --color-success-soft: rgba(43, 128, 101, 0.11);
-  --color-danger: #bd5349;
-  --color-danger-soft: rgba(189, 83, 73, 0.10);
+  --color-success: #277a61;
+  --color-success-soft: rgba(39, 122, 97, 0.10);
+  --color-danger: #bd584b;
+  --color-danger-soft: rgba(189, 88, 75, 0.10);
 
-  --color-gold: #a6762e;
-  --color-gold-soft: rgba(166, 118, 46, 0.11);
-  --color-gks-u: #ca6d4d;
-  --color-gks-g: #4b67a7;
-  --color-info: #4b67a7;
-  --color-info-soft: rgba(75, 103, 167, 0.10);
+  --color-gold: #aa7a32;
+  --color-gold-soft: rgba(170, 122, 50, 0.10);
+  --color-gks-u: #d27656;
+  --color-gks-g: #556db4;
+  --color-info: #556db4;
+  --color-info-soft: rgba(85, 109, 180, 0.10);
 
-  --shadow-xs: 0 1px 2px rgba(20, 32, 26, 0.045);
-  --shadow-card:
-    0 1px 2px rgba(20, 32, 26, 0.035),
-    0 14px 36px -27px rgba(20, 32, 26, 0.30);
-  --shadow-card-hover:
-    0 3px 8px rgba(20, 32, 26, 0.05),
-    0 22px 48px -28px rgba(20, 32, 26, 0.34);
-  --shadow-pop: 0 22px 60px -30px rgba(20, 32, 26, 0.40);
+  --shadow-xs: 0 1px 2px rgba(16, 31, 25, 0.035);
+  --shadow-card: 0 1px 2px rgba(16, 31, 25, 0.025), 0 10px 26px -22px rgba(16, 31, 25, 0.22);
+  --shadow-card-hover: 0 3px 10px rgba(16, 31, 25, 0.045), 0 20px 38px -24px rgba(16, 31, 25, 0.28);
+  --shadow-pop: 0 24px 56px -28px rgba(16, 31, 25, 0.34);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -80,9 +75,8 @@ body {
   margin: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at 8% 0%, rgba(27, 110, 91, 0.075), transparent 30rem),
-    radial-gradient(circle at 94% 12%, rgba(202, 109, 77, 0.065), transparent 26rem),
-    radial-gradient(circle at 58% 100%, rgba(75, 103, 167, 0.045), transparent 32rem),
+    radial-gradient(circle at 100% 0%, rgba(85, 109, 180, 0.035), transparent 28rem),
+    radial-gradient(circle at 0% 100%, rgba(22, 116, 95, 0.035), transparent 26rem),
     var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -90,15 +84,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-::selection {
-  background: var(--color-primary);
-  color: #fff;
-}
+::selection { background: var(--color-primary); color: #fff; }
 
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(23, 36, 30, 0.16);
+  background: rgba(19, 35, 28, 0.15);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -106,7 +97,7 @@ body {
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(23, 36, 30, 0.16) transparent;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
 }
 
 :focus-visible {
@@ -123,35 +114,35 @@ body {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.018;
+  opacity: 0.012;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/></svg>");
   background-size: 180px 180px;
 }
 
 .glass-surface {
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  backdrop-filter: blur(18px) saturate(130%);
-  -webkit-backdrop-filter: blur(18px) saturate(130%);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: var(--shadow-pop), inset 0 1px 0 rgba(255, 255, 255, 0.84);
+  background: rgba(255,255,255,0.90);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: var(--shadow-pop);
 }
 
 .grid-texture {
   background-image:
-    linear-gradient(rgba(23, 36, 30, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 36, 30, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(19, 35, 28, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 35, 28, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
 .glow-wash {
-  background: radial-gradient(ellipse 65% 60% at 50% 42%, rgba(27, 110, 91, 0.12), transparent 72%);
+  background: radial-gradient(ellipse 65% 60% at 50% 42%, rgba(22, 116, 95, 0.10), transparent 72%);
 }
 
 .kmate-panel {
-  border: 1px solid var(--color-hairline);
-  background: rgba(255, 253, 248, 0.88);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   box-shadow: var(--shadow-card);
 }
 
@@ -164,21 +155,18 @@ body {
 
 .workspace-hero {
   background:
-    radial-gradient(circle at 88% 8%, rgba(202, 109, 77, 0.16), transparent 18rem),
-    linear-gradient(135deg, #183329 0%, #1b4134 52%, #172821 100%);
-  box-shadow: 0 28px 70px -42px rgba(23, 36, 30, 0.82);
+    radial-gradient(circle at 85% 18%, rgba(210, 118, 86, 0.17), transparent 17rem),
+    radial-gradient(circle at 16% 110%, rgba(85, 109, 180, 0.13), transparent 18rem),
+    linear-gradient(135deg, #123a2f 0%, #174638 58%, #112f27 100%);
+  box-shadow: 0 28px 64px -42px rgba(18, 58, 47, 0.72);
 }
 
 .interactive-card {
-  background:
-    linear-gradient(135deg, rgba(27, 110, 91, 0), rgba(75, 103, 167, 0)),
-    var(--color-surface);
+  background: var(--color-surface);
 }
 
 .interactive-card:hover {
-  background:
-    linear-gradient(135deg, rgba(27, 110, 91, 0.045), rgba(75, 103, 167, 0.025) 58%, rgba(202, 109, 77, 0.025)),
-    var(--color-surface);
+  background: #fff;
 }
 
 .pressable {
@@ -196,14 +184,11 @@ body {
 button, a { -webkit-tap-highlight-color: transparent; }
 
 input, textarea, select {
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
 }
 
 input:focus, textarea:focus, select:focus {
-  box-shadow: 0 0 0 3px rgba(27, 110, 91, 0.09);
+  box-shadow: 0 0 0 3px rgba(22, 116, 95, 0.08);
 }
 
 details > summary { list-style: none; }

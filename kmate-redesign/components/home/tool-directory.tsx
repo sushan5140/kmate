@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import {
@@ -57,38 +57,38 @@ const GROUP_SUBTITLES: Record<ToolGroup, string> = {
 const GROUP_TONES: Record<
   ToolGroup,
   {
-    section: string;
     label: string;
     icon: string;
+    rail: string;
     dot: string;
     selectedFilter: string;
   }
 > = {
   application: {
-    section: "border-primary/15 bg-primary/[0.035]",
     label: "text-primary",
     icon: "bg-primary-soft text-primary",
+    rail: "bg-primary",
     dot: "bg-primary",
     selectedFilter: "border-primary/25 bg-primary-soft text-primary",
   },
   resources: {
-    section: "border-gold/15 bg-gold/[0.035]",
     label: "text-gold",
     icon: "bg-gold-soft text-gold",
+    rail: "bg-gold",
     dot: "bg-gold",
     selectedFilter: "border-gold/25 bg-gold-soft text-gold",
   },
   preparation: {
-    section: "border-gks-u/15 bg-gks-u/[0.035]",
     label: "text-gks-u",
     icon: "bg-gks-u/10 text-gks-u",
+    rail: "bg-gks-u",
     dot: "bg-gks-u",
     selectedFilter: "border-gks-u/25 bg-gks-u/10 text-gks-u",
   },
   community: {
-    section: "border-gks-g/15 bg-gks-g/[0.035]",
     label: "text-gks-g",
     icon: "bg-gks-g/10 text-gks-g",
+    rail: "bg-gks-g",
     dot: "bg-gks-g",
     selectedFilter: "border-gks-g/25 bg-gks-g/10 text-gks-g",
   },
@@ -105,7 +105,31 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 export function ToolDirectory() {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const normalizedQuery = query.trim().toLowerCase();
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const typing =
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.isContentEditable;
+
+      if (event.key === "/" && !typing) {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+
+      if (event.key === "Escape" && document.activeElement === searchRef.current) {
+        setQuery("");
+        searchRef.current?.blur();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const groups = useMemo(() => {
     return (NAV_GROUP_ORDER.filter((group): group is ToolGroup => group !== "overview"))
@@ -113,16 +137,18 @@ export function ToolDirectory() {
         const items = navItemsByGroup(group).filter((item) => {
           if (filter !== "all" && group !== filter) return false;
           if (!normalizedQuery) return true;
-          const haystack = [
+
+          return [
             item.label,
             DESCRIPTIONS[item.href] ?? "",
             BADGES[item.href] ?? "",
             NAV_GROUP_LABELS[group],
           ]
             .join(" ")
-            .toLowerCase();
-          return haystack.includes(normalizedQuery);
+            .toLowerCase()
+            .includes(normalizedQuery);
         });
+
         return { group, items };
       })
       .filter(({ items }) => items.length > 0);
@@ -131,44 +157,57 @@ export function ToolDirectory() {
   const visibleCount = groups.reduce((total, group) => total + group.items.length, 0);
 
   return (
-    <section className="mt-5 rounded-[26px] border border-hairline bg-surface/78 p-4 shadow-card sm:p-5 lg:p-6">
+    <section className="mt-5 rounded-[18px] border border-border bg-white p-4 shadow-card sm:p-5 lg:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-primary">Full product</p>
-          <h2 className="mt-1 text-[20px] font-extrabold tracking-[-0.025em] text-ink sm:text-[22px]">
-            Find the tool you need.
+          <div className="inline-flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-primary">Tool explorer</p>
+          </div>
+          <h2 className="mt-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink sm:text-[25px]">
+            Jump straight to the work.
           </h2>
           <p className="mt-1.5 max-w-2xl text-[11.5px] font-medium leading-5 text-muted">
-            Search KMate or narrow the workspace by what you are trying to do.
+            Search the full KMate workspace or narrow it by task.
           </p>
         </div>
 
-        <div className="relative w-full lg:w-[310px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted/70" />
+        <div className="relative w-full lg:w-[330px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted/65" />
           <input
+            ref={searchRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search tools…"
             aria-label="Search KMate tools"
-            className="h-11 w-full rounded-[14px] border border-hairline-strong bg-canvas/58 pl-10 pr-10 text-[12px] font-semibold text-ink outline-none placeholder:text-muted/55 focus:border-primary focus:bg-white"
+            aria-keyshortcuts="/"
+            className="h-11 w-full rounded-[11px] border border-border bg-canvas/70 pl-10 pr-16 text-[12px] font-semibold text-ink outline-none placeholder:text-muted/50 focus:border-primary focus:bg-white"
           />
-          {query && (
+          {query ? (
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                searchRef.current?.focus();
+              }}
               aria-label="Clear tool search"
-              className="pressable absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-[9px] text-muted hover:bg-primary-soft hover:text-primary"
+              className="pressable absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-[8px] text-muted hover:bg-primary-soft hover:text-primary"
             >
               <X className="h-3.5 w-3.5" />
             </button>
+          ) : (
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-[6px] border border-border bg-white px-1.5 py-0.5 text-[9px] font-extrabold text-muted/55">
+              /
+            </span>
           )}
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-border pt-4">
         {FILTERS.map((item) => {
           const selected = filter === item.key;
           const tone = item.key === "all" ? null : GROUP_TONES[item.key];
+
           return (
             <button
               key={item.key}
@@ -176,12 +215,12 @@ export function ToolDirectory() {
               onClick={() => setFilter(item.key)}
               aria-pressed={selected}
               className={[
-                "pressable inline-flex h-8 items-center gap-2 rounded-full border px-3 text-[10.5px] font-extrabold",
+                "pressable inline-flex h-8 items-center gap-2 rounded-[9px] border px-3 text-[10px] font-extrabold",
                 selected
                   ? item.key === "all"
-                    ? "border-ink bg-ink text-white"
+                    ? "border-primary bg-primary text-white"
                     : tone?.selectedFilter
-                  : "border-hairline bg-surface text-muted hover:border-hairline-strong hover:bg-white hover:text-ink",
+                  : "border-transparent bg-transparent text-muted hover:border-border hover:bg-canvas hover:text-ink",
               ].join(" ")}
             >
               {tone && <span className={["h-1.5 w-1.5 rounded-full", tone.dot].join(" ")} />}
@@ -190,33 +229,36 @@ export function ToolDirectory() {
           );
         })}
 
-        <span className="ml-auto text-[9.5px] font-bold text-muted/65">
+        <span className="ml-auto text-[9.5px] font-bold text-muted/60">
           {visibleCount} {visibleCount === 1 ? "tool" : "tools"}
         </span>
       </div>
 
       {groups.length === 0 ? (
-        <div className="mt-5 rounded-[20px] border border-dashed border-hairline-strong bg-canvas/42 px-5 py-10 text-center">
+        <div className="mt-5 rounded-[14px] border border-dashed border-border bg-canvas/50 px-5 py-10 text-center">
           <p className="text-[12px] font-extrabold text-ink">No KMate tool matches “{query}”.</p>
           <button
             type="button"
             onClick={() => {
               setQuery("");
               setFilter("all");
+              searchRef.current?.focus();
             }}
-            className="pressable mt-3 rounded-[11px] bg-primary-soft px-3 py-2 text-[10.5px] font-extrabold text-primary hover:bg-[rgba(27,110,91,.16)]"
+            className="pressable mt-3 rounded-[9px] bg-primary-soft px-3 py-2 text-[10.5px] font-extrabold text-primary hover:bg-primary/15"
           >
-            Show all tools
+            Reset explorer
           </button>
         </div>
       ) : (
         <div className="mt-5 grid gap-3 xl:grid-cols-2">
           {groups.map(({ group, items }) => {
             const tone = GROUP_TONES[group];
+
             return (
-              <section key={group} className={["rounded-[20px] border p-3 sm:p-4", tone.section].join(" ")}>
+              <section key={group} className="relative overflow-hidden rounded-[14px] border border-border bg-canvas/34 p-3 sm:p-4">
+                <span className={["absolute inset-y-0 left-0 w-[3px]", tone.rail].join(" ")} />
                 <div className="px-1 pb-3">
-                  <p className={["text-[10px] font-extrabold uppercase tracking-[0.13em]", tone.label].join(" ")}>
+                  <p className={["text-[9.5px] font-extrabold uppercase tracking-[0.15em]", tone.label].join(" ")}>
                     {NAV_GROUP_LABELS[group]}
                   </p>
                   <p className="mt-1 text-[10.5px] font-medium text-muted">{GROUP_SUBTITLES[group]}</p>
@@ -225,27 +267,30 @@ export function ToolDirectory() {
                 <div className="grid gap-2 sm:grid-cols-2">
                   {items.map((item) => {
                     const Icon = item.icon;
+
                     return (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="interactive-card pressable group flex min-h-[122px] flex-col rounded-[16px] border border-hairline bg-surface px-4 py-3.5 shadow-xs hover:-translate-y-[2px] hover:border-hairline-strong hover:shadow-card-hover"
+                        className="interactive-card pressable group flex min-h-[118px] flex-col rounded-[12px] border border-border bg-white px-4 py-3.5 shadow-xs hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card-hover"
                       >
                         <div className="flex items-start justify-between gap-3">
-                          <span className={["flex h-9 w-9 items-center justify-center rounded-[12px]", tone.icon].join(" ")}>
+                          <span className={["flex h-8 w-8 items-center justify-center rounded-[9px]", tone.icon].join(" ")}>
                             <Icon className="h-4 w-4" />
                           </span>
-                          <ArrowUpRight className="h-3.5 w-3.5 text-muted/40 transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-ink" />
+                          <ArrowUpRight className="h-3.5 w-3.5 text-muted/35 transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
                         </div>
 
                         <div className="mt-4">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="text-[12px] font-extrabold tracking-[-0.01em] text-ink">{item.label}</p>
-                            <span className="rounded-full bg-canvas px-2 py-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.08em] text-muted/65">
+                            <span className="rounded-[6px] bg-canvas px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-[0.08em] text-muted/60">
                               {BADGES[item.href] ?? "Tool"}
                             </span>
                           </div>
-                          <p className="mt-1.5 text-[9.75px] font-medium leading-4 text-muted">{DESCRIPTIONS[item.href]}</p>
+                          <p className="mt-1.5 text-[9.75px] font-medium leading-4 text-muted">
+                            {DESCRIPTIONS[item.href]}
+                          </p>
                         </div>
                       </Link>
                     );

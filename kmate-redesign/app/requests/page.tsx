@@ -132,16 +132,16 @@ export default async function ConnectionsPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <PageHeader
         eyebrow="Community"
         title="Connections"
         description="Find applicants whose application overlaps yours, manage requests, and keep conversations inside KMate."
         meta={
           <div className="flex flex-wrap gap-2 text-[10.5px] font-bold text-muted">
-            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{connectedRequests.length} connected</span>
-            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{received.length} waiting on you</span>
-            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{sent.length} sent</span>
+            <span className="rounded-[8px] bg-primary-soft px-2.5 py-1 text-primary">{connectedRequests.length} connected</span>
+            <span className="rounded-[8px] bg-gks-u/10 px-2.5 py-1 text-gks-u">{received.length} waiting on you</span>
+            <span className="rounded-[8px] bg-gks-g/10 px-2.5 py-1 text-gks-g">{sent.length} sent</span>
           </div>
         }
       />

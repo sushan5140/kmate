@@ -111,13 +111,13 @@ export default async function ApplicationReadinessPage({
     universities.find((u) => u.major.trim().length > 0)?.major ?? defaults.major;
 
   return (
-    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <PageHeader
         eyebrow="My application"
         title="Application Readiness"
         description="Build the file route by route: setup, verified document progress, university-specific extras, forms, and final checks."
         meta={
-          <div className="inline-flex items-start gap-2 rounded-[14px] border border-hairline bg-surface/75 px-3 py-2.5 shadow-xs">
+          <div className="inline-flex items-start gap-2 border-l-2 border-primary bg-transparent py-1 pl-3">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
             <p className="max-w-2xl text-[10.5px] font-medium leading-5 text-muted">
               Checklist progress is not an eligibility decision. When an official source does not state something,
@@ -128,17 +128,17 @@ export default async function ApplicationReadinessPage({
       />
 
       <nav
-        className="mt-6 inline-flex max-w-full flex-wrap gap-1 rounded-[15px] border border-hairline bg-surface/80 p-1 shadow-xs"
+        className="sticky top-[66px] z-20 mt-6 inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-border bg-white/94 p-1 shadow-card backdrop-blur-xl md:top-3"
         aria-label="Readiness page sections"
       >
-        <a href="#application-setup" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+        <a href="#application-setup" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
           01 · Route &amp; setup
         </a>
-        <a href="#application-checklist" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+        <a href="#application-checklist" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
           02 · Checklist
         </a>
         {showGksU2027 && (
-          <a href="#supporting-tools" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+          <a href="#supporting-tools" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
             03 · Forms &amp; final checks
           </a>
         )}
@@ -170,7 +170,7 @@ export default async function ApplicationReadinessPage({
       </div>
 
       {showGksU2027 && (
-        <section id="supporting-tools" className="mt-8 scroll-mt-6 rounded-[24px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-6">
+        <section id="supporting-tools" className="mt-8 scroll-mt-20 rounded-[18px] border border-border bg-white p-4 shadow-card sm:p-6">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
               2027 supporting tools
@@ -185,7 +185,7 @@ export default async function ApplicationReadinessPage({
           </div>
 
           <div className="mt-4 flex flex-col gap-3">
-            <details className="group rounded-[18px] border border-hairline bg-canvas/45">
+            <details className="group rounded-[14px] border border-border bg-canvas/45">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[12px] font-extrabold text-ink">
                 Documents and Embassy → University fallback
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
@@ -200,7 +200,7 @@ export default async function ApplicationReadinessPage({
               </div>
             </details>
 
-            <details className="group rounded-2xl border border-hairline bg-white">
+            <details className="group rounded-[14px] border border-border bg-white">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
                 Forms 1–7 assistant
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
@@ -210,7 +210,7 @@ export default async function ApplicationReadinessPage({
               </div>
             </details>
 
-            <details className="group rounded-2xl border border-hairline bg-white">
+            <details className="group rounded-[14px] border border-border bg-white">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
                 Final manual self-check
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>

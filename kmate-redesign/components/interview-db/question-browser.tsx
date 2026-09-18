@@ -5,18 +5,32 @@ import { Search } from "lucide-react";
 import { QuestionCard, type QuestionCardData } from "@/components/interview-db/question-card";
 import { DownloadMenu } from "@/components/interview-db/download-menu";
 import { cn } from "@/lib/cn";
-import { QUESTION_CATEGORIES, QUESTION_CATEGORY_LABELS, type QuestionCategory } from "@/lib/constants";
+import {
+  QUESTION_CATEGORIES,
+  QUESTION_CATEGORY_LABELS,
+  type QuestionCategory,
+} from "@/lib/constants";
 
 const PAGE_SIZE = 18;
 
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "pressable rounded-[11px] border px-3 py-2 text-[10.5px] font-extrabold",
-        active ? "border-primary/20 bg-primary-soft text-primary" : "border-hairline bg-surface text-muted hover:bg-canvas hover:text-ink"
+        "pressable rounded-[9px] border px-3 py-2 text-[10.5px] font-extrabold",
+        active
+          ? "border-primary bg-primary text-white shadow-xs"
+          : "border-border bg-white text-muted hover:border-primary/20 hover:bg-primary-soft hover:text-primary"
       )}
     >
       {children}
@@ -69,70 +83,67 @@ export function QuestionBrowser({
       else next.delete(questionId);
       return next;
     });
-    setDraftedCount((c) => c + (hasContent ? 1 : -1));
+    setDraftedCount((count) => count + (hasContent ? 1 : -1));
   }
 
   return (
     <div>
-      <div className="mt-6 rounded-[20px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-[13px]">
-            <span className="font-extrabold text-ink">
-              {draftedCount} of {totalApproved} drafted
-            </span>
-            <span className="text-muted">{progressPct}%</span>
+      <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="rounded-[16px] border border-border bg-white p-4 shadow-card">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Draft progress</p>
+              <p className="mt-1 text-[13px] font-extrabold text-ink">
+                {draftedCount} of {totalApproved} drafted
+              </p>
+            </div>
+            <span className="text-[12px] font-extrabold text-primary">{progressPct}%</span>
           </div>
-          <DownloadMenu totalApproved={totalApproved} draftedCount={draftedCount} />
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.055]">
+            <div className="h-full rounded-full bg-primary transition-[width] duration-300" style={{ width: `${progressPct}%` }} />
+          </div>
         </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.06]">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
+
+        <div className="flex items-center rounded-[16px] border border-border bg-white px-4 py-3 shadow-card">
+          <DownloadMenu totalApproved={totalApproved} draftedCount={draftedCount} />
         </div>
       </div>
 
-      <div className="mt-4 rounded-[20px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-5">
+      <div className="mt-3 rounded-[16px] border border-border bg-white p-4 shadow-card">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted/65" />
           <input
             type="text"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
+            onChange={(event) => {
+              setSearch(event.target.value);
               resetPaging();
             }}
             placeholder="Search questions…"
-            className="w-full rounded-[13px] border border-hairline-strong bg-canvas/55 py-3 pl-10 pr-4 text-[12.5px] font-semibold text-ink outline-none transition-colors focus:border-primary focus:bg-white"
+            className="w-full rounded-[11px] border border-border bg-canvas/70 py-3 pl-10 pr-4 text-[12px] font-semibold text-ink outline-none focus:border-primary focus:bg-white"
           />
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <Chip
-            active={category === "all"}
-            onClick={() => {
-              setCategory("all");
-              resetPaging();
-            }}
-          >
+          <Chip active={category === "all"} onClick={() => { setCategory("all"); resetPaging(); }}>
             All
           </Chip>
-          {QUESTION_CATEGORIES.map((c) => (
+          {QUESTION_CATEGORIES.map((item) => (
             <Chip
-              key={c}
-              active={category === c}
+              key={item}
+              active={category === item}
               onClick={() => {
-                setCategory(c);
+                setCategory(item);
                 resetPaging();
               }}
             >
-              {QUESTION_CATEGORY_LABELS[c]}
+              {QUESTION_CATEGORY_LABELS[item]}
             </Chip>
           ))}
           <Chip
             active={unansweredOnly}
             onClick={() => {
-              setUnansweredOnly((v) => !v);
+              setUnansweredOnly((value) => !value);
               resetPaging();
             }}
           >
@@ -143,14 +154,16 @@ export function QuestionBrowser({
 
       <div className="mt-4 grid gap-3 xl:grid-cols-2">
         {visible.length === 0 ? (
-          <p className="text-[14px] text-muted">No questions match this filter yet.</p>
+          <div className="rounded-[16px] border border-dashed border-border bg-white px-5 py-10 text-center xl:col-span-2">
+            <p className="text-[12px] font-semibold text-muted">No questions match this filter yet.</p>
+          </div>
         ) : (
-          visible.map((q, i) => (
+          visible.map((question, index) => (
             <QuestionCard
-              key={q.id}
-              index={i + 1}
-              question={q}
-              onDraftContentChange={(hasContent) => handleDraftContentChange(q.id, hasContent)}
+              key={question.id}
+              index={index + 1}
+              question={question}
+              onDraftContentChange={(hasContent) => handleDraftContentChange(question.id, hasContent)}
             />
           ))
         )}
@@ -159,8 +172,8 @@ export function QuestionBrowser({
       {hasMore && (
         <button
           type="button"
-          onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          className="pressable mt-4 w-full rounded-[13px] border border-hairline-strong bg-surface py-3 text-[11.5px] font-extrabold text-ink hover:bg-canvas"
+          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+          className="pressable mt-4 w-full rounded-[11px] border border-border bg-white py-3 text-[11px] font-extrabold text-primary hover:border-primary/25 hover:bg-primary-soft"
         >
           Load more ({filtered.length - visible.length} remaining)
         </button>
