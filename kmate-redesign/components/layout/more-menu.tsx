@@ -59,10 +59,12 @@ function MoreMenuContent({
   username,
   isAdmin,
   onNavigate,
+  demoMode = false,
 }: {
   username: string | null;
   isAdmin: boolean;
   onNavigate: () => void;
+  demoMode?: boolean;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<"menu" | "report">("menu");
@@ -83,18 +85,28 @@ function MoreMenuContent({
       <div className="pb-1">
         <span className="mx-4 mt-1.5 block h-1 w-9 rounded-full bg-ink/10 md:hidden" />
       </div>
-      <Link
-        href={username ? `/profile/${username}` : "/settings/profile"}
-        onClick={onNavigate}
-        className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-canvas"
-      >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-white">
-          {username ? username[0]?.toUpperCase() : "?"}
-        </span>
-        <span className="text-[13.5px] font-medium text-ink">
-          {username ? `@${username}` : "Your profile"}
-        </span>
-      </Link>
+      {demoMode ? (
+        <div className="flex items-center gap-2.5 px-4 py-2.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-white">R</span>
+          <span>
+            <span className="block text-[13px] font-extrabold text-ink">Raw KMate</span>
+            <span className="block text-[10px] font-medium text-muted">Browse without an account</span>
+          </span>
+        </div>
+      ) : (
+        <Link
+          href={username ? `/profile/${username}` : "/settings/profile"}
+          onClick={onNavigate}
+          className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-canvas"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-white">
+            {username ? username[0]?.toUpperCase() : "?"}
+          </span>
+          <span className="text-[13.5px] font-medium text-ink">
+            {username ? `@${username}` : "Your profile"}
+          </span>
+        </Link>
+      )}
 
       {/*
         Fallback nav list -- mobile has no persistent sidebar (see
@@ -138,31 +150,44 @@ function MoreMenuContent({
           <LockKeyhole className="h-4 w-4 text-muted" /> Admin panel
         </Link>
       )}
-      <button
-        type="button"
-        onClick={() => setMode("report")}
-        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13.5px] text-ink hover:bg-canvas"
-      >
-        <Flag className="h-4 w-4 text-muted" /> Report a problem
-      </button>
+      {!demoMode && (
+        <button
+          type="button"
+          onClick={() => setMode("report")}
+          className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13.5px] text-ink hover:bg-canvas"
+        >
+          <Flag className="h-4 w-4 text-muted" /> Report a problem
+        </button>
+      )}
       <Link href="/about" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <Info className="h-4 w-4 text-muted" /> About KMate
       </Link>
 
-      <div className="my-1.5 border-t border-hairline" />
-
-      <button
-        type="button"
-        onClick={signOut}
-        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13.5px] font-medium text-danger hover:bg-danger-soft"
-      >
-        <LogOut className="h-4 w-4" /> Sign out
-      </button>
+      {!demoMode && (
+        <>
+          <div className="my-1.5 border-t border-hairline" />
+          <button
+            type="button"
+            onClick={signOut}
+            className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13.5px] font-medium text-danger hover:bg-danger-soft"
+          >
+            <LogOut className="h-4 w-4" /> Sign out
+          </button>
+        </>
+      )}
     </div>
   );
 }
 
-export function MoreMenu({ username, isAdmin = false }: { username: string | null; isAdmin?: boolean }) {
+export function MoreMenu({
+  username,
+  isAdmin = false,
+  demoMode = false,
+}: {
+  username: string | null;
+  isAdmin?: boolean;
+  demoMode?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -192,7 +217,7 @@ export function MoreMenu({ username, isAdmin = false }: { username: string | nul
                 onClick={(e) => e.stopPropagation()}
                 className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-card"
               >
-                <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+                <MoreMenuContent username={username} isAdmin={isAdmin} demoMode={demoMode} onNavigate={() => setOpen(false)} />
               </div>
             </div>,
             document.body
@@ -200,7 +225,7 @@ export function MoreMenu({ username, isAdmin = false }: { username: string | nul
 
           {/* Desktop: anchored dropdown, top-right of the trigger (not portaled -- its trigger isn't inside a backdrop-filter ancestor) */}
           <div className="absolute right-0 top-full z-50 mt-2 hidden w-[220px] rounded-xl border border-border bg-white shadow-card md:block">
-            <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+            <MoreMenuContent username={username} isAdmin={isAdmin} demoMode={demoMode} onNavigate={() => setOpen(false)} />
           </div>
 
           {/* Desktop click-outside catcher (invisible, no backdrop dimming) */}
