@@ -1,5 +1,7 @@
 # KMate design system
 
+Status: active on `kmate-redesign-v2`.
+
 ## Product character
 KMate is a working desk for GKS applicants: official rules, application progress, university requirements, interview preparation, and applicant connections. It should feel precise, trustworthy, calm, and unmistakably tied to application work rather than like a generic SaaS dashboard.
 
