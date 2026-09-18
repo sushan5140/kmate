@@ -6,7 +6,7 @@ import { DEMO_USER_ID } from "@/lib/demo-mode";
 function NavSkeleton() {
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] bg-[#12372d] md:block" />
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] bg-ink md:block" />
       <header className="sticky top-0 z-30 h-[58px] border-b border-hairline bg-white/95 backdrop-blur-xl md:hidden" />
     </>
   );

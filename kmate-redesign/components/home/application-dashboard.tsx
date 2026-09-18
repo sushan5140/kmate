@@ -213,7 +213,7 @@ export function ApplicationDashboard({
                   })
                 )
               }
-              className="inline-flex h-10 items-center rounded-full bg-ink px-4 text-[13.5px] font-medium text-white transition-all duration-150 hover:bg-ink/90 active:scale-[0.97]"
+              className="inline-flex h-10 items-center rounded-[9px] bg-primary px-4 text-[13px] font-bold text-white transition-[transform,background-color] duration-150 ease-out hover:bg-primary-hover active:scale-[0.975]"
             >
               Create from my profile
             </button>
@@ -273,8 +273,8 @@ export function ApplicationDashboard({
     : [];
 
   return (
-    <div className="mt-8 flex flex-col gap-4">
-      <Card className="flex flex-col gap-4">
+    <div className="mt-6 flex flex-col gap-3">
+      <Card className="flex flex-col gap-4 border-l-[3px] border-l-primary">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
             <MicroLabel>My GKS application</MicroLabel>
@@ -451,7 +451,7 @@ function Quick({ href, icon, label }: { href: string; icon: React.ReactNode; lab
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</dt>
+      <dt className="text-[11px] font-semibold text-muted">{label}</dt>
       <dd className="mt-0.5 text-[15px] font-semibold text-ink">{value}</dd>
     </div>
   );
@@ -478,8 +478,8 @@ function Bar({
       aria-label={label}
     >
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-300"
-        style={{ width: `${total ? (ready / total) * 100 : 0}%` }}
+        className="h-full origin-left rounded-full bg-primary transition-transform duration-200 ease-out"
+        style={{ transform: `scaleX(${total ? ready / total : 0})` }}
       />
     </div>
   );

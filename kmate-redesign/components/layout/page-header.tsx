@@ -21,19 +21,17 @@ export function PageHeader({
       <div className="min-w-0 max-w-3xl">
         {eyebrow && (
           <div className="inline-flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <p className="text-[9.5px] font-extrabold uppercase tracking-[0.17em] text-primary">
-              {eyebrow}
-            </p>
+            <span className="h-3 w-[3px] rounded-full bg-gks-u" />
+            <p className="text-[12px] font-semibold text-primary">{eyebrow}</p>
           </div>
         )}
 
-        <h1 className="mt-2 text-[31px] font-extrabold leading-[1.03] tracking-[-0.045em] text-ink sm:text-[39px]">
+        <h1 className="mt-2 text-[32px] font-extrabold leading-[1.04] tracking-[-0.045em] text-ink sm:text-[40px]">
           {title}
         </h1>
 
         {description && (
-          <p className="mt-2.5 max-w-2xl text-[12.5px] font-medium leading-6 text-muted sm:text-[13px]">
+          <p className="mt-2.5 max-w-2xl text-[13px] font-medium leading-6 text-muted sm:text-[14px]">
             {description}
           </p>
         )}

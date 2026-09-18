@@ -115,7 +115,7 @@ export default async function InterviewDbPage() {
         description="Turn the question bank into actual preparation: draft your own answers, filter by theme, then rehearse out loud when you are ready."
         meta={
           <div className="flex flex-wrap gap-2 text-[10.5px] font-bold text-muted">
-            <span className="rounded-[8px] bg-white px-2.5 py-1 ring-1 ring-border">{totalApproved} approved questions</span>
+            <span className="border-l-2 border-primary pl-2">{totalApproved} approved questions</span>
             <span className="rounded-[8px] bg-white px-2.5 py-1 ring-1 ring-border">{initialDraftedCount} drafted</span>
           </div>
         }
@@ -123,8 +123,8 @@ export default async function InterviewDbPage() {
       />
 
       <section className="mt-6 grid gap-3 lg:grid-cols-[1fr_.78fr]">
-        <Card className="border-0 bg-[#121b34] p-6 text-white">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-white/45">Prep principle</p>
+        <Card className="border-l-[3px] border-l-gks-u bg-ink p-6 text-white">
+          <p className="text-[12px] font-semibold text-white/48">Prep principle</p>
           <h2 className="mt-2 text-[20px] font-extrabold tracking-[-0.025em]">Prepare ideas, not a memorized script.</h2>
           <p className="mt-3 max-w-2xl text-[12px] font-medium leading-6 text-white/58">
             Expect questions about motivation, academic background, Korea, your study plan, and a few curveballs.
@@ -133,14 +133,14 @@ export default async function InterviewDbPage() {
         </Card>
 
         <Link href="/interview-db/mock-interview" className="block">
-          <Card interactive className="h-full border-primary/16 bg-white">
+          <Card interactive className="h-full border-l-[3px] border-l-primary bg-white">
             <div className="flex items-center justify-between">
               <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary text-white">
                 <Video className="h-4.5 w-4.5" />
               </span>
               <ArrowRight className="h-4 w-4 text-primary" />
             </div>
-            <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">AI rehearsal</p>
+            <p className="mt-5 text-[12px] font-semibold text-primary">AI rehearsal</p>
             <h2 className="mt-1 text-[16px] font-extrabold tracking-[-0.02em] text-ink">Start a mock interview</h2>
             <p className="mt-2 text-[11.5px] font-medium leading-5 text-muted">
               Practice with camera and microphone feedback on delivery mechanics such as pace, filler words, posture, and eye contact.

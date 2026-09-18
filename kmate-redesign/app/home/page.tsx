@@ -4,22 +4,8 @@ import {
   Users,
   MessageSquare,
   MessageCircle,
-  Bot,
-  AlertTriangle,
-  Award,
   Inbox,
-  UserRound,
-  ArrowDown,
   ExternalLink,
-  FileText,
-  Stamp,
-  BarChart3,
-  UserCheck,
-  Megaphone,
-  GraduationCap,
-  ClipboardCheck,
-  FolderCheck,
-  HelpCircle,
 } from "lucide-react";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -169,19 +155,22 @@ export default async function HomePage() {
     <main className="workspace-page mx-auto w-full max-w-[1220px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <section className="flex flex-col gap-5 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <MicroLabel>Your workspace</MicroLabel>
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-[3px] rounded-full bg-gks-u" />
+            <p className="text-[12px] font-semibold text-primary">{profile?.application_year ?? "2027"} GKS workspace</p>
+          </div>
           <h1 className="mt-2 text-[32px] font-extrabold tracking-[-0.045em] text-ink sm:text-[40px]">
-            {demoMode ? "KMate workspace" : <>Welcome back{profile?.username ? `, @${profile.username}` : ""}</>}
+            {demoMode ? "Application desk" : <>Welcome back{profile?.username ? `, @${profile.username}` : ""}</>}
           </h1>
-          <p className="mt-1.5 text-[12.5px] font-medium text-muted">
-            One place for your route, evidence, deadlines, interview prep, and applicant network.
+          <p className="mt-1.5 max-w-2xl text-[13px] font-medium leading-6 text-muted">
+            Your route, evidence, deadlines, interview prep, and applicant network—kept in one working space.
           </p>
         </div>
         {track && <TrackBadge track={track} />}
       </section>
 
       {demoMode ? (
-        <div className="mt-5 flex items-start gap-3 rounded-[11px] border border-primary/12 bg-primary-soft px-4 py-3"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Raw preview</p><p className="mt-1 text-[11px] font-medium leading-5 text-muted">Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.</p></div></div>
+        <div className="mt-5 flex items-start gap-3 border-l-[3px] border-primary bg-white px-4 py-3"><div><p className="text-[12px] font-bold text-primary">Raw preview</p><p className="mt-1 text-[12px] font-medium leading-5 text-muted">Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.</p></div></div>
       ) : (
         <div className="mt-5 flex flex-col gap-3">
           <WarningBanner />
@@ -189,13 +178,12 @@ export default async function HomePage() {
         </div>
       )}
 
-      <section className="mt-6 grid gap-3 lg:grid-cols-[1.45fr_.55fr]">
-        <Card className="workspace-hero relative overflow-hidden border-0 p-6 text-white sm:p-7">
-          <><div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-gks-u/20 blur-3xl" aria-hidden /><div className="pointer-events-none absolute -bottom-28 left-20 h-56 w-56 rounded-full bg-gks-g/10 blur-3xl" aria-hidden /></>
-          <div className="relative">
+      <section className="mt-6 overflow-hidden rounded-[14px] border border-ink bg-ink text-white">
+        <div className="grid lg:grid-cols-[1fr_340px]">
+          <div className="p-6 sm:p-7">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <MicroLabel className="text-white/48">Application calendar</MicroLabel>
+                <p className="text-[12px] font-semibold text-white/55">Current application</p>
                 {track ? (
                   <DeadlineBannerText track={track} />
                 ) : (
@@ -204,47 +192,45 @@ export default async function HomePage() {
                   </h2>
                 )}
               </div>
-              <span className="rounded-[8px] border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[10px] font-bold text-white/62">
+              <span className="rounded-[7px] border border-white/10 px-3 py-1.5 text-[10.5px] font-bold text-white/68">
                 {profile?.application_year ?? "Cycle not set"}
               </span>
             </div>
-            <p className="mt-4 max-w-2xl text-[12.5px] font-medium leading-6 text-white/58">
-              Your route, documents, university extras, and verified deadline context stay together here.
+            <p className="mt-4 max-w-2xl text-[13px] font-medium leading-6 text-white/62">
+              Route, documents, university extras, and verified deadline context stay together here.
             </p>
             <Link
               href="/application-readiness"
-              className="pressable mt-6 inline-flex h-11 items-center rounded-[10px] bg-white px-4 text-[12.5px] font-extrabold text-ink shadow-xs hover:bg-white/92"
+              className="pressable mt-6 inline-flex min-h-11 items-center rounded-[9px] bg-white px-4 text-[12.5px] font-extrabold text-ink hover:bg-canvas"
             >
-              Continue application readiness
+              Continue application
             </Link>
           </div>
-        </Card>
 
-        <Card className="grid grid-cols-2 gap-2 border-0 bg-transparent p-0 shadow-none lg:grid-cols-1">
-          {[
-            { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users, tone: "bg-gks-g/10 text-gks-g" },
-            { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle, tone: "bg-primary-soft text-primary" },
-            { label: "Pending requests", value: pendingRequestsCount ?? 0, href: "/requests?tab=received", icon: Inbox, tone: "bg-gks-u/10 text-gks-u" },
-            { label: "Interview drafts", value: draftedCount, href: "/interview-db", icon: MessageSquare, tone: "bg-gold-soft text-gold" },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[10px] border border-border bg-white px-3 py-3 shadow-xs transition-[background-color,transform,border-color,box-shadow] hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card"
-              >
-                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] ${item.tone}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[20px] font-extrabold tracking-[-0.03em] text-ink">{item.value}</span>
-                  <span className="block truncate text-[10.5px] font-semibold text-muted">{item.label}</span>
-                </span>
-              </Link>
-            );
-          })}
-        </Card>
+          <div className="grid grid-cols-2 border-t border-white/10 lg:border-l lg:border-t-0">
+            {[
+              { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users },
+              { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle },
+              { label: "Pending requests", value: pendingRequestsCount ?? 0, href: "/requests?tab=received", icon: Inbox },
+              { label: "Interview drafts", value: draftedCount, href: "/interview-db", icon: MessageSquare },
+            ].map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`pressable group flex min-h-[98px] flex-col justify-between p-4 hover:bg-white/[0.05] ${index < 2 ? "border-b border-white/10" : ""} ${index % 2 === 0 ? "border-r border-white/10" : ""}`}
+                >
+                  <Icon className="h-4 w-4 text-white/42" />
+                  <span>
+                    <span className="block text-[22px] font-extrabold tracking-[-0.03em] text-white">{item.value}</span>
+                    <span className="mt-0.5 block text-[11px] font-semibold text-white/52">{item.label}</span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </section>
 
       <section className="mt-4">
@@ -265,7 +251,7 @@ export default async function HomePage() {
       <ToolDirectory />
 
       {spotlight && (
-        <Card className="mt-4 overflow-hidden border-border p-0">
+        <Card className="mt-6 overflow-hidden border-border border-l-[3px] border-l-gks-u p-0">
           <div className="grid md:grid-cols-[1fr_auto]">
             <div className="p-5 sm:p-6">
               <MicroLabel>Scholarship spotlight</MicroLabel>
@@ -276,12 +262,12 @@ export default async function HomePage() {
               <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3 text-[11px]">
                 {spotlight.benefit_type && (
                   <div>
-                    <span className="block text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted/65">Benefit</span>
+                    <span className="block text-[11px] font-semibold text-muted">Benefit</span>
                     <span className="mt-1 block font-semibold text-ink">{spotlight.benefit_type}</span>
                   </div>
                 )}
                 <div>
-                  <span className="block text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted/65">Deadline</span>
+                  <span className="block text-[11px] font-semibold text-muted">Deadline</span>
                   <span className="mt-1 block font-semibold text-ink">
                     {spotlight.deadline
                       ? new Date(spotlight.deadline).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
@@ -294,7 +280,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 border-t border-border bg-canvas/55 px-5 py-4 md:border-l md:border-t-0">
+            <div className="flex items-center gap-3 border-t border-border bg-canvas px-5 py-4 md:border-l md:border-t-0">
               <Link href="/scholarships" className="text-[11.5px] font-extrabold text-primary hover:underline">
                 Browse scholarships
               </Link>
@@ -313,7 +299,7 @@ export default async function HomePage() {
 
 
 
-      <p className="mt-6 text-center text-[10px] font-medium text-muted/70">
+      <p className="mt-6 text-center text-[11px] font-medium text-muted/75">
         KMate keeps official rules, older university sources, and community experience visibly separate.
       </p>
     </main>

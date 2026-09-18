@@ -7,17 +7,8 @@ import {
   NAV_GROUP_LABELS,
   NAV_GROUP_ORDER,
   navItemsByGroup,
-  type NavGroup,
 } from "@/lib/nav-items";
 import { cn } from "@/lib/cn";
-
-const GROUP_TONES: Record<NavGroup, { icon: string; label: string }> = {
-  overview: { icon: "bg-white/[0.06] text-white/68", label: "text-white/36" },
-  application: { icon: "bg-[#7e9cff]/12 text-[#a8baff]", label: "text-white/36" },
-  resources: { icon: "bg-white/[0.06] text-white/68", label: "text-white/36" },
-  preparation: { icon: "bg-white/[0.06] text-white/68", label: "text-white/36" },
-  community: { icon: "bg-white/[0.06] text-white/68", label: "text-white/36" },
-};
 
 export function Sidebar({
   username,
@@ -33,16 +24,16 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.05] bg-[#0d1426] md:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-white/[0.06] bg-ink md:flex">
       <div className="flex h-[78px] shrink-0 items-center px-5">
         <Link href="/home" className="group inline-flex items-center gap-3">
-          <span className="relative flex h-9 w-9 items-center justify-center rounded-[10px] bg-primary text-[13px] font-black text-white shadow-[0_8px_24px_-14px_rgba(54,88,212,.9)] transition-transform duration-150 ease-out group-active:scale-[0.96]">
+          <span className="relative flex h-9 w-9 items-center justify-center rounded-[9px] bg-white text-[13px] font-black text-ink transition-transform duration-150 ease-out group-active:scale-[0.975]">
             K
-            <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-[#0d1426] bg-gks-u" />
+            <span className="absolute inset-x-1.5 bottom-1 h-[2px] rounded-full bg-gks-u" />
           </span>
           <span>
             <span className="block text-[15px] font-extrabold tracking-[-0.025em] text-white">KMate</span>
-            <span className="block text-[10px] font-semibold tracking-[0.03em] text-white/40">GKS workspace</span>
+            <span className="block text-[10.5px] font-medium text-white/42">GKS application desk</span>
           </span>
         </Link>
       </div>
@@ -51,17 +42,16 @@ export function Sidebar({
         {NAV_GROUP_ORDER.map((group, groupIndex) => {
           const items = navItemsByGroup(group);
           if (!items.length) return null;
-          const tone = GROUP_TONES[group];
 
           return (
             <div key={group} className={cn(groupIndex > 0 && "mt-5")}>
               {group !== "overview" && (
-                <p className={cn("mb-1.5 px-3 text-[9px] font-extrabold uppercase tracking-[0.16em]", tone.label)}>
+                <p className="mb-1.5 px-3 text-[11px] font-semibold text-white/38">
                   {NAV_GROUP_LABELS[group]}
                 </p>
               )}
 
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 {items.map((item) => {
                   const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                   const badgeCount = item.badgeKey === "requests" ? pendingRequestsCount : 0;
@@ -71,21 +61,16 @@ export function Sidebar({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "group relative flex min-h-11 items-center justify-between gap-2 rounded-[10px] px-2.5 py-2 text-[12.5px] font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.985]",
+                        "group relative flex min-h-11 items-center justify-between gap-2 rounded-[9px] px-3 py-2 text-[12.5px] font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.985]",
                         active
-                          ? "bg-white/[0.095] text-white"
-                          : "text-white/58 hover:bg-white/[0.055] hover:text-white/92"
+                          ? "bg-white/[0.085] text-white"
+                          : "text-white/58 hover:bg-white/[0.05] hover:text-white/92"
                       )}
                     >
                       {active && <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-primary" />}
                       <span className="flex min-w-0 items-center gap-2.5">
-                        <span
-                          className={cn(
-                            "flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] transition-[background-color,color] duration-150",
-                            active ? "bg-primary text-white" : tone.icon
-                          )}
-                        >
-                          <item.icon className="h-[15px] w-[15px]" />
+                        <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center", active ? "text-white" : "text-white/42")}>
+                          <item.icon className="h-[16px] w-[16px]" />
                         </span>
                         <span className="truncate">{item.label}</span>
                       </span>
@@ -95,7 +80,7 @@ export function Sidebar({
                           {badgeCount > 9 ? "9+" : badgeCount}
                         </span>
                       ) : (
-                        active && <ChevronRight className="h-3.5 w-3.5 text-white/35" />
+                        active && <ChevronRight className="h-3.5 w-3.5 text-white/32" />
                       )}
                     </Link>
                   );
@@ -106,50 +91,48 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="shrink-0 p-3">
-        <div className="rounded-[13px] border border-white/[0.07] bg-white/[0.035] p-2">
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className={cn(
-                "mb-1 flex items-center gap-2.5 rounded-[9px] px-2.5 py-2 text-[12px] font-semibold transition-colors",
-                pathname.startsWith("/admin")
-                  ? "bg-white/[0.10] text-white"
-                  : "text-white/55 hover:bg-white/[0.06] hover:text-white"
-              )}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Admin
-            </Link>
-          )}
+      <div className="shrink-0 border-t border-white/[0.06] p-3">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className={cn(
+              "mb-1 flex min-h-11 items-center gap-2.5 rounded-[9px] px-3 text-[12px] font-semibold transition-colors",
+              pathname.startsWith("/admin")
+                ? "bg-white/[0.085] text-white"
+                : "text-white/55 hover:bg-white/[0.05] hover:text-white"
+            )}
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Admin
+          </Link>
+        )}
 
-          {demoMode ? (
-            <div className="flex items-center gap-2.5 rounded-[10px] px-2 py-2">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-primary/18 text-[11px] font-extrabold text-[#c8d3ff]">
-                R
+        {demoMode ? (
+          <div className="flex min-h-11 items-center gap-2.5 rounded-[9px] px-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-white/10 text-[11px] font-extrabold text-white/72">
+              R
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12px] font-bold text-white">Raw preview</span>
+              <span className="block text-[10px] font-medium text-white/38">No account required</span>
+            </span>
+          </div>
+        ) : (
+          <Link
+            href={username ? `/profile/${username}` : "/settings/profile"}
+            className="flex min-h-11 items-center gap-2.5 rounded-[9px] px-3 transition-colors hover:bg-white/[0.05]"
+          >
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-white/10 text-[11px] font-extrabold text-white">
+              {username ? username[0]?.toUpperCase() : "?"}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12px] font-bold text-white">
+                {username ? `@${username}` : "Your profile"}
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[12px] font-bold text-white">Raw preview</span>
-                <span className="block text-[9.5px] font-medium text-white/38">No account required</span>
-              </span>
-            </div>
-          ) : (
-            <Link
-              href={username ? `/profile/${username}` : "/settings/profile"}
-              className="flex items-center gap-2.5 rounded-[10px] px-2 py-2 transition-colors hover:bg-white/[0.055]"
-            >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-primary text-[11px] font-extrabold text-white">
-                {username ? username[0]?.toUpperCase() : "?"}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[12px] font-bold text-white">
-                  {username ? `@${username}` : "Your profile"}
-                </span>
-                <span className="block text-[9.5px] font-medium text-white/38">Account & settings</span>
-              </span>
-            </Link>
-          )}
-        </div>
+              <span className="block text-[10px] font-medium text-white/38">Account & settings</span>
+            </span>
+          </Link>
+        )}
       </div>
     </aside>
   );

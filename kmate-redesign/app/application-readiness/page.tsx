@@ -128,17 +128,17 @@ export default async function ApplicationReadinessPage({
       />
 
       <nav
-        className="sticky top-[66px] z-20 mt-6 inline-flex max-w-full flex-wrap gap-1 rounded-[12px] border border-border bg-white/94 p-1 shadow-card backdrop-blur-xl md:top-3"
+        className="sticky top-[58px] z-20 mt-5 flex max-w-full gap-5 overflow-x-auto border-b border-border bg-canvas/95 backdrop-blur-xl md:top-0"
         aria-label="Readiness page sections"
       >
-        <a href="#application-setup" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
+        <a href="#application-setup" className="min-h-11 shrink-0 border-b-2 border-transparent px-0.5 py-3 text-[12px] font-semibold text-muted transition-colors hover:border-primary/30 hover:text-ink">
           01 · Route &amp; setup
         </a>
-        <a href="#application-checklist" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
+        <a href="#application-checklist" className="min-h-11 shrink-0 border-b-2 border-transparent px-0.5 py-3 text-[12px] font-semibold text-muted transition-colors hover:border-primary/30 hover:text-ink">
           02 · Checklist
         </a>
         {showGksU2027 && (
-          <a href="#supporting-tools" className="rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold text-muted transition-colors hover:bg-primary-soft hover:text-primary">
+          <a href="#supporting-tools" className="min-h-11 shrink-0 border-b-2 border-transparent px-0.5 py-3 text-[12px] font-semibold text-muted transition-colors hover:border-primary/30 hover:text-ink">
             03 · Forms &amp; final checks
           </a>
         )}
@@ -170,9 +170,9 @@ export default async function ApplicationReadinessPage({
       </div>
 
       {showGksU2027 && (
-        <section id="supporting-tools" className="mt-8 scroll-mt-20 rounded-[18px] border border-border bg-white p-4 shadow-card sm:p-6">
+        <section id="supporting-tools" className="mt-8 scroll-mt-20 border-t-2 border-ink pt-6">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+            <p className="text-[12px] font-semibold text-primary">
               2027 supporting tools
             </p>
             <h2 className="mt-1 text-[18px] font-semibold text-ink">
@@ -185,7 +185,7 @@ export default async function ApplicationReadinessPage({
           </div>
 
           <div className="mt-4 flex flex-col gap-3">
-            <details className="group rounded-[14px] border border-border bg-canvas/45">
+            <details className="group rounded-[10px] border border-border bg-white">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[12px] font-extrabold text-ink">
                 Documents and Embassy → University fallback
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
@@ -200,7 +200,7 @@ export default async function ApplicationReadinessPage({
               </div>
             </details>
 
-            <details className="group rounded-[14px] border border-border bg-white">
+            <details className="group rounded-[10px] border border-border bg-white">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
                 Forms 1–7 assistant
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
@@ -210,7 +210,7 @@ export default async function ApplicationReadinessPage({
               </div>
             </details>
 
-            <details className="group rounded-[14px] border border-border bg-white">
+            <details className="group rounded-[10px] border border-border bg-white">
               <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
                 Final manual self-check
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>

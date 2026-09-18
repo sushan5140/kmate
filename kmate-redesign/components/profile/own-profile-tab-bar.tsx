@@ -10,16 +10,16 @@ export function OwnProfileTabBar({ active }: { active: OwnProfileTab }) {
   ];
 
   return (
-    <div className="inline-flex items-center gap-1 rounded-[11px] border border-border bg-white p-1 shadow-xs">
+    <div className="inline-flex items-center gap-5 border-b border-border">
       {tabs.map((t) => (
         <Link
           key={t.key}
           href={t.key === "profile" ? "?" : `?tab=${t.key}`}
           className={cn(
-            "pressable rounded-[8px] px-3 py-2 text-[10.5px] font-extrabold",
+            "pressable flex min-h-11 items-center border-b-2 px-0.5 text-[12px] font-semibold",
             active === t.key
-              ? "bg-primary text-white shadow-xs"
-              : "text-muted hover:bg-primary-soft hover:text-primary"
+              ? "border-primary text-ink"
+              : "border-transparent text-muted hover:text-ink"
           )}
         >
           {t.label}

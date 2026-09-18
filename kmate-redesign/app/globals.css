@@ -1,40 +1,36 @@
 @import "tailwindcss";
 
-/* KMate product UI — porcelain, navy, cobalt · final */
+/* KMate — Korean application desk */
 :root {
-  --color-canvas: #f6f7fb;
+  --color-canvas: #f5f7f6;
   --color-surface: #ffffff;
-  --color-ink: #121827;
-  --color-muted: #687083;
+  --color-ink: #172036;
+  --color-muted: #667085;
 
-  --color-primary: #3658d4;
-  --color-primary-hover: #2c49b6;
-  --color-primary-soft: rgba(54, 88, 212, 0.095);
+  --color-primary: #2f5c9a;
+  --color-primary-hover: #274c7e;
+  --color-primary-soft: rgba(47, 92, 154, 0.09);
 
-  --color-border: #e3e6ee;
-  --color-hairline: rgba(18, 24, 39, 0.075);
-  --color-hairline-strong: rgba(18, 24, 39, 0.135);
+  --color-border: #dce2e7;
+  --color-hairline: rgba(23, 32, 54, 0.075);
+  --color-hairline-strong: rgba(23, 32, 54, 0.14);
 
-  --color-success: #16826f;
-  --color-success-soft: rgba(22, 130, 111, 0.10);
-  --color-danger: #b94f48;
-  --color-danger-soft: rgba(200, 93, 84, 0.10);
+  --color-success: #47796c;
+  --color-success-soft: rgba(71, 121, 108, 0.10);
+  --color-danger: #b34e42;
+  --color-danger-soft: rgba(179, 78, 66, 0.10);
 
-  --color-gold: #956421;
-  --color-gold-soft: rgba(172, 123, 47, 0.10);
-  --color-gks-u: #b95b45;
-  --color-gks-g: #6766b8;
-  --color-info: #3658d4;
-  --color-info-soft: rgba(54, 88, 212, 0.095);
+  --color-gold: #8a6a33;
+  --color-gold-soft: rgba(138, 106, 51, 0.10);
+  --color-gks-u: #aa4d3b;
+  --color-gks-g: #665e8c;
+  --color-info: #2f5c9a;
+  --color-info-soft: rgba(47, 92, 154, 0.09);
 
-  --shadow-xs: 0 1px 2px rgba(18, 24, 39, 0.035);
-  --shadow-card:
-    0 1px 2px rgba(18, 24, 39, 0.025),
-    0 12px 32px -27px rgba(18, 24, 39, 0.28);
-  --shadow-card-hover:
-    0 4px 12px rgba(18, 24, 39, 0.045),
-    0 24px 44px -28px rgba(18, 24, 39, 0.30);
-  --shadow-pop: 0 24px 60px -30px rgba(18, 24, 39, 0.34);
+  --shadow-xs: 0 1px 2px rgba(23, 32, 54, 0.035);
+  --shadow-card: 0 1px 2px rgba(23, 32, 54, 0.025);
+  --shadow-card-hover: 0 8px 24px -22px rgba(23, 32, 54, 0.45);
+  --shadow-pop: 0 24px 60px -34px rgba(23, 32, 54, 0.38);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -79,10 +75,7 @@ html {
 body {
   margin: 0;
   min-height: 100%;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(54, 88, 212, 0.045), transparent 30rem),
-    radial-gradient(circle at 18% 100%, rgba(103, 102, 184, 0.025), transparent 28rem),
-    var(--color-canvas);
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -94,7 +87,7 @@ body {
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(18, 24, 39, 0.14);
+  background: rgba(23, 32, 54, 0.14);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -108,7 +101,7 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 3px;
-  border-radius: 8px;
+  border-radius: 7px;
 }
 
 .text-balance { text-wrap: balance; }
@@ -119,60 +112,62 @@ body {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.008;
+  opacity: 0.004;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/></svg>");
   background-size: 180px 180px;
 }
 
 .glass-surface {
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
-  border: 1px solid rgba(255,255,255,.80);
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(16px) saturate(115%);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  border: 1px solid rgba(255,255,255,.84);
   box-shadow: var(--shadow-pop);
 }
 
 .grid-texture {
   background-image:
-    linear-gradient(rgba(18, 24, 39, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(18, 24, 39, 0.028) 1px, transparent 1px);
-  background-size: 48px 48px;
+    linear-gradient(rgba(23, 32, 54, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 32, 54, 0.025) 1px, transparent 1px);
+  background-size: 52px 52px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
-.glow-wash {
-  background: radial-gradient(ellipse 65% 60% at 50% 42%, rgba(54, 88, 212, 0.09), transparent 72%);
-}
+.glow-wash { background: transparent; }
 
 .kmate-panel {
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
 }
 
 .kmate-kicker {
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 800;
-  font-size: 10px;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--color-muted);
 }
 
 .workspace-hero {
-  background:
-    radial-gradient(circle at 88% 12%, rgba(86, 112, 233, 0.28), transparent 18rem),
-    radial-gradient(circle at 8% 110%, rgba(207, 112, 88, 0.11), transparent 18rem),
-    linear-gradient(135deg, #121b34 0%, #172342 56%, #11182c 100%);
-  box-shadow: 0 30px 70px -44px rgba(18, 24, 39, 0.72);
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  box-shadow: none;
+}
+
+.document-rule {
+  border-top: 2px solid var(--color-ink);
+}
+
+.seal-accent {
+  background: var(--color-gks-u);
 }
 
 .interactive-card { background: var(--color-surface); }
-.interactive-card:hover { background: #fff; }
+.interactive-card:hover { background: rgba(47, 92, 154, 0.035); }
 
 .pressable {
   transition:
     transform 145ms var(--ease-out),
-    box-shadow 170ms var(--ease-out),
+    box-shadow 150ms var(--ease-out),
     background-color 150ms ease,
     border-color 150ms ease,
     color 150ms ease,
@@ -187,7 +182,7 @@ input, textarea, select {
 }
 
 input:focus, textarea:focus, select:focus {
-  box-shadow: 0 0 0 3px rgba(54, 88, 212, 0.08);
+  box-shadow: 0 0 0 3px rgba(47, 92, 154, 0.09);
 }
 
 details > summary { list-style: none; }

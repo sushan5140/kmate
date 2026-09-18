@@ -18,30 +18,24 @@ export function ConnectionsTabBar({
   receivedCount: number;
 }) {
   return (
-    <div className="-mx-1 overflow-x-auto px-1 pb-1">
-      <div className="inline-flex min-w-max items-center gap-1 rounded-[11px] border border-border bg-white p-1 shadow-xs">
+    <div className="-mx-1 overflow-x-auto px-1">
+      <div className="inline-flex min-w-max items-center gap-5 border-b border-border">
         {TABS.map((t) => {
           const count = t.key === "received" ? receivedCount : null;
-
           return (
             <Link
               key={t.key}
               href={`/requests?tab=${t.key}`}
               className={cn(
-                "pressable rounded-[8px] px-3 py-2 text-[10.5px] font-extrabold",
+                "pressable flex min-h-11 items-center border-b-2 px-0.5 text-[12px] font-semibold",
                 active === t.key
-                  ? "bg-primary text-white shadow-xs"
-                  : "text-muted hover:bg-primary-soft hover:text-primary"
+                  ? "border-primary text-ink"
+                  : "border-transparent text-muted hover:text-ink"
               )}
             >
               {t.label}
               {count !== null && count > 0 && (
-                <span
-                  className={cn(
-                    "ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold",
-                    active === t.key ? "bg-white/15 text-white" : "bg-gks-u/10 text-gks-u"
-                  )}
-                >
+                <span className="ml-2 rounded-full bg-danger-soft px-1.5 py-0.5 text-[10px] font-bold text-danger">
                   {count}
                 </span>
               )}
