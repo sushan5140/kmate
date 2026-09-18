@@ -70,6 +70,7 @@ export default async function ProfilePage({
   const { tab: rawTab, from: rawFrom } = await searchParams;
   const from = isSafeInternalPath(rawFrom) ? rawFrom : null;
   const viewer = await getAuthenticatedUser();
+  if (!viewer) notFound();
   const admin = getSupabaseAdmin();
 
   // Public profile render path -- deliberately never selects contact_methods
