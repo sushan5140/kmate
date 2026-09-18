@@ -58,21 +58,21 @@ export function IncomingRequestsList({
   }
 
   if (items.length === 0) {
-    return <p className="text-[13.5px] text-muted">No incoming requests right now.</p>;
+    return <div className="rounded-[20px] border border-dashed border-hairline-strong bg-surface/55 px-5 py-10 text-center"><p className="text-[12px] font-semibold text-muted">No incoming requests right now.</p></div>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       {items.map((r) => (
-        <Card key={r.id} className="flex items-center justify-between gap-3">
+        <Card key={r.id} className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Link
               href={`/profile/${r.otherUser.username}?from=${encodeURIComponent(fromUrl)}`}
-              className="font-medium text-ink hover:underline"
+              className="text-[13px] font-extrabold text-ink hover:text-primary"
             >
               @{r.otherUser.username}
             </Link>
-            {r.note && <p className="mt-0.5 text-[13px] text-muted">&quot;{r.note}&quot;</p>}
+            {r.note && <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">&quot;{r.note}&quot;</p>}
             {errorId === r.id && <p className="mt-0.5 text-[12.5px] text-red-600">Couldn&apos;t respond. Try again.</p>}
           </div>
           <div className="flex shrink-0 gap-2">
