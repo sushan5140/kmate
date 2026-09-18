@@ -163,294 +163,231 @@ export default async function HomePage() {
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <div className="flex items-center justify-between">
+    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold tracking-tight text-ink">
+          <MicroLabel>Your workspace</MicroLabel>
+          <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.035em] text-ink sm:text-[34px]">
             Welcome back{profile?.username ? `, @${profile.username}` : ""}
           </h1>
-          {track && (
-            <div className="mt-2">
-              <TrackBadge track={track} />
-            </div>
-          )}
+          <p className="mt-1.5 text-[12.5px] font-medium text-muted">
+            Keep the application moving. Everything else can wait.
+          </p>
         </div>
-      </div>
+        {track && <TrackBadge track={track} />}
+      </section>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="mt-5 flex flex-col gap-3">
         <WarningBanner />
         <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
       </div>
 
-      <Card className="mt-8 bg-primary text-white">
-        <MicroLabel className="text-white/60">Application calendar</MicroLabel>
-        {track ? (
-          <DeadlineBannerText track={track} />
-        ) : (
-          <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
-        )}
-        <Link
-          href="/application-readiness"
-          className="mt-4 inline-flex h-10 items-center rounded-full bg-white px-4 text-[13.5px] font-medium text-primary shadow-xs transition-all duration-150 hover:bg-white/90 active:scale-[0.97]"
-        >
-          Open application readiness
-        </Link>
-      </Card>
-
-      <ApplicationDashboard
-        cycle={profile?.application_year ? String(profile.application_year) : null}
-        // Every approved GKS notice, not a pre-filtered slice. Which ones apply
-        // depends on the saved application, which lives in localStorage and is
-        // therefore only known on the client -- so the matching happens there,
-        // against the same rule the deadline matcher uses. The approved set is
-        // small by construction (a human approves each one), so sending it
-        // whole costs nothing and avoids a second round trip.
-        liveNotices={approvedNotices}
-        liveDeadlines={liveDeadlines}
-        defaults={{
-          program: readinessDefaults.program,
-          track: readinessDefaults.track,
-          subtype: readinessDefaults.subtype,
-          major: readinessDefaults.major,
-          universities: readinessDefaults.universities,
-        }}
-      />
-
-      {/* A different recent scholarship each time you land here, so the
-          dashboard surfaces what has newly been added rather than sitting
-          static. Only fields the source actually stated are rendered -- a
-          null benefit or deadline is simply left out, never filled in. */}
-      {spotlight && (
-        <Card className="mt-4 flex flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <MicroLabel>New in scholarships</MicroLabel>
-            <span className="text-[11.5px] text-muted">
-              {scholarshipPool.length} recently added
-            </span>
-          </div>
-
-          <div>
-            <h2 className="text-[15px] font-semibold leading-snug text-ink">
-              {spotlight.scholarship_name}
-            </h2>
-            <p className="mt-0.5 text-[13px] text-muted">{spotlight.university_name}</p>
-          </div>
-
-          <dl className="flex flex-wrap gap-x-6 gap-y-2">
-            {spotlight.benefit_type && (
+      <section className="mt-6 grid gap-3 lg:grid-cols-[1.45fr_.55fr]">
+        <Card className="relative overflow-hidden border-0 bg-ink p-6 text-white shadow-[0_26px_65px_-38px_rgba(23,33,29,.72)] sm:p-7">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Benefit</dt>
-                <dd className="mt-0.5 text-[13px] text-ink">{spotlight.benefit_type}</dd>
+                <MicroLabel className="text-white/48">Application calendar</MicroLabel>
+                {track ? (
+                  <DeadlineBannerText track={track} />
+                ) : (
+                  <h2 className="mt-2 max-w-xl text-[22px] font-extrabold leading-tight tracking-[-0.025em] text-white">
+                    Set your track to see the next application milestone.
+                  </h2>
+                )}
               </div>
-            )}
-            {/* Several sources repeat the same sentence in both columns --
-                showing it twice adds nothing, so the second is dropped when
-                it just restates the first. */}
-            {spotlight.tuition_coverage && spotlight.tuition_coverage !== spotlight.benefit_type && (
-              <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Tuition</dt>
-                <dd className="mt-0.5 text-[13px] text-ink">{spotlight.tuition_coverage}</dd>
-              </div>
-            )}
-            <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Deadline</dt>
-              <dd className="mt-0.5 text-[13px] text-ink">
-                {spotlight.deadline
-                  ? new Date(spotlight.deadline).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : spotlight.deadline_type === "admission_schedule"
-                    ? "Follows the admission schedule"
-                    : spotlight.deadline_type === "automatic"
-                      ? "Granted without application"
-                      : "Not stated"}
-              </dd>
+              <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-[10px] font-bold text-white/62">
+                {profile?.application_year ?? "Cycle not set"}
+              </span>
             </div>
-          </dl>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-hairline pt-3">
+            <p className="mt-4 max-w-2xl text-[12.5px] font-medium leading-6 text-white/58">
+              Your route, documents, university extras, and verified deadline context stay together here.
+            </p>
             <Link
-              href="/scholarships"
-              className="text-[12.5px] font-medium text-primary hover:underline"
+              href="/application-readiness"
+              className="pressable mt-6 inline-flex h-11 items-center rounded-[13px] bg-white px-4 text-[12.5px] font-extrabold text-ink shadow-xs hover:bg-white/92"
             >
-              See all scholarships
+              Continue application readiness
             </Link>
-            <a
-              href={spotlight.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[12.5px] font-medium text-muted hover:text-ink"
-            >
-              Official source
-              <ExternalLink className="h-3 w-3" />
-            </a>
+          </div>
+        </Card>
+
+        <Card className="grid grid-cols-2 gap-2 p-3 lg:grid-cols-1">
+          {[
+            { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users },
+            { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle },
+            { label: "Pending requests", value: pendingRequestsCount ?? 0, href: "/requests?tab=received", icon: Inbox },
+            { label: "Interview drafts", value: draftedCount, href: "/interview-db", icon: MessageSquare },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="pressable flex min-h-[78px] items-center gap-3 rounded-[16px] px-3 py-3 transition-colors hover:bg-canvas/75"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[20px] font-extrabold tracking-[-0.03em] text-ink">{item.value}</span>
+                  <span className="block truncate text-[10.5px] font-semibold text-muted">{item.label}</span>
+                </span>
+              </Link>
+            );
+          })}
+        </Card>
+      </section>
+
+      <section className="mt-4">
+        <ApplicationDashboard
+          cycle={profile?.application_year ? String(profile.application_year) : null}
+          liveNotices={approvedNotices}
+          liveDeadlines={liveDeadlines}
+          defaults={{
+            program: readinessDefaults.program,
+            track: readinessDefaults.track,
+            subtype: readinessDefaults.subtype,
+            major: readinessDefaults.major,
+            universities: readinessDefaults.universities,
+          }}
+        />
+      </section>
+
+      <section className="mt-4 grid gap-3 md:grid-cols-3">
+        <Link href="/official-guidelines">
+          <Card interactive className="h-full">
+            <div className="flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
+                <FileText className="h-4 w-4" />
+              </span>
+              <span className="text-[10px] font-extrabold text-muted">{currentNoticesCount ?? 0} current</span>
+            </div>
+            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Official guidance</h2>
+            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
+              Current rules, notices, and guideline PDFs with source context.
+            </p>
+          </Card>
+        </Link>
+
+        <Link href="/requirement-checker">
+          <Card interactive className="h-full">
+            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-gold-soft text-gold">
+              <ClipboardCheck className="h-4 w-4" />
+            </span>
+            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Requirement checker</h2>
+            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
+              Compare university-specific requirements without hiding source age.
+            </p>
+          </Card>
+        </Link>
+
+        <Link href="/interview-db">
+          <Card interactive className="h-full">
+            <div className="flex items-center justify-between">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
+                <MessageSquare className="h-4 w-4" />
+              </span>
+              <span className="text-[10px] font-extrabold text-muted">{draftedCount}/{totalApprovedQuestions ?? 0}</span>
+            </div>
+            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Interview preparation</h2>
+            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
+              Structured questions with your private answer drafts kept beside them.
+            </p>
+          </Card>
+        </Link>
+      </section>
+
+      {spotlight && (
+        <Card className="mt-4 overflow-hidden p-0">
+          <div className="grid md:grid-cols-[1fr_auto]">
+            <div className="p-5 sm:p-6">
+              <MicroLabel>Scholarship spotlight</MicroLabel>
+              <h2 className="mt-2 text-[16px] font-extrabold tracking-[-0.02em] text-ink">
+                {spotlight.scholarship_name}
+              </h2>
+              <p className="mt-1 text-[12px] font-semibold text-muted">{spotlight.university_name}</p>
+              <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3 text-[11px]">
+                {spotlight.benefit_type && (
+                  <div>
+                    <span className="block text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted/65">Benefit</span>
+                    <span className="mt-1 block font-semibold text-ink">{spotlight.benefit_type}</span>
+                  </div>
+                )}
+                <div>
+                  <span className="block text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-muted/65">Deadline</span>
+                  <span className="mt-1 block font-semibold text-ink">
+                    {spotlight.deadline
+                      ? new Date(spotlight.deadline).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+                      : spotlight.deadline_type === "admission_schedule"
+                        ? "Admission schedule"
+                        : spotlight.deadline_type === "automatic"
+                          ? "Automatic"
+                          : "Not stated"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 border-t border-hairline bg-canvas/55 px-5 py-4 md:border-l md:border-t-0">
+              <Link href="/scholarships" className="text-[11.5px] font-extrabold text-primary hover:underline">
+                Browse scholarships
+              </Link>
+              <a
+                href={spotlight.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11.5px] font-bold text-muted hover:text-ink"
+              >
+                Source <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
           </div>
         </Card>
       )}
 
-      <details className="group mt-4 rounded-2xl border border-hairline bg-white">
-        <summary className="cursor-pointer list-none px-4 py-3.5">
-          <div className="flex items-center justify-between gap-3">
+      <details className="group mt-4 overflow-hidden rounded-[22px] border border-hairline bg-surface/80 shadow-card">
+        <summary className="cursor-pointer list-none px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[13.5px] font-semibold text-ink">Explore more KMate tools</p>
-              <p className="mt-0.5 text-[11.5px] text-muted">
-                Community, interview prep, official resources and account tools
+              <p className="text-[13px] font-extrabold text-ink">More KMate tools</p>
+              <p className="mt-0.5 text-[10.5px] font-medium text-muted">
+                Community, reference material, stats, and account tools.
               </p>
             </div>
-            <ArrowDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" />
+            <ArrowDown className="h-4 w-4 text-muted transition-transform duration-200 ease-out group-open:rotate-180" />
           </div>
         </summary>
-        <div className="grid grid-cols-2 gap-3 border-t border-hairline p-4 lg:grid-cols-3">
-        <Link href="/application-readiness">
-          <Card interactive className="h-full">
-            <FolderCheck className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Application Readiness</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              Track every document for your application
-            </p>
-          </Card>
-        </Link>
-        <Link href="/requirement-checker">
-          <Card interactive className="h-full">
-            <ClipboardCheck className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Requirement Checker</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              What each university officially requires
-            </p>
-          </Card>
-        </Link>
-        <Link href="/requests?tab=discover">
-          <Card interactive className="h-full">
-            <Users className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Discover</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {sharedIds.size} applicant{sharedIds.size === 1 ? "" : "s"} share your major or universities
-            </p>
-          </Card>
-        </Link>
-        <Link href="/messages">
-          <Card interactive className="h-full">
-            <MessageCircle className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Messages</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {unreadMessageCount > 0
-                ? `${unreadMessageCount} unread message${unreadMessageCount === 1 ? "" : "s"}`
-                : "Chat with your connections"}
-            </p>
-          </Card>
-        </Link>
-        <Link href="/interview-db">
-          <Card interactive className="h-full">
-            <MessageSquare className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Interview DB</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {draftedCount} of {totalApprovedQuestions ?? 0} drafted
-            </p>
-          </Card>
-        </Link>
-        <Link href="/gks">
-          <Card interactive className="h-full">
-            <Bot className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">GKS Assistant</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">Ask about the official GKS guidelines</p>
-          </Card>
-        </Link>
-        <Link href="/faq-trends">
-          <Card interactive className="h-full">
-            <HelpCircle className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">FAQ Trends</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              What applicants are asking most
-            </p>
-          </Card>
-        </Link>
-        <Link href="/mistakes">
-          <Card interactive className="h-full">
-            <AlertTriangle className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Mistakes</h2>
-            <p className="mt-1 truncate text-[13px] leading-relaxed text-muted">
-              {topMistake?.title ? `Top: ${topMistake.title}` : "Learn from others' mistakes"}
-            </p>
-          </Card>
-        </Link>
-        <Link href="/eca">
-          <Card interactive className="h-full">
-            <Award className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Extracurriculars</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">Browse ranked activities</p>
-          </Card>
-        </Link>
-        <Link href="/requests?tab=received">
-          <Card interactive className="h-full">
-            <Inbox className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Requests</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {pendingRequestsCount ?? 0} pending request{pendingRequestsCount === 1 ? "" : "s"}
-            </p>
-          </Card>
-        </Link>
-        <Link href={`/profile/${profile?.username ?? ""}`}>
-          <Card interactive className="h-full">
-            <UserRound className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Your profile</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">See what others see</p>
-          </Card>
-        </Link>
-        <Link href="/notices">
-          <Card interactive className="h-full">
-            <Megaphone className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Official Notices</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {currentNoticesCount ?? 0} current announcement{currentNoticesCount === 1 ? "" : "s"}
-            </p>
-          </Card>
-        </Link>
-        <Link href="/scholarships">
-          <Card interactive className="h-full">
-            <GraduationCap className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Scholarships</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {activeScholarshipsCount ?? 0} active university scholarship{activeScholarshipsCount === 1 ? "" : "s"}
-            </p>
-          </Card>
-        </Link>
-        <Link href="/official-guidelines">
-          <Card interactive className="h-full">
-            <FileText className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Official Guidelines</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">Official GKS notices and guideline PDFs</p>
-          </Card>
-        </Link>
-        <Link href="/apostille">
-          <Card interactive className="h-full">
-            <Stamp className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Apostille Guide</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">Which documents need an apostille</p>
-          </Card>
-        </Link>
-        <Link href="/scholar-stats">
-          <Card interactive className="h-full">
-            <BarChart3 className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Scholar Stats</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">Where past scholars placed</p>
-          </Card>
-        </Link>
-        <Link href="/requests?tab=connected">
-          <Card interactive className="h-full">
-            <UserCheck className="h-4 w-4 text-muted" />
-            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Connections</h2>
-            <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {connectedCount ?? 0} connected applicant{connectedCount === 1 ? "" : "s"}
-            </p>
-          </Card>
-        </Link>
+
+        <div className="grid grid-cols-2 gap-2 border-t border-hairline bg-canvas/35 p-3 sm:grid-cols-3 lg:grid-cols-4">
+          {[
+            { href: "/gks", icon: Bot, title: "GKS Assistant", text: "Ask against official guideline context" },
+            { href: "/faq-trends", icon: HelpCircle, title: "FAQ Trends", text: "See what applicants ask most" },
+            { href: "/mistakes", icon: AlertTriangle, title: "Mistakes", text: topMistake?.title ? `Top: ${topMistake.title}` : "Learn from applicant mistakes" },
+            { href: "/eca", icon: Award, title: "Extracurriculars", text: "Browse activity ideas" },
+            { href: "/apostille", icon: Stamp, title: "Apostille", text: "Review document legalization" },
+            { href: "/scholar-stats", icon: BarChart3, title: "Scholar Stats", text: "Explore past placements" },
+            { href: "/requests?tab=connected", icon: UserCheck, title: "Connections", text: `${connectedCount ?? 0} connected applicants` },
+            { href: profile?.username ? `/profile/${profile.username}` : "/settings/profile", icon: UserRound, title: "Profile", text: "See and edit your applicant identity" },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="pressable rounded-[16px] bg-surface px-3.5 py-4 ring-1 ring-hairline transition-colors hover:bg-white"
+              >
+                <Icon className="h-4 w-4 text-primary" />
+                <p className="mt-3 text-[11.5px] font-extrabold text-ink">{item.title}</p>
+                <p className="mt-1 line-clamp-2 text-[9.75px] font-medium leading-4 text-muted">{item.text}</p>
+              </Link>
+            );
+          })}
         </div>
       </details>
 
-      <p className="mt-6 border-t border-hairline pt-5 text-center text-[11.5px] text-muted">
-        Your application stays first. Everything else is available here or from the grouped navigation.
+      <p className="mt-6 text-center text-[10px] font-medium text-muted/70">
+        KMate keeps official rules, older university sources, and community experience visibly separate.
       </p>
     </main>
   );
