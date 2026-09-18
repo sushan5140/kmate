@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
@@ -110,33 +111,35 @@ export default async function ApplicationReadinessPage({
     universities.find((u) => u.major.trim().length > 0)?.major ?? defaults.major;
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">Application Readiness</h1>
-      <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
-        Your GKS application in one place: route, document progress, forms, fallback planning, and whatever each
-        selected university additionally requires.
-      </p>
+    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader
+        eyebrow="My application"
+        title="Application Readiness"
+        description="Build the file route by route: setup, verified document progress, university-specific extras, forms, and final checks."
+        meta={
+          <div className="inline-flex items-start gap-2 rounded-[14px] border border-hairline bg-surface/75 px-3 py-2.5 shadow-xs">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <p className="max-w-2xl text-[10.5px] font-medium leading-5 text-muted">
+              Checklist progress is not an eligibility decision. When an official source does not state something,
+              KMate keeps it as <span className="font-bold text-ink">Not stated</span> instead of guessing.
+            </p>
+          </div>
+        }
+      />
 
-      <div className="mt-4 flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
-        <p className="text-[12.5px] leading-relaxed text-muted">
-          This tracks your checklist progress — it is not an eligibility decision and does not confirm your
-          application is ready to submit. Where an official source does not state something, it says{" "}
-          <span className="font-medium text-ink">Not stated</span> rather than guessing; a document KMate has
-          no rule for is never presented as <span className="font-medium text-ink">not required</span>.
-        </p>
-      </div>
-
-      <nav className="mt-4 flex flex-wrap gap-2 text-[11.5px]" aria-label="Readiness page sections">
-        <a href="#application-setup" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
-          1 · Route &amp; setup
+      <nav
+        className="mt-6 inline-flex max-w-full flex-wrap gap-1 rounded-[15px] border border-hairline bg-surface/80 p-1 shadow-xs"
+        aria-label="Readiness page sections"
+      >
+        <a href="#application-setup" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+          01 · Route &amp; setup
         </a>
-        <a href="#application-checklist" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
-          2 · Checklist
+        <a href="#application-checklist" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+          02 · Checklist
         </a>
         {showGksU2027 && (
-          <a href="#supporting-tools" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
-            3 · Forms &amp; final checks
+          <a href="#supporting-tools" className="rounded-[11px] px-3 py-2 text-[10.5px] font-extrabold text-ink transition-colors hover:bg-canvas">
+            03 · Forms &amp; final checks
           </a>
         )}
       </nav>
@@ -167,7 +170,7 @@ export default async function ApplicationReadinessPage({
       </div>
 
       {showGksU2027 && (
-        <section id="supporting-tools" className="mt-10 scroll-mt-6 border-t border-hairline pt-8">
+        <section id="supporting-tools" className="mt-8 scroll-mt-6 rounded-[24px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-6">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
               2027 supporting tools
@@ -182,8 +185,8 @@ export default async function ApplicationReadinessPage({
           </div>
 
           <div className="mt-4 flex flex-col gap-3">
-            <details className="group rounded-2xl border border-hairline bg-white">
-              <summary className="cursor-pointer list-none px-4 py-3.5 text-[13px] font-semibold text-ink">
+            <details className="group rounded-[18px] border border-hairline bg-canvas/45">
+              <summary className="cursor-pointer list-none px-4 py-3.5 text-[12px] font-extrabold text-ink">
                 Documents and Embassy → University fallback
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
               </summary>
