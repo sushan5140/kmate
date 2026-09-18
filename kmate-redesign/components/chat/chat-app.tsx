@@ -52,11 +52,6 @@ function PreviewThread({ conversation, onBack }: { conversation: ConversationSum
   const [messages, setMessages] = useState(PREVIEW_THREADS[conversation.id] ?? []);
   const [draft, setDraft] = useState("");
 
-  useEffect(() => {
-    setMessages(PREVIEW_THREADS[conversation.id] ?? []);
-    setDraft("");
-  }, [conversation.id]);
-
   function send() {
     const body = draft.trim();
     if (!body) return;
