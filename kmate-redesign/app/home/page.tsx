@@ -34,6 +34,7 @@ import { getApprovedGksNotices } from "@/lib/notices/published";
 import { getLiveVerifiedDeadlines } from "@/lib/deadlines/live";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import type { Track } from "@/lib/constants";
+import { isDemoUserId } from "@/lib/demo-mode";
 
 export const metadata: Metadata = {
   title: "Home — KMate",
@@ -41,6 +42,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const user = await requireOnboarded("/home");
+  const demoMode = isDemoUserId(user.id);
   const admin = getSupabaseAdmin();
 
   const { data: profile } = await admin
@@ -168,7 +170,7 @@ export default async function HomePage() {
         <div>
           <MicroLabel>Your workspace</MicroLabel>
           <h1 className="mt-2 text-[28px] font-extrabold tracking-[-0.035em] text-ink sm:text-[34px]">
-            Welcome back{profile?.username ? `, @${profile.username}` : ""}
+            {demoMode ? "KMate workspace" : <>Welcome back{profile?.username ? `, @${profile.username}` : ""}</>}
           </h1>
           <p className="mt-1.5 text-[12.5px] font-medium text-muted">
             Keep the application moving. Everything else can wait.
@@ -177,10 +179,19 @@ export default async function HomePage() {
         {track && <TrackBadge track={track} />}
       </section>
 
-      <div className="mt-5 flex flex-col gap-3">
-        <WarningBanner />
-        <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
-      </div>
+      {demoMode ? (
+        <div className="mt-5 rounded-[18px] border border-primary/15 bg-primary-soft px-4 py-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">Raw preview mode</p>
+          <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
+            Explore the full KMate workspace without an account. Identity-based areas use fictional or empty demo states; official GKS tools keep their real source data.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-5 flex flex-col gap-3">
+          <WarningBanner />
+          <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
+        </div>
+      )}
 
       <section className="mt-6 grid gap-3 lg:grid-cols-[1.45fr_.55fr]">
         <Card className="relative overflow-hidden border-0 bg-ink p-6 text-white shadow-[0_26px_65px_-38px_rgba(23,33,29,.72)] sm:p-7">
