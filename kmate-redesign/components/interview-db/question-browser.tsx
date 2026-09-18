@@ -27,7 +27,7 @@ function Chip({
       type="button"
       onClick={onClick}
       className={cn(
-        "pressable rounded-[9px] border px-3 py-2 text-[10.5px] font-extrabold",
+        "pressable rounded-[8px] border px-3 py-2 text-[10.5px] font-extrabold",
         active
           ? "border-primary bg-primary text-white shadow-xs"
           : "border-border bg-white text-muted hover:border-primary/20 hover:bg-primary-soft hover:text-primary"
@@ -89,7 +89,7 @@ export function QuestionBrowser({
   return (
     <div>
       <div className="mt-6 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="rounded-[16px] border border-border bg-white p-4 shadow-card">
+        <div className="rounded-[12px] border border-border bg-white p-4 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Draft progress</p>
@@ -104,12 +104,12 @@ export function QuestionBrowser({
           </div>
         </div>
 
-        <div className="flex items-center rounded-[16px] border border-border bg-white px-4 py-3 shadow-card">
+        <div className="flex items-center rounded-[12px] border border-border bg-white px-4 py-3 shadow-card">
           <DownloadMenu totalApproved={totalApproved} draftedCount={draftedCount} />
         </div>
       </div>
 
-      <div className="mt-3 rounded-[16px] border border-border bg-white p-4 shadow-card">
+      <div className="mt-3 rounded-[12px] border border-border bg-white p-4 shadow-card">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted/65" />
           <input
@@ -120,7 +120,7 @@ export function QuestionBrowser({
               resetPaging();
             }}
             placeholder="Search questions…"
-            className="w-full rounded-[11px] border border-border bg-canvas/70 py-3 pl-10 pr-4 text-[12px] font-semibold text-ink outline-none focus:border-primary focus:bg-white"
+            className="w-full rounded-[9px] border border-border bg-canvas/70 py-3 pl-10 pr-4 text-[12px] font-semibold text-ink outline-none focus:border-primary focus:bg-white"
           />
         </div>
 
@@ -173,7 +173,7 @@ export function QuestionBrowser({
         <button
           type="button"
           onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-          className="pressable mt-4 w-full rounded-[11px] border border-border bg-white py-3 text-[11px] font-extrabold text-primary hover:border-primary/25 hover:bg-primary-soft"
+          className="pressable mt-4 w-full rounded-[9px] border border-border bg-white py-3 text-[11px] font-extrabold text-primary hover:border-primary/25 hover:bg-primary-soft"
         >
           Load more ({filtered.length - visible.length} remaining)
         </button>

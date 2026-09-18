@@ -1,37 +1,40 @@
 @import "tailwindcss";
 
-/* KMate product UI reset */
-
+/* KMate product UI — porcelain + navy + cobalt */
 :root {
-  --color-canvas: #f6f7f4;
+  --color-canvas: #f6f7fb;
   --color-surface: #ffffff;
-  --color-ink: #13231c;
-  --color-muted: #69736d;
+  --color-ink: #121827;
+  --color-muted: #687083;
 
-  --color-primary: #16745f;
-  --color-primary-hover: #105c4b;
-  --color-primary-soft: rgba(22, 116, 95, 0.10);
+  --color-primary: #3658d4;
+  --color-primary-hover: #2c49b6;
+  --color-primary-soft: rgba(54, 88, 212, 0.095);
 
-  --color-border: #e2e5df;
-  --color-hairline: rgba(19, 35, 28, 0.08);
-  --color-hairline-strong: rgba(19, 35, 28, 0.14);
+  --color-border: #e3e6ee;
+  --color-hairline: rgba(18, 24, 39, 0.075);
+  --color-hairline-strong: rgba(18, 24, 39, 0.135);
 
-  --color-success: #277a61;
-  --color-success-soft: rgba(39, 122, 97, 0.10);
-  --color-danger: #bd584b;
-  --color-danger-soft: rgba(189, 88, 75, 0.10);
+  --color-success: #16826f;
+  --color-success-soft: rgba(22, 130, 111, 0.10);
+  --color-danger: #c85d54;
+  --color-danger-soft: rgba(200, 93, 84, 0.10);
 
-  --color-gold: #aa7a32;
-  --color-gold-soft: rgba(170, 122, 50, 0.10);
-  --color-gks-u: #d27656;
-  --color-gks-g: #556db4;
-  --color-info: #556db4;
-  --color-info-soft: rgba(85, 109, 180, 0.10);
+  --color-gold: #ac7b2f;
+  --color-gold-soft: rgba(172, 123, 47, 0.10);
+  --color-gks-u: #cf7058;
+  --color-gks-g: #6766b8;
+  --color-info: #3658d4;
+  --color-info-soft: rgba(54, 88, 212, 0.095);
 
-  --shadow-xs: 0 1px 2px rgba(16, 31, 25, 0.035);
-  --shadow-card: 0 1px 2px rgba(16, 31, 25, 0.025), 0 10px 26px -22px rgba(16, 31, 25, 0.22);
-  --shadow-card-hover: 0 3px 10px rgba(16, 31, 25, 0.045), 0 20px 38px -24px rgba(16, 31, 25, 0.28);
-  --shadow-pop: 0 24px 56px -28px rgba(16, 31, 25, 0.34);
+  --shadow-xs: 0 1px 2px rgba(18, 24, 39, 0.035);
+  --shadow-card:
+    0 1px 2px rgba(18, 24, 39, 0.025),
+    0 12px 32px -27px rgba(18, 24, 39, 0.28);
+  --shadow-card-hover:
+    0 4px 12px rgba(18, 24, 39, 0.045),
+    0 24px 44px -28px rgba(18, 24, 39, 0.30);
+  --shadow-pop: 0 24px 60px -30px rgba(18, 24, 39, 0.34);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -77,8 +80,8 @@ body {
   margin: 0;
   min-height: 100%;
   background:
-    radial-gradient(circle at 100% 0%, rgba(85, 109, 180, 0.035), transparent 28rem),
-    radial-gradient(circle at 0% 100%, rgba(22, 116, 95, 0.035), transparent 26rem),
+    radial-gradient(circle at 100% 0%, rgba(54, 88, 212, 0.045), transparent 30rem),
+    radial-gradient(circle at 18% 100%, rgba(103, 102, 184, 0.025), transparent 28rem),
     var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -91,7 +94,7 @@ body {
 ::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(19, 35, 28, 0.15);
+  background: rgba(18, 24, 39, 0.14);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -99,7 +102,7 @@ body {
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  scrollbar-color: rgba(255,255,255,0.14) transparent;
 }
 
 :focus-visible {
@@ -116,30 +119,30 @@ body {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.012;
+  opacity: 0.008;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/></svg>");
   background-size: 180px 180px;
 }
 
 .glass-surface {
-  background: rgba(255,255,255,0.90);
-  backdrop-filter: blur(18px) saturate(125%);
-  -webkit-backdrop-filter: blur(18px) saturate(125%);
-  border: 1px solid rgba(255,255,255,.78);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid rgba(255,255,255,.80);
   box-shadow: var(--shadow-pop);
 }
 
 .grid-texture {
   background-image:
-    linear-gradient(rgba(19, 35, 28, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(19, 35, 28, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(18, 24, 39, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 24, 39, 0.028) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
 
 .glow-wash {
-  background: radial-gradient(ellipse 65% 60% at 50% 42%, rgba(22, 116, 95, 0.10), transparent 72%);
+  background: radial-gradient(ellipse 65% 60% at 50% 42%, rgba(54, 88, 212, 0.09), transparent 72%);
 }
 
 .kmate-panel {
@@ -149,48 +152,42 @@ body {
 }
 
 .kmate-kicker {
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 800;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .workspace-hero {
   background:
-    radial-gradient(circle at 85% 18%, rgba(210, 118, 86, 0.17), transparent 17rem),
-    radial-gradient(circle at 16% 110%, rgba(85, 109, 180, 0.13), transparent 18rem),
-    linear-gradient(135deg, #123a2f 0%, #174638 58%, #112f27 100%);
-  box-shadow: 0 28px 64px -42px rgba(18, 58, 47, 0.72);
+    radial-gradient(circle at 88% 12%, rgba(86, 112, 233, 0.28), transparent 18rem),
+    radial-gradient(circle at 8% 110%, rgba(207, 112, 88, 0.11), transparent 18rem),
+    linear-gradient(135deg, #121b34 0%, #172342 56%, #11182c 100%);
+  box-shadow: 0 30px 70px -44px rgba(18, 24, 39, 0.72);
 }
 
-.interactive-card {
-  background: var(--color-surface);
-}
-
-.interactive-card:hover {
-  background: #fff;
-}
+.interactive-card { background: var(--color-surface); }
+.interactive-card:hover { background: #fff; }
 
 .pressable {
   transition:
-    transform 150ms var(--ease-out),
-    box-shadow 180ms var(--ease-out),
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    opacity 160ms ease;
+    transform 145ms var(--ease-out),
+    box-shadow 170ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
 }
-
 .pressable:active { transform: scale(0.975); }
 
 button, a { -webkit-tap-highlight-color: transparent; }
 
 input, textarea, select {
-  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
 
 input:focus, textarea:focus, select:focus {
-  box-shadow: 0 0 0 3px rgba(22, 116, 95, 0.08);
+  box-shadow: 0 0 0 3px rgba(54, 88, 212, 0.08);
 }
 
 details > summary { list-style: none; }

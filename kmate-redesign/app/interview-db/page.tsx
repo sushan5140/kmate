@@ -108,22 +108,22 @@ export default async function InterviewDbPage() {
   const initialDraftedCount = draftRowsForCount.filter((d) => d.content.trim().length > 0).length;
 
   return (
-    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <PageHeader
         eyebrow="Preparation"
         title="Interview Studio"
         description="Turn the question bank into actual preparation: draft your own answers, filter by theme, then rehearse out loud when you are ready."
         meta={
           <div className="flex flex-wrap gap-2 text-[10.5px] font-bold text-muted">
-            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{totalApproved} approved questions</span>
-            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{initialDraftedCount} drafted</span>
+            <span className="rounded-[8px] bg-white px-2.5 py-1 ring-1 ring-border">{totalApproved} approved questions</span>
+            <span className="rounded-[8px] bg-white px-2.5 py-1 ring-1 ring-border">{initialDraftedCount} drafted</span>
           </div>
         }
         actions={<SubmitQuestionForm />}
       />
 
       <section className="mt-6 grid gap-3 lg:grid-cols-[1fr_.78fr]">
-        <Card className="border-0 bg-ink p-6 text-white">
+        <Card className="border-0 bg-[#121b34] p-6 text-white">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-white/45">Prep principle</p>
           <h2 className="mt-2 text-[20px] font-extrabold tracking-[-0.025em]">Prepare ideas, not a memorized script.</h2>
           <p className="mt-3 max-w-2xl text-[12px] font-medium leading-6 text-white/58">
@@ -133,9 +133,9 @@ export default async function InterviewDbPage() {
         </Card>
 
         <Link href="/interview-db/mock-interview" className="block">
-          <Card interactive className="h-full bg-primary-soft">
+          <Card interactive className="h-full border-primary/16 bg-white">
             <div className="flex items-center justify-between">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-primary text-white">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary text-white">
                 <Video className="h-4.5 w-4.5" />
               </span>
               <ArrowRight className="h-4 w-4 text-primary" />

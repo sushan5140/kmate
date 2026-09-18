@@ -19,7 +19,7 @@ export function ConnectionsTabBar({
 }) {
   return (
     <div className="-mx-1 overflow-x-auto px-1 pb-1">
-      <div className="inline-flex min-w-max items-center gap-1 rounded-[12px] border border-border bg-white p-1 shadow-xs">
+      <div className="inline-flex min-w-max items-center gap-1 rounded-[11px] border border-border bg-white p-1 shadow-xs">
         {TABS.map((t) => {
           const count = t.key === "received" ? receivedCount : null;
 
@@ -28,7 +28,7 @@ export function ConnectionsTabBar({
               key={t.key}
               href={`/requests?tab=${t.key}`}
               className={cn(
-                "pressable rounded-[9px] px-3 py-2 text-[10.5px] font-extrabold",
+                "pressable rounded-[8px] px-3 py-2 text-[10.5px] font-extrabold",
                 active === t.key
                   ? "bg-primary text-white shadow-xs"
                   : "text-muted hover:bg-primary-soft hover:text-primary"

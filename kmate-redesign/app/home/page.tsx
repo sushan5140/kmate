@@ -174,19 +174,14 @@ export default async function HomePage() {
             {demoMode ? "KMate workspace" : <>Welcome back{profile?.username ? `, @${profile.username}` : ""}</>}
           </h1>
           <p className="mt-1.5 text-[12.5px] font-medium text-muted">
-            Keep the application moving. Everything else can wait.
+            One place for your route, evidence, deadlines, interview prep, and applicant network.
           </p>
         </div>
         {track && <TrackBadge track={track} />}
       </section>
 
       {demoMode ? (
-        <div className="mt-5 flex items-start gap-3 rounded-[12px] border border-border bg-white px-4 py-3 shadow-xs"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gks-g" />
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">Raw preview mode</p>
-          <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
-            Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.
-          </p>
-        </div>
+        <div className="mt-5 flex items-start gap-3 rounded-[11px] border border-primary/12 bg-primary-soft/55 px-4 py-3"><span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-[9.5px] font-extrabold uppercase tracking-[0.14em] text-primary">Raw preview</p><p className="mt-1 text-[11px] font-medium leading-5 text-muted">Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.</p></div></div>
       ) : (
         <div className="mt-5 flex flex-col gap-3">
           <WarningBanner />
@@ -209,7 +204,7 @@ export default async function HomePage() {
                   </h2>
                 )}
               </div>
-              <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-[10px] font-bold text-white/62">
+              <span className="rounded-[8px] border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[10px] font-bold text-white/62">
                 {profile?.application_year ?? "Cycle not set"}
               </span>
             </div>
@@ -218,7 +213,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/application-readiness"
-              className="pressable mt-6 inline-flex h-11 items-center rounded-[13px] bg-white px-4 text-[12.5px] font-extrabold text-ink shadow-xs hover:bg-white/92"
+              className="pressable mt-6 inline-flex h-11 items-center rounded-[10px] bg-white px-4 text-[12.5px] font-extrabold text-ink shadow-xs hover:bg-white/92"
             >
               Continue application readiness
             </Link>
@@ -237,7 +232,7 @@ export default async function HomePage() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[12px] border border-border bg-white px-3 py-3 shadow-xs transition-[background-color,transform,border-color,box-shadow] hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card"
+                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[10px] border border-border bg-white px-3 py-3 shadow-xs transition-[background-color,transform,border-color,box-shadow] hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card"
               >
                 <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] ${item.tone}`}>
                   <Icon className="h-4 w-4" />

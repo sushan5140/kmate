@@ -66,7 +66,7 @@ export function TopBar({
         )}
 
         <Link href="/home" className="inline-flex min-w-0 items-center gap-2">
-          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-[#12372d] text-[11px] font-extrabold text-white">
+          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-[#0d1426] text-[11px] font-extrabold text-white">
             K
             <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-white bg-gks-u" />
           </span>
@@ -82,7 +82,7 @@ export function TopBar({
             className="pressable relative flex h-9 w-9 items-center justify-center rounded-[10px] text-ink hover:bg-primary-soft hover:text-primary"
           >
             <Bell className="h-[18px] w-[18px]" />
-            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gks-u ring-2 ring-white" />}
+            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger ring-2 ring-white" />}
           </Link>
         )}
         <MoreMenu username={username} isAdmin={isAdmin} demoMode={demoMode} />

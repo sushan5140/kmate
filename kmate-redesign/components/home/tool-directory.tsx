@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import {
@@ -69,28 +69,28 @@ const GROUP_TONES: Record<
     icon: "bg-primary-soft text-primary",
     rail: "bg-primary",
     dot: "bg-primary",
-    selectedFilter: "border-primary/25 bg-primary-soft text-primary",
+    selectedFilter: "border-primary bg-primary text-white",
   },
   resources: {
     label: "text-gold",
     icon: "bg-gold-soft text-gold",
     rail: "bg-gold",
     dot: "bg-gold",
-    selectedFilter: "border-gold/25 bg-gold-soft text-gold",
+    selectedFilter: "border-primary bg-primary text-white",
   },
   preparation: {
     label: "text-gks-u",
     icon: "bg-gks-u/10 text-gks-u",
     rail: "bg-gks-u",
     dot: "bg-gks-u",
-    selectedFilter: "border-gks-u/25 bg-gks-u/10 text-gks-u",
+    selectedFilter: "border-primary bg-primary text-white",
   },
   community: {
     label: "text-gks-g",
     icon: "bg-gks-g/10 text-gks-g",
     rail: "bg-gks-g",
     dot: "bg-gks-g",
-    selectedFilter: "border-gks-g/25 bg-gks-g/10 text-gks-g",
+    selectedFilter: "border-primary bg-primary text-white",
   },
 };
 
@@ -106,7 +106,8 @@ export function ToolDirectory() {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
-  const normalizedQuery = query.trim().toLowerCase();
+  const deferredQuery = useDeferredValue(query);
+  const normalizedQuery = deferredQuery.trim().toLowerCase();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -157,14 +158,14 @@ export function ToolDirectory() {
   const visibleCount = groups.reduce((total, group) => total + group.items.length, 0);
 
   return (
-    <section className="mt-5 rounded-[18px] border border-border bg-white p-4 shadow-card sm:p-5 lg:p-6">
+    <section className="mt-5 rounded-[16px] border border-border bg-white p-4 shadow-card sm:p-5 lg:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
             <p className="text-[9.5px] font-extrabold uppercase tracking-[0.16em] text-primary">Tool explorer</p>
           </div>
-          <h2 className="mt-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink sm:text-[25px]">
+          <h2 className="mt-2 text-[21px] font-bold tracking-[-0.03em] text-ink sm:text-[25px]">
             Jump straight to the work.
           </h2>
           <p className="mt-1.5 max-w-2xl text-[11.5px] font-medium leading-5 text-muted">
@@ -255,7 +256,7 @@ export function ToolDirectory() {
             const tone = GROUP_TONES[group];
 
             return (
-              <section key={group} className="relative overflow-hidden rounded-[14px] border border-border bg-canvas/34 p-3 sm:p-4">
+              <section key={group} className="relative overflow-hidden rounded-[12px] border border-border bg-canvas/35 p-3 sm:p-4">
                 <span className={["absolute inset-y-0 left-0 w-[3px]", tone.rail].join(" ")} />
                 <div className="px-1 pb-3">
                   <p className={["text-[9.5px] font-extrabold uppercase tracking-[0.15em]", tone.label].join(" ")}>
@@ -272,7 +273,7 @@ export function ToolDirectory() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="interactive-card pressable group flex min-h-[118px] flex-col rounded-[12px] border border-border bg-white px-4 py-3.5 shadow-xs hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card-hover"
+                        className="interactive-card pressable group flex min-h-[118px] flex-col rounded-[10px] border border-border bg-white px-4 py-3.5 shadow-xs hover:-translate-y-[1px] hover:border-primary/20 hover:shadow-card-hover"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <span className={["flex h-8 w-8 items-center justify-center rounded-[9px]", tone.icon].join(" ")}>

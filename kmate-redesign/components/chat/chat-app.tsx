@@ -81,7 +81,7 @@ function PreviewThread({ conversation, onBack }: { conversation: ConversationSum
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.mine ? "justify-end" : "justify-start"}`}>
               <div className="max-w-[82%]">
-                <div className={`rounded-[16px] px-3.5 py-2.5 text-[12px] font-medium leading-5 ${message.mine ? "bg-ink text-white" : "bg-canvas text-ink"}`}>{message.body}</div>
+                <div className={`rounded-[16px] px-3.5 py-2.5 text-[12px] font-medium leading-5 ${message.mine ? "bg-primary text-white" : "bg-canvas text-ink"}`}>{message.body}</div>
                 <p className={`mt-1 text-[9px] font-medium text-muted ${message.mine ? "text-right" : ""}`}>{message.time}</p>
               </div>
             </div>
@@ -91,7 +91,7 @@ function PreviewThread({ conversation, onBack }: { conversation: ConversationSum
       <div className="border-t border-hairline p-3 sm:p-4">
         <div className="mx-auto flex max-w-2xl items-end gap-2">
           <textarea value={draft} onChange={(e) => setDraft(e.target.value.slice(0, 500))} rows={1} placeholder="Write a message…" className="max-h-28 flex-1 resize-y rounded-[13px] border border-hairline-strong bg-canvas/55 px-3 py-2.5 text-[12px] font-medium text-ink outline-none focus:border-primary focus:bg-white" />
-          <button type="button" onClick={send} disabled={!draft.trim()} className="pressable flex h-10 w-10 items-center justify-center rounded-[12px] bg-ink text-white disabled:opacity-35" aria-label="Send preview message"><Send className="h-4 w-4" /></button>
+          <button type="button" onClick={send} disabled={!draft.trim()} className="pressable flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary text-white disabled:opacity-35" aria-label="Send preview message"><Send className="h-4 w-4" /></button>
         </div>
         <p className="mx-auto mt-2 max-w-2xl text-[9px] font-medium text-muted/70">Raw preview: this composer stays local and does not send to a real applicant.</p>
       </div>
@@ -222,7 +222,7 @@ export function ChatApp({
   }
 
   return (
-    <div className="overflow-hidden border-y border-hairline bg-surface shadow-card sm:rounded-[24px] sm:border md:grid md:h-[72vh] md:min-h-[560px] md:grid-cols-[310px_1fr]">
+    <div className="overflow-hidden border-y border-hairline bg-surface shadow-card sm:rounded-[16px] sm:border md:grid md:h-[72vh] md:min-h-[560px] md:grid-cols-[310px_1fr]">
       {/* On mobile the list gives way to the open thread; on md+ both show. */}
       <div className={activeId ? "hidden md:block md:border-r md:border-hairline" : "block md:border-r md:border-hairline"}>
         <div className="flex h-14 items-center border-b border-hairline px-4">
@@ -236,7 +236,7 @@ export function ChatApp({
                   type="button"
                   onClick={() => openConversation(c.id)}
                   className={`pressable flex w-full flex-col gap-1 px-4 py-3.5 text-left hover:bg-canvas/70 ${
-                    c.id === activeId ? "bg-primary-soft" : ""
+                    c.id === activeId ? "bg-primary-soft text-primary" : ""
                   }`}
                 >
                   <span className="flex items-center justify-between gap-2">
@@ -268,7 +268,7 @@ export function ChatApp({
         {!active ? (
           <div className="flex h-full min-h-[560px] items-center justify-center">
             <div className="text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-primary-soft text-primary">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
                 <MessageCircleMore className="h-5 w-5" />
               </span>
               <p className="mt-4 text-[12px] font-semibold text-muted">Choose a conversation to start reading.</p>

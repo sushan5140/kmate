@@ -5,7 +5,7 @@ export function TrackBadge({ track, className }: { track: Track; className?: str
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-semibold",
+        "inline-flex items-center rounded-[8px] border border-current/10 px-2.5 py-1 text-[10.5px] font-extrabold",
         TRACK_BADGE_CLASS[track],
         className
       )}
