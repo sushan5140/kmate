@@ -17,14 +17,14 @@ export function OwnProfileTabBar({ active }: { active: OwnProfileTab }) {
   ];
 
   return (
-    <div className="flex items-center gap-1.5 border-b border-hairline pb-3">
+    <div className="inline-flex items-center gap-1 rounded-[15px] border border-hairline bg-surface/80 p-1 shadow-xs">
       {tabs.map((t) => (
         <Link
           key={t.key}
           href={t.key === "profile" ? "?" : `?tab=${t.key}`}
           className={cn(
-            "rounded-full px-3 py-1.5 text-[13px] font-medium",
-            active === t.key ? "bg-primary text-white" : "text-muted hover:bg-canvas hover:text-ink"
+            "pressable rounded-[11px] px-3 py-2 text-[11px] font-extrabold",
+            active === t.key ? "bg-ink text-white shadow-xs" : "text-muted hover:bg-canvas hover:text-ink"
           )}
         >
           {t.label}
