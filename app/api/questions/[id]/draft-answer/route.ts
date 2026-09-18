@@ -5,12 +5,14 @@ import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthenticatedUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
   const { id: questionId } = await params;
   const { content } = (await request.json()) as { content: string };
   if (typeof content !== "string" || content.length > 10000) {
     return NextResponse.json({ error: "invalid_content" }, { status: 400 });
+  }
+
+  if (!user) {
+    return NextResponse.json({ ok: true, savedAt: new Date().toISOString(), previewMode: true });
   }
 
   // Generous limit -- this covers legitimate autosave traffic, not abuse.
