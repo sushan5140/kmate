@@ -9,6 +9,8 @@ import { GuidelineRuleActions } from "@/components/official-guidelines/guideline
 import { GKS_U_2027_SOURCE } from "@/lib/gks/guidelines-2027";
 import { APOSTILLE_GENERAL_DEFAULT, APOSTILLE_COUNTRY_OVERRIDES } from "@/lib/apostille-requirements";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
+import { isDemoUserId } from "@/lib/demo-mode";
 
 export const metadata: Metadata = {
   title: "Apostille Guide — KMate",
@@ -17,6 +19,7 @@ export const metadata: Metadata = {
 export default async function ApostillePage() {
   const user = await requireOnboarded("/apostille");
   const supabase = await createClient();
+  const demoMode = isDemoUserId(user.id);
   // Scoped to the user's own track -- onboarding requires picking one before
   // onboarding_completed_at is ever set, so requireOnboarded() already
   // guarantees this is present. dual_track_access is an admin-granted
@@ -28,8 +31,8 @@ export default async function ApostillePage() {
     .select("track, dual_track_access")
     .eq("id", user.id)
     .maybeSingle();
-  const track = (profile?.track as Track | null) ?? "gks_g";
-  const dualTrackAccess = profile?.dual_track_access ?? false;
+  const track = demoMode ? "gks_u" : ((profile?.track as Track | null) ?? "gks_g");
+  const dualTrackAccess = demoMode || (profile?.dual_track_access ?? false);
   const expectedCycle = track === "gks_u" ? "2027" : "2026";
   const currentOverrides = APOSTILLE_COUNTRY_OVERRIDES.filter(
     (item) => item.verifiedCycleByTrack[track] === expectedCycle
@@ -41,13 +44,8 @@ export default async function ApostillePage() {
   );
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Documents to Apostille</h1>
-      <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-        Which {dualTrackAccess ? "" : `${TRACK_LABELS[track]} `}application documents need an apostille or
-        Korean-embassy consular confirmation, per NIIED&apos;s official guidelines — plus the handful of countries
-        with a confirmed, different local process.
-      </p>
+    <main className="workspace-page mx-auto w-full max-w-[1040px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Document authentication" title="Apostille Guide" description={dualTrackAccess ? "Switch between GKS-U and GKS-G to see national authentication rules, stage timing, and verified country-specific embassy notices." : `See which ${TRACK_LABELS[track]} documents need apostille or Korean-embassy consular confirmation, with source-cycle context visible.`} />
 
       <DisclaimerBanner />
 

@@ -12,6 +12,8 @@ import { ScholarStatsApp, type TrackData } from "@/components/scholar-stats/scho
 import { ScholarStatsTrackToggle } from "@/components/scholar-stats/track-toggle";
 import { Card } from "@/components/ui/card";
 import { TRACK_LABELS } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
+import { isDemoUserId } from "@/lib/demo-mode";
 
 export const metadata: Metadata = {
   title: "Scholar Stats — KMate",
@@ -55,6 +57,7 @@ export default async function ScholarStatsPage({
 }) {
   const user = await requireOnboarded("/scholar-stats");
   const { compare } = await searchParams;
+  const demoMode = isDemoUserId(user.id);
 
   // Scoped to the user's own track -- onboarding requires picking one before
   // onboarding_completed_at is ever set, so requireOnboarded() already
@@ -66,8 +69,8 @@ export default async function ScholarStatsPage({
     .select("track, dual_track_access")
     .eq("id", user.id)
     .maybeSingle();
-  const track = (profile?.track ?? "gks_g") as GksTrack;
-  const dualTrackAccess = profile?.dual_track_access ?? false;
+  const track = (demoMode ? "gks_u" : (profile?.track ?? "gks_g")) as GksTrack;
+  const dualTrackAccess = demoMode || (profile?.dual_track_access ?? false);
 
   const intro = (
     <Card className="mt-4">
@@ -83,8 +86,8 @@ export default async function ScholarStatsPage({
     const [gksG, gksU] = await Promise.all([loadTrackData("gks_g"), loadTrackData("gks_u")]);
     const defaultData = track === "gks_g" ? gksG : gksU;
     return (
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <h1 className="text-[22px] font-semibold text-ink">Scholar Placement Stats</h1>
+      <main className="workspace-page mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+        <PageHeader eyebrow="Placement data" title="Scholar Stats" description="Explore where final-round scholars were placed by university and country, then compare universities side by side." />
         {intro}
         <ScholarStatsTrackToggle
           defaultTrack={track}
@@ -98,8 +101,8 @@ export default async function ScholarStatsPage({
 
   const data = await loadTrackData(track);
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Scholar Placement Stats</h1>
+    <main className="workspace-page mx-auto w-full max-w-[1240px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Placement data" title="Scholar Stats" description="Explore where final-round scholars were placed by university and country, then compare universities side by side." />
       {intro}
       <ScholarStatsApp
         data={data}

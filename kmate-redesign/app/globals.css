@@ -163,3 +163,10 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+button, a { -webkit-tap-highlight-color: transparent; }
+input, textarea, select { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 3px rgba(35, 107, 92, 0.08); }
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+@media (min-width: 768px) { .workspace-page { min-height: calc(100vh - 24px); } }

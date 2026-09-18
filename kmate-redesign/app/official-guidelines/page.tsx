@@ -7,6 +7,8 @@ import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revisio
 import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
 import { TRACK_LABELS, type Track } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
+import { isDemoUserId } from "@/lib/demo-mode";
 
 export const metadata: Metadata = {
   title: "Official Guidelines — KMate",
@@ -90,23 +92,15 @@ export default async function OfficialGuidelinesPage() {
   const supabase = await createClient();
 
   const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const demoMode = isDemoUserId(user.id);
   const track = (profile?.track as Track | null) ?? "gks_u";
-  const guidelines = OFFICIAL_GUIDELINES[track];
+  const guidelines = demoMode ? [...OFFICIAL_GUIDELINES.gks_u, ...OFFICIAL_GUIDELINES.gks_g] : OFFICIAL_GUIDELINES[track];
   const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent);
   const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Official Guidelines</h1>
-      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-gold">
-        Official source material — not community-written
-      </p>
-
-      <Card className="mt-4">
-        <p className="text-[13.5px] leading-relaxed text-muted">
-          Showing the official source material for {TRACK_LABELS[track]}, based on your profile. This page stays focused on the guideline itself; application planning, requirement checks, forms, and apostille actions live in their dedicated KMate sections.
-        </p>
-      </Card>
+    <main className="workspace-page mx-auto w-full max-w-[1080px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Source library" title="Official Guidelines" description={demoMode ? "Browse KMate's full official-source library for both GKS-U and GKS-G directly in the raw workspace." : `Showing the official source material for ${TRACK_LABELS[track]}. Planning tools stay separate so this remains a clean source library.`} meta={<span className="inline-flex rounded-full bg-gold-soft px-2.5 py-1 text-[9.5px] font-extrabold text-gold">Official material · not community-written</span>} />
 
       {currentGuidelines.length > 0 ? (
         <>
@@ -127,7 +121,7 @@ export default async function OfficialGuidelinesPage() {
         </Card>
       )}
 
-      {track === "gks_u" && <GksU2027QuickGuide />}
+      {(track === "gks_u" || demoMode) && <GksU2027QuickGuide />}
 
       {archivedGuidelines.length > 0 && (
         <section className="mt-10">
@@ -144,7 +138,7 @@ export default async function OfficialGuidelinesPage() {
             ))}
           </div>
 
-          {track === "gks_u" && <GksURevisionNote />}
+          {(track === "gks_u" || demoMode) && <GksURevisionNote />}
         </section>
       )}
     </main>

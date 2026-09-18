@@ -3,7 +3,6 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ChatApp, type ConversationSummary } from "@/components/chat/chat-app";
 import type { Track } from "@/lib/constants";
-import { DemoChatWorkspace } from "@/components/chat/demo-chat-workspace";
 import { isDemoUserId } from "@/lib/demo-mode";
 import { PageHeader } from "@/components/layout/page-header";
 
@@ -31,19 +30,18 @@ export default async function MessagesPage({
   const { c: requestedConversationId } = await searchParams;
 
   if (isDemoUserId(user.id)) {
+    const previewConversations: ConversationSummary[] = [
+      { id: "preview-chat-1", otherUserId: "preview-user-1", otherUsername: "applicant-01", otherTrack: "gks_u", lastMessageAt: "2026-09-18T18:46:00+05:30", lastMessageBody: "I’m comparing the requirement checker with the official guideline now.", lastMessageFromMe: false, unreadCount: 2 },
+      { id: "preview-chat-2", otherUserId: "preview-user-2", otherUsername: "applicant-04", otherTrack: "gks_u", lastMessageAt: "2026-09-17T20:10:00+05:30", lastMessageBody: "By theme first, then I’m drafting short answer points in Interview DB.", lastMessageFromMe: false, unreadCount: 0 },
+      { id: "preview-chat-3", otherUserId: "preview-user-3", otherUsername: "applicant-03", otherTrack: "gks_g", lastMessageAt: "2026-09-14T17:32:00+05:30", lastMessageBody: "The official notices filter made the Embassy/University updates easier to separate.", lastMessageFromMe: false, unreadCount: 0 },
+    ];
+    const activePreview = previewConversations.some((item) => item.id === requestedConversationId) ? requestedConversationId! : previewConversations[0].id;
     return (
-      <main className="mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <main className="workspace-page mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
         <div className="hidden sm:block">
-          <PageHeader
-            eyebrow="Community"
-            title="Messages"
-            description="Preview KMate's private messaging workspace without exposing any real applicant conversations."
-            meta={<span className="inline-flex rounded-full bg-primary-soft px-2.5 py-1 text-[10.5px] font-extrabold text-primary">Raw preview · fictional data</span>}
-          />
+          <PageHeader eyebrow="Community" title="Messages" description="The same KMate inbox and thread layout as production, opened directly in the raw workspace." meta={<span className="inline-flex rounded-full bg-primary-soft px-2.5 py-1 text-[9.5px] font-extrabold text-primary">Preview threads stay local</span>} />
         </div>
-        <div className="sm:mt-6">
-          <DemoChatWorkspace />
-        </div>
+        <div className="sm:mt-6"><ChatApp currentUserId={user.id} conversations={previewConversations} initialActiveId={activePreview} previewMode /></div>
       </main>
     );
   }
@@ -119,7 +117,7 @@ export default async function MessagesPage({
     : null;
 
   return (
-    <main className="mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-0 py-0 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <div className="hidden sm:block">
         <PageHeader
           eyebrow="Community"

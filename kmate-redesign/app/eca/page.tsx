@@ -5,6 +5,7 @@ import { EcaList, type EcaEntryData } from "@/components/eca/eca-list";
 import { SubmitEcaForm } from "@/components/eca/submit-eca-form";
 import { Card } from "@/components/ui/card";
 import { ECA_TRACK_LABELS, type EcaTrack, type EcaActivityType, type EcaImpactArea, type Confidence } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Extracurriculars — KMate",
@@ -101,19 +102,8 @@ export default async function EcaPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Extracurriculars</h1>
-
-      <Card className="mt-4">
-        <p className="text-[13.5px] leading-relaxed text-muted">
-          Crowdsourced extracurriculars and experiences applicants believe help a GKS application.
-          Showing results for {ECA_TRACK_LABELS[userTrack]}, based on your profile.
-        </p>
-      </Card>
-
-      <div className="mt-6 flex justify-end">
-        <SubmitEcaForm />
-      </div>
+    <main className="workspace-page mx-auto w-full max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Profile building" title="Extracurriculars" description={`Browse community-submitted activities and experiences currently scoped to ${ECA_TRACK_LABELS[userTrack]}, with impact and confidence context kept visible.`} meta={<span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline">{entries.length} entries</span>} actions={<SubmitEcaForm />} />
 
       <div className="mt-6">
         <EcaList entries={entries} />

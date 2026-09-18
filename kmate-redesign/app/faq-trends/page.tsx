@@ -3,6 +3,7 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { loadFaqTrends, type Period, type ProgramFilter, type TrackFilter } from "@/lib/gks/faq";
 import { FaqTrendsView } from "@/components/gks/faq-trends";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "FAQ Trends — KMate",
@@ -39,12 +40,8 @@ export default async function FaqTrendsPage({
   const trends = await loadFaqTrends(getSupabaseAdmin(), user.id, { period, program, track, search });
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">FAQ Trends</h1>
-      <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        See what GKS applicants ask most often, and save the questions you want to revisit. Opening one asks
-        it in the GKS Assistant, where the answer is grounded only in the official guideline.
-      </p>
+    <main className="workspace-page mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Applicant questions" title="FAQ Trends" description="See what GKS applicants ask most often, filter the question stream, and open any question directly in the official-source GKS Assistant." />
 
       <div className="mt-6">
         <FaqTrendsView

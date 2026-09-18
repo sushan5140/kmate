@@ -4,6 +4,7 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { isExpiredNow } from "@/lib/scholarships/lifecycle";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "University Scholarships — KMate",
@@ -79,13 +80,8 @@ export default async function ScholarshipsPage() {
   const rows = ((data ?? []) as ScholarshipRow[]).filter((s) => !isExpiredNow(s));
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">University Scholarships</h1>
-      <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
-        Scholarships for international students, copied verbatim from each university&apos;s own official
-        pages. Fields a university doesn&apos;t state are left blank rather than guessed — always confirm
-        against the original page before relying on any of this.
-      </p>
+    <main className="workspace-page mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Funding" title="University Scholarships" description="Browse active international-student scholarships from university sources. Missing fields stay visibly unstated instead of being inferred." meta={<span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline">{rows.length} active indexed awards</span>} />
 
       {rows.length === 0 ? (
         <Card className="mt-6">
@@ -94,7 +90,7 @@ export default async function ScholarshipsPage() {
           </p>
         </Card>
       ) : (
-        <div className="mt-6 flex flex-col gap-3">
+        <div className="mt-6 grid gap-3 lg:grid-cols-2">
           {rows.map((s) => (
             <Card key={s.id}>
               <div className="flex flex-wrap items-center gap-2">

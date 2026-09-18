@@ -30,6 +30,7 @@ import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import { ApplicationDashboard } from "@/components/home/application-dashboard";
+import { ToolDirectory } from "@/components/home/tool-directory";
 import { getApprovedGksNotices } from "@/lib/notices/published";
 import { getLiveVerifiedDeadlines } from "@/lib/deadlines/live";
 import { getProfileDefaults } from "@/lib/readiness/profile";
@@ -165,7 +166,7 @@ export default async function HomePage() {
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
 
   return (
-    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
       <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <MicroLabel>Your workspace</MicroLabel>
@@ -183,7 +184,7 @@ export default async function HomePage() {
         <div className="mt-5 rounded-[18px] border border-primary/15 bg-primary-soft px-4 py-3">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">Raw preview mode</p>
           <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
-            Explore the full KMate workspace without an account. Identity-based areas use fictional or empty demo states; official GKS tools keep their real source data.
+            Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.
           </p>
         </div>
       ) : (
@@ -266,49 +267,7 @@ export default async function HomePage() {
         />
       </section>
 
-      <section className="mt-4 grid gap-3 md:grid-cols-3">
-        <Link href="/official-guidelines">
-          <Card interactive className="h-full">
-            <div className="flex items-center justify-between">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
-                <FileText className="h-4 w-4" />
-              </span>
-              <span className="text-[10px] font-extrabold text-muted">{currentNoticesCount ?? 0} current</span>
-            </div>
-            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Official guidance</h2>
-            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
-              Current rules, notices, and guideline PDFs with source context.
-            </p>
-          </Card>
-        </Link>
-
-        <Link href="/requirement-checker">
-          <Card interactive className="h-full">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-gold-soft text-gold">
-              <ClipboardCheck className="h-4 w-4" />
-            </span>
-            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Requirement checker</h2>
-            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
-              Compare university-specific requirements without hiding source age.
-            </p>
-          </Card>
-        </Link>
-
-        <Link href="/interview-db">
-          <Card interactive className="h-full">
-            <div className="flex items-center justify-between">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
-                <MessageSquare className="h-4 w-4" />
-              </span>
-              <span className="text-[10px] font-extrabold text-muted">{draftedCount}/{totalApprovedQuestions ?? 0}</span>
-            </div>
-            <h2 className="mt-5 text-[14px] font-extrabold tracking-[-0.015em] text-ink">Interview preparation</h2>
-            <p className="mt-1.5 text-[11.5px] font-medium leading-5 text-muted">
-              Structured questions with your private answer drafts kept beside them.
-            </p>
-          </Card>
-        </Link>
-      </section>
+      <ToolDirectory />
 
       {spotlight && (
         <Card className="mt-4 overflow-hidden p-0">
@@ -357,45 +316,7 @@ export default async function HomePage() {
         </Card>
       )}
 
-      <details className="group mt-4 overflow-hidden rounded-[22px] border border-hairline bg-surface/80 shadow-card">
-        <summary className="cursor-pointer list-none px-5 py-4 sm:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[13px] font-extrabold text-ink">More KMate tools</p>
-              <p className="mt-0.5 text-[10.5px] font-medium text-muted">
-                Community, reference material, stats, and account tools.
-              </p>
-            </div>
-            <ArrowDown className="h-4 w-4 text-muted transition-transform duration-200 ease-out group-open:rotate-180" />
-          </div>
-        </summary>
 
-        <div className="grid grid-cols-2 gap-2 border-t border-hairline bg-canvas/35 p-3 sm:grid-cols-3 lg:grid-cols-4">
-          {[
-            { href: "/gks", icon: Bot, title: "GKS Assistant", text: "Ask against official guideline context" },
-            { href: "/faq-trends", icon: HelpCircle, title: "FAQ Trends", text: "See what applicants ask most" },
-            { href: "/mistakes", icon: AlertTriangle, title: "Mistakes", text: topMistake?.title ? `Top: ${topMistake.title}` : "Learn from applicant mistakes" },
-            { href: "/eca", icon: Award, title: "Extracurriculars", text: "Browse activity ideas" },
-            { href: "/apostille", icon: Stamp, title: "Apostille", text: "Review document legalization" },
-            { href: "/scholar-stats", icon: BarChart3, title: "Scholar Stats", text: "Explore past placements" },
-            { href: "/requests?tab=connected", icon: UserCheck, title: "Connections", text: `${connectedCount ?? 0} connected applicants` },
-            { href: profile?.username ? `/profile/${profile.username}` : "/settings/profile", icon: UserRound, title: "Profile", text: "See and edit your applicant identity" },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.title}
-                href={item.href}
-                className="pressable rounded-[16px] bg-surface px-3.5 py-4 ring-1 ring-hairline transition-colors hover:bg-white"
-              >
-                <Icon className="h-4 w-4 text-primary" />
-                <p className="mt-3 text-[11.5px] font-extrabold text-ink">{item.title}</p>
-                <p className="mt-1 line-clamp-2 text-[9.75px] font-medium leading-4 text-muted">{item.text}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </details>
 
       <p className="mt-6 text-center text-[10px] font-medium text-muted/70">
         KMate keeps official rules, older university sources, and community experience visibly separate.

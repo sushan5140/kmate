@@ -12,6 +12,7 @@ import {
   type PublishedGksNotice,
 } from "@/lib/notices/published";
 import type { QueueNoticeType } from "@/lib/notices/review-schema";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Official Notices — KMate",
@@ -179,17 +180,11 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
   const hasFilters = program !== "all" || track !== "all" || type !== "all";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold tracking-tight text-ink">Official Notices</h1>
-      <p className="mt-1.5 text-[13.5px] leading-relaxed text-muted">
-        Announcements republished verbatim from{" "}
-        {sourceName ?? "the official Study in Korea announcement board"}. KMate only indexes
-        registered official sources and never fills in details the source doesn&apos;t state — always
-        confirm against the original notice before acting on it.
-      </p>
+    <main className="workspace-page mx-auto w-full max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Live official feed" title="Official Notices" description={`Announcements indexed from ${sourceName ?? "the official Study in Korea announcement board"}. KMate keeps source wording intact and leaves unstated details unstated.`} meta={<span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline">{board.length} board items · {approved.length} reviewed GKS notices</span>} />
 
       {/* ---------------- view tabs ---------------- */}
-      <div className="mt-5 flex flex-wrap items-center gap-1.5">
+      <div className="mt-6 inline-flex max-w-full flex-wrap items-center gap-1 rounded-[15px] border border-hairline bg-surface/80 p-1 shadow-xs">
         <Link
           href={noticesHref(current, { view: "gks" })}
           className={`rounded-full border px-3 py-1.5 text-[12.5px] font-medium ${

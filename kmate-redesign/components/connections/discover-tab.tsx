@@ -4,8 +4,6 @@ import { DiscoverScrollRestore } from "@/components/discover/discover-scroll-res
 import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-card";
 import type { ConnectionStatus } from "@/components/connections/connection-request-button";
 import type { Track } from "@/lib/constants";
-import { Card, MicroLabel } from "@/components/ui/card";
-import { TrackBadge } from "@/components/ui/track-badge";
 import { isDemoUserId } from "@/lib/demo-mode";
 
 interface UniversityChoiceEmbed {
@@ -24,62 +22,36 @@ interface DiscoverProfileRow {
 }
 
 
-const DEMO_PROFILES = [
-  { username: "applicant-01", bio: "AI / computer science applicant comparing regional universities.", track: "gks_u" as Track, major: "Computer Science", applicationYear: 2027, universities: ["Pusan National University", "Kyungpook National University"] },
-  { username: "applicant-02", bio: "Electrical engineering applicant building a University Track application.", track: "gks_u" as Track, major: "Electrical Engineering", applicationYear: 2027, universities: ["Dong-Eui University"] },
-  { username: "applicant-03", bio: "Graduate applicant focused on data science and research experience.", track: "gks_g" as Track, major: "Data Science", applicationYear: 2027, universities: ["Ajou University", "Inha University"] },
-  { username: "applicant-04", bio: "Software applicant preparing interview answers and document verification.", track: "gks_u" as Track, major: "Software Engineering", applicationYear: 2027, universities: ["Chungnam National University"] },
-  { username: "applicant-05", bio: "Mechanical engineering applicant checking embassy-track eligibility.", track: "gks_u" as Track, major: "Mechanical Engineering", applicationYear: 2027, universities: ["Jeonbuk National University"] },
-  { username: "applicant-06", bio: "Graduate applicant organizing research fit and scholarship deadlines.", track: "gks_g" as Track, major: "Artificial Intelligence", applicationYear: 2027, universities: ["Konkuk University"] },
+const PREVIEW_PROFILES: ProfileCardData[] = [
+  { id: "preview-01", username: "applicant-01", bio: "AI / computer science applicant comparing regional universities.", track: "gks_u", major: "Computer Science", applicationYear: 2027, connectionStatus: "none" },
+  { id: "preview-02", username: "applicant-02", bio: "Electrical engineering applicant building a University Track application.", track: "gks_u", major: "Electrical Engineering", applicationYear: 2027, connectionStatus: "none" },
+  { id: "preview-03", username: "applicant-03", bio: "Graduate applicant focused on data science and research experience.", track: "gks_g", major: "Data Science", applicationYear: 2027, connectionStatus: "none" },
+  { id: "preview-04", username: "applicant-04", bio: "Software applicant preparing interview answers and document verification.", track: "gks_u", major: "Software Engineering", applicationYear: 2027, connectionStatus: "none" },
+  { id: "preview-05", username: "applicant-05", bio: "Mechanical engineering applicant checking Embassy Track eligibility.", track: "gks_u", major: "Mechanical Engineering", applicationYear: 2027, connectionStatus: "none" },
+  { id: "preview-06", username: "applicant-06", bio: "Graduate applicant organizing research fit and scholarship deadlines.", track: "gks_g", major: "Artificial Intelligence", applicationYear: 2027, connectionStatus: "none" },
 ];
 
-function DemoDiscoverGrid() {
+function PreviewDiscover({ params, fromUrl }: { params: { track?: string | string[]; major?: string; year?: string; university?: string }; fromUrl: string }) {
+  const requestedTracks = Array.isArray(params.track) ? params.track : params.track ? [params.track] : [];
+  const filtered = PREVIEW_PROFILES.filter((profile) => {
+    if (requestedTracks.length && !requestedTracks.includes(profile.track)) return false;
+    if (params.major && profile.major !== params.major) return false;
+    if (params.year && String(profile.applicationYear) !== params.year) return false;
+    return true;
+  });
   return (
     <div>
-      <div className="rounded-[18px] border border-primary/15 bg-primary-soft px-4 py-3">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-primary">Raw preview</p>
-        <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
-          These are fictional preview applicants. Real KMate profiles stay behind real account access.
-        </p>
+      <DiscoverScrollRestore />
+      <DiscoverFilters ownTrack="gks_u" />
+      <div className="mt-4 flex items-center justify-between gap-3 rounded-[14px] border border-hairline bg-canvas/55 px-3.5 py-2.5">
+        <p className="text-[10px] font-semibold text-muted">Preview applicant set · production Discover filters and profile cards.</p>
+        <span className="shrink-0 rounded-full bg-surface px-2 py-1 text-[9px] font-extrabold text-muted ring-1 ring-hairline">{filtered.length} shown</span>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {DEMO_PROFILES.map((profile) => (
-          <Card key={profile.username} className="flex min-h-[220px] flex-col">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-canvas text-[12px] font-extrabold text-ink ring-1 ring-hairline">
-                  {profile.username.slice(-2)}
-                </span>
-                <div>
-                  <p className="text-[13px] font-extrabold text-ink">@{profile.username}</p>
-                  <p className="mt-0.5 text-[9.5px] font-bold uppercase tracking-[0.1em] text-muted/60">Demo profile</p>
-                </div>
-              </div>
-              <TrackBadge track={profile.track} />
-            </div>
-            <p className="mt-4 text-[11.5px] font-medium leading-5 text-muted">{profile.bio}</p>
-            <div className="mt-4 grid grid-cols-2 gap-3 rounded-[14px] bg-canvas/55 p-3">
-              <div>
-                <MicroLabel>Major</MicroLabel>
-                <p className="mt-1 text-[11px] font-bold text-ink">{profile.major}</p>
-              </div>
-              <div>
-                <MicroLabel>Year</MicroLabel>
-                <p className="mt-1 text-[11px] font-bold text-ink">{profile.applicationYear}</p>
-              </div>
-            </div>
-            <div className="mt-3">
-              <MicroLabel>Targets</MicroLabel>
-              <p className="mt-1 line-clamp-2 text-[10.5px] font-medium leading-5 text-muted">{profile.universities.join(" · ")}</p>
-            </div>
-            <div className="mt-auto pt-4">
-              <span className="block rounded-[12px] bg-ink px-3 py-2.5 text-center text-[10.5px] font-extrabold text-white/80">
-                Connection flow preview
-              </span>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <div className="mt-5 rounded-[18px] border border-dashed border-hairline-strong bg-surface/60 px-5 py-10 text-center"><p className="text-[11.5px] font-semibold text-muted">No preview applicants match these filters.</p></div>
+      ) : (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{filtered.map((profile) => <ProfileCard key={profile.id} profile={profile} fromUrl={fromUrl} previewMode />)}</div>
+      )}
     </div>
   );
 }
@@ -99,7 +71,7 @@ export async function DiscoverTab({
   fromUrl: string;
 }) {
   if (isDemoUserId(userId)) {
-    return <DemoDiscoverGrid />;
+    return <PreviewDiscover params={params} fromUrl={fromUrl} />;
   }
 
   const admin = getSupabaseAdmin();

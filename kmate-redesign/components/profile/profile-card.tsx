@@ -24,7 +24,8 @@ export interface ProfileCardData {
  * already has a pending/accepted connection shouldn't see the same "Connect"
  * CTA as someone they've never interacted with.
  */
-function ConnectionStateLabel({ status }: { status: ConnectionStatus }) {
+function ConnectionStateLabel({ status, previewMode = false }: { status: ConnectionStatus; previewMode?: boolean }) {
+  if (previewMode) return <span className="block w-full rounded-[12px] bg-ink px-3 py-2.5 text-center text-[11px] font-extrabold text-white">Connect</span>;
   if (status === "accepted") {
     return (
       <span className="block w-full rounded-full bg-success/10 px-3 py-1.5 text-center text-[13px] font-medium text-success">
@@ -49,11 +50,11 @@ function ConnectionStateLabel({ status }: { status: ConnectionStatus }) {
   return <ConnectButton className="w-full" />;
 }
 
-export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fromUrl?: string }) {
+export function ProfileCard({ profile, fromUrl, previewMode = false }: { profile: ProfileCardData; fromUrl?: string; previewMode?: boolean }) {
   const href = fromUrl ? `/profile/${profile.username}?from=${encodeURIComponent(fromUrl)}` : `/profile/${profile.username}`;
 
   return (
-    <Card interactive className="flex flex-col gap-3">
+    <Card interactive={!previewMode} className="flex min-h-[210px] flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div
@@ -64,9 +65,7 @@ export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fr
           >
             {profile.username.slice(0, 1).toUpperCase()}
           </div>
-          <Link href={href} className="font-semibold text-ink hover:underline">
-            @{profile.username}
-          </Link>
+          {previewMode ? <span className="text-[13px] font-extrabold text-ink">@{profile.username}</span> : <Link href={href} className="text-[13px] font-extrabold text-ink hover:text-primary">@{profile.username}</Link>}
         </div>
         <TrackBadge track={profile.track} />
       </div>
@@ -90,9 +89,7 @@ export function ProfileCard({ profile, fromUrl }: { profile: ProfileCardData; fr
         </span>
       )}
 
-      <Link href={href}>
-        <ConnectionStateLabel status={profile.connectionStatus ?? "none"} />
-      </Link>
+      <div className="mt-auto pt-1">{previewMode ? <ConnectionStateLabel status={profile.connectionStatus ?? "none"} previewMode /> : <Link href={href}><ConnectionStateLabel status={profile.connectionStatus ?? "none"} /></Link>}</div>
     </Card>
   );
 }

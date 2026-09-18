@@ -10,6 +10,7 @@ import { RequirementResults } from "@/components/requirements/requirement-result
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
 import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "University Requirement Checker — KMate",
@@ -118,23 +119,8 @@ export default async function RequirementCheckerPage({
   const toolMajor = major || defaults.major;
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-[24px] font-semibold tracking-tight text-ink">
-            University Requirement Checker
-          </h1>
-          <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-            Pick your program, track and university to see what that university&apos;s own official GKS source
-            states. Requirements are never combined across tracks — in both GKS-U and GKS-G the Embassy and
-            University routes stay separate, each with its own program types.
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-[12px] font-medium text-muted">
-          <Database className="h-3.5 w-3.5" />
-          {selectedProgram} {selectedCycle} · {requirementDataset.record_count} cycle-tagged records
-        </span>
-      </header>
+    <main className="workspace-page mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="University rules" title="Requirement Checker" description="Choose the exact program, route, and university. Embassy and University Track evidence stays separate, with source age visible." meta={<span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline"><Database className="h-3 w-3" />{selectedProgram} {selectedCycle} · {requirementDataset.record_count} source-tagged records</span>} />
 
       {/* Form and results lead; the guidance panel sits alongside on desktop
           and drops below the form on narrow screens. */}
@@ -201,7 +187,7 @@ export default async function RequirementCheckerPage({
       </div>
 
       {showGksU2027 && (
-        <section className="mt-10 border-t border-hairline pt-8">
+        <section className="mt-8 rounded-[24px] border border-hairline bg-surface/72 p-4 shadow-card sm:p-6">
           <GksU2027TrackComparator defaultPath={toolPath} defaultMajor={toolMajor} />
           <GksU2027SmartTools
             mode="requirements"

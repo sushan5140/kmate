@@ -6,6 +6,7 @@ import { AskInterviewerList, type AskQuestionData } from "@/components/interview
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
 import { Card } from "@/components/ui/card";
 import type { QuestionCategory } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Ask the Interviewer — KMate",
@@ -74,22 +75,9 @@ export default async function AskInterviewerPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <Link href="/interview-db" className="text-[13px] text-muted hover:text-ink">
-        ← Interview DB
-      </Link>
-      <h1 className="mt-2 text-[22px] font-semibold text-ink">Ask the Interviewer</h1>
-
-      <Card className="mt-4">
-        <p className="text-[13.5px] leading-relaxed text-muted">
-          Good questions to ask your interviewer at the end -- crowdsourced from other applicants. Prepare
-          1-2 of these; it&apos;s a normal, expected part of the interview.
-        </p>
-      </Card>
-
-      <div className="mt-6 flex justify-end">
-        <SubmitQuestionForm kind="interviewer" placeholder="What's a good question to ask an interviewer?" />
-      </div>
+    <main className="workspace-page mx-auto w-full max-w-[1040px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <Link href="/interview-db" className="mb-4 inline-flex text-[10.5px] font-extrabold text-muted hover:text-ink">← Back to Interview Studio</Link>
+      <PageHeader eyebrow="Interview closing" title="Ask the Interviewer" description="Prepare thoughtful questions for the end of the interview and browse the community's strongest prompts." meta={<span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline">{questions.length} prompts</span>} actions={<SubmitQuestionForm kind="interviewer" placeholder="What's a good question to ask an interviewer?" />} />
 
       <div className="mt-6">
         <AskInterviewerList questions={questions} />

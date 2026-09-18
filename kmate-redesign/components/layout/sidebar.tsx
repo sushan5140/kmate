@@ -20,7 +20,7 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] flex-col border-r border-hairline bg-surface/84 backdrop-blur-xl md:flex">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] flex-col border-r border-hairline bg-surface/92 backdrop-blur-xl md:flex">
       <div className="flex h-[76px] shrink-0 items-center px-5">
         <Link href="/home" className="group inline-flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-ink text-[13px] font-extrabold text-white shadow-xs transition-transform duration-150 ease-out group-active:scale-[0.96]">
@@ -55,12 +55,12 @@ export function Sidebar({
                       className={cn(
                         "group flex min-h-10 items-center justify-between gap-2 rounded-[12px] px-3 py-2 text-[12.75px] font-semibold transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.985]",
                         active
-                          ? "bg-primary-soft text-primary"
-                          : "text-muted hover:bg-ink/[0.035] hover:text-ink"
+                          ? "bg-ink text-white shadow-xs"
+                          : "text-muted hover:bg-ink/[0.04] hover:text-ink"
                       )}
                     >
                       <span className="flex min-w-0 items-center gap-2.5">
-                        <item.icon className={cn("h-[16px] w-[16px] shrink-0", active ? "text-primary" : "text-muted/80")} />
+                        <item.icon className={cn("h-[16px] w-[16px] shrink-0", active ? "text-white/90" : "text-muted/80")} />
                         <span className="truncate">{item.label}</span>
                       </span>
                       {badgeCount > 0 ? (
@@ -68,7 +68,7 @@ export function Sidebar({
                           {badgeCount > 9 ? "9+" : badgeCount}
                         </span>
                       ) : (
-                        active && <ChevronRight className="h-3.5 w-3.5 text-primary/60" />
+                        active && <ChevronRight className="h-3.5 w-3.5 text-white/45" />
                       )}
                     </Link>
                   );

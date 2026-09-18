@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function LegacySavedGksRulesPage() {
-  redirect("/gks/saved");
-}
+export { default } from "../../../kmate-redesign/app/official-guidelines/saved/page";

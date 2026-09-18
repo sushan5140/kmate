@@ -5,6 +5,7 @@ import { MistakesList, type MistakeEntryData } from "@/components/mistakes/mista
 import { SubmitMistakeForm } from "@/components/mistakes/submit-mistake-form";
 import { Card } from "@/components/ui/card";
 import type { MistakeDocumentType, MistakeReasonCategory, Confidence } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Application Mistakes — KMate",
@@ -85,19 +86,8 @@ export default async function MistakesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Application Mistakes</h1>
-
-      <Card className="mt-4">
-        <p className="text-[13.5px] leading-relaxed text-muted">
-          Crowdsourced mistakes and rejection reasons from past applicants -- searchable by document
-          type or by what went wrong, so you can check the specific document or stage you&apos;re worried about.
-        </p>
-      </Card>
-
-      <div className="mt-6 flex justify-end">
-        <SubmitMistakeForm />
-      </div>
+    <main className="workspace-page mx-auto w-full max-w-[1100px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader eyebrow="Applicant experience" title="Application Mistakes" description="Search recurring document and process mistakes reported by applicants, while keeping community experience separate from official requirements." meta={<span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-[9.5px] font-extrabold text-muted ring-1 ring-hairline">{entries.length} entries</span>} actions={<SubmitMistakeForm />} />
 
       <div className="mt-6">
         <MistakesList entries={entries} />

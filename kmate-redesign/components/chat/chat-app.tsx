@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient, ensureRealtimeAuth } from "@/lib/supabase/browser-client";
 import { Card } from "@/components/ui/card";
-import { MessageCircleMore } from "lucide-react";
+import { ArrowLeft, MessageCircleMore, Send } from "lucide-react";
 import { MessageThread, type ChatMessage } from "@/components/chat/message-thread";
+import { TrackBadge } from "@/components/ui/track-badge";
 import type { Track } from "@/lib/constants";
 
 export interface ConversationSummary {
@@ -32,14 +33,82 @@ function formatListTimestamp(iso: string | null) {
 const byRecency = (a: ConversationSummary, b: ConversationSummary) =>
   (b.lastMessageAt ?? "").localeCompare(a.lastMessageAt ?? "");
 
+const PREVIEW_THREADS: Record<string, { mine: boolean; body: string; time: string }[]> = {
+  "preview-chat-1": [
+    { mine: false, body: "Are you also building the 2027 GKS-U document set first?", time: "6:42 PM" },
+    { mine: true, body: "Yeah. I’m checking route, documents, and university extras before writing anything.", time: "6:44 PM" },
+    { mine: false, body: "Same. I’m comparing the requirement checker with the official guideline now.", time: "6:46 PM" },
+  ],
+  "preview-chat-2": [
+    { mine: true, body: "How are you organizing interview prep?", time: "Yesterday" },
+    { mine: false, body: "By theme first, then I’m drafting short answer points in Interview DB.", time: "Yesterday" },
+  ],
+  "preview-chat-3": [
+    { mine: false, body: "The official notices filter made the Embassy/University updates much easier to separate.", time: "Mon" },
+  ],
+};
+
+function PreviewThread({ conversation, onBack }: { conversation: ConversationSummary; onBack: () => void }) {
+  const [messages, setMessages] = useState(PREVIEW_THREADS[conversation.id] ?? []);
+  const [draft, setDraft] = useState("");
+
+  useEffect(() => {
+    setMessages(PREVIEW_THREADS[conversation.id] ?? []);
+    setDraft("");
+  }, [conversation.id]);
+
+  function send() {
+    const body = draft.trim();
+    if (!body) return;
+    setMessages((rows) => [...rows, { mine: true, body, time: "Now" }]);
+    setDraft("");
+  }
+
+  return (
+    <div className="flex h-full min-h-[560px] flex-col">
+      <div className="flex h-14 items-center gap-2.5 border-b border-hairline px-4">
+        <button type="button" onClick={onBack} aria-label="Back to conversations" className="pressable md:hidden">
+          <ArrowLeft className="h-4 w-4 text-muted" />
+        </button>
+        <div className="min-w-0">
+          <p className="truncate text-[12.5px] font-extrabold text-ink">@{conversation.otherUsername ?? "applicant"}</p>
+          <p className="mt-0.5 text-[9.5px] font-semibold text-muted">Preview conversation</p>
+        </div>
+        {conversation.otherTrack && <TrackBadge track={conversation.otherTrack} />}
+      </div>
+      <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3">
+          {messages.map((message, index) => (
+            <div key={index} className={`flex ${message.mine ? "justify-end" : "justify-start"}`}>
+              <div className="max-w-[82%]">
+                <div className={`rounded-[16px] px-3.5 py-2.5 text-[12px] font-medium leading-5 ${message.mine ? "bg-ink text-white" : "bg-canvas text-ink"}`}>{message.body}</div>
+                <p className={`mt-1 text-[9px] font-medium text-muted ${message.mine ? "text-right" : ""}`}>{message.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="border-t border-hairline p-3 sm:p-4">
+        <div className="mx-auto flex max-w-2xl items-end gap-2">
+          <textarea value={draft} onChange={(e) => setDraft(e.target.value.slice(0, 500))} rows={1} placeholder="Write a message…" className="max-h-28 flex-1 resize-y rounded-[13px] border border-hairline-strong bg-canvas/55 px-3 py-2.5 text-[12px] font-medium text-ink outline-none focus:border-primary focus:bg-white" />
+          <button type="button" onClick={send} disabled={!draft.trim()} className="pressable flex h-10 w-10 items-center justify-center rounded-[12px] bg-ink text-white disabled:opacity-35" aria-label="Send preview message"><Send className="h-4 w-4" /></button>
+        </div>
+        <p className="mx-auto mt-2 max-w-2xl text-[9px] font-medium text-muted/70">Raw preview: this composer stays local and does not send to a real applicant.</p>
+      </div>
+    </div>
+  );
+}
+
 export function ChatApp({
   currentUserId,
   conversations: initialConversations,
   initialActiveId,
+  previewMode = false,
 }: {
   currentUserId: string;
   conversations: ConversationSummary[];
   initialActiveId: string | null;
+  previewMode?: boolean;
 }) {
   const router = useRouter();
   // One client for the component's lifetime -- rebuilding it every render
@@ -98,6 +167,7 @@ export function ChatApp({
   // that are NOT currently open. The open thread has its own scoped
   // subscription, so messages there are skipped here to avoid double-counting.
   useEffect(() => {
+    if (previewMode) return;
     let cancelled = false;
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
@@ -121,7 +191,7 @@ export function ChatApp({
       cancelled = true;
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [supabase, applyMessageToList]);
+  }, [supabase, applyMessageToList, previewMode]);
 
   function openConversation(id: string) {
     setActiveId(id);
@@ -156,7 +226,7 @@ export function ChatApp({
       {/* On mobile the list gives way to the open thread; on md+ both show. */}
       <div className={activeId ? "hidden md:block md:border-r md:border-hairline" : "block md:border-r md:border-hairline"}>
         <div className="flex h-14 items-center border-b border-hairline px-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-muted/70">Conversations</p>
+          <div><p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-muted/70">Conversations</p>{previewMode && <p className="mt-0.5 text-[9px] font-medium text-muted/65">Raw workspace preview</p>}</div>
         </div>
         <div className="h-[calc(72vh-56px)] min-h-[504px] overflow-y-auto">
           <ul className="divide-y divide-hairline">
@@ -204,6 +274,8 @@ export function ChatApp({
               <p className="mt-4 text-[12px] font-semibold text-muted">Choose a conversation to start reading.</p>
             </div>
           </div>
+        ) : previewMode ? (
+          <PreviewThread key={active.id} conversation={active} onBack={closeConversation} />
         ) : (
           <MessageThread
             // Remounts on switch, so thread state starts clean without
