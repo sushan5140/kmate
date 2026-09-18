@@ -6,6 +6,8 @@ import { QuestionBrowser } from "@/components/interview-db/question-browser";
 import { SubmitQuestionForm } from "@/components/interview-db/submit-question-form";
 import { Card } from "@/components/ui/card";
 import type { QuestionCardData } from "@/components/interview-db/question-card";
+import { PageHeader } from "@/components/layout/page-header";
+import { ArrowRight, Video } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Interview DB — KMate",
@@ -106,36 +108,46 @@ export default async function InterviewDbPage() {
   const initialDraftedCount = draftRowsForCount.filter((d) => d.content.trim().length > 0).length;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Interview DB</h1>
+    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader
+        eyebrow="Preparation"
+        title="Interview Studio"
+        description="Turn the question bank into actual preparation: draft your own answers, filter by theme, then rehearse out loud when you are ready."
+        meta={
+          <div className="flex flex-wrap gap-2 text-[10.5px] font-bold text-muted">
+            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{totalApproved} approved questions</span>
+            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{initialDraftedCount} drafted</span>
+          </div>
+        }
+        actions={<SubmitQuestionForm />}
+      />
 
-      <Card className="mt-4">
-        <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Prep guide</p>
-        <h2 className="mt-1 text-[16px] font-semibold text-ink">What to expect</h2>
-        <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-          GKS interviews are typically 10-20 minutes, either one-on-one or panel-style,
-          conducted in person or online depending on your track and embassy/university.
-          Expect questions about your motivation, academic background, and why Korea
-          specifically -- plus a few curveballs to see how you think on your feet. Arrive
-          with clear, honest answers rather than memorized scripts, and prepare 1-2
-          questions of your own to ask at the end.
-        </p>
-      </Card>
-
-      <Card interactive className="mt-4">
-        <Link href="/interview-db/mock-interview" className="block">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-muted">New</p>
-          <h2 className="mt-1 text-[16px] font-semibold text-ink">Try an AI mock interview</h2>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-muted">
-            Practice out loud with your camera on. Get delivery-mechanics feedback -- eye
-            contact, pace, filler words, posture -- never on what you said.
+      <section className="mt-6 grid gap-3 lg:grid-cols-[1fr_.78fr]">
+        <Card className="border-0 bg-ink p-6 text-white">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-white/45">Prep principle</p>
+          <h2 className="mt-2 text-[20px] font-extrabold tracking-[-0.025em]">Prepare ideas, not a memorized script.</h2>
+          <p className="mt-3 max-w-2xl text-[12px] font-medium leading-6 text-white/58">
+            Expect questions about motivation, academic background, Korea, your study plan, and a few curveballs.
+            Keep your answers clear enough to adapt when the interviewer changes the wording.
           </p>
-        </Link>
-      </Card>
+        </Card>
 
-      <div className="mt-6 flex items-center justify-end gap-3">
-        <SubmitQuestionForm />
-      </div>
+        <Link href="/interview-db/mock-interview" className="block">
+          <Card interactive className="h-full bg-primary-soft">
+            <div className="flex items-center justify-between">
+              <span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-primary text-white">
+                <Video className="h-4.5 w-4.5" />
+              </span>
+              <ArrowRight className="h-4 w-4 text-primary" />
+            </div>
+            <p className="mt-5 text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">AI rehearsal</p>
+            <h2 className="mt-1 text-[16px] font-extrabold tracking-[-0.02em] text-ink">Start a mock interview</h2>
+            <p className="mt-2 text-[11.5px] font-medium leading-5 text-muted">
+              Practice with camera and microphone feedback on delivery mechanics such as pace, filler words, posture, and eye contact.
+            </p>
+          </Card>
+        </Link>
+      </section>
 
       <QuestionBrowser questions={questions} initialDraftedCount={initialDraftedCount} totalApproved={totalApproved} />
     </main>
