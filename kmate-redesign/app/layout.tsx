@@ -19,20 +19,19 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "KMate",
+  title: {
+    default: "KMate",
+    template: "%s · KMate",
+  },
   description:
-    "GKS application intelligence, readiness tracking, official guideline support, university requirement checks, interview preparation, and privacy-aware applicant connections.",
+    "A focused workspace for GKS application readiness, official guidance, university requirements, interview preparation, and applicant connections.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${manrope.variable} ${instrumentSerif.variable} h-full`}>
-      <body className="flex min-h-full flex-col bg-canvas text-ink antialiased">
-        <div className="grain-overlay" />
+      <body className="min-h-full overflow-x-hidden bg-canvas text-ink antialiased">
+        <div className="grain-overlay" aria-hidden />
         <AppShell>{children}</AppShell>
       </body>
     </html>
