@@ -65,9 +65,7 @@ export interface AuthenticatedUser {
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   const h = await headers();
   const userId = h.get("x-kmate-user-id");
-  return userId
-    ? { id: userId, email: h.get("x-kmate-user-email") }
-    : { id: DEMO_USER_ID, email: null };
+  return userId ? { id: userId, email: h.get("x-kmate-user-email") } : null;
 }
 
 /**
