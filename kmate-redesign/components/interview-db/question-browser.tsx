@@ -92,8 +92,6 @@ export function QuestionBrowser({
         </div>
       </div>
 
-      </div>
-
       <div className="mt-4 rounded-[20px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-5">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
