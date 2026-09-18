@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient, ensureRealtimeAuth } from "@/lib/supabase/browser-client";
 import { Card } from "@/components/ui/card";
+import { MessageCircleMore } from "lucide-react";
 import { MessageThread, type ChatMessage } from "@/components/chat/message-thread";
 import type { Track } from "@/lib/constants";
 
@@ -135,10 +136,13 @@ export function ChatApp({
 
   if (conversations.length === 0) {
     return (
-      <Card>
-        <p className="text-[13.5px] text-muted">
+      <Card className="mx-4 mt-4 flex min-h-[240px] flex-col items-center justify-center text-center sm:mx-0 sm:mt-0">
+        <span className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-primary-soft text-primary">
+          <MessageCircleMore className="h-5 w-5" />
+        </span>
+        <p className="mt-4 max-w-sm text-[12px] font-medium leading-6 text-muted">
           No conversations yet. Start one from{" "}
-          <Link href="/requests?tab=connected" className="font-medium text-primary hover:underline">
+          <Link href="/requests?tab=connected" className="font-extrabold text-primary hover:underline">
             your connections
           </Link>
           .
@@ -148,22 +152,25 @@ export function ChatApp({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[280px_1fr]">
+    <div className="overflow-hidden border-y border-hairline bg-surface shadow-card sm:rounded-[24px] sm:border md:grid md:h-[72vh] md:min-h-[560px] md:grid-cols-[310px_1fr]">
       {/* On mobile the list gives way to the open thread; on md+ both show. */}
-      <div className={activeId ? "hidden md:block" : "block"}>
-        <Card className="p-0">
+      <div className={activeId ? "hidden md:block md:border-r md:border-hairline" : "block md:border-r md:border-hairline"}>
+        <div className="flex h-14 items-center border-b border-hairline px-4">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-muted/70">Conversations</p>
+        </div>
+        <div className="h-[calc(72vh-56px)] min-h-[504px] overflow-y-auto">
           <ul className="divide-y divide-hairline">
             {conversations.map((c) => (
               <li key={c.id}>
                 <button
                   type="button"
                   onClick={() => openConversation(c.id)}
-                  className={`flex w-full flex-col gap-1 px-4 py-3 text-left hover:bg-canvas ${
-                    c.id === activeId ? "bg-canvas" : ""
+                  className={`pressable flex w-full flex-col gap-1 px-4 py-3.5 text-left hover:bg-canvas/70 ${
+                    c.id === activeId ? "bg-primary-soft" : ""
                   }`}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-[14px] font-medium text-ink">
+                    <span className="truncate text-[12.5px] font-extrabold text-ink">
                       @{c.otherUsername ?? "unknown"}
                     </span>
                     <span className="flex shrink-0 items-center gap-1.5">
@@ -175,7 +182,7 @@ export function ChatApp({
                       <span className="text-[11px] text-muted">{formatListTimestamp(c.lastMessageAt)}</span>
                     </span>
                   </span>
-                  <span className="truncate text-[12.5px] text-muted">
+                  <span className="truncate text-[11px] font-medium text-muted">
                     {c.lastMessageBody
                       ? `${c.lastMessageFromMe ? "You: " : ""}${c.lastMessageBody}`
                       : "No messages yet"}
@@ -184,14 +191,19 @@ export function ChatApp({
               </li>
             ))}
           </ul>
-        </Card>
+        </div>
       </div>
 
-      <div className={activeId ? "block" : "hidden md:block"}>
+      <div className={activeId ? "block min-w-0" : "hidden min-w-0 md:block"}>
         {!active ? (
-          <Card className="flex h-[70vh] items-center justify-center">
-            <p className="text-[13.5px] text-muted">Select a conversation to start reading.</p>
-          </Card>
+          <div className="flex h-full min-h-[560px] items-center justify-center">
+            <div className="text-center">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-primary-soft text-primary">
+                <MessageCircleMore className="h-5 w-5" />
+              </span>
+              <p className="mt-4 text-[12px] font-semibold text-muted">Choose a conversation to start reading.</p>
+            </div>
+          </div>
         ) : (
           <MessageThread
             // Remounts on switch, so thread state starts clean without
