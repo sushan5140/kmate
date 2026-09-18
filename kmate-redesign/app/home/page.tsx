@@ -181,7 +181,7 @@ export default async function HomePage() {
       </section>
 
       {demoMode ? (
-        <div className="mt-5 rounded-[18px] border border-primary/15 bg-primary-soft px-4 py-3">
+        <div className="mt-5 rounded-[18px] border border-primary/15 bg-[linear-gradient(100deg,rgba(27,110,91,.10),rgba(75,103,167,.05),rgba(202,109,77,.05))] px-4 py-3 shadow-xs">
           <p className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-primary">Raw preview mode</p>
           <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
             Production tools are exposed directly; account-bound writes stay local or non-persistent in this preview.
@@ -195,8 +195,8 @@ export default async function HomePage() {
       )}
 
       <section className="mt-6 grid gap-3 lg:grid-cols-[1.45fr_.55fr]">
-        <Card className="relative overflow-hidden border-0 bg-ink p-6 text-white shadow-[0_26px_65px_-38px_rgba(23,33,29,.72)] sm:p-7">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden />
+        <Card className="workspace-hero relative overflow-hidden border-0 p-6 text-white sm:p-7">
+          <><div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-gks-u/20 blur-3xl" aria-hidden /><div className="pointer-events-none absolute -bottom-28 left-20 h-56 w-56 rounded-full bg-gks-g/10 blur-3xl" aria-hidden /></>
           <div className="relative">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -227,19 +227,19 @@ export default async function HomePage() {
 
         <Card className="grid grid-cols-2 gap-2 p-3 lg:grid-cols-1">
           {[
-            { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users },
-            { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle },
-            { label: "Pending requests", value: pendingRequestsCount ?? 0, href: "/requests?tab=received", icon: Inbox },
-            { label: "Interview drafts", value: draftedCount, href: "/interview-db", icon: MessageSquare },
+            { label: "Relevant applicants", value: sharedIds.size, href: "/requests?tab=discover", icon: Users, tone: "bg-gks-g/10 text-gks-g" },
+            { label: "Unread messages", value: unreadMessageCount, href: "/messages", icon: MessageCircle, tone: "bg-primary-soft text-primary" },
+            { label: "Pending requests", value: pendingRequestsCount ?? 0, href: "/requests?tab=received", icon: Inbox, tone: "bg-gks-u/10 text-gks-u" },
+            { label: "Interview drafts", value: draftedCount, href: "/interview-db", icon: MessageSquare, tone: "bg-gold-soft text-gold" },
           ].map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className="pressable flex min-h-[78px] items-center gap-3 rounded-[16px] px-3 py-3 transition-colors hover:bg-canvas/75"
+                className="pressable group flex min-h-[78px] items-center gap-3 rounded-[16px] px-3 py-3 transition-[background-color,transform] hover:-translate-y-[1px] hover:bg-white hover:shadow-xs"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-primary-soft text-primary">
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] ${item.tone}`}>
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
@@ -270,7 +270,7 @@ export default async function HomePage() {
       <ToolDirectory />
 
       {spotlight && (
-        <Card className="mt-4 overflow-hidden p-0">
+        <Card className="mt-4 overflow-hidden border-gold/12 p-0">
           <div className="grid md:grid-cols-[1fr_auto]">
             <div className="p-5 sm:p-6">
               <MicroLabel>Scholarship spotlight</MicroLabel>
@@ -299,7 +299,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 border-t border-hairline bg-canvas/55 px-5 py-4 md:border-l md:border-t-0">
+            <div className="flex items-center gap-3 border-t border-gold/10 bg-gold/[0.045] px-5 py-4 md:border-l md:border-t-0">
               <Link href="/scholarships" className="text-[11.5px] font-extrabold text-primary hover:underline">
                 Browse scholarships
               </Link>

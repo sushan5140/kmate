@@ -34,6 +34,7 @@ export function TopBar({
   useEffect(() => {
     if (demoMode) return;
     let cancelled = false;
+
     async function poll() {
       try {
         const res = await fetch("/api/notifications/unread-count");
@@ -41,6 +42,7 @@ export function TopBar({
         if (!cancelled) setHasUnread((data.count ?? 0) > 0);
       } catch {}
     }
+
     poll();
     const interval = setInterval(poll, 20000);
     return () => {
@@ -50,21 +52,23 @@ export function TopBar({
   }, [demoMode]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-[58px] items-center justify-between border-b border-hairline bg-surface/88 px-3 backdrop-blur-xl md:hidden">
+    <header className="sticky top-0 z-30 flex h-[58px] items-center justify-between border-b border-hairline bg-surface/90 px-3 backdrop-blur-xl md:hidden">
       <div className="flex min-w-0 items-center gap-1.5">
         {showBack && (
           <button
             type="button"
             onClick={() => router.back()}
             aria-label="Go back"
-            className="pressable flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-ink/[0.04]"
+            className="pressable flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-primary-soft hover:text-primary"
           >
             <ArrowLeft className="h-[18px] w-[18px]" />
           </button>
         )}
+
         <Link href="/home" className="inline-flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-ink text-[11px] font-extrabold text-white">
+          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-primary text-[11px] font-extrabold text-white">
             K
+            <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-surface bg-gks-u" />
           </span>
           <span className="truncate text-[14px] font-extrabold tracking-[-0.02em] text-ink">KMate</span>
         </Link>
@@ -75,10 +79,12 @@ export function TopBar({
           <Link
             href="/requests"
             aria-label="Notifications"
-            className="pressable relative flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-ink/[0.04]"
+            className="pressable relative flex h-9 w-9 items-center justify-center rounded-[11px] text-ink hover:bg-primary-soft hover:text-primary"
           >
             <Bell className="h-[18px] w-[18px]" />
-            {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gks-u ring-2 ring-surface" />}
+            {hasUnread && (
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-gks-u ring-2 ring-surface" />
+            )}
           </Link>
         )}
         <MoreMenu username={username} isAdmin={isAdmin} demoMode={demoMode} />
