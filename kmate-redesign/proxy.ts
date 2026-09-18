@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
+import { destinationFrom } from "@/lib/auth/safe-next";
 
 // Unlike a typical "protect one section" setup, almost everything in GKS
 // Connect requires auth -- the matcher below runs on every request except
@@ -12,12 +12,6 @@ import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 // would break the schedule. The route itself is guarded by a
 // CRON_SECRET bearer token / admin check and fails closed -- see
 // app/api/cron/notices/route.ts.
-const PUBLIC_PATHS = ["/", "/login", "/auth", "/about", "/guidelines", "/api/cron"];
-
-function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
-}
-
 // The browser Supabase client (lib/supabase/browser-client.ts) calls Supabase
 // Auth directly for sign-in/sign-out, so connect-src must allow that origin
 // alongside 'self'.
@@ -146,15 +140,7 @@ export async function proxy(request: NextRequest) {
   // is no rawer source to read from here.
   const destination = destinationFrom(request.nextUrl);
 
-  if (!user && !isPublicPath(request.nextUrl.pathname)) {
-    // Built from the origin rather than by cloning nextUrl: cloning kept the
-    // ORIGINAL query parameters on the login URL, so they arrived as siblings
-    // of `next` (`/login?view=gks&program=...&next=%2Fnotices`) rather than
-    // inside it. buildLoginUrl percent-encodes the whole destination once.
-    return NextResponse.redirect(new URL(buildLoginUrl(destination), request.nextUrl.origin));
-  }
-
-  // Forward the already-validated user id to Server Components via a request
+  // Raw preview mode: no route redirects to login. A real session is still\n  // forwarded when present; signed-out visitors continue as the safe demo identity.\n\n  // Forward the already-validated user id to Server Components via a request
   // header. AppShell (root layout, wraps every page) used to call
   // supabase.auth.getUser() a second time just to re-derive who's signed in
   // -- a fully redundant network round-trip to Supabase Auth on every single
