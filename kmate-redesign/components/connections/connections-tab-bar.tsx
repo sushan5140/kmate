@@ -24,7 +24,8 @@ export function ConnectionsTabBar({
   receivedCount: number;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5 border-b border-hairline pb-3">
+    <div className="-mx-1 overflow-x-auto px-1 pb-1">
+      <div className="inline-flex min-w-max items-center gap-1 rounded-[15px] border border-hairline bg-surface/80 p-1 shadow-xs">
       {TABS.map((t) => {
         const count = t.key === "received" ? receivedCount : null;
         return (
@@ -37,8 +38,8 @@ export function ConnectionsTabBar({
             // silently resolve to the wrong tab.
             href={`/requests?tab=${t.key}`}
             className={cn(
-              "rounded-full px-3 py-1.5 text-[13px] font-medium",
-              active === t.key ? "bg-primary text-white" : "text-muted hover:bg-canvas hover:text-ink"
+              "pressable rounded-[11px] px-3 py-2 text-[11px] font-extrabold",
+              active === t.key ? "bg-ink text-white shadow-xs" : "text-muted hover:bg-canvas hover:text-ink"
             )}
           >
             {t.label}
@@ -46,7 +47,7 @@ export function ConnectionsTabBar({
               <span
                 className={cn(
                   "ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] font-bold",
-                  active === t.key ? "bg-white/20" : "bg-ink/[0.08] text-ink"
+                  active === t.key ? "bg-white/14" : "bg-primary-soft text-primary"
                 )}
               >
                 {count}
@@ -55,6 +56,7 @@ export function ConnectionsTabBar({
           </Link>
         );
       })}
+      </div>
     </div>
   );
 }
