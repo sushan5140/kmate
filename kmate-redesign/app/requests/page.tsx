@@ -7,6 +7,7 @@ import { SentRequestsList, type SentRequestRow } from "@/components/connections/
 import { ConnectedList, type ConnectedPerson } from "@/components/connections/connected-list";
 import { DiscoverTab } from "@/components/connections/discover-tab";
 import type { Track, ContactType } from "@/lib/constants";
+import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
   title: "Connections — KMate",
@@ -131,17 +132,25 @@ export default async function ConnectionsPage({
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="text-[22px] font-semibold text-ink">Connections</h1>
-      <p className="mt-1 text-[13.5px] text-muted">
-        Applicants you&apos;re connected with, requests in progress, and new people to find.
-      </p>
+    <main className="mx-auto w-full max-w-[1180px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
+      <PageHeader
+        eyebrow="Community"
+        title="Connections"
+        description="Find applicants whose application overlaps yours, manage requests, and keep conversations inside KMate."
+        meta={
+          <div className="flex flex-wrap gap-2 text-[10.5px] font-bold text-muted">
+            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{connectedRequests.length} connected</span>
+            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{received.length} waiting on you</span>
+            <span className="rounded-full bg-surface px-2.5 py-1 ring-1 ring-hairline">{sent.length} sent</span>
+          </div>
+        }
+      />
 
       <div className="mt-6">
         <ConnectionsTabBar active={tab} receivedCount={received.length} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-5">
         {tab === "received" && <IncomingRequestsList items={received} fromUrl={fromUrl} />}
         {tab === "connected" && <ConnectedList items={connected} fromUrl={fromUrl} />}
         {tab === "sent" && <SentRequestsList items={sent} fromUrl={fromUrl} />}
