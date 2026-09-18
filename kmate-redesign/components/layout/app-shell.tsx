@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
 import { AuthedNav } from "@/components/layout/authed-nav";
+import { DEMO_USER_ID } from "@/lib/demo-mode";
 
 function NavSkeleton() {
   return (
@@ -16,20 +15,10 @@ function NavSkeleton() {
 export default async function AppShell({ children }: { children: React.ReactNode }) {
   const userId = (await headers()).get("x-kmate-user-id");
 
-  if (!userId) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen">
       <Suspense fallback={<NavSkeleton />}>
-        <AuthedNav userId={userId} />
+        <AuthedNav userId={userId ?? DEMO_USER_ID} />
       </Suspense>
       <div className="min-h-screen md:pl-[248px]">{children}</div>
     </div>
