@@ -15,8 +15,8 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1.5 text-[12.5px] font-medium",
-        active ? "border-primary bg-primary/10 text-primary" : "border-border bg-white text-muted"
+        "pressable rounded-[11px] border px-3 py-2 text-[10.5px] font-extrabold",
+        active ? "border-primary/20 bg-primary-soft text-primary" : "border-hairline bg-surface text-muted hover:bg-canvas hover:text-ink"
       )}
     >
       {children}
@@ -74,17 +74,17 @@ export function QuestionBrowser({
 
   return (
     <div>
-      <div className="mt-6">
+      <div className="mt-6 rounded-[20px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[13px]">
-            <span className="font-medium text-ink">
+            <span className="font-extrabold text-ink">
               {draftedCount} of {totalApproved} drafted
             </span>
             <span className="text-muted">{progressPct}%</span>
           </div>
           <DownloadMenu totalApproved={totalApproved} draftedCount={draftedCount} />
         </div>
-        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.06]">
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-ink/[0.06]">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-300"
             style={{ width: `${progressPct}%` }}
@@ -92,7 +92,9 @@ export function QuestionBrowser({
         </div>
       </div>
 
-      <div className="mt-5 flex flex-col gap-3">
+      </div>
+
+      <div className="mt-4 rounded-[20px] border border-hairline bg-surface/75 p-4 shadow-card sm:p-5">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
@@ -103,11 +105,11 @@ export function QuestionBrowser({
               resetPaging();
             }}
             placeholder="Search questions…"
-            className="w-full rounded-xl border border-border bg-white py-2.5 pl-10 pr-4 text-[14px] text-ink outline-none focus:border-primary"
+            className="w-full rounded-[13px] border border-hairline-strong bg-canvas/55 py-3 pl-10 pr-4 text-[12.5px] font-semibold text-ink outline-none transition-colors focus:border-primary focus:bg-white"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <Chip
             active={category === "all"}
             onClick={() => {
@@ -141,7 +143,7 @@ export function QuestionBrowser({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-4 grid gap-3 xl:grid-cols-2">
         {visible.length === 0 ? (
           <p className="text-[14px] text-muted">No questions match this filter yet.</p>
         ) : (
@@ -160,7 +162,7 @@ export function QuestionBrowser({
         <button
           type="button"
           onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-          className="mt-4 w-full rounded-xl border border-border bg-white py-2.5 text-[13.5px] font-medium text-ink hover:bg-canvas"
+          className="pressable mt-4 w-full rounded-[13px] border border-hairline-strong bg-surface py-3 text-[11.5px] font-extrabold text-ink hover:bg-canvas"
         >
           Load more ({filtered.length - visible.length} remaining)
         </button>
