@@ -1,1 +1,2 @@
-export { default, metadata, dynamic } from "../../kmate-redesign/app/notices/page";
+export const dynamic = "force-dynamic";
+export { default, metadata } from "../../kmate-redesign/app/notices/page";
