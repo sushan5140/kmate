@@ -4,6 +4,9 @@ import { DiscoverScrollRestore } from "@/components/discover/discover-scroll-res
 import { ProfileCard, type ProfileCardData } from "@/components/profile/profile-card";
 import type { ConnectionStatus } from "@/components/connections/connection-request-button";
 import type { Track } from "@/lib/constants";
+import { Card, MicroLabel } from "@/components/ui/card";
+import { TrackBadge } from "@/components/ui/track-badge";
+import { isDemoUserId } from "@/lib/demo-mode";
 
 interface UniversityChoiceEmbed {
   priority: number;
@@ -20,6 +23,67 @@ interface DiscoverProfileRow {
   university_choices: UniversityChoiceEmbed[];
 }
 
+
+const DEMO_PROFILES = [
+  { username: "applicant-01", bio: "AI / computer science applicant comparing regional universities.", track: "gks_u" as Track, major: "Computer Science", applicationYear: 2027, universities: ["Pusan National University", "Kyungpook National University"] },
+  { username: "applicant-02", bio: "Electrical engineering applicant building a University Track application.", track: "gks_u" as Track, major: "Electrical Engineering", applicationYear: 2027, universities: ["Dong-Eui University"] },
+  { username: "applicant-03", bio: "Graduate applicant focused on data science and research experience.", track: "gks_g" as Track, major: "Data Science", applicationYear: 2027, universities: ["Ajou University", "Inha University"] },
+  { username: "applicant-04", bio: "Software applicant preparing interview answers and document verification.", track: "gks_u" as Track, major: "Software Engineering", applicationYear: 2027, universities: ["Chungnam National University"] },
+  { username: "applicant-05", bio: "Mechanical engineering applicant checking embassy-track eligibility.", track: "gks_u" as Track, major: "Mechanical Engineering", applicationYear: 2027, universities: ["Jeonbuk National University"] },
+  { username: "applicant-06", bio: "Graduate applicant organizing research fit and scholarship deadlines.", track: "gks_g" as Track, major: "Artificial Intelligence", applicationYear: 2027, universities: ["Konkuk University"] },
+];
+
+function DemoDiscoverGrid() {
+  return (
+    <div>
+      <div className="rounded-[18px] border border-primary/15 bg-primary-soft px-4 py-3">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-primary">Raw preview</p>
+        <p className="mt-1 text-[11.5px] font-medium leading-5 text-muted">
+          These are fictional preview applicants. Real KMate profiles stay behind real account access.
+        </p>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {DEMO_PROFILES.map((profile) => (
+          <Card key={profile.username} className="flex min-h-[220px] flex-col">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-canvas text-[12px] font-extrabold text-ink ring-1 ring-hairline">
+                  {profile.username.slice(-2)}
+                </span>
+                <div>
+                  <p className="text-[13px] font-extrabold text-ink">@{profile.username}</p>
+                  <p className="mt-0.5 text-[9.5px] font-bold uppercase tracking-[0.1em] text-muted/60">Demo profile</p>
+                </div>
+              </div>
+              <TrackBadge track={profile.track} />
+            </div>
+            <p className="mt-4 text-[11.5px] font-medium leading-5 text-muted">{profile.bio}</p>
+            <div className="mt-4 grid grid-cols-2 gap-3 rounded-[14px] bg-canvas/55 p-3">
+              <div>
+                <MicroLabel>Major</MicroLabel>
+                <p className="mt-1 text-[11px] font-bold text-ink">{profile.major}</p>
+              </div>
+              <div>
+                <MicroLabel>Year</MicroLabel>
+                <p className="mt-1 text-[11px] font-bold text-ink">{profile.applicationYear}</p>
+              </div>
+            </div>
+            <div className="mt-3">
+              <MicroLabel>Targets</MicroLabel>
+              <p className="mt-1 line-clamp-2 text-[10.5px] font-medium leading-5 text-muted">{profile.universities.join(" · ")}</p>
+            </div>
+            <div className="mt-auto pt-4">
+              <span className="block rounded-[12px] bg-ink px-3 py-2.5 text-center text-[10.5px] font-extrabold text-white/80">
+                Connection flow preview
+              </span>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Unchanged in behavior from the standalone /discover page it replaced --
  * same query, same filters, just relocated under the "Discover new" tab of
@@ -34,6 +98,10 @@ export async function DiscoverTab({
   params: { track?: string | string[]; major?: string; year?: string; university?: string };
   fromUrl: string;
 }) {
+  if (isDemoUserId(userId)) {
+    return <DemoDiscoverGrid />;
+  }
+
   const admin = getSupabaseAdmin();
 
   const { data: me } = await admin.from("profiles").select("track").eq("id", userId).maybeSingle();
