@@ -10,10 +10,12 @@ export function Sidebar({
   username,
   pendingRequestsCount,
   isAdmin,
+  demoMode = false,
 }: {
   username: string | null;
   pendingRequestsCount: number;
   isAdmin: boolean;
+  demoMode?: boolean;
 }) {
   const pathname = usePathname();
 
@@ -91,20 +93,32 @@ export function Sidebar({
               Admin
             </Link>
           )}
-          <Link
-            href={username ? `/profile/${username}` : "/settings/profile"}
-            className="flex items-center gap-2.5 rounded-[12px] px-2 py-2 transition-colors hover:bg-white"
-          >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-primary text-[11px] font-extrabold text-white">
-              {username ? username[0]?.toUpperCase() : "?"}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[12.5px] font-bold text-ink">
-                {username ? `@${username}` : "Your profile"}
+          {demoMode ? (
+            <div className="flex items-center gap-2.5 rounded-[12px] px-2 py-2">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-primary text-[11px] font-extrabold text-white">
+                R
               </span>
-              <span className="block text-[10px] font-medium text-muted">Account & settings</span>
-            </span>
-          </Link>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[12.5px] font-bold text-ink">Raw preview</span>
+                <span className="block text-[10px] font-medium text-muted">No account required</span>
+              </span>
+            </div>
+          ) : (
+            <Link
+              href={username ? `/profile/${username}` : "/settings/profile"}
+              className="flex items-center gap-2.5 rounded-[12px] px-2 py-2 transition-colors hover:bg-white"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-primary text-[11px] font-extrabold text-white">
+                {username ? username[0]?.toUpperCase() : "?"}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[12.5px] font-bold text-ink">
+                  {username ? `@${username}` : "Your profile"}
+                </span>
+                <span className="block text-[10px] font-medium text-muted">Account & settings</span>
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </aside>
