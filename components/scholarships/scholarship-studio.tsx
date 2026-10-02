@@ -199,82 +199,92 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
             y: ((event.clientY - rect.top) / rect.height) * 100,
           });
         }}
-        className="relative isolate min-h-[570px] overflow-hidden rounded-[28px] bg-ink text-white shadow-pop"
+        className="relative isolate min-h-[560px] overflow-hidden rounded-[28px] bg-surface text-ink shadow-card ring-1 ring-hairline"
         style={{
-          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(238,147,112,.12), transparent 23%), radial-gradient(circle at 14% 8%, rgba(83,111,209,.14), transparent 32%), linear-gradient(145deg, #171b28 0%, #12151f 54%, #15131b 100%)`,
+          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(62,99,221,.10), transparent 24%), radial-gradient(ellipse 52% 48% at 76% 34%, rgba(62,99,221,.07), transparent 72%)`,
         }}
       >
-        <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:58px_58px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:linear-gradient(rgba(18,21,33,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(18,21,33,.045)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_82%_76%_at_50%_0%,black_38%,transparent_92%)]" />
 
-        <div className="relative z-10 flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 text-[10px] font-medium text-white/45 sm:px-7">
+        <div className="relative z-10 flex items-center justify-between gap-4 border-b border-hairline px-5 py-4 text-[10px] font-semibold text-muted/58 sm:px-7">
           <span>KMATE / SCHOLARSHIP STUDIO</span>
           <span className="hidden sm:block">UNIVERSITY FUNDING · KOREA</span>
           <span>{rows.length} LIVE INDEXED AWARDS</span>
         </div>
 
-        <div className="relative z-10 grid min-h-[405px] gap-8 px-5 py-12 sm:px-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,.75fr)] lg:px-10 lg:py-14">
+        <div className="relative z-10 grid min-h-[396px] gap-10 px-5 py-12 sm:px-7 lg:grid-cols-[minmax(0,1.18fr)_minmax(310px,.82fr)] lg:px-10 lg:py-14">
           <div className="flex flex-col justify-end">
-            <p className="mb-6 flex items-center gap-2 text-[11px] font-semibold text-white/52">
-              <CircleDot className="h-3.5 w-3.5 text-[#ee9370]" />
+            <p className="mb-5 flex items-center gap-2 text-[11px] font-semibold text-muted">
+              <CircleDot className="h-3.5 w-3.5 text-gks-u" />
               Source-linked university scholarships
             </p>
-            <h1 className="max-w-[870px] text-balance font-sans text-[clamp(52px,7.5vw,108px)] font-medium leading-[0.88] tracking-[-0.065em]">
-              Scholarships
-              <span className="block text-[#f4f0ed]">worth your time.<i className="ml-[0.14em] inline-block h-[0.09em] w-[0.42em] rounded-full bg-[#ee9370] align-[0.17em]" /></span>
+            <h1 className="max-w-[860px] text-balance text-[clamp(48px,6.8vw,92px)] font-semibold leading-[0.96] tracking-[-0.045em] text-ink">
+              Scholarships{" "}
+              <em className="font-serif font-normal italic tracking-normal text-primary">
+                worth your time.
+              </em>
             </h1>
-            <p className="mt-7 max-w-[620px] text-[14px] leading-7 text-white/58 sm:text-[15px]">
+            <p className="mt-6 max-w-[610px] text-[14px] leading-7 text-muted sm:text-[15px]">
               Find university funding, inspect the published rules, save the awards that matter, and compare the terms without leaving KMate.
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-2.5">
+            <div className="mt-7 flex flex-wrap items-center gap-5">
               <button
                 type="button"
                 onClick={() => document.getElementById("scholarship-stream")?.scrollIntoView({ behavior: "smooth" })}
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.05] bg-[linear-gradient(180deg,#4b67cc_0%,#3e5fc5_100%)] px-4 text-[12px] font-semibold text-white shadow-[0_10px_28px_rgba(62,99,221,0.20)] transition-transform hover:bg-[linear-gradient(180deg,#5671d4_0%,#4764cb_100%)] active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-[12px] font-medium text-white shadow-xs transition-all duration-150 hover:bg-ink/90 hover:shadow-card active:scale-[0.97]"
               >
                 Explore scholarships
                 <ArrowRight className="h-4 w-4" />
               </button>
               <Link
                 href="/requirement-checker"
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.12] bg-white/[0.035] px-4 text-[12px] font-medium text-white/78 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                className="inline-flex h-11 items-center gap-2 text-[12px] font-medium text-muted transition-colors hover:text-ink"
               >
                 Check my profile
+                <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
 
-          <div className="flex items-end lg:justify-end">
-            <div className="w-full max-w-[390px] border-l border-white/12 pl-5 sm:pl-7">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/34">Live funding signal</p>
-              <div className="mt-7 min-h-[178px]">
-                <p className="text-[12px] text-white/38">{activePreview.place}</p>
-                <p className="mt-2 font-sans text-[clamp(40px,4.3vw,64px)] font-medium leading-[0.94] tracking-[-0.055em]">
+          <div className="relative flex items-end lg:justify-end">
+            <div className="glow-wash pointer-events-none absolute -inset-6 opacity-80" aria-hidden />
+            <div className="relative w-full max-w-[390px] rounded-[24px] bg-white p-5 shadow-card ring-1 ring-primary/15 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">Live funding signal</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gks-u/10 px-2 py-1 text-[8px] font-semibold text-gks-u">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gks-u" />
+                  Scholarship Studio
+                </span>
+              </div>
+              <div className="mt-7 min-h-[170px]">
+                <p className="text-[12px] text-muted">{activePreview.place}</p>
+                <p className="mt-2 text-[clamp(34px,3.8vw,54px)] font-semibold leading-[0.98] tracking-[-0.045em] text-ink">
                   {activePreview.name || "University"}
                 </p>
-                <div className="mt-4 flex items-center gap-3 text-[11px] text-white/48">
+                <div className="mt-4 flex items-center gap-3 text-[11px] text-muted">
                   <span>
-                    <b className="text-[#ee9370]">{activePreview.count}</b> indexed awards
+                    <b className="text-primary">{activePreview.count}</b> indexed awards
                   </span>
-                  <span className="h-1 w-1 rounded-full bg-white/20" />
+                  <span className="h-1 w-1 rounded-full bg-muted/30" />
                   <span>official sources</span>
                 </div>
-                <p className="mt-6 max-w-[320px] text-[12px] leading-6 text-white/62">
+                <p className="mt-6 max-w-[320px] text-[12px] leading-6 text-muted">
                   {activePreview.headline}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => filterUniversity(activePreview.name)}
-                className="mt-5 inline-flex items-center gap-2 border-b border-white/25 pb-1 text-[11px] font-semibold text-white"
+                className="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold text-primary transition-colors hover:text-primary-hover"
               >
                 Show these awards
-                <ArrowUpRight className="h-3.5 w-3.5 text-[#ee9370]" />
+                <ArrowUpRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 grid border-t border-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative z-10 grid border-t border-hairline bg-white/62 sm:grid-cols-2 lg:grid-cols-4">
           {universities.slice(0, 4).map((university, index) => {
             const count = rows.filter((row) => row.university_name === university).length;
             const active = previewUniversity === university;
@@ -286,18 +296,18 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 onFocus={() => setPreviewUniversity(university)}
                 onClick={() => filterUniversity(university)}
                 className={cn(
-                  "group relative min-h-[92px] border-b border-white/10 px-5 py-4 text-left transition-colors sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
-                  active ? "bg-[linear-gradient(180deg,rgba(83,111,209,0.10),rgba(83,111,209,0.055))]" : "hover:bg-[linear-gradient(180deg,rgba(83,111,209,0.08),rgba(83,111,209,0.04))]"
+                  "group relative min-h-[88px] border-b border-hairline px-5 py-4 text-left transition-colors sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
+                  active ? "bg-primary-soft" : "hover:bg-canvas"
                 )}
               >
-                <span className="text-[9px] font-semibold text-white/28">0{index + 1}</span>
-                <p className="mt-4 font-sans text-[17px] font-medium tracking-[-0.03em] text-white/82 transition-colors group-hover:text-white">
+                <span className="text-[9px] font-semibold text-muted/45">0{index + 1}</span>
+                <p className="mt-4 text-[16px] font-semibold tracking-[-0.025em] text-ink transition-colors group-hover:text-primary">
                   {university}
                 </p>
-                <p className="mt-1 text-[9px] text-white/34">{count} awards</p>
+                <p className="mt-1 text-[9px] text-muted">{count} awards</p>
                 <span
                   className={cn(
-                    "absolute bottom-3 left-0 top-3 w-[2px] rounded-full bg-[#ee9370] transition-opacity",
+                    "absolute bottom-3 left-0 top-3 w-[2px] rounded-full bg-primary transition-opacity",
                     active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   )}
                 />
