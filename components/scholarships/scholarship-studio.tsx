@@ -163,7 +163,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
       <nav className="sticky top-2 z-20 mb-3 flex items-center gap-1 overflow-x-auto rounded-xl border border-hairline bg-surface/88 p-1 shadow-xs backdrop-blur-xl md:top-3">
         <a
           href="#discover"
-          className="shrink-0 rounded-lg bg-ink px-3.5 py-2 text-[12px] font-semibold text-white"
+          className="shrink-0 rounded-lg bg-primary px-3.5 py-2 text-[12px] font-semibold text-white shadow-[0_4px_14px_rgba(62,99,221,0.16)]"
         >
           Discover
         </a>
@@ -201,7 +201,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
         }}
         className="relative isolate min-h-[570px] overflow-hidden rounded-[28px] bg-ink text-white shadow-pop"
         style={{
-          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(232,121,79,.17), transparent 26%), linear-gradient(145deg, #12141c 0%, #0d0f15 62%, #151116 100%)`,
+          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(232,121,79,.18), transparent 24%), radial-gradient(circle at 18% 12%, rgba(62,99,221,.20), transparent 30%), linear-gradient(145deg, #151925 0%, #11141d 56%, #16131a 100%)`,
         }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:58px_58px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
@@ -236,7 +236,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
               </button>
               <Link
                 href="/requirement-checker"
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/14 px-4 text-[12px] font-medium text-white/76 transition-colors hover:bg-white/7 hover:text-white"
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-primary/25 bg-primary/[0.08] px-4 text-[12px] font-medium text-white/80 transition-colors hover:bg-primary/[0.14] hover:text-white"
               >
                 Check my profile
               </Link>
@@ -287,7 +287,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 onClick={() => filterUniversity(university)}
                 className={cn(
                   "group relative min-h-[92px] border-b border-white/10 px-5 py-4 text-left transition-colors sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
-                  active ? "bg-white/[0.055]" : "hover:bg-white/[0.035]"
+                  active ? "bg-primary/[0.10]" : "hover:bg-primary/[0.07]"
                 )}
               >
                 <span className="text-[9px] font-semibold text-white/28">0{index + 1}</span>
@@ -321,11 +321,11 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 <p className="font-sans text-[16px] font-medium tracking-[-0.025em] text-ink">{label}</p>
                 <p className="mt-1 text-[10px] text-muted">{detail}</p>
               </div>
-              <ArrowUpRight className="absolute right-4 top-4 h-3.5 w-3.5 text-muted/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-gks-u" />
+              <ArrowUpRight className="absolute right-4 top-4 h-3.5 w-3.5 text-muted/30 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
             </>
           );
           const classes = cn(
-            "group relative grid min-h-[88px] grid-cols-[22px_1fr] gap-2 border-hairline px-4 py-4 transition-colors hover:bg-gks-u/[0.055]",
+            "group relative grid min-h-[88px] grid-cols-[22px_1fr] gap-2 border-hairline px-4 py-4 transition-colors hover:bg-primary-soft",
             index < 3 && "xl:border-r",
             index < 2 && "sm:border-b xl:border-b-0",
             index === 2 && "sm:border-r xl:border-r"
@@ -365,8 +365,8 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
               className={cn(
                 "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold transition-colors",
                 activeUniversity === "all"
-                  ? "border-ink bg-ink text-white"
-                  : "border-border bg-white text-muted hover:text-ink"
+                  ? "border-primary bg-primary text-white shadow-[0_4px_12px_rgba(62,99,221,0.12)]"
+                  : "border-border bg-white text-muted hover:border-primary/25 hover:bg-primary-soft hover:text-primary"
               )}
             >
               All <span className="ml-1 text-[9px] opacity-60">{rows.length}</span>
@@ -381,8 +381,8 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                   className={cn(
                     "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold transition-colors",
                     activeUniversity === university
-                      ? "border-ink bg-ink text-white"
-                      : "border-border bg-white text-muted hover:text-ink"
+                      ? "border-primary bg-primary text-white shadow-[0_4px_12px_rgba(62,99,221,0.12)]"
+                      : "border-border bg-white text-muted hover:border-primary/25 hover:bg-primary-soft hover:text-primary"
                   )}
                 >
                   {university} <span className="ml-1 text-[9px] opacity-60">{count}</span>
@@ -466,7 +466,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                   <span
                     className={cn(
                       "absolute inset-y-0 left-0 w-[3px] transition-colors",
-                      isCompared ? "bg-gks-u" : isTracked ? "bg-success" : "bg-transparent group-hover:bg-gks-u"
+                      isCompared ? "bg-primary" : isTracked ? "bg-success" : "bg-transparent group-hover:bg-primary/45"
                     )}
                   />
                   <div className="grid gap-4 px-2 py-5 sm:px-4 lg:grid-cols-[150px_minmax(260px,1.15fr)_minmax(190px,.72fr)_minmax(210px,.82fr)_42px] lg:items-start lg:gap-5">
@@ -521,8 +521,8 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                       aria-expanded={isOpen}
                       aria-label={isOpen ? "Collapse scholarship details" : "Expand scholarship details"}
                       className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white transition-colors hover:border-gks-u/40 hover:bg-gks-u/5",
-                        isOpen && "border-gks-u bg-gks-u text-white hover:bg-gks-u"
+                        "flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-white transition-colors hover:border-primary/30 hover:bg-primary-soft hover:text-primary",
+                        isOpen && "border-primary bg-primary text-white hover:bg-primary"
                       )}
                     >
                       <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", isOpen && "rotate-180")} />
@@ -570,7 +570,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                             className={cn(
                               "inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-semibold transition-colors",
                               isCompared
-                                ? "border-gks-u/30 bg-gks-u/10 text-gks-u"
+                                ? "border-primary/30 bg-primary-soft text-primary"
                                 : "border-border bg-white text-ink hover:bg-canvas"
                             )}
                           >
@@ -632,7 +632,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                   <th className="w-[150px] px-4 py-3 text-[9px] font-semibold uppercase tracking-[0.08em] text-muted/50">Field</th>
                   {compareRows.map((row) => (
                     <th key={row.id} className="min-w-[210px] border-l border-hairline px-4 py-3 align-top">
-                      <p className="text-[9px] font-semibold text-gks-u">{row.university_name}</p>
+                      <p className="text-[9px] font-semibold text-primary">{row.university_name}</p>
                       <p className="mt-1 font-sans text-[14px] font-medium leading-5 tracking-[-0.025em] text-ink">{row.scholarship_name}</p>
                     </th>
                   ))}
@@ -673,14 +673,14 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                   className="flex h-7 max-w-[110px] items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[8px] text-white/70"
                 >
                   <span className="truncate">{row.university_name}</span>
-                  <X className="h-2.5 w-2.5 shrink-0 text-gks-u" />
+                  <X className="h-2.5 w-2.5 shrink-0 text-primary" />
                 </button>
               ))}
             </div>
           </div>
           <a
             href="#compare"
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-gks-u px-3.5 text-[10px] font-semibold text-white"
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-primary px-3.5 text-[10px] font-semibold text-white shadow-[0_8px_20px_rgba(62,99,221,0.18)]"
           >
             Compare now
             <ArrowRight className="h-3.5 w-3.5" />
