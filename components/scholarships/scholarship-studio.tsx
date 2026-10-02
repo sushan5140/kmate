@@ -201,7 +201,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
         }}
         className="relative isolate min-h-[570px] overflow-hidden rounded-[28px] bg-ink text-white shadow-pop"
         style={{
-          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(232,121,79,.18), transparent 24%), radial-gradient(circle at 18% 12%, rgba(62,99,221,.20), transparent 30%), linear-gradient(145deg, #151925 0%, #11141d 56%, #16131a 100%)`,
+          backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(238,147,112,.12), transparent 23%), radial-gradient(circle at 14% 8%, rgba(83,111,209,.14), transparent 32%), linear-gradient(145deg, #171b28 0%, #12151f 54%, #15131b 100%)`,
         }}
       >
         <div className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:58px_58px] [mask-image:linear-gradient(to_bottom,black,transparent_92%)]" />
@@ -215,12 +215,12 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
         <div className="relative z-10 grid min-h-[405px] gap-8 px-5 py-12 sm:px-7 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,.75fr)] lg:px-10 lg:py-14">
           <div className="flex flex-col justify-end">
             <p className="mb-6 flex items-center gap-2 text-[11px] font-semibold text-white/52">
-              <CircleDot className="h-3.5 w-3.5 text-gks-u" />
+              <CircleDot className="h-3.5 w-3.5 text-[#ee9370]" />
               Source-linked university scholarships
             </p>
             <h1 className="max-w-[870px] text-balance font-sans text-[clamp(52px,7.5vw,108px)] font-medium leading-[0.88] tracking-[-0.065em]">
               Scholarships
-              <span className="block text-gks-u">worth your time.</span>
+              <span className="block text-[#f4f0ed]">worth your time.<i className="ml-[0.14em] inline-block h-[0.09em] w-[0.42em] rounded-full bg-[#ee9370] align-[0.17em]" /></span>
             </h1>
             <p className="mt-7 max-w-[620px] text-[14px] leading-7 text-white/58 sm:text-[15px]">
               Find university funding, inspect the published rules, save the awards that matter, and compare the terms without leaving KMate.
@@ -229,14 +229,14 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
               <button
                 type="button"
                 onClick={() => document.getElementById("scholarship-stream")?.scrollIntoView({ behavior: "smooth" })}
-                className="inline-flex h-11 items-center gap-2 rounded-xl bg-gks-u px-4 text-[12px] font-semibold text-white transition-transform active:scale-[0.97]"
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.05] bg-[linear-gradient(180deg,#4b67cc_0%,#3e5fc5_100%)] px-4 text-[12px] font-semibold text-white shadow-[0_10px_28px_rgba(62,99,221,0.20)] transition-transform hover:bg-[linear-gradient(180deg,#5671d4_0%,#4764cb_100%)] active:scale-[0.97]"
               >
                 Explore scholarships
                 <ArrowRight className="h-4 w-4" />
               </button>
               <Link
                 href="/requirement-checker"
-                className="inline-flex h-11 items-center gap-2 rounded-xl border border-primary/25 bg-primary/[0.08] px-4 text-[12px] font-medium text-white/80 transition-colors hover:bg-primary/[0.14] hover:text-white"
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.12] bg-white/[0.035] px-4 text-[12px] font-medium text-white/78 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
               >
                 Check my profile
               </Link>
@@ -253,7 +253,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 </p>
                 <div className="mt-4 flex items-center gap-3 text-[11px] text-white/48">
                   <span>
-                    <b className="text-gks-u">{activePreview.count}</b> indexed awards
+                    <b className="text-[#ee9370]">{activePreview.count}</b> indexed awards
                   </span>
                   <span className="h-1 w-1 rounded-full bg-white/20" />
                   <span>official sources</span>
@@ -268,7 +268,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 className="mt-5 inline-flex items-center gap-2 border-b border-white/25 pb-1 text-[11px] font-semibold text-white"
               >
                 Show these awards
-                <ArrowUpRight className="h-3.5 w-3.5 text-gks-u" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-[#ee9370]" />
               </button>
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 onClick={() => filterUniversity(university)}
                 className={cn(
                   "group relative min-h-[92px] border-b border-white/10 px-5 py-4 text-left transition-colors sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
-                  active ? "bg-primary/[0.10]" : "hover:bg-primary/[0.07]"
+                  active ? "bg-[linear-gradient(180deg,rgba(83,111,209,0.10),rgba(83,111,209,0.055))]" : "hover:bg-[linear-gradient(180deg,rgba(83,111,209,0.08),rgba(83,111,209,0.04))]"
                 )}
               >
                 <span className="text-[9px] font-semibold text-white/28">0{index + 1}</span>
@@ -297,7 +297,7 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
                 <p className="mt-1 text-[9px] text-white/34">{count} awards</p>
                 <span
                   className={cn(
-                    "absolute inset-y-0 left-0 w-[3px] bg-gks-u transition-opacity",
+                    "absolute bottom-3 left-0 top-3 w-[2px] rounded-full bg-[#ee9370] transition-opacity",
                     active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   )}
                 />
