@@ -73,9 +73,12 @@ export default function ScholarshipStudio({ rows }: { rows: ScholarshipStudioRow
   const [pointer, setPointer] = useState({ x: 78, y: 28 });
 
   useEffect(() => {
-    setTracked(readLocal(TRACKED_KEY));
-    setCompare(readLocal(COMPARE_KEY).slice(0, 3));
-    setHydrated(true);
+    const hydrationTask = window.setTimeout(() => {
+      setTracked(readLocal(TRACKED_KEY));
+      setCompare(readLocal(COMPARE_KEY).slice(0, 3));
+      setHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(hydrationTask);
   }, []);
 
   useEffect(() => {
