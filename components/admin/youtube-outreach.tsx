@@ -169,6 +169,7 @@ export function YoutubeOutreach(props: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
+  const freshRef = useRef<HTMLInputElement>(null);
   const legacyRef = useRef<HTMLInputElement>(null);
 
   const now = useMemo(() => new Date(), []);
@@ -225,8 +226,8 @@ export function YoutubeOutreach(props: Props) {
     );
   }
 
-  async function upload(kind: "xlsx" | "legacy") {
-    const input = kind === "xlsx" ? fileRef.current : legacyRef.current;
+  async function upload(kind: "xlsx" | "fresh" | "legacy") {
+    const input = kind === "xlsx" ? fileRef.current : kind === "fresh" ? freshRef.current : legacyRef.current;
     const file = input?.files?.[0];
     if (!file) {
       setMessage({ tone: "warn", text: "Choose a file first." });
@@ -235,10 +236,18 @@ export function YoutubeOutreach(props: Props) {
     const body = new FormData();
     body.append("file", file);
     await call(
-      kind === "xlsx" ? "/api/admin/youtube/import" : "/api/admin/youtube/import-legacy",
+      kind === "xlsx"
+        ? "/api/admin/youtube/import"
+        : kind === "fresh"
+          ? "/api/admin/youtube/import-fresh"
+          : "/api/admin/youtube/import-legacy",
       { method: "POST", body },
       "upload",
-      kind === "xlsx" ? "Spreadsheet imported." : "Legacy history imported — none of it is postable."
+      kind === "xlsx"
+        ? "Spreadsheet imported."
+        : kind === "fresh"
+          ? "Raw scrape ranked and imported safely. Nothing was drafted, approved, or posted yet."
+          : "Legacy history imported — none of it is postable."
     );
   }
 
