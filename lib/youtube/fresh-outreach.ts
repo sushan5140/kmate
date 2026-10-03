@@ -34,6 +34,14 @@ const number = (value: unknown) => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const instant = (value: unknown): string | null => {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.toISOString();
+  const raw = clean(value);
+  if (!raw) return null;
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+};
+
 const PRAISE_ONLY = /^(thanks?|thank you|nice|great|amazing|wow|love it|❤️|❤|😂|🤣|[1-5]\/5)[!. ❤️😂🤣]*$/i;
 const QUESTION = /\?|\b(how|what|which|where|when|why|can i|can we|could i|should i|is there|do i|does|please|plz|help|guide)\b/i;
 const GKS = /\b(gks|kgsp|global korea scholarship|scholarship|embassy track|university track|niied|study in korea)\b/i;
@@ -60,7 +68,7 @@ export function parseFreshMatrix(matrix: unknown[][]): FreshRawRow[] {
     const commentText = clean(get(row, "comment_text"));
     if (!commentId || !commentText) return [];
     return [{
-      comment_published_at: clean(get(row, "comment_published_at")) || null,
+      comment_published_at: instant(get(row, "comment_published_at")),
       author: clean(get(row, "author")) || null,
       comment_text: commentText,
       like_count: number(get(row, "like_count")),
