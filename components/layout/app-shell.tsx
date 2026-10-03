@@ -37,7 +37,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
   return (
     <>
       <Suspense fallback={<NavSkeleton />}>
-        <AuthedNav userId={userId} guestName={guestName} />
+        <AuthedNav userId={userId} guestName={guestName} isGuest={Boolean(guestName)} />
       </Suspense>
       <div className="flex-1 md:pl-[210px]">{children}</div>
     </>
