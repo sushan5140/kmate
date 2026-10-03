@@ -154,7 +154,7 @@ export function freshToCandidate(row: FreshScoredRow, spreadsheetRow: number): I
     priority: priorityFromImport(row.score >= 90 ? "High" : row.score >= 75 ? "Medium" : "Low", row.score),
     opportunity_type: opportunityTypeFrom(row.comment_text, topic),
     promotion_category: promotionCategoryOf(null),
-    feature_tags: row.product === "KMATE" ? featureTagsFor(row.comment_text, topic) : [row.product],
+    feature_tags: row.product === "KMATE" ? featureTagsFor(row.comment_text, topic) : [],
     status: "SCRAPED",
     eligible: false,
   };
