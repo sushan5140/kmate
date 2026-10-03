@@ -122,12 +122,18 @@ export default async function LandingPage() {
                 without mixing old-cycle advice into current guidance.
               </p>
 
-              <div className="mt-8 flex items-center gap-5">
+              <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
                   href="/login"
                   className="inline-flex h-11 items-center rounded-full bg-ink px-6 text-[14px] font-medium text-white shadow-xs transition-all duration-150 hover:shadow-card active:scale-[0.97]"
                 >
-                  Sign in with Google
+                  Continue with Google
+                </Link>
+                <Link
+                  href="/guest/start"
+                  className="inline-flex h-11 items-center rounded-full bg-white px-6 text-[14px] font-medium text-ink ring-1 ring-hairline shadow-xs transition-all duration-150 hover:shadow-card active:scale-[0.97]"
+                >
+                  Try as guest
                 </Link>
                 <Link
                   href="/about"

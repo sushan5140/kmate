@@ -10,7 +10,7 @@ import { MoreMenu } from "@/components/layout/more-menu";
 // page's own content has nothing to do with them. Streaming this separately
 // lets the actual page content fetch and render in parallel instead of
 // waiting in line behind the sidebar.
-export async function AuthedNav({ userId }: { userId: string }) {
+export async function AuthedNav({ userId, guestName }: { userId: string; guestName?: string | null }) {
   const admin = getSupabaseAdmin();
   const [user, { data: profile }, { count: pendingRequestsCount }] = await Promise.all([
     getAuthenticatedUser(),
@@ -22,7 +22,7 @@ export async function AuthedNav({ userId }: { userId: string }) {
       .eq("status", "pending"),
   ]);
 
-  const username = profile?.username ?? null;
+  const username = guestName ?? profile?.username ?? null;
   // Same isAuthorizedAdmin() check every admin route enforces -- is_admin
   // alone isn't enough to show the link, the signed-in email must also
   // match ADMIN_EMAIL. Keeps the nav link itself from ever pointing a
