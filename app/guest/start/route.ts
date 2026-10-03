@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   };
 
   const response = NextResponse.redirect(new URL(next, request.nextUrl.origin));
-  response.cookies.set(COOKIE, Buffer.from(JSON.stringify(payload)).toString("base64url"), {
+  response.cookies.set(COOKIE, encodeURIComponent(JSON.stringify(payload)), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

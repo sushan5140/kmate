@@ -19,7 +19,7 @@ function readReviewerGuest(request: NextRequest): { id: string; name: string } |
   const raw = request.cookies.get(REVIEWER_GUEST_COOKIE)?.value;
   if (!raw) return null;
   try {
-    const json = JSON.parse(Buffer.from(raw, "base64url").toString("utf8")) as { id?: string; name?: string };
+    const json = JSON.parse(decodeURIComponent(raw)) as { id?: string; name?: string };
     const id = String(json.id || "");
     const name = String(json.name || "");
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return null;
