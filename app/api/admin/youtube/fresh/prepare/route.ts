@@ -4,7 +4,7 @@ import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-ser
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { FRESH_BATCH_SIZE, FRESH_TOPIC_PREFIX, productFromTopic } from "@/lib/youtube/fresh-outreach";
-import { promotionCategoryOf } from "@/lib/youtube/classify";
+import { promotionCategoryOf } from "@/lib/youtube/classify";\nimport { recordEvent } from "@/lib/youtube/queue";
 
 const SCHEMA = {
   type: "object",
@@ -119,6 +119,14 @@ export async function POST() {
         })
         .eq("id", id)
         .eq("status", "SCRAPED");
+      await recordEvent({
+        queueId: id,
+        eventType: "SKIPPED",
+        fromStatus: "SCRAPED",
+        toStatus: "SKIP",
+        actorUserId: user.id,
+        metadata: { source: "fresh_outreach_ai", reason: "AI review: skip" },
+      });
       skipped++;
       continue;
     }
@@ -141,6 +149,14 @@ export async function POST() {
       })
       .eq("id", id)
       .eq("status", "SCRAPED");
+    await recordEvent({
+      queueId: id,
+      eventType: "DRAFT_EDITED",
+      fromStatus: "SCRAPED",
+      toStatus: "DRAFTED",
+      actorUserId: user.id,
+      metadata: { source: "fresh_outreach_ai", product },
+    });
     drafted++;
   }
 
