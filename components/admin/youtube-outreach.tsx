@@ -284,6 +284,58 @@ export function YoutubeOutreach(props: Props) {
         </div>
       )}
 
+      {/* ---- safe fresh outreach automation ---- */}
+      <Card className="border-primary/20 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-2xl">
+            <p className="text-[13.5px] font-semibold text-ink">Fresh outreach — safe 5-reply workflow</p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+              Upload the raw Colab export. KMate ranks high-intent GKS/Korean-learning comments and
+              imports them as non-postable <strong>SCRAPED</strong> rows. Then prepare only the next
+              five: AI matches the commenter&apos;s language/register (including Hinglish or Roman
+              Urdu), answers first, and mentions KMate, Hallium or VideoLab only when it naturally
+              fits. Every result still lands in <strong>DRAFTED</strong> for your review — never
+              approved or posted automatically.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busyId === "prepare-fresh"}
+            onClick={() =>
+              call(
+                "/api/admin/youtube/fresh/prepare",
+                { method: "POST" },
+                "prepare-fresh",
+                "Prepared the next five drafts for review. Nothing was approved or posted."
+              )
+            }
+          >
+            {busyId === "prepare-fresh" ? "Preparing…" : "Prepare next 5"}
+          </Button>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-hairline pt-3">
+          <input
+            ref={freshRef}
+            type="file"
+            accept=".xlsx"
+            className="max-w-[280px] text-[12px] text-muted file:mr-2 file:rounded-md file:border file:border-hairline file:bg-surface file:px-2 file:py-1 file:text-[12px] file:text-ink"
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busyId === "upload"}
+            onClick={() => upload("fresh")}
+          >
+            Import raw 30-day scrape
+          </Button>
+          <span className="text-[11.5px] text-muted">
+            Imports at most 200 ranked candidates; duplicates are ignored. No YouTube write occurs here.
+          </span>
+        </div>
+      </Card>
+
       {/* ---- filters ---- */}
       <Card className="p-4">
         <form method="get" className="flex flex-wrap items-end gap-3">
