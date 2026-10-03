@@ -10,7 +10,7 @@ import { MoreMenu } from "@/components/layout/more-menu";
 // page's own content has nothing to do with them. Streaming this separately
 // lets the actual page content fetch and render in parallel instead of
 // waiting in line behind the sidebar.
-export async function AuthedNav({ userId, guestName }: { userId: string; guestName?: string | null }) {
+export async function AuthedNav({ userId, guestName, isGuest = false }: { userId: string; guestName?: string | null; isGuest?: boolean }) {
   const admin = getSupabaseAdmin();
   const [user, { data: profile }, { count: pendingRequestsCount }] = await Promise.all([
     getAuthenticatedUser(),
@@ -31,11 +31,11 @@ export async function AuthedNav({ userId, guestName }: { userId: string; guestNa
 
   return (
     <>
-      <Sidebar username={username} pendingRequestsCount={pendingRequestsCount ?? 0} isAdmin={isAdmin} />
-      <TopBar username={username} isAdmin={isAdmin} />
+      <Sidebar username={username} pendingRequestsCount={pendingRequestsCount ?? 0} isAdmin={isAdmin} isGuest={isGuest} />
+      <TopBar username={username} isAdmin={isAdmin} isGuest={isGuest} />
       {/* Desktop only -- mobile reaches the same menu via TopBar's own "..." icon. */}
       <div className="fixed right-4 top-4 z-40 hidden md:block">
-        <MoreMenu username={username} isAdmin={isAdmin} />
+        <MoreMenu username={username} isAdmin={isAdmin} isGuest={isGuest} />
       </div>
     </>
   );
