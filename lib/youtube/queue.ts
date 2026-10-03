@@ -666,7 +666,7 @@ export async function markPostFailed(input: PostFailureInput): Promise<void> {
 export interface CreateBatchInput {
   label: string;
   sourceFilename: string | null;
-  kind: "xlsx" | "legacy";
+  kind: "xlsx" | "legacy" | "fresh-raw";
   importedBy: string;
 }
 
