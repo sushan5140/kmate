@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
+import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ConnectionsTabBar, type ConnectionsTab } from "@/components/connections/connections-tab-bar";
 import { IncomingRequestsList, type IncomingRequestRow } from "@/components/connections/incoming-requests-list";
@@ -67,6 +67,7 @@ export default async function ConnectionsPage({
   searchParams: Promise<ConnectionsSearchParams>;
 }) {
   const user = await requireOnboarded("/requests");
+  const reviewerGuest = await getReviewerGuest();
   const params = await searchParams;
   const admin = getSupabaseAdmin();
 
@@ -145,7 +146,7 @@ export default async function ConnectionsPage({
         {tab === "received" && <IncomingRequestsList items={received} fromUrl={fromUrl} />}
         {tab === "connected" && <ConnectedList items={connected} fromUrl={fromUrl} />}
         {tab === "sent" && <SentRequestsList items={sent} fromUrl={fromUrl} />}
-        {tab === "discover" && <DiscoverTab userId={user.id} params={params} fromUrl={fromUrl} />}
+        {tab === "discover" && <DiscoverTab userId={user.id} params={params} fromUrl={fromUrl} reviewerGuest={Boolean(reviewerGuest)} />}
       </div>
     </main>
   );
