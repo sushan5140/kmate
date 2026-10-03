@@ -7,7 +7,7 @@ const ADMIN_LINKS = [
   { href: "/admin/mistakes", label: "Mistakes" },
   { href: "/admin/reports", label: "Reports" },
   { href: "/admin/notices", label: "Notices" },
-  { href: "/admin/deadlines", label: "Deadlines" },
+  { href: "/admin/deadlines", label: "Deadlines" },\n  { href: "/admin/youtube", label: "YouTube" },
   { href: "/admin/users", label: "Users" },
 ];
 
