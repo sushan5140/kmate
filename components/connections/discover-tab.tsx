@@ -29,10 +29,12 @@ export async function DiscoverTab({
   userId,
   params,
   fromUrl,
+  reviewerGuest = false,
 }: {
   userId: string;
   params: { track?: string | string[]; major?: string; year?: string; university?: string };
   fromUrl: string;
+  reviewerGuest?: boolean;
 }) {
   const admin = getSupabaseAdmin();
 
@@ -40,7 +42,11 @@ export async function DiscoverTab({
   const ownTrack: Track = (me?.track as Track) ?? "gks_u";
 
   const requestedTracks = Array.isArray(params.track) ? params.track : params.track ? [params.track] : [];
-  const tracks = requestedTracks.length ? requestedTracks : [ownTrack];
+  const tracks: Track[] = requestedTracks.length
+    ? requestedTracks.filter((track): track is Track => track === "gks_u" || track === "gks_g")
+    : reviewerGuest
+      ? ["gks_u", "gks_g"]
+      : [ownTrack];
 
   const universityId = params.university;
 
@@ -102,7 +108,7 @@ export async function DiscoverTab({
   return (
     <div>
       <DiscoverScrollRestore />
-      <DiscoverFilters ownTrack={ownTrack} />
+      <DiscoverFilters ownTrack={ownTrack} reviewerGuest={reviewerGuest} />
 
       {profiles.length === 0 ? (
         <p className="mt-10 text-[14px] text-muted">No applicants match these filters yet.</p>
