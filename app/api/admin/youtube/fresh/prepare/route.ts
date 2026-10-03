@@ -4,7 +4,8 @@ import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-ser
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { FRESH_BATCH_SIZE, FRESH_TOPIC_PREFIX, productFromTopic } from "@/lib/youtube/fresh-outreach";
-import { promotionCategoryOf } from "@/lib/youtube/classify";\nimport { recordEvent } from "@/lib/youtube/queue";
+import { promotionCategoryOf } from "@/lib/youtube/classify";
+import { recordEvent } from "@/lib/youtube/queue";
 
 const SCHEMA = {
   type: "object",
