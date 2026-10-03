@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   let matrix: unknown[][];
   try {
     const parsed = await readXlsxFile(Buffer.from(await file.arrayBuffer()));
-    matrix = parsed as unknown[][];
+    matrix = parsed as unknown as unknown[][];
   } catch {
     return NextResponse.json({ error: "unreadable_file" }, { status: 400 });
   }
