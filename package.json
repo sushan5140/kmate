@@ -27,7 +27,7 @@
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-markdown": "^10.1.0",
+    "react-markdown": "^10.1.0",\n    "read-excel-file": "^9.3.10",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0"
   },
