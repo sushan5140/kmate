@@ -11,14 +11,18 @@ interface UniversityOption {
   name: string;
 }
 
-export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
+export function DiscoverFilters({ ownTrack, reviewerGuest = false }: { ownTrack: Track; reviewerGuest?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [majorQuery, setMajorQuery] = useState(searchParams.get("major") ?? "");
   const [uniQuery, setUniQuery] = useState(searchParams.get("universityName") ?? "");
 
   const activeTracks = searchParams.getAll("track");
-  const effectiveTracks = activeTracks.length ? activeTracks : [ownTrack];
+  const effectiveTracks: Track[] = activeTracks.length
+    ? activeTracks.filter((track): track is Track => track === "gks_u" || track === "gks_g")
+    : reviewerGuest
+      ? ["gks_u", "gks_g"]
+      : [ownTrack];
 
   // Same seeded universities table the onboarding/profile university picker
   // already searches -- no separate/hardcoded list. Scoped to the currently
@@ -27,7 +31,7 @@ export function DiscoverFilters({ ownTrack }: { ownTrack: Track }) {
   // hand-rolled version here just never passed it).
   async function loadUniversities(q: string): Promise<SearchableRemoteOption[]> {
     const params = new URLSearchParams({ q });
-    if (effectiveTracks[0]) params.set("track", effectiveTracks[0]);
+    if (effectiveTracks.length === 1) params.set("track", effectiveTracks[0]);
     const res = await fetch(`/api/universities/search?${params.toString()}`);
     const data = await res.json();
     return (data.universities ?? []).map((u: { id: string; name: string }) => ({ id: u.id, label: u.name }));

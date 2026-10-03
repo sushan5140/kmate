@@ -16,7 +16,7 @@ function subscribeToHistory(onChange: () => void) {
   return () => window.removeEventListener("popstate", onChange);
 }
 
-export function TopBar({ username, isAdmin }: { username: string | null; isAdmin: boolean }) {
+export function TopBar({ username, isAdmin, isGuest = false }: { username: string | null; isAdmin: boolean; isGuest?: boolean }) {
   const [hasUnread, setHasUnread] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -87,7 +87,7 @@ export function TopBar({ username, isAdmin }: { username: string | null; isAdmin
           <Bell className="h-[19px] w-[19px]" />
           {hasUnread && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />}
         </Link>
-        <MoreMenu username={username} isAdmin={isAdmin} />
+        <MoreMenu username={username} isAdmin={isAdmin} isGuest={isGuest} />
       </div>
     </header>
   );

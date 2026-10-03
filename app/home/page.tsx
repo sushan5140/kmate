@@ -21,7 +21,7 @@ import {
   FolderCheck,
   HelpCircle,
 } from "lucide-react";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
+import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { Card, MicroLabel } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
@@ -41,6 +41,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const user = await requireOnboarded("/home");
+  const reviewerGuest = await getReviewerGuest();
   const admin = getSupabaseAdmin();
 
   const { data: profile } = await admin
@@ -176,6 +177,16 @@ export default async function HomePage() {
           )}
         </div>
       </div>
+
+      {reviewerGuest && (
+        <Card className="mt-6 border-primary/20 bg-primary/5">
+          <MicroLabel>Reviewer Guest Mode</MicroLabel>
+          <p className="mt-1 text-[13.5px] leading-relaxed text-ink">
+            KMate is showing the broad reviewer view: both GKS-U and GKS-G, all majors, and no university preference until you choose a filter.
+          </p>
+          <p className="mt-1 text-[11.5px] text-muted">This temporary identity is read-only and is not a KMate account.</p>
+        </Card>
+      )}
 
       <div className="mt-4 flex flex-col gap-3">
         <WarningBanner />

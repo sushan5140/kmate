@@ -36,8 +36,17 @@ export default async function LoginPage({
           until you choose to share them.
         </p>
 
-        <div className="mt-6">
+        <div className="mt-6 space-y-3">
           <GoogleSignInButton next={safeNext} />
+          <a
+            href={"/guest/start?next=" + encodeURIComponent(safeNext)}
+            className="inline-flex h-10 w-full items-center justify-center rounded-full bg-ink px-4 text-[13.5px] font-medium text-white shadow-xs transition-all hover:shadow-card active:scale-[0.98]"
+          >
+            Try as guest
+          </a>
+          <p className="text-[11.5px] leading-relaxed text-muted">
+            Guest Mode is temporary and read-only. No KMate account is created.
+          </p>
         </div>
 
         {error && (

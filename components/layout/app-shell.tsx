@@ -20,7 +20,9 @@ export default async function AppShell({ children }: { children: React.ReactNode
   // header -- reading it is free, unlike calling supabase.auth.getUser()
   // again here, which used to cost a second full round-trip to Supabase Auth
   // on every single page load (see proxy.ts for the full explanation).
-  const userId = (await headers()).get("x-kmate-user-id");
+  const h = await headers();
+  const userId = h.get("x-kmate-user-id");
+  const guestName = h.get("x-kmate-guest-name");
 
   if (!userId) {
     return (
@@ -35,7 +37,7 @@ export default async function AppShell({ children }: { children: React.ReactNode
   return (
     <>
       <Suspense fallback={<NavSkeleton />}>
-        <AuthedNav userId={userId} />
+        <AuthedNav userId={userId} guestName={guestName} isGuest={Boolean(guestName)} />
       </Suspense>
       <div className="flex-1 md:pl-[210px]">{children}</div>
     </>

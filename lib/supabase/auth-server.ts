@@ -49,6 +49,19 @@ export interface AuthenticatedUser {
   email: string | null;
 }
 
+export interface ReviewerGuest {
+  id: string;
+  name: string;
+}
+
+export async function getReviewerGuest(): Promise<ReviewerGuest | null> {
+  const h = await headers();
+  const id = h.get("x-kmate-guest-id");
+  const name = h.get("x-kmate-guest-name");
+  if (!id || !name) return null;
+  return { id, name };
+}
+
 /**
  * Reads the already-validated user id proxy.ts forwards via the
  * x-kmate-user-id header, instead of independently calling
@@ -63,6 +76,7 @@ export interface AuthenticatedUser {
  */
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   const h = await headers();
+  if (h.get("x-kmate-guest-id")) return null;
   const userId = h.get("x-kmate-user-id");
   return userId ? { id: userId, email: h.get("x-kmate-user-email") } : null;
 }
@@ -75,6 +89,10 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
  */
 export async function requireOnboarded(nextPath: string): Promise<AuthenticatedUser> {
   const destination = await currentDestination(nextPath);
+  const guest = await getReviewerGuest();
+  if (guest) {
+    return { id: guest.id, email: null };
+  }
   const user = await getAuthenticatedUser();
   if (!user) {
     redirect(buildLoginUrl(destination));

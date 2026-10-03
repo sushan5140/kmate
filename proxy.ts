@@ -12,7 +12,23 @@ import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 // would break the schedule. The route itself is guarded by a
 // CRON_SECRET bearer token / admin check and fails closed -- see
 // app/api/cron/notices/route.ts.
-const PUBLIC_PATHS = ["/", "/login", "/auth", "/about", "/guidelines", "/api/cron"];
+const PUBLIC_PATHS = ["/", "/login", "/auth", "/guest", "/about", "/guidelines", "/api/cron"];
+const REVIEWER_GUEST_COOKIE = "kmate_reviewer_guest";
+
+function readReviewerGuest(request: NextRequest): { id: string; name: string } | null {
+  const raw = request.cookies.get(REVIEWER_GUEST_COOKIE)?.value;
+  if (!raw) return null;
+  try {
+    const json = JSON.parse(decodeURIComponent(raw)) as { id?: string; name?: string };
+    const id = String(json.id || "");
+    const name = String(json.name || "");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) return null;
+    if (!/^[A-Za-z][A-Za-z0-9_-]{2,31}$/.test(name)) return null;
+    return { id, name };
+  } catch {
+    return null;
+  }
+}
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
@@ -96,6 +112,8 @@ export async function proxy(request: NextRequest) {
   // Same reasoning: requireOnboarded() below trusts this as "the URL actually
   // requested", so a client-supplied value must never survive.
   request.headers.delete("x-kmate-url");
+  request.headers.delete("x-kmate-guest-id");
+  request.headers.delete("x-kmate-guest-name");
 
   // Generated fresh per-request -- Next.js reads this off the CSP header (on
   // the request, for rendering; on the response, for the browser) and
@@ -145,8 +163,9 @@ export async function proxy(request: NextRequest) {
   // pairing survives intact. request.url is normalised identically, so there
   // is no rawer source to read from here.
   const destination = destinationFrom(request.nextUrl);
+  const reviewerGuest = user ? null : readReviewerGuest(request);
 
-  if (!user && !isPublicPath(request.nextUrl.pathname)) {
+  if (!user && !reviewerGuest && !isPublicPath(request.nextUrl.pathname)) {
     // Built from the origin rather than by cloning nextUrl: cloning kept the
     // ORIGINAL query parameters on the login URL, so they arrived as siblings
     // of `next` (`/login?view=gks&program=...&next=%2Fnotices`) rather than
@@ -163,6 +182,10 @@ export async function proxy(request: NextRequest) {
   if (user) {
     request.headers.set("x-kmate-user-id", user.id);
     if (user.email) request.headers.set("x-kmate-user-email", user.email);
+  } else if (reviewerGuest) {
+    request.headers.set("x-kmate-user-id", reviewerGuest.id);
+    request.headers.set("x-kmate-guest-id", reviewerGuest.id);
+    request.headers.set("x-kmate-guest-name", reviewerGuest.name);
   }
 
   // Server Components never see the request URL, so a page-level guard such as

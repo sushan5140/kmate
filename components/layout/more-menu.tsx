@@ -58,16 +58,22 @@ function ReportProblemForm({ onDone }: { onDone: () => void }) {
 function MoreMenuContent({
   username,
   isAdmin,
+  isGuest = false,
   onNavigate,
 }: {
   username: string | null;
   isAdmin: boolean;
+  isGuest?: boolean;
   onNavigate: () => void;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<"menu" | "report">("menu");
 
   async function signOut() {
+    if (isGuest) {
+      window.location.assign("/guest/end");
+      return;
+    }
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
@@ -84,7 +90,7 @@ function MoreMenuContent({
         <span className="mx-4 mt-1.5 block h-1 w-9 rounded-full bg-ink/10 md:hidden" />
       </div>
       <Link
-        href={username ? `/profile/${username}` : "/settings/profile"}
+        href={isGuest ? "/login" : username ? `/profile/${username}` : "/settings/profile"}
         onClick={onNavigate}
         className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-canvas"
       >
@@ -92,7 +98,7 @@ function MoreMenuContent({
           {username ? username[0]?.toUpperCase() : "?"}
         </span>
         <span className="text-[13.5px] font-medium text-ink">
-          {username ? `@${username}` : "Your profile"}
+          {isGuest ? `Guest · ${username || "Reviewer"}` : username ? `@${username}` : "Your profile"}
         </span>
       </Link>
 
@@ -130,6 +136,11 @@ function MoreMenuContent({
         })}
       </div>
 
+      {isGuest && (
+        <Link href="/login" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] font-medium text-primary hover:bg-primary/5">
+          Continue with Google
+        </Link>
+      )}
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <ShieldCheck className="h-4 w-4 text-muted" /> Community guidelines
       </Link>
@@ -156,13 +167,13 @@ function MoreMenuContent({
         onClick={signOut}
         className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-[13.5px] font-medium text-danger hover:bg-danger-soft"
       >
-        <LogOut className="h-4 w-4" /> Sign out
+        <LogOut className="h-4 w-4" /> {isGuest ? "Exit Guest Mode" : "Sign out"}
       </button>
     </div>
   );
 }
 
-export function MoreMenu({ username, isAdmin = false }: { username: string | null; isAdmin?: boolean }) {
+export function MoreMenu({ username, isAdmin = false, isGuest = false }: { username: string | null; isAdmin?: boolean; isGuest?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -192,7 +203,7 @@ export function MoreMenu({ username, isAdmin = false }: { username: string | nul
                 onClick={(e) => e.stopPropagation()}
                 className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-card"
               >
-                <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+                <MoreMenuContent username={username} isAdmin={isAdmin} isGuest={isGuest} onNavigate={() => setOpen(false)} />
               </div>
             </div>,
             document.body
@@ -200,7 +211,7 @@ export function MoreMenu({ username, isAdmin = false }: { username: string | nul
 
           {/* Desktop: anchored dropdown, top-right of the trigger (not portaled -- its trigger isn't inside a backdrop-filter ancestor) */}
           <div className="absolute right-0 top-full z-50 mt-2 hidden w-[220px] rounded-xl border border-border bg-white shadow-card md:block">
-            <MoreMenuContent username={username} isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+            <MoreMenuContent username={username} isAdmin={isAdmin} isGuest={isGuest} onNavigate={() => setOpen(false)} />
           </div>
 
           {/* Desktop click-outside catcher (invisible, no backdrop dimming) */}
