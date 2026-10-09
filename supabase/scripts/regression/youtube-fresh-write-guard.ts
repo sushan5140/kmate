@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { applyFreshWrite } from "../../../lib/youtube/fresh-write-guard";
+import { applyFreshWrite, countUnansweredRows } from "../../../lib/youtube/fresh-write-guard";
 
 async function main() {
   let auditCalls = 0;
@@ -46,7 +46,23 @@ async function main() {
     "audit exceptions do not disguise successful queue updates"
   );
 
-  console.log("YouTube fresh-write guards: 7 regression cases passed.");
+  assert.equal(
+    countUnansweredRows([{ id: "a" }, { id: "b" }], [{ id: "a" }, { id: "b" }]),
+    0,
+    "complete AI decisions have no missing rows"
+  );
+  assert.equal(
+    countUnansweredRows([{ id: "a" }, { id: "b" }], [{ id: "a" }]),
+    1,
+    "an omitted AI decision is counted"
+  );
+  assert.equal(
+    countUnansweredRows([{ id: "a" }, { id: "b" }], [{ id: "a" }, { id: "other" }, { id: "a" }]),
+    1,
+    "duplicate or unknown AI ids do not hide omitted rows"
+  );
+
+  console.log("YouTube fresh-write guards: 10 regression cases passed.");
 }
 
 main().catch((error) => {
