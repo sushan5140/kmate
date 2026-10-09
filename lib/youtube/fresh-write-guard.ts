@@ -40,3 +40,12 @@ export async function applyFreshWrite(
     return { outcome: "updated", auditRecorded: false };
   }
 }
+
+/** Count queue rows omitted from the AI's structured decisions. */
+export function countUnansweredRows(
+  rows: ReadonlyArray<{ id: string }>,
+  drafts: ReadonlyArray<{ id: string }>
+): number {
+  const answered = new Set(drafts.map((draft) => draft.id));
+  return rows.reduce((count, row) => count + (answered.has(row.id) ? 0 : 1), 0);
+}
