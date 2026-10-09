@@ -18,7 +18,8 @@ type WriteResponse = {
 
 export async function applyFreshWrite(
   expectedId: string,
-  write: () => Promise<WriteResponse>,
+  // Supabase PostgREST builders are awaitable PromiseLike values, not native Promises.
+  write: () => PromiseLike<WriteResponse>,
   record: () => Promise<boolean>
 ): Promise<FreshWriteOutcome> {
   let result: WriteResponse;
