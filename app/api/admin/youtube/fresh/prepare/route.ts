@@ -6,6 +6,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { FRESH_BATCH_SIZE, FRESH_TOPIC_PREFIX, productFromTopic } from "@/lib/youtube/fresh-outreach";
 import { promotionCategoryOf } from "@/lib/youtube/classify";
 import { recordEvent } from "@/lib/youtube/queue";
+import { applyFreshWrite } from "@/lib/youtube/fresh-write-guard";
 
 const SCHEMA = {
   type: "object",
@@ -103,6 +104,9 @@ export async function POST() {
   const byId = new Map(drafts.map((draft) => [draft.id, draft]));
   let drafted = 0;
   let skipped = 0;
+  let failed = 0;
+  let conflicted = 0;
+  let auditFailures = 0;
 
   for (const row of data) {
     const id = String(row.id);
@@ -110,61 +114,86 @@ export async function POST() {
     if (!draft) continue;
 
     if (draft.action === "SKIP" || !draft.reply.trim()) {
-      await admin
-        .from("youtube_reply_queue")
-        .update({
-          status: "SKIP",
-          automation_action: "SKIP",
-          reply_status: "AI review: skip",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id)
-        .eq("status", "SCRAPED");
-      await recordEvent({
-        queueId: id,
-        eventType: "SKIPPED",
-        fromStatus: "SCRAPED",
-        toStatus: "SKIP",
-        actorUserId: user.id,
-        metadata: { source: "fresh_outreach_ai", reason: "AI review: skip" },
-      });
+      const outcome = await applyFreshWrite(
+        id,
+        () =>
+          admin
+            .from("youtube_reply_queue")
+            .update({
+              status: "SKIP",
+              automation_action: "SKIP",
+              reply_status: "AI review: skip",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", id)
+            .eq("status", "SCRAPED")
+            .is("final_draft", null)
+            .select("id")
+            .maybeSingle(),
+        () =>
+          recordEvent({
+            queueId: id,
+            eventType: "SKIPPED",
+            fromStatus: "SCRAPED",
+            toStatus: "SKIP",
+            actorUserId: user.id,
+            metadata: { source: "fresh_outreach_ai", reason: "AI review: skip" },
+          })
+      );
+      if (outcome.outcome === "failed") { failed++; continue; }
+      if (outcome.outcome === "conflict") { conflicted++; continue; }
+      if (!outcome.auditRecorded) auditFailures++;
       skipped++;
       continue;
     }
 
     const text = draft.reply.trim().slice(0, 1200);
     const product = productFromTopic(row.topic as string | null);
-    await admin
-      .from("youtube_reply_queue")
-      .update({
-        status: "DRAFTED",
-        automation_action: "POST",
-        final_draft: text,
-        general_reply: text,
-        kmate_reply: product === "KMATE" ? text : null,
-        use_kmate: product === "KMATE",
-        best_choice: product ?? "General",
-        promotion_category: promotionCategoryOf(text),
-        reply_status: "AI drafted — human review required",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("status", "SCRAPED");
-    await recordEvent({
-      queueId: id,
-      eventType: "DRAFT_EDITED",
-      fromStatus: "SCRAPED",
-      toStatus: "DRAFTED",
-      actorUserId: user.id,
-      metadata: { source: "fresh_outreach_ai", product },
-    });
+    const outcome = await applyFreshWrite(
+      id,
+      () =>
+        admin
+          .from("youtube_reply_queue")
+          .update({
+            status: "DRAFTED",
+            automation_action: "POST",
+            final_draft: text,
+            general_reply: text,
+            kmate_reply: product === "KMATE" ? text : null,
+            use_kmate: product === "KMATE",
+            best_choice: product ?? "General",
+            promotion_category: promotionCategoryOf(text),
+            reply_status: "AI drafted — human review required",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", id)
+          .eq("status", "SCRAPED")
+          .is("final_draft", null)
+          .select("id")
+          .maybeSingle(),
+      () =>
+        recordEvent({
+          queueId: id,
+          eventType: "DRAFT_EDITED",
+          fromStatus: "SCRAPED",
+          toStatus: "DRAFTED",
+          actorUserId: user.id,
+          metadata: { source: "fresh_outreach_ai", product },
+        })
+    );
+    if (outcome.outcome === "failed") { failed++; continue; }
+    if (outcome.outcome === "conflict") { conflicted++; continue; }
+    if (!outcome.auditRecorded) auditFailures++;
     drafted++;
   }
 
   return NextResponse.json({
-    ok: true,
+    ok: failed === 0 && conflicted === 0 && auditFailures === 0,
     drafted,
     skipped,
+    failed,
+    conflicted,
+    audit_failures: auditFailures,
     batch_size: data.length,
     note: "Nothing was approved or posted.",
   });

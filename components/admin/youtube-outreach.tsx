@@ -190,6 +190,15 @@ export function YoutubeOutreach(props: Props) {
         });
         return;
       }
+      if (id === "prepare-fresh" && payload.ok === false) {
+        const count = (key: string) =>
+          typeof payload[key] === "number" ? payload[key] as number : 0;
+        setMessage({
+          tone: "warn",
+          text: `Preparation was incomplete: ${count("drafted")} drafted, ${count("skipped")} skipped, ${count("failed")} failed, ${count("conflicted")} conflicts, ${count("audit_failures")} audit failures. Nothing was approved or posted. Reload to see saved changes.`,
+        });
+        return;
+      }
       setMessage({ tone: "ok", text: okText });
       refresh();
     } catch {

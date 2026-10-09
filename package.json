@@ -13,8 +13,9 @@
     "typecheck": "tsc --noEmit",
     "test:gks-integrity": "node scripts/verify-gks-2027.mjs",
     "test:readiness": "tsx --conditions react-server supabase/scripts/regression/readiness-checks.ts",
-    "verify:quick": "npm run lint && npm run typecheck && npm run test:gks-integrity && npm run test:readiness && npm run test:release",
-    "test:release": "node scripts/verify-release.mjs"
+    "verify:quick": "npm run lint && npm run typecheck && npm run test:gks-integrity && npm run test:readiness && npm run test:youtube-fresh-write-guard && npm run test:release",
+    "test:release": "node scripts/verify-release.mjs",
+    "test:youtube-fresh-write-guard": "tsx supabase/scripts/regression/youtube-fresh-write-guard.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",
