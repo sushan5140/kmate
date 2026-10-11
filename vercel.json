@@ -4,8 +4,7 @@
     "deploymentEnabled": {
       "**": false,
       "main": true,
-      "preview": true,
-      "feature/youtube-outreach-mainline": true
+      "preview": true
     }
   },
   "regions": [

@@ -37,6 +37,9 @@ jobs:
       - name: Readiness regression
         run: npm run test:readiness
 
+      - name: YouTube fresh-write regression
+        run: npm run test:youtube-fresh-write-guard
+
       - name: Release audit
         run: npm run test:release
 
