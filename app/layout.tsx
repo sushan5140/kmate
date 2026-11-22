@@ -19,9 +19,24 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "KMate",
+  metadataBase: new URL("https://kmate.vercel.app"),
+  title: "KMate | GKS application tools & applicant community",
   description:
-    "GKS application intelligence, readiness tracking, official guideline support, university requirement checks, interview preparation, and privacy-aware applicant connections.",
+    "Prepare your GKS application with cycle-labelled official rules, document readiness, university checks, interview practice and applicant connections.",
+  openGraph: {
+    type: "website",
+    siteName: "KMate",
+    url: "https://kmate.vercel.app",
+    title: "KMate | Prepare your GKS application",
+    description:
+      "Check GKS requirements, plan documents, practice interviews and connect with applicants. Explore the tools in read-only guest mode.",
+  },
+  twitter: {
+    card: "summary",
+    title: "KMate | Prepare your GKS application",
+    description:
+      "Official-source GKS guidance, application readiness, interview practice and applicant connections.",
+  },
 };
 
 export default function RootLayout({
