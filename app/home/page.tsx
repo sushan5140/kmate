@@ -168,7 +168,7 @@ export default async function HomePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-semibold tracking-tight text-ink">
-            Welcome back{profile?.username ? `, @${profile.username}` : ""}
+            {reviewerGuest ? "Explore KMate" : `Welcome back${profile?.username ? `, @${profile.username}` : ""}`}
           </h1>
           {track && (
             <div className="mt-2">
@@ -190,7 +190,9 @@ export default async function HomePage() {
 
       <div className="mt-4 flex flex-col gap-3">
         <WarningBanner />
-        <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
+        {!reviewerGuest && (
+          <ContactWalletNudge hasContacts={Boolean(contactMethodsCount)} username={profile?.username ?? null} />
+        )}
       </div>
 
       <Card className="mt-8 bg-primary text-white">
