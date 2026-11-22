@@ -8,12 +8,15 @@ export default function Footer() {
           KMate is an independent GKS application and applicant platform. Not affiliated with
           NIIED or the Korean government.
         </p>
-        <nav className="flex items-center gap-4">
+        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:justify-end">
           <Link href="/about" className="hover:text-ink">
             About
           </Link>
           <Link href="/guidelines" className="hover:text-ink">
             Community rules
+          </Link>
+          <Link href="/privacy" className="hover:text-ink">
+            Privacy
           </Link>
         </nav>
       </div>
