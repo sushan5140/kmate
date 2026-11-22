@@ -66,6 +66,44 @@ ok(proxy.includes('"/robots.txt"') && proxy.includes('"/sitemap.xml"') &&
    "Public metadata routes must bypass the authentication redirect");
 
 
+// P1 privacy and guest-to-account conversion invariants.
+const privacy = read("app/(info)/privacy/page.tsx");
+const profileReset = read("app/api/account/delete/route.ts");
+const resetUi = read("components/settings/delete-account-button.tsx");
+const mobileMenu = read("components/layout/more-menu.tsx");
+const sidebar = read("components/layout/sidebar.tsx");
+const footer = read("components/layout/footer.tsx");
+const loginPage = read("app/login/page.tsx");
+const sitemap = read("app/sitemap.ts");
+
+ok(proxy.includes('"/privacy"') && exists("app/(info)/privacy/page.tsx"),
+  "Privacy information must be accessible without creating an account");
+ok(footer.includes('href="/privacy"') && loginPage.includes('href="/privacy"') && sitemap.includes("/privacy"),
+  "Privacy practices must be discoverable from entry points and crawlers");
+ok(privacy.includes("does not delete your Google-linked Supabase authentication identity") &&
+   privacy.includes("accepted connection") && privacy.includes("Guest preview"),
+  "Data practices must describe reset limitations, accepted connections and guest access");
+ok(resetUi.includes("Reset my KMate profile") &&
+   !resetUi.includes("Yes, delete my account") &&
+   resetUi.includes("if (!response.ok)") && resetUi.includes("role=\"alert\""),
+  "Account reset UI must not pretend erasure or a successful failed operation");
+ok(profileReset.includes('operation: "profile_reset"') &&
+   profileReset.includes("if (contactResult.error)") &&
+   profileReset.includes("if (draftResult.error)") &&
+   profileReset.includes("if (connectionResult.error)"),
+  "Profile reset API must check each step and identify reset rather than account deletion");
+ok(mobileMenu.includes("useSearchParams") &&
+   mobileMenu.includes("buildLoginUrl") &&
+   sidebar.includes("buildLoginUrl(pathname)"),
+  "Guest sign-in should return to the selected tool rather than discarding the destination");
+ok(mobileMenu.includes('aria-modal="true"') &&
+   mobileMenu.includes('role="dialog"') &&
+   mobileMenu.includes('event.key === "Escape"') &&
+   mobileMenu.includes('event.key !== "Tab"'),
+  "Mobile navigation needs a labelled, keyboard-operable sheet");
+ok(mobileMenu.includes("else setError(") && mobileMenu.includes("Report a problem"),
+  "Report failures must be visible, not silently ignored");
+
 const constants = read("lib/constants.ts");
 ok(constants.includes("GKS_U_APPLICATION_ROUTES"), "Explicit GKS-U application route type is missing");
 
