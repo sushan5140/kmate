@@ -32,10 +32,11 @@ const TRACK_STYLE: Record<"GKS-U" | "GKS-G", string> = {
   "GKS-G": "bg-gks-g/10 text-gks-g",
 };
 
-/** Static, realistic mock of the Discover screen for the landing page. */
+/** Static mock with fictional profiles; never presented as actual members. */
 export function DiscoverMockup() {
   return (
     <div className="relative select-none overflow-hidden rounded-[24px] bg-surface p-5 shadow-card ring-1 ring-hairline" aria-hidden>
+      <p className="mb-3 text-[11px] font-semibold text-muted">Fictional applicant profiles · illustrative preview</p>
       <div className="flex items-center gap-2">
         <SlidersHorizontal className="h-3.5 w-3.5 text-muted" />
         <div className="flex flex-wrap items-center gap-1.5 text-[11.5px] font-medium">
