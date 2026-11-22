@@ -1,0 +1,43 @@
+name: P1 Mobile Browser Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "proxy.ts"
+      - "scripts/p1-browser-smoke.mjs"
+      - ".github/workflows/p1-browser-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kmate-p1-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Real browser checks at mobile, tablet and desktop widths
+        run: node scripts/p1-browser-smoke.mjs
+        env:
+          BASE_URL: https://kmate.vercel.app
+      - name: Upload mobile screenshots and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmate-p1-browser-results
+          path: artifacts/p1-browser/
+          if-no-files-found: ignore
