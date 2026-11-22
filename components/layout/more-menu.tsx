@@ -1,22 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { MoreHorizontal, ShieldCheck, LockKeyhole, Flag, Info, LogOut } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { MoreHorizontal, ShieldCheck, LockKeyhole, Flag, Info, LogOut, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser-client";
 import { Button } from "@/components/ui/button";
 import { NAV_GROUP_LABELS, NAV_GROUP_ORDER, navItemsByGroup } from "@/lib/nav-items";
+import { buildLoginUrl } from "@/lib/auth/safe-next";
 
 function ReportProblemForm({ onDone }: { onDone: () => void }) {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit() {
     if (reason.trim().length < 3) return;
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch("/api/reports", {
         method: "POST",
@@ -24,6 +27,9 @@ function ReportProblemForm({ onDone }: { onDone: () => void }) {
         body: JSON.stringify({ targetType: "app", targetId: "self", reason }),
       });
       if (res.ok) setDone(true);
+      else setError("Couldn't submit the report. Please try again.");
+    } catch {
+      setError("Couldn't connect. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -43,6 +49,7 @@ function ReportProblemForm({ onDone }: { onDone: () => void }) {
         autoFocus
         className="w-full resize-none rounded-lg border border-border px-2.5 py-2 text-[13px] outline-none focus:border-primary"
       />
+      {error && <p role="alert" className="mt-2 text-[12px] text-red-600">{error}</p>}
       <div className="mt-2 flex justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={onDone}>
           Cancel
@@ -67,6 +74,10 @@ function MoreMenuContent({
   onNavigate: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const query = searchParams.toString();
+  const signInHref = buildLoginUrl(`${pathname}${query ? `?${query}` : ""}`);
   const [mode, setMode] = useState<"menu" | "report">("menu");
 
   async function signOut() {
@@ -90,7 +101,7 @@ function MoreMenuContent({
         <span className="mx-4 mt-1.5 block h-1 w-9 rounded-full bg-ink/10 md:hidden" />
       </div>
       <Link
-        href={isGuest ? "/login" : username ? `/profile/${username}` : "/settings/profile"}
+        href={isGuest ? signInHref : username ? `/profile/${username}` : "/settings/profile"}
         onClick={onNavigate}
         className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-canvas"
       >
@@ -137,18 +148,22 @@ function MoreMenuContent({
       </div>
 
       {isGuest && (
-        <Link href="/login" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] font-medium text-primary hover:bg-primary/5">
-          Continue with Google
+        <Link href={signInHref} onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] font-medium text-primary hover:bg-primary/5">
+          Continue with Google — return to this page
         </Link>
       )}
       <Link href="/guidelines" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <ShieldCheck className="h-4 w-4 text-muted" /> Community guidelines
+      </Link>
+      <Link href="/privacy" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
+        <Info className="h-4 w-4 text-muted" /> Privacy & data use
       </Link>
       {isAdmin && (
         <Link href="/admin" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
           <LockKeyhole className="h-4 w-4 text-muted" /> Admin panel
         </Link>
       )}
+      {!isGuest && (
       <button
         type="button"
         onClick={() => setMode("report")}
@@ -156,6 +171,7 @@ function MoreMenuContent({
       >
         <Flag className="h-4 w-4 text-muted" /> Report a problem
       </button>
+      )}
       <Link href="/about" onClick={onNavigate} className="flex items-center gap-2.5 px-4 py-2.5 text-[13.5px] text-ink hover:bg-canvas">
         <Info className="h-4 w-4 text-muted" /> About KMate
       </Link>
@@ -175,13 +191,58 @@ function MoreMenuContent({
 
 export function MoreMenu({ username, isAdmin = false, isGuest = false }: { username: string | null; isAdmin?: boolean; isGuest?: boolean }) {
   const [open, setOpen] = useState(false);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const panel = mobilePanelRef.current;
+    const originalOverflow = document.body.style.overflow;
+
+    if (isMobile) {
+      document.body.style.overflow = "hidden";
+      panel?.querySelector<HTMLElement>("button, a[href]")?.focus();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+      if (!isMobile || event.key !== "Tab" || !panel) return;
+      const focusable = Array.from(panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled])'
+      ));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (isMobile) document.body.style.overflow = originalOverflow;
+    };
+  }, [open]);
 
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="More"
+        aria-label="More navigation"
+        aria-expanded={open}
+        aria-haspopup="dialog"
         className="flex h-9 w-9 items-center justify-center rounded-full text-ink hover:bg-canvas"
       >
         <MoreHorizontal className="h-5 w-5" />
@@ -200,9 +261,20 @@ export function MoreMenu({ username, isAdmin = false, isGuest = false }: { usern
             <div className="fixed inset-0 z-50 md:hidden" onClick={() => setOpen(false)}>
               <div className="absolute inset-0 bg-ink/30" />
               <div
+                ref={mobilePanelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="KMate navigation"
                 onClick={(e) => e.stopPropagation()}
-                className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-card"
+                className="absolute inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-2xl bg-white pb-[env(safe-area-inset-bottom)] shadow-card"
               >
+                <div className="flex items-center justify-between border-b border-hairline px-4 py-2">
+                  <p className="text-[13px] font-semibold text-ink">KMate navigation</p>
+                  <button type="button" aria-label="Close navigation" onClick={() => { setOpen(false); triggerRef.current?.focus(); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-canvas">
+                    <X className="h-[18px] w-[18px]" aria-hidden />
+                  </button>
+                </div>
                 <MoreMenuContent username={username} isAdmin={isAdmin} isGuest={isGuest} onNavigate={() => setOpen(false)} />
               </div>
             </div>,

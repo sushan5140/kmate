@@ -15,8 +15,11 @@ export default function Navbar() {
           >
             Explore tools
           </Link>
-          <Link href="/about" className="text-muted transition-colors hover:text-ink">
+          <Link href="/about" className="hidden text-muted transition-colors hover:text-ink sm:inline">
             About
+          </Link>
+          <Link href="/privacy" className="text-muted transition-colors hover:text-ink">
+            Privacy
           </Link>
           <Link
             href="/login"

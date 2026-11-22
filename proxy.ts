@@ -12,7 +12,7 @@ import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 // would break the schedule. The route itself is guarded by a
 // CRON_SECRET bearer token / admin check and fails closed -- see
 // app/api/cron/notices/route.ts.
-const PUBLIC_PATHS = ["/", "/login", "/auth", "/guest", "/about", "/guidelines", "/api/cron"];
+const PUBLIC_PATHS = ["/", "/login", "/auth", "/guest", "/about", "/guidelines", "/privacy", "/api/cron"];
 // Next.js metadata routes are public resources, even though they are generated from app/.
 const PUBLIC_METADATA_PATHS = new Set(["/robots.txt", "/sitemap.xml"]);
 const REVIEWER_GUEST_COOKIE = "kmate_reviewer_guest";

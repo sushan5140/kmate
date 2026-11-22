@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { NAV_GROUP_LABELS, NAV_GROUP_ORDER, navItemsByGroup } from "@/lib/nav-items";
 import { cn } from "@/lib/cn";
+import { buildLoginUrl } from "@/lib/auth/safe-next";
 
 export function Sidebar({
   username,
@@ -102,7 +103,7 @@ export function Sidebar({
           </Link>
         )}
         <Link
-          href={isGuest ? "/login" : username ? `/profile/${username}` : "/settings/profile"}
+          href={isGuest ? buildLoginUrl(pathname) : username ? `/profile/${username}` : "/settings/profile"}
           className={cn(
             "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors",
             pathname.startsWith("/profile") ? "bg-primary/10 text-primary" : "text-muted hover:bg-canvas hover:text-ink"
@@ -111,7 +112,7 @@ export function Sidebar({
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-white">
             {username ? username[0]?.toUpperCase() : "?"}
           </span>
-          {isGuest ? "Guest Mode" : "Profile"}
+          {isGuest ? "Sign in to save" : "Profile"}
         </Link>
       </div>
     </aside>
