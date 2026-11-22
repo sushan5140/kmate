@@ -10,10 +10,10 @@ export default function Navbar() {
 
         <nav className="flex items-center gap-4 text-[14px]">
           <Link
-            href="/#how-it-works"
+            href="/#explore-tools"
             className="hidden text-muted transition-colors hover:text-ink sm:inline"
           >
-            How it works
+            Explore tools
           </Link>
           <Link href="/about" className="text-muted transition-colors hover:text-ink">
             About
