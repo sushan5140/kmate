@@ -39,6 +39,28 @@ ok(
   "Landing hero must reflect application-first positioning"
 );
 
+// Public trust: visitors must not mistake fictional marketing previews for
+// real applicants or verified interview frequency statistics.
+const discoverPreview = read("components/marketing/discover-mockup.tsx");
+const interviewPreview = read("components/marketing/interview-mockup.tsx");
+const connectPreview = read("components/marketing/connect-mockup.tsx");
+const timelinePreview = read("components/marketing/gks-timeline.tsx");
+ok(landing.includes('id="explore-tools"') && landing.includes("/guest/start?next="),
+  "Landing must expose direct read-only guest tool entry points");
+ok(discoverPreview.includes("Fictional applicant profiles"),
+  "Marketing applicant examples must be visibly labelled fictional");
+ok(interviewPreview.includes("Illustrative preview") &&
+   !interviewPreview.includes("asked in 23 interviews") &&
+   !interviewPreview.includes("Saved 2s ago"),
+  "Marketing interview demo must not imply real counts or live save events");
+ok(connectPreview.includes("Private in-app messaging") &&
+   !connectPreview.includes("@aigerim_telegram"),
+  "Connection example must match the current in-app messaging privacy model");
+ok(timelinePreview.includes("grid-cols-1") && timelinePreview.includes("md:grid-cols-5"),
+  "GKS timeline must be readable on mobile without horizontal scrolling");
+ok(exists("app/robots.ts") && exists("app/sitemap.ts"),
+  "Public indexing rules and sitemap must be present");
+
 const constants = read("lib/constants.ts");
 ok(constants.includes("GKS_U_APPLICATION_ROUTES"), "Explicit GKS-U application route type is missing");
 
