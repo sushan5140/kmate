@@ -53,7 +53,7 @@ export function ConnectMockup() {
             </span>
           </div>
           <p className="mt-2 text-[11px] leading-relaxed text-muted">
-            External contact methods stay in your private vault.
+            External contact methods may be accessible to accepted connections.
           </p>
         </div>
       </div>
