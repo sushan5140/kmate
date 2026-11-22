@@ -37,10 +37,10 @@ const STAGES = [
  */
 export function GksTimeline() {
   return (
-    <div className="-mx-6 overflow-x-auto px-6 pb-2 [scrollbar-width:thin]">
-      <ol className="grid min-w-[880px] grid-cols-5 gap-4">
+    <div className="md:-mx-6 md:overflow-x-auto md:px-6 md:pb-2 md:[scrollbar-width:thin]">
+      <ol className="grid grid-cols-1 gap-5 md:min-w-[880px] md:grid-cols-5 md:gap-4">
         {STAGES.map((stage, i) => (
-          <li key={stage.month} className="relative">
+          <li key={stage.month} className="relative border-l-2 border-primary/20 pl-4 md:border-l-0 md:pl-0">
             <div className="flex items-center gap-3">
               <span className="flex h-8 shrink-0 items-center rounded-full bg-ink px-3 text-[12px] font-bold tabular-nums text-white">
                 {stage.month}
@@ -49,7 +49,7 @@ export function GksTimeline() {
                 <span className="h-px flex-1 bg-hairline-strong" aria-hidden />
               )}
             </div>
-            <div className="mt-4 pr-2">
+            <div className="mt-2 pr-2 md:mt-4">
               <h3 className="text-[14px] font-semibold text-ink">{stage.title}</h3>
               <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{stage.body}</p>
               <p className="mt-2.5 border-l-2 border-primary/40 pl-2.5 text-[12px] font-medium italic leading-snug text-primary">
