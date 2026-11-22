@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { NAV_GROUP_LABELS, NAV_GROUP_ORDER, navItemsByGroup } from "@/lib/nav-items";
 import { cn } from "@/lib/cn";
 
@@ -23,9 +23,6 @@ export function Sidebar({
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[210px] flex-col border-r border-hairline bg-surface md:flex">
       {/* Pinned: the brand stays put while the nav below it scrolls. */}
       <div className="flex h-16 shrink-0 items-center gap-2.5 px-5">
-        <button type="button" aria-label="Toggle menu" className="text-ink">
-          <Menu className="h-5 w-5" />
-        </button>
         <Link href="/home" className="text-[15px] font-semibold tracking-tight text-ink">
           KMate
         </Link>

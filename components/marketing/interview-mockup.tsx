@@ -1,4 +1,4 @@
-import { ChevronUp, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 
 const CATEGORIES = [
   { label: "All", active: true },
@@ -14,35 +14,33 @@ const QUESTIONS = [
     category: "Motivation",
     categoryClass: "bg-primary-soft text-primary",
     text: "Why Korea — and not a scholarship in your own country?",
-    votes: 47,
-    meta: "asked in 23 interviews",
+    meta: "Illustrative interview practice question",
     selected: true,
   },
   {
     category: "Korea-specific",
     categoryClass: "bg-gks-u/10 text-gks-u",
     text: "What will you do if you fail to reach TOPIK 3 in your language year?",
-    votes: 38,
-    meta: "asked in 17 interviews",
+    meta: "Illustrative interview practice question",
     selected: false,
   },
   {
     category: "Curveball",
     categoryClass: "bg-danger-soft text-danger",
     text: "Convince me you'll go back home after the degree.",
-    votes: 31,
-    meta: "asked in 11 interviews",
+    meta: "Illustrative interview practice question",
     selected: false,
   },
 ];
 
 /**
- * Static two-panel mock of the Interview DB: the question bank on the left,
+ * Illustrative two-panel mock of the Interview DB: sample questions on the left,
  * the private autosaving draft editor on the right.
  */
 export function InterviewMockup() {
   return (
     <div className="relative select-none overflow-hidden rounded-[28px] bg-surface p-5 shadow-card ring-1 ring-hairline sm:p-6" aria-hidden>
+      <p className="mb-3 text-[11px] font-semibold text-muted">Illustrative preview · not live interview statistics</p>
       <div className="flex flex-wrap items-center gap-1.5">
         {CATEGORIES.map((c) => (
           <span
@@ -75,7 +73,7 @@ export function InterviewMockup() {
                   {q.category}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-ink/[0.05] px-2 py-0.5 text-[11px] font-semibold text-ink ring-1 ring-hairline">
-                  <ChevronUp className="h-3 w-3" /> {q.votes}
+                  Example
                 </span>
               </div>
               <p className="mt-2 text-[13px] font-semibold leading-snug text-ink">
@@ -93,7 +91,7 @@ export function InterviewMockup() {
               <Lock className="h-3 w-3" /> Your draft
             </span>
             <span className="rounded-full bg-surface px-2 py-0.5 text-[10.5px] font-semibold text-success shadow-xs">
-              Saved 2s ago
+              Draft preview
             </span>
           </div>
           <p className="mt-2.5 flex-1 text-[12.5px] leading-relaxed text-ink/80">
@@ -104,8 +102,7 @@ export function InterviewMockup() {
             <span className="draft-caret" />
           </p>
           <p className="mt-3 border-t border-primary/15 pt-2.5 text-[11px] leading-snug text-muted">
-            Drafts are visible to exactly one person: you. Not connections,
-            not admins, not anyone.
+            Sample draft for demonstration only. No applicant answers are shown.
           </p>
         </div>
       </div>

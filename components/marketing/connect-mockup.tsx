@@ -1,16 +1,19 @@
-import { AtSign, Check, Send } from "lucide-react";
+import { Check, LockKeyhole, MessageCircle } from "lucide-react";
 
 /**
- * Static mock of the contact-reveal flow: request → accept → contacts
- * become visible. The "before" state renders blurred rows so the
- * hidden-by-default mechanic is visible at a glance.
+ * Fictional connection states for the public landing page.
+ * Accepted connections enable in-app messaging. No external contact
+ * details are displayed or implied to be revealed automatically.
  */
 export function ConnectMockup() {
   return (
     <div className="relative select-none overflow-hidden rounded-[24px] bg-surface p-5 shadow-card ring-1 ring-hairline" aria-hidden>
+      <p className="mb-3 text-[11px] font-semibold text-muted">
+        Fictional connection · illustrative preview
+      </p>
       <div className="flex flex-col gap-3">
         <div className="rounded-2xl bg-canvas/70 p-4 ring-1 ring-hairline">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink/[0.06] text-[12px] font-bold uppercase text-ink/60">
                 A
@@ -24,23 +27,12 @@ export function ConnectMockup() {
               Request pending
             </span>
           </div>
-          <div className="mt-3 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 rounded-lg bg-surface px-2.5 py-1.5 ring-1 ring-hairline">
-              <AtSign className="h-3 w-3 shrink-0 text-muted" />
-              <span className="select-none text-[11.5px] font-medium text-ink blur-[5px]">
-                aigerim.kz01
-              </span>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg bg-surface px-2.5 py-1.5 ring-1 ring-hairline">
-              <Send className="h-3 w-3 shrink-0 text-muted" />
-              <span className="select-none text-[11.5px] font-medium text-ink blur-[5px]">
-                @aigerim_telegram
-              </span>
-            </div>
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-surface px-3 py-2.5 ring-1 ring-hairline">
+            <LockKeyhole className="h-4 w-4 shrink-0 text-muted" />
+            <span className="text-[12px] font-medium text-muted">
+              In-app conversation is locked until the request is accepted.
+            </span>
           </div>
-          <p className="mt-2 text-[10.5px] font-medium text-muted">
-            Contacts stay hidden until she accepts.
-          </p>
         </div>
 
         <div className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-success text-white shadow-xs">
@@ -48,22 +40,21 @@ export function ConnectMockup() {
         </div>
 
         <div className="rounded-2xl bg-canvas/70 p-4 ring-1 ring-success/30">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-[12.5px] font-semibold text-ink">@aigerim.k accepted</p>
             <span className="rounded-full bg-success-soft px-2.5 py-1 text-[10.5px] font-bold text-success">
               Connected
             </span>
           </div>
-          <div className="mt-3 flex flex-col gap-1.5">
-            <div className="flex items-center gap-2 rounded-lg bg-surface px-2.5 py-1.5 ring-1 ring-hairline">
-              <AtSign className="h-3 w-3 shrink-0 text-muted" />
-              <span className="text-[11.5px] font-medium text-ink">aigerim.kz01</span>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg bg-surface px-2.5 py-1.5 ring-1 ring-hairline">
-              <Send className="h-3 w-3 shrink-0 text-muted" />
-              <span className="text-[11.5px] font-medium text-ink">@aigerim_telegram</span>
-            </div>
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-surface px-3 py-3 ring-1 ring-hairline">
+            <MessageCircle className="h-4 w-4 shrink-0 text-primary" />
+            <span className="text-[12px] font-semibold text-ink">
+              Private in-app messaging is available.
+            </span>
           </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+            External contact methods stay in your private vault.
+          </p>
         </div>
       </div>
     </div>

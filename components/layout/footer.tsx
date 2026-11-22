@@ -13,7 +13,7 @@ export default function Footer() {
             About
           </Link>
           <Link href="/guidelines" className="hover:text-ink">
-            Guidelines
+            Community rules
           </Link>
         </nav>
       </div>
