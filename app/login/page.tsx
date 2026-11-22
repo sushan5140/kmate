@@ -46,6 +46,7 @@ export default async function LoginPage({
           </a>
           <p className="text-[11.5px] leading-relaxed text-muted">
             Guest Mode is temporary and read-only. No KMate account is created.
+            {" "}Read about <a href="/privacy" className="font-semibold underline underline-offset-2">privacy and data practices</a>.
           </p>
         </div>
 
