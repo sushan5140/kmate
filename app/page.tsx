@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  ArrowUpRight,
+  BookOpenCheck,
+  ClipboardCheck,
   EyeOff,
+  GraduationCap,
   Flag,
   MessagesSquare,
   ShieldCheck,
@@ -53,6 +57,33 @@ const HOW_IT_WORKS = [
     step: "04",
     title: "Prepare with your cohort",
     body: "Find relevant applicants, connect intentionally and use private in-app messaging after both sides opt in.",
+  },
+];
+
+const TOOL_PREVIEWS = [
+  {
+    title: "Check official GKS rules",
+    summary: "Start with cycle-labelled source material rather than a recycled forum answer.",
+    path: "/official-guidelines",
+    icon: BookOpenCheck,
+  },
+  {
+    title: "Plan your application",
+    summary: "Explore document readiness and the steps for your chosen program and route.",
+    path: "/application-readiness",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Compare requirements",
+    summary: "See which university details are supported and which still need verification.",
+    path: "/requirement-checker",
+    icon: GraduationCap,
+  },
+  {
+    title: "Prepare for interviews",
+    summary: "Explore a themed question bank and the preparation workflow.",
+    path: "/interview-db",
+    icon: MessagesSquare,
   },
 ];
 
@@ -127,13 +158,13 @@ export default async function LandingPage() {
                   href="/login"
                   className="inline-flex h-11 items-center rounded-full bg-ink px-6 text-[14px] font-medium text-white shadow-xs transition-all duration-150 hover:shadow-card active:scale-[0.97]"
                 >
-                  Continue with Google
+                  Sign in with Google
                 </Link>
                 <Link
                   href="/guest/start"
                   className="inline-flex h-11 items-center rounded-full bg-white px-6 text-[14px] font-medium text-ink ring-1 ring-hairline shadow-xs transition-all duration-150 hover:shadow-card active:scale-[0.97]"
                 >
-                  Try as guest
+                  Explore as guest
                 </Link>
                 <Link
                   href="/about"
@@ -142,6 +173,9 @@ export default async function LandingPage() {
                   Learn more →
                 </Link>
               </div>
+              <p className="mt-3 text-[12px] leading-relaxed text-muted">
+                Guest preview is temporary and read-only. No account needed to explore.
+              </p>
             </Reveal>
           </div>
 
@@ -215,6 +249,62 @@ export default async function LandingPage() {
               </div>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* Public tool entry points: explain the value before sign-in.         */}
+      {/* ---------------------------------------------------------------- */}
+      <section id="explore-tools" className="border-y border-hairline bg-surface/60">
+        <div className="mx-auto max-w-5xl px-6 py-20">
+          <Reveal>
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-primary">
+              Explore KMate
+            </p>
+            <h2 className="text-balance mt-3 max-w-2xl text-[26px] font-semibold leading-tight text-ink sm:text-[32px]">
+              Start with the question you actually need answered.
+            </h2>
+            <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-muted">
+              Preview these tools without creating an account. Guest mode is read-only;
+              signing in is needed to save progress or connect with other applicants.
+            </p>
+          </Reveal>
+
+          <div className="mt-9 grid gap-4 sm:grid-cols-2">
+            {TOOL_PREVIEWS.map((tool, i) => {
+              const Icon = tool.icon;
+              return (
+                <Reveal key={tool.path} delay={i * 0.06}>
+                  <Link
+                    href={`/guest/start?next=${encodeURIComponent(tool.path)}`}
+                    className="group flex h-full flex-col rounded-[22px] bg-canvas p-5 ring-1 ring-hairline transition-all hover:-translate-y-0.5 hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                        <Icon className="h-5 w-5" aria-hidden />
+                      </span>
+                      <ArrowUpRight className="h-4 w-4 text-muted transition-colors group-hover:text-primary" aria-hidden />
+                    </div>
+                    <h3 className="mt-4 text-[16px] font-semibold text-ink">{tool.title}</h3>
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-muted">{tool.summary}</p>
+                    <span className="mt-4 text-[12px] font-semibold text-primary">Preview as guest</span>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
+          <p className="mt-5 text-[12px] leading-relaxed text-muted">
+            For a 2027 GKS-U decision, confirm the final requirements in the{" "}
+            <a
+              href="https://www.studyinkorea.go.kr/en/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4522"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary underline underline-offset-2"
+            >
+              official NIIED / Study in Korea announcement
+            </a>{" "}
+            and the relevant embassy or university notice.
+          </p>
         </div>
       </section>
 
@@ -333,7 +423,8 @@ export default async function LandingPage() {
             <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-muted">
               The GKS-G cycle, roughly. GKS-U runs the same shape from
               September. Whichever track you&apos;re on, the person you need in
-              February is not the person you need in June.
+              February is not the person you need in June. These are illustrative stages,
+              not official deadlines; check the latest notice for your specific cycle and route.
             </p>
           </Reveal>
           <Reveal delay={0.15} className="mt-12">
