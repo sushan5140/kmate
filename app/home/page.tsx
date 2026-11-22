@@ -180,9 +180,9 @@ export default async function HomePage() {
 
       {reviewerGuest && (
         <Card className="mt-6 border-primary/20 bg-primary/5">
-          <MicroLabel>Reviewer Guest Mode</MicroLabel>
+          <MicroLabel>Guest preview</MicroLabel>
           <p className="mt-1 text-[13.5px] leading-relaxed text-ink">
-            KMate is showing the broad reviewer view: both GKS-U and GKS-G, all majors, and no university preference until you choose a filter.
+            Explore GKS-U and GKS-G tools without an account. Choose a program and route inside each tool to focus your view.
           </p>
           <p className="mt-1 text-[11.5px] text-muted">This temporary identity is read-only and is not a KMate account.</p>
         </Card>
