@@ -27,9 +27,9 @@ function ReportProblemForm({ onDone }: { onDone: () => void }) {
         body: JSON.stringify({ targetType: "app", targetId: "self", reason }),
       });
       if (res.ok) setDone(true);
-      else setError("Couldn\'t submit the report. Please try again.");
+      else setError("Couldn't submit the report. Please try again.");
     } catch {
-      setError("Couldn\'t connect. Please try again.");
+      setError("Couldn't connect. Please try again.");
     } finally {
       setSubmitting(false);
     }
