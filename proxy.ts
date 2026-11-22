@@ -13,6 +13,8 @@ import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 // CRON_SECRET bearer token / admin check and fails closed -- see
 // app/api/cron/notices/route.ts.
 const PUBLIC_PATHS = ["/", "/login", "/auth", "/guest", "/about", "/guidelines", "/api/cron"];
+// Next.js metadata routes are public resources, even though they are generated from app/.
+const PUBLIC_METADATA_PATHS = new Set(["/robots.txt", "/sitemap.xml"]);
 const REVIEWER_GUEST_COOKIE = "kmate_reviewer_guest";
 
 function readReviewerGuest(request: NextRequest): { id: string; name: string } | null {
@@ -31,6 +33,7 @@ function readReviewerGuest(request: NextRequest): { id: string; name: string } |
 }
 
 function isPublicPath(pathname: string) {
+  if (PUBLIC_METADATA_PATHS.has(pathname)) return true;
   return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
 }
 

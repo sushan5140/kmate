@@ -60,6 +60,11 @@ ok(timelinePreview.includes("grid-cols-1") && timelinePreview.includes("md:grid-
   "GKS timeline must be readable on mobile without horizontal scrolling");
 ok(exists("app/robots.ts") && exists("app/sitemap.ts"),
   "Public indexing rules and sitemap must be present");
+const proxy = read("proxy.ts");
+ok(proxy.includes('"/robots.txt"') && proxy.includes('"/sitemap.xml"') &&
+   proxy.includes("PUBLIC_METADATA_PATHS.has(pathname)"),
+   "Public metadata routes must bypass the authentication redirect");
+
 
 const constants = read("lib/constants.ts");
 ok(constants.includes("GKS_U_APPLICATION_ROUTES"), "Explicit GKS-U application route type is missing");
