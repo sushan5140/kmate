@@ -32,6 +32,29 @@ try {
     const response = await page.goto(base + "/", { waitUntil: "domcontentloaded", timeout: 45000 });
     assert.equal(response?.status(), 200, `Homepage HTTP status for ${width}px`);
     await page.getByRole("heading", { name: /Build your GKS application/i }).waitFor();
+
+    // A fullPage screenshot does not simulate actual scrolling. KMate's
+    // decorative Reveal sections enter only after they intersect the
+    // viewport, so sweep the page before capturing screenshots. This also
+    // verifies that a real user can reach the content below the first fold.
+    const fullHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let y = 0; y < fullHeight; y += 560) {
+      await page.evaluate((scrollY) => window.scrollTo(0, scrollY), y);
+      await page.waitForTimeout(90);
+    }
+    const toolsHeading = page.getByRole("heading", {
+      name: /Start with the question you actually need answered/i,
+    });
+    await toolsHeading.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(800);
+    const toolsOpacity = await toolsHeading.evaluate(
+      (node) => Number(getComputedStyle(node.parentElement).opacity)
+    );
+    assert.ok(toolsOpacity >= 0.95,
+      `Public tool section did not become visible when scrolled at ${width}px (opacity ${toolsOpacity})`);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(700);
+
     const actualOverflow = await page.evaluate(() =>
       Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - window.innerWidth
     );
