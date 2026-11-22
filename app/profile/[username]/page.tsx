@@ -152,7 +152,7 @@ export default async function ProfilePage({
           ) : (
             <>
               <p className="text-[13.5px] text-muted">
-                Private -- only visible to people once you accept a connection request from them.
+                Optional contact methods are not shown on your public profile. Accepted connections can access them under the current data permissions, even though the profile interface primarily uses in-app messaging.
               </p>
               <div className="mt-4">
                 <EditContactsForm initial={contactsInitial} />
