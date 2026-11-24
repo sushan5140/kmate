@@ -4,10 +4,13 @@
     "deploymentEnabled": {
       "**": false,
       "main": true,
-      "preview": true
+      "preview": true,
+      "feature/youtube-outreach-mainline": true
     }
   },
-  "regions": ["sin1"],
+  "regions": [
+    "sin1"
+  ],
   "crons": [
     {
       "path": "/api/cron/daily-maintenance",
