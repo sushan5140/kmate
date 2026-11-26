@@ -24,6 +24,7 @@ import { createHash } from "node:crypto";
 
 const BASE = "https://www.studyinkorea.go.kr";
 export const STUDY_IN_KOREA_NOTICE_URL = `${BASE}/en/community/noticeList.do`;
+export const STUDY_IN_KOREA_GKS_URL = `${BASE}/ko/notice/scholarshipsList.do?boardSort=3`;
 export const STUDY_IN_KOREA_DOMAIN = "www.studyinkorea.go.kr";
 
 // Identifies the crawler honestly rather than impersonating a browser. The
@@ -189,9 +190,9 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
  * `<span class="date">`. A row missing an id pair or a title is skipped
  * outright rather than stored with invented values.
  */
-export function parseNoticeList(html: string): NoticeListItem[] {
+export function parseNoticeList(html: string, board: "general" | "scholarship" = "general"): NoticeListItem[] {
   const items: NoticeListItem[] = [];
-  const anchorRe = /<a\b[^>]*class="[^"]*board-text-item[^"]*"[^>]*onclick="noticeRead\('([^']+)',\s*'([^']+)'\)"[\s\S]*?<\/a>/g;
+  const anchorRe = /<a\b[^>]*onclick="(?:noticeRead|scholarshipsRead|gksNoticeRead)\(\s*'([0-9]+)'\s*,\s*'(BBSMSTR_[0-9]+)'\s*\)"[^>]*>[\s\S]*?<\/a>/gi;
 
   for (const m of html.matchAll(anchorRe)) {
     const [block, nttId, bbsId] = m;
@@ -203,7 +204,7 @@ export function parseNoticeList(html: string): NoticeListItem[] {
     const rawDate = dateMatch ? htmlToCleanText(dateMatch[1]) : "";
     const publishedDate = DATE_RE.test(rawDate) ? rawDate : null;
 
-    items.push({ nttId, bbsId, title, publishedDate, sourceUrl: buildNoticeUrl(nttId, bbsId) });
+    items.push({ nttId, bbsId, title, publishedDate, sourceUrl: board === "scholarship" ? `${BASE}/ko/notice/scholarshipsRead.do?bbsId=${encodeURIComponent(bbsId)}&nttId=${encodeURIComponent(nttId)}` : buildNoticeUrl(nttId, bbsId) });
   }
   return items;
 }
@@ -230,6 +231,12 @@ export function parseNoticeDetail(html: string): NoticeDetail {
 
 export async function fetchNoticeList(): Promise<NoticeListItem[]> {
   return parseNoticeList(await fetchText(STUDY_IN_KOREA_NOTICE_URL));
+}
+
+export async function fetchScholarshipNoticeList(): Promise<NoticeListItem[]> {
+  const items = parseNoticeList(await fetchText(STUDY_IN_KOREA_GKS_URL), "scholarship");
+  if (!items.length) throw new Error("GKS scholarship board parsed to zero items; review source markup");
+  return items;
 }
 
 export async function fetchNoticeDetail(sourceUrl: string): Promise<NoticeDetail> {
