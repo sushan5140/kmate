@@ -161,18 +161,6 @@ export default async function ApplicationReadinessPage({
       </nav>
 
       {showGraduatePreparation && (
-          <a href="#graduate-preparation" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
-            GKS-G 2027 preparation
-          </a>
-        )}
-        {showGksU2027 && (
-          <a href="#supporting-tools" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
-            3 · Forms &amp; final checks
-          </a>
-        )}
-      </nav>
-
-      {showGraduatePreparation && (
         <GraduatePreparationHub key={graduateAccountId ?? "guest"} track={graduateTrack} accountId={graduateAccountId} />
       )}
 
