@@ -197,6 +197,17 @@ ok(
   "README positioning must match the application-first product"
 );
 
+// P4 public guidance must not open private application routes.
+const p4Proxy = read("proxy.ts");
+const p4Sitemap = read("app/sitemap.ts");
+const p4Robots = read("app/robots.ts");
+const p4Article = read("app/(info)/gks-guides/[slug]/page.tsx");
+ok(p4Proxy.includes("PUBLIC_GUIDE_PATHS.includes(pathname)") && p4Sitemap.includes("PUBLIC_GUIDE_PATHS.map"),
+  "Public guide allowlist and sitemap must use the same source");
+ok(p4Robots.includes('"/professor-outreach"') && p4Robots.includes('"/stage-matching"'),
+  "New private tool routes must stay out of crawls");
+ok(p4Article.includes("alternates: { canonical: url }") && p4Article.includes("guestToolHref(g.tool.href)"),
+  "Public guides need unique canonicals and safe guest links");
 if (failures.length) {
   console.error("\nKMate release audit failed:");
   for (const failure of failures) console.error(" - " + failure);

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { PUBLIC_GUIDE_PATHS } from "@/lib/marketing/gks-guides";
 import { buildLoginUrl, destinationFrom } from "@/lib/auth/safe-next";
 
 // Unlike a typical "protect one section" setup, almost everything in GKS
@@ -33,7 +34,7 @@ function readReviewerGuest(request: NextRequest): { id: string; name: string } |
 }
 
 function isPublicPath(pathname: string) {
-  if (PUBLIC_METADATA_PATHS.has(pathname)) return true;
+  if (PUBLIC_METADATA_PATHS.has(pathname) || PUBLIC_GUIDE_PATHS.includes(pathname)) return true;
   return PUBLIC_PATHS.some((p) => (p === "/" ? pathname === "/" : pathname.startsWith(p)));
 }
 
