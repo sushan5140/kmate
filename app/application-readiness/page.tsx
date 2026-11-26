@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
+import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
+import { GraduatePreparationHub } from "@/components/readiness/graduate-preparation-hub";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
 import { getProfileDefaults } from "@/lib/readiness/profile";
@@ -103,6 +104,9 @@ export default async function ApplicationReadinessPage({
   }
 
   const showGksU2027 = program === "GKS-U";
+  const showGraduatePreparation = program === "GKS-G";
+  const graduateTrack = track === "embassy" || track === "university" ? track : "";
+  const graduateAccountId = showGraduatePreparation && !(await getReviewerGuest()) ? user.id : null;
   const routePath =
     track === "embassy" ? (subtype === "r_gks" ? "r_gks" : "general") : null;
   const savedUniversityNames = universities.map((u) => u.name);
@@ -134,12 +138,21 @@ export default async function ApplicationReadinessPage({
         <a href="#application-checklist" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
           2 · Checklist
         </a>
+        {showGraduatePreparation && (
+          <a href="#graduate-preparation" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
+            GKS-G 2027 preparation
+          </a>
+        )}
         {showGksU2027 && (
           <a href="#supporting-tools" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
             3 · Forms &amp; final checks
           </a>
         )}
       </nav>
+
+      {showGraduatePreparation && (
+        <GraduatePreparationHub key={graduateAccountId ?? "guest"} track={graduateTrack} accountId={graduateAccountId} />
+      )}
 
       <div id="application-setup">
       {showGksU2027 && (
