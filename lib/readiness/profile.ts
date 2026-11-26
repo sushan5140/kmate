@@ -32,6 +32,7 @@ import type { GksUEmbassyPath } from "@/lib/constants";
 
 export interface ProfileDefaults {
   program: string;
+  applicationYear?: number | null;
   track: string;
   subtype: string;
   major: string;
@@ -66,7 +67,7 @@ export async function getProfileDefaults(userId: string): Promise<ProfileDefault
   const { data } = await getSupabaseAdmin()
     .from("profiles")
     .select(
-      `track, gks_u_embassy_path, major,
+      `track, gks_u_embassy_path, major, application_year,
        university_choices (
          priority,
          university:universities ( name ),
@@ -122,6 +123,7 @@ export async function getProfileDefaults(userId: string): Promise<ProfileDefault
 
   return {
     program,
+    applicationYear: typeof data.application_year === "number" ? data.application_year : null,
     track,
     subtype,
     major,
