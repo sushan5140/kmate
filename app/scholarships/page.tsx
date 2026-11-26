@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { scholarshipAvailability, scholarshipDeadlineLabel } from "@/lib/scholarships/availability";
+import { curatedScholarshipRows } from "@/lib/scholarships/curated-windows";
 import ScholarshipStudio, {
   type ScholarshipStudioProfileSeed,
   type ScholarshipStudioRow,
@@ -85,7 +86,7 @@ export default async function ScholarshipsPage() {
 
   const allRows = (scholarshipData ?? []) as ScholarshipRow[];
   const now = new Date();
-  const mapped = allRows.map(row => studioRow(row, now));
+  const mapped = [...curatedScholarshipRows(now), ...allRows.map(row => studioRow(row, now))];
   const rows = mapped.filter(row => row.availability.listed);
   const archive = mapped.filter(row => !row.availability.listed);
 
@@ -100,6 +101,7 @@ export default async function ScholarshipsPage() {
       rows={rows}
       archivedRows={archive}
       profileSeed={profileSeed}
+      asOf={now.toISOString()}
     />
   );
 }
