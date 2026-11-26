@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { classifyProgram, noticeIntake } from "@/lib/notices/classify";
 import type { CandidateDate } from "@/lib/notices/review-schema";
 import { proposeFromCandidate, type NoticeContext } from "./deadline-assistant";
 import { evaluateGate } from "./gate";
@@ -77,7 +78,8 @@ export async function runDeadlineAssistant(): Promise<AssistantRunResult> {
     .select(
       "id, notice_id, source_url, source_notice_id, title, program, track, status, extracted_dates, published_at, notice:notices ( id, clean_text, title, is_active )"
     )
-    .eq("status", "approved");
+    .eq("status", "approved")
+    .neq("program", "unknown");
 
   if (error) {
     out.errors.push(`loading approved notices failed: ${error.message}`);
@@ -109,6 +111,7 @@ export async function runDeadlineAssistant(): Promise<AssistantRunResult> {
 
   for (const row of rows) {
     if (!row.notice || row.notice.is_active === false) continue;
+    if (classifyProgram(row.notice.title) !== row.program || !noticeIntake(row.notice.title)) continue;
     out.noticesConsidered++;
 
     const candidates: CandidateDate[] = Array.isArray(row.extracted_dates)
