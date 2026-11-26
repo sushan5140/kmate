@@ -35,6 +35,7 @@ const SECTIONS = [
     body: [
       "Guest preview uses a temporary browser cookie lasting up to four hours and does not create a normal KMate login. It is intended for browsing only, not saving private application data.",
       "Some application checklist progress is stored in your own browser's local storage. Clearing browser storage removes that local copy. Changing devices or browsers may not carry local progress across.",
+      "Professor Outreach records are stored in browser-local storage under your KMate account. The tracker does not send records to the server or other applicants. They are not encrypted, do not sync across devices, and may remain after sign-out or profile reset. Use the tracker’s Clear all outreach records action or clear site storage to remove the local copy.",
       "Like most hosted websites, KMate and its infrastructure providers process the technical request and session information needed to serve the site. KMate uses Google sign-in, Supabase and Vercel infrastructure.",
     ],
   },
@@ -57,7 +58,7 @@ export default function PrivacyPage() {
           Know what you share before you join.
         </h1>
         <p className="mt-3 text-muted">
-          Updated 22 November 2026. This page describes the current implementation; it is not a promise that all
+          Updated 26 November 2026. This page describes the current implementation; it is not a promise that all
           stored records can already be deleted automatically.
         </p>
       </header>
