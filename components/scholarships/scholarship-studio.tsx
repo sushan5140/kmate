@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { scholarshipAvailability } from "@/lib/scholarships/availability";
 import {
   COMMON_DOCUMENT_TYPES,
   DOC_LABELS,
@@ -109,6 +110,7 @@ function mergeApplication(
 function fundingModel(row: ScholarshipStudioRow) {
   const text = `${row.tuition_coverage ?? ""} ${row.benefit_type ?? ""}`;
   let tuitionPct = 0;
+  if (row.application_window) return { tuitionPct: 0, stipendMonthly: 0 };
   if (/full tuition|100\s*%/i.test(text)) tuitionPct = 100;
   else {
     const percent = text.match(/([0-9]{1,3})\s*%/);
@@ -132,14 +134,28 @@ function compareSnapshotFields(previous: StudioSnapshot, current: StudioSnapshot
 }
 
 export default function ScholarshipStudio({
-  rows,
-  archivedRows,
+  rows: sourceRows,
+  archivedRows: sourceArchive,
   profileSeed,
+  asOf,
 }: {
   rows: ScholarshipStudioRow[];
   archivedRows: ScholarshipStudioRow[];
   profileSeed: ScholarshipStudioProfileSeed;
+  asOf: string;
 }) {
+  const [now, setNow] = useState(asOf);
+  useEffect(() => {
+    const refresh = () => setNow(new Date().toISOString());
+    const timer = window.setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", refresh); };
+  }, []);
+  const allRows = useMemo(() => [...sourceRows, ...sourceArchive].map(row => ({ ...row, availability: scholarshipAvailability(row, new Date(now)) })), [sourceRows, sourceArchive, now]);
+  const rows = useMemo(() => allRows.filter(row => row.availability.listed), [allRows]);
+  const archivedRows = useMemo(() => allRows.filter(row => !row.availability.listed), [allRows]);
+  const openCount = rows.filter(row => row.availability.kind === "open").length;
+  const upcomingCount = rows.filter(row => row.availability.kind === "upcoming").length;
   const universities = useMemo(
     () => [...new Set(rows.map((row) => row.university_name))],
     [rows]
@@ -147,11 +163,10 @@ export default function ScholarshipStudio({
 
   const [view, setView] = useState<StudioView>("discover");
   const [activeUniversity, setActiveUniversity] = useState("all");
-  const [previewUniversity, setPreviewUniversity] = useState(universities[0] ?? "");
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "expiring">("all");
+  const [statusFilter, setStatusFilter] = useState<"open" | "upcoming" | "reference" | "all">("open");
+  const [degreeFilter, setDegreeFilter] = useState("all");
   const [deadlineFilter, setDeadlineFilter] = useState<"all" | "fixed" | "admission_schedule" | "automatic">("all");
-  const [pointer, setPointer] = useState({ x: 78, y: 28 });
   const [workspace, setWorkspace] = useState<StudioWorkspace>(() => ({
     tracked: [],
     compare: [],
@@ -234,7 +249,10 @@ export default function ScholarshipStudio({
     const needle = query.trim().toLowerCase();
     return rows.filter((row) => {
       if (activeUniversity !== "all" && row.university_name !== activeUniversity) return false;
-      if (statusFilter === "expiring" && row.availability.kind !== "closing") return false;
+      if (degreeFilter !== "all" && row.degree_level !== degreeFilter) return false;
+      if (statusFilter === "open" && row.availability.kind !== "open") return false;
+      if (statusFilter === "upcoming" && row.availability.kind !== "upcoming") return false;
+      if (statusFilter === "reference" && (row.availability.kind === "open" || row.availability.kind === "upcoming")) return false;
       if (deadlineFilter !== "all" && row.deadline_type !== deadlineFilter) return false;
       if (!needle) return true;
       return [
@@ -248,31 +266,11 @@ export default function ScholarshipStudio({
       ]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(needle));
+    }).sort((a,b) => {
+      const rank = (row: ScholarshipStudioRow) => row.availability.kind === "open" ? 0 : row.availability.kind === "upcoming" ? 1 : 2;
+      return rank(a)-rank(b) || (a.application_window?.closesAt ?? a.deadline ?? "9999").localeCompare(b.application_window?.closesAt ?? b.deadline ?? "9999") || a.university_name.localeCompare(b.university_name);
     });
-  }, [rows, query, activeUniversity, statusFilter, deadlineFilter]);
-
-  const activePreview = useMemo(() => {
-    const name = previewUniversity || universities[0] || "";
-    const universityRows = rows.filter((row) => row.university_name === name);
-    return {
-      name,
-      count: universityRows.length,
-      place:
-        name === "KAIST"
-          ? "Daejeon"
-          : name === "UNIST"
-            ? "Ulsan"
-            : name === "Korea University"
-              ? "Seoul"
-              : name === "Ajou University"
-                ? "Suwon"
-                : "South Korea",
-      headline:
-        universityRows.find((row) => row.tuition_coverage)?.tuition_coverage ??
-        universityRows.find((row) => row.benefit_type)?.benefit_type ??
-        "University-funded scholarship options",
-    };
-  }, [previewUniversity, rows, universities]);
+  }, [rows, query, activeUniversity, statusFilter, deadlineFilter, degreeFilter]);
 
   const completion = profileCompletion(workspace.profile);
 
@@ -463,16 +461,7 @@ export default function ScholarshipStudio({
     });
   };
 
-  const filterUniversity = (university: string) => {
-    setActiveUniversity(university);
-    setPreviewUniversity(university === "all" ? universities[0] ?? "" : university);
-    requestAnimationFrame(() => {
-      document.getElementById("scholarship-stream")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-  };
+
 
   const saveSearchWatch = () => {
     const signature = JSON.stringify({
@@ -852,135 +841,202 @@ export default function ScholarshipStudio({
 
       {view === "discover" && (
         <>
-          <section
-            id="discover"
-            onPointerMove={(event) => {
-              const rect = event.currentTarget.getBoundingClientRect();
-              setPointer({
-                x: ((event.clientX - rect.left) / rect.width) * 100,
-                y: ((event.clientY - rect.top) / rect.height) * 100,
-              });
-            }}
-            className="relative isolate min-h-[560px] overflow-hidden rounded-[28px] bg-surface text-ink shadow-card ring-1 ring-hairline"
-            style={{
-              backgroundImage: `radial-gradient(circle at ${pointer.x}% ${pointer.y}%, rgba(62,99,221,.10), transparent 24%), radial-gradient(ellipse 52% 48% at 76% 34%, rgba(62,99,221,.07), transparent 72%)`,
-            }}
-          >
-            <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:linear-gradient(rgba(18,21,33,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(18,21,33,.045)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_82%_76%_at_50%_0%,black_38%,transparent_92%)]" />
-
-            <div className="relative z-10 flex items-center justify-between gap-4 border-b border-hairline px-5 py-4 text-[10px] font-semibold text-muted/60 sm:px-7">
-              <span>KMATE / SCHOLARSHIP STUDIO</span>
-              <span className="hidden sm:block">UNIVERSITY FUNDING · KOREA</span>
-              <span>{rows.length} LIVE INDEXED AWARDS</span>
+          <header className="rounded-2xl border border-hairline bg-surface p-5 sm:p-7">
+            <p className="text-[12px] font-semibold uppercase tracking-wider text-primary">University funding · South Korea</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Scholarship Studio</h1>
+            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-muted">Find intake-specific funding with published application windows. Expired calls leave discovery automatically. Check eligibility and the official application portal before applying.</p>
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {([["open", "Published windows open", openCount], ["upcoming", "Upcoming windows", upcomingCount], ["reference", "Funding references", rows.length-openCount-upcomingCount], ["all", "All non-expired", rows.length]] as const).map(([id,label,count]) => <button type="button" key={id} onClick={() => { setStatusFilter(id); setActiveUniversity("all"); setQuery(""); setDegreeFilter("all"); setDeadlineFilter("all"); }} className={cn("min-h-[90px] rounded-xl border p-3 text-left transition-colors",statusFilter===id?"border-primary bg-primary-soft":"border-hairline bg-white hover:bg-canvas")}>
+                <span className="block text-2xl font-semibold tabular-nums text-ink">{count}</span>
+                <span className="mt-1 block text-[12px] text-muted">{label}</span>
+              </button>)}
             </div>
+          </header>
 
-            <div className="relative z-10 grid min-h-[396px] gap-10 px-5 py-12 sm:px-7 lg:grid-cols-[minmax(0,1.18fr)_minmax(310px,.82fr)] lg:px-10 lg:py-14">
-              <div className="flex flex-col justify-end">
-                <p className="mb-5 flex items-center gap-2 text-[11px] font-semibold text-muted">
-                  <CircleDot className="h-3.5 w-3.5 text-gks-u" />
-                  Source-linked university scholarships
-                </p>
-                <h1 className="max-w-[860px] text-balance text-[clamp(48px,6.8vw,92px)] font-semibold leading-[0.96] tracking-[-0.045em] text-ink">
-                  Scholarships{" "}
-                  <em className="font-serif font-normal italic tracking-normal text-primary">
-                    worth your time.
-                  </em>
-                </h1>
-                <p className="mt-6 max-w-[610px] text-[14px] leading-7 text-muted sm:text-[15px]">
-                  Find university funding, inspect the published rules, save the awards that matter, and run the entire application workflow inside KMate.
-                </p>
-                <div className="mt-7 flex flex-wrap items-center gap-5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      document.getElementById("scholarship-stream")?.scrollIntoView({ behavior: "smooth" })
-                    }
-                    className="inline-flex h-11 items-center gap-2 rounded-full bg-ink px-5 text-[12px] font-medium text-white shadow-xs transition-[transform,box-shadow,background] duration-150 hover:bg-ink/90 hover:shadow-card active:scale-[0.97]"
-                  >
-                    Explore scholarships
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setView("eligibility")}
-                    className="inline-flex h-11 items-center gap-2 text-[12px] font-medium text-muted transition-colors hover:text-ink"
-                  >
-                    Check my profile
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </button>
+          <section id="scholarship-stream" className="scroll-mt-24 pt-4">
+            <div className="sticky top-[70px] z-20 rounded-xl border border-hairline bg-surface/95 p-4 shadow-xs backdrop-blur-xl">
+              <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gks-u">
+                    Scholarship stream
+                  </p>
+                  <h2 className="mt-1 text-[clamp(26px,3vw,38px)] font-medium tracking-[-0.045em]">
+                    {statusFilter === "open" ? "Open application windows" : statusFilter === "upcoming" ? "Upcoming published windows" : statusFilter === "reference" ? "Funding references" : "All non-expired records"}
+                  </h2>
+                  <p className="mt-1 text-[11px] text-muted">
+                    Click any scholarship row to open its full record.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-muted">
+                  <CircleDot className="h-3.5 w-3.5 text-success" />
+                  Published windows · KST
                 </div>
               </div>
 
-              <div className="relative flex items-end lg:justify-end">
-                <div className="glow-wash pointer-events-none absolute -inset-6 opacity-80" aria-hidden />
-                <div className="relative w-full max-w-[390px] rounded-[24px] bg-white p-5 shadow-card ring-1 ring-primary/15 sm:p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                      Live funding signal
-                    </p>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gks-u/10 px-2 py-1 text-[8px] font-semibold text-gks-u">
-                      <span className="h-1.5 w-1.5 rounded-full bg-gks-u" />
-                      Scholarship Studio
-                    </span>
-                  </div>
-                  <div className="mt-7 min-h-[170px]">
-                    <p className="text-[12px] text-muted">{activePreview.place}</p>
-                    <p className="mt-2 text-[clamp(34px,3.8vw,54px)] font-semibold leading-[0.98] tracking-[-0.045em] text-ink">
-                      {activePreview.name || "University"}
-                    </p>
-                    <div className="mt-4 flex items-center gap-3 text-[11px] text-muted">
-                      <span>
-                        <b className="text-primary">{activePreview.count}</b> indexed awards
-                      </span>
-                      <span className="h-1 w-1 rounded-full bg-muted/30" />
-                      <span>official sources</span>
-                    </div>
-                    <p className="mt-6 max-w-[320px] text-[12px] leading-6 text-muted">
-                      {activePreview.headline}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => filterUniversity(activePreview.name)}
-                    className="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold text-primary hover:text-primary-hover"
-                  >
-                    Show these awards
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative z-10 grid border-t border-hairline bg-white/62 sm:grid-cols-2 lg:grid-cols-4">
-              {universities.slice(0, 4).map((university, index) => {
-                const count = rows.filter((row) => row.university_name === university).length;
-                const active = previewUniversity === university;
-                return (
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveUniversity("all")}
+                  className={cn(
+                    "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold",
+                    activeUniversity === "all"
+                      ? "border-primary bg-primary text-white"
+                      : "border-border bg-white text-muted hover:bg-primary-soft"
+                  )}
+                >
+                  All <span className="ml-1 opacity-60">{rows.length}</span>
+                </button>
+                {universities.map((university) => (
                   <button
                     key={university}
                     type="button"
-                    onPointerEnter={() => setPreviewUniversity(university)}
-                    onFocus={() => setPreviewUniversity(university)}
-                    onClick={() => filterUniversity(university)}
+                    onClick={() => setActiveUniversity(university)}
                     className={cn(
-                      "group relative min-h-[88px] border-b border-hairline px-5 py-4 text-left transition-colors sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
-                      active ? "bg-primary-soft" : "hover:bg-canvas"
+                      "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold",
+                      activeUniversity === university
+                        ? "border-primary bg-primary text-white"
+                        : "border-border bg-white text-muted hover:bg-primary-soft"
                     )}
                   >
-                    <span className="text-[9px] font-semibold text-muted/45">0{index + 1}</span>
-                    <p className="mt-4 text-[16px] font-semibold tracking-[-0.025em] text-ink transition-colors group-hover:text-primary">
-                      {university}
-                    </p>
-                    <p className="mt-1 text-[9px] text-muted">{count} awards</p>
-                    <span
-                      className={cn(
-                        "absolute bottom-3 left-0 top-3 w-[2px] rounded-full bg-primary transition-opacity",
-                        active ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                      )}
-                    />
+                    {university}{" "}
+                    <span className="ml-1 opacity-60">
+                      {rows.filter((row) => row.university_name === university).length}
+                    </span>
                   </button>
-                );
-              })}
+                ))}
+              </div>
+
+              <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto]">
+                <label className="flex h-11 items-center gap-2 rounded-lg border border-border bg-canvas/65 px-3 focus-within:border-primary">
+                  <Search className="h-4 w-4 text-muted/60" />
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search awards, funding, GPA, TOPIK…"
+                    className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted/50"
+                  />
+                </label>
+                <label className="relative flex h-11 items-center rounded-lg border border-border bg-white">
+                  <SlidersHorizontal className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-muted/55" />
+                  <select
+                    value={activeUniversity}
+                    onChange={(event) => setActiveUniversity(event.target.value)}
+                    className="h-full w-full appearance-none bg-transparent pl-9 pr-3 text-[11px] font-medium text-muted outline-none"
+                  >
+                    <option value="all">All universities</option>
+                    {universities.map((university) => (
+                      <option key={university} value={university}>
+                        {university}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
+                  className="h-11 rounded-lg border border-border bg-white px-3 text-[11px] font-medium text-muted outline-none"
+                >
+                  <option value="open">Open windows</option>
+                  <option value="upcoming">Upcoming windows</option>
+                  <option value="reference">Funding references / recheck</option>
+                  <option value="all">All non-expired</option>
+                </select>
+                <select aria-label="Degree level" value={degreeFilter} onChange={e => setDegreeFilter(e.target.value)} className="h-11 rounded-lg border border-border bg-white px-3 text-[13px] text-muted"><option value="all">All degrees</option><option value="undergraduate">Undergraduate</option><option value="graduate">Graduate</option></select>
+                <select
+                  value={deadlineFilter}
+                  onChange={(event) =>
+                    setDeadlineFilter(
+                      event.target.value as "all" | "fixed" | "admission_schedule" | "automatic"
+                    )
+                  }
+                  className="h-11 rounded-lg border border-border bg-white px-3 text-[11px] font-medium text-muted outline-none"
+                >
+                  <option value="all">All deadline types</option>
+                  <option value="fixed">Fixed date</option>
+                  <option value="admission_schedule">Admission schedule</option>
+                  <option value="automatic">Automatic</option>
+                </select>
+                <div className="flex h-11 items-center justify-between gap-3 px-1 text-[10px] text-muted">
+                  <span>{filtered.length} shown</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveUniversity("all");
+                      setQuery("");
+                      setStatusFilter("open");
+                      setDegreeFilter("all");
+                      setDeadlineFilter("all");
+                    }}
+                    className="font-semibold text-primary"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 overflow-hidden rounded-2xl border border-hairline bg-surface">
+              {filtered.length === 0 ? (
+                <div className="px-6 py-14 text-center">
+                  <p className="text-[18px] font-medium">Nothing matches this view.</p>
+                  <p className="mt-2 text-[11px] text-muted">No matching records for these filters. Try Funding references or All non-expired; an empty open list is not proof that no scholarships exist.</p>
+                </div>
+              ) : (
+                filtered.map((row, index) => {
+                  const isTracked = workspace.tracked.includes(row.id);
+                  const isCompared = workspace.compare.includes(row.id);
+                  return (
+                    <article
+                      key={row.id}
+                      className={cn(
+                        "border-b border-hairline last:border-b-0",
+                        isTracked && "bg-success/[0.018]",
+                        isCompared && "ring-1 ring-inset ring-primary/10"
+                      )}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAwardId(row.id)}
+                        className="group grid w-full cursor-pointer grid-cols-1 gap-3 px-4 py-5 text-left transition-colors hover:bg-primary/[0.025] focus-visible:bg-primary-soft md:grid-cols-[minmax(125px,.7fr)_minmax(0,1.4fr)_minmax(140px,1fr)_36px] md:items-start md:px-5"
+                      >
+                        <div>
+                          <p className="text-[9px] text-muted/40">{String(index + 1).padStart(2, "0")}</p>
+                          <p className="mt-3 text-[11px] font-semibold">{row.university_name}</p>
+                          <p className="mt-1 text-[12px] text-muted">{degreeLabel(row.degree_level)}</p>
+                          <span className={cn("mt-2 inline-flex rounded-full px-2 py-1 text-[12px] font-medium",row.availability.kind==="open"?"bg-success-soft text-success":"bg-canvas text-muted")}>
+                            {row.availability.label}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-semibold uppercase tracking-[0.08em] text-primary">
+                            {row.scholarship_type ?? "University scholarship"}
+                          </p>
+                          <h3 className="mt-1 text-[clamp(18px,2vw,26px)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                            {row.scholarship_name}
+                          </h3>
+                          <p className="mt-2 text-[13px] text-muted">
+                            Deadline · <b className="text-ink">{row.deadline_label}</b>
+                          </p>
+                          <p className="mt-1 text-[12px] leading-5 text-muted">{row.availability.detail} · Last checked {sourceDate(row.last_verified_at)}
+                          </p>
+                        </div>
+                        <div className="md:border-l md:border-hairline md:pl-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+                            Published funding
+                          </p>
+                          <strong className="mt-2 block text-[13px] leading-5">
+                            {row.tuition_coverage ?? row.benefit_type ?? NOT_STATED}
+                          </strong>
+                        </div>
+                        <span className="hidden h-9 w-9 items-center justify-center rounded-xl border border-border bg-white text-muted transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft group-hover:text-primary md:flex">
+                          <ChevronDown className="h-4 w-4" />
+                        </span>
+                      </button>
+                    </article>
+                  );
+                })
+              )}
             </div>
           </section>
 
@@ -1142,202 +1198,9 @@ export default function ScholarshipStudio({
             </article>
           </section>
 
-          <section id="scholarship-stream" className="scroll-mt-24 pt-8">
-            <div className="sticky top-[70px] z-20 rounded-xl border border-hairline bg-surface/95 p-4 shadow-xs backdrop-blur-xl">
-              <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gks-u">
-                    Scholarship stream
-                  </p>
-                  <h2 className="mt-1 text-[clamp(26px,3vw,38px)] font-medium tracking-[-0.045em]">
-                    {rows.length} awards. One working view.
-                  </h2>
-                  <p className="mt-1 text-[11px] text-muted">
-                    Click any scholarship row to open its full record.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-muted">
-                  <CircleDot className="h-3.5 w-3.5 text-success" />
-                  Live from KMate&apos;s scholarship index
-                </div>
-              </div>
-
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveUniversity("all")}
-                  className={cn(
-                    "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold",
-                    activeUniversity === "all"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-muted hover:bg-primary-soft"
-                  )}
-                >
-                  All <span className="ml-1 opacity-60">{rows.length}</span>
-                </button>
-                {universities.map((university) => (
-                  <button
-                    key={university}
-                    type="button"
-                    onClick={() => setActiveUniversity(university)}
-                    className={cn(
-                      "shrink-0 rounded-lg border px-3 py-2 text-[10px] font-semibold",
-                      activeUniversity === university
-                        ? "border-primary bg-primary text-white"
-                        : "border-border bg-white text-muted hover:bg-primary-soft"
-                    )}
-                  >
-                    {university}{" "}
-                    <span className="ml-1 opacity-60">
-                      {rows.filter((row) => row.university_name === university).length}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_170px_170px_170px_auto]">
-                <label className="flex h-11 items-center gap-2 rounded-lg border border-border bg-canvas/65 px-3 focus-within:border-primary">
-                  <Search className="h-4 w-4 text-muted/60" />
-                  <input
-                    type="search"
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search awards, funding, GPA, TOPIK…"
-                    className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted/50"
-                  />
-                </label>
-                <label className="relative flex h-11 items-center rounded-lg border border-border bg-white">
-                  <SlidersHorizontal className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-muted/55" />
-                  <select
-                    value={activeUniversity}
-                    onChange={(event) => setActiveUniversity(event.target.value)}
-                    className="h-full w-full appearance-none bg-transparent pl-9 pr-3 text-[11px] font-medium text-muted outline-none"
-                  >
-                    <option value="all">All universities</option>
-                    {universities.map((university) => (
-                      <option key={university} value={university}>
-                        {university}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(event) => setStatusFilter(event.target.value as "all" | "expiring")}
-                  className="h-11 rounded-lg border border-border bg-white px-3 text-[11px] font-medium text-muted outline-none"
-                >
-                  <option value="all">All statuses</option>
-                  <option value="expiring">Published date approaching</option>
-                </select>
-                <select
-                  value={deadlineFilter}
-                  onChange={(event) =>
-                    setDeadlineFilter(
-                      event.target.value as "all" | "fixed" | "admission_schedule" | "automatic"
-                    )
-                  }
-                  className="h-11 rounded-lg border border-border bg-white px-3 text-[11px] font-medium text-muted outline-none"
-                >
-                  <option value="all">All deadline types</option>
-                  <option value="fixed">Fixed date</option>
-                  <option value="admission_schedule">Admission schedule</option>
-                  <option value="automatic">Automatic</option>
-                </select>
-                <div className="flex h-11 items-center justify-between gap-3 px-1 text-[10px] text-muted">
-                  <span>{filtered.length} shown</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveUniversity("all");
-                      setQuery("");
-                      setStatusFilter("all");
-                      setDeadlineFilter("all");
-                    }}
-                    className="font-semibold text-primary"
-                  >
-                    Reset
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-3 overflow-hidden rounded-2xl border border-hairline bg-surface">
-              {filtered.length === 0 ? (
-                <div className="px-6 py-14 text-center">
-                  <p className="text-[18px] font-medium">Nothing matches this view.</p>
-                  <p className="mt-2 text-[11px] text-muted">Try another university, deadline type, or search term.</p>
-                </div>
-              ) : (
-                filtered.map((row, index) => {
-                  const isTracked = workspace.tracked.includes(row.id);
-                  const isCompared = workspace.compare.includes(row.id);
-                  return (
-                    <article
-                      key={row.id}
-                      className={cn(
-                        "border-b border-hairline last:border-b-0",
-                        isTracked && "bg-success/[0.018]",
-                        isCompared && "ring-1 ring-inset ring-primary/10"
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setSelectedAwardId(row.id)}
-                        className="group grid w-full cursor-pointer grid-cols-[50px_minmax(0,1.35fr)] gap-4 px-4 py-5 text-left transition-colors hover:bg-primary/[0.025] focus-visible:bg-primary-soft md:grid-cols-[150px_minmax(0,1.3fr)_minmax(190px,.8fr)_minmax(190px,.9fr)_46px] md:items-start md:px-5"
-                      >
-                        <div>
-                          <p className="text-[9px] text-muted/40">{String(index + 1).padStart(2, "0")}</p>
-                          <p className="mt-3 text-[11px] font-semibold">{row.university_name}</p>
-                          <p className="mt-1 text-[8px] text-muted">{degreeLabel(row.degree_level)}</p>
-                          <span className="mt-2 inline-flex rounded-full bg-canvas px-2 py-1 text-[10px] font-medium text-muted">
-                            {row.availability.label}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-semibold uppercase tracking-[0.08em] text-primary">
-                            {row.scholarship_type ?? "University scholarship"}
-                          </p>
-                          <h3 className="mt-1 text-[clamp(18px,2vw,26px)] font-semibold leading-[1.05] tracking-[-0.04em]">
-                            {row.scholarship_name}
-                          </h3>
-                          <p className="mt-2 text-[9px] text-muted">
-                            Deadline · <b className="text-ink">{row.deadline_label}</b>
-                          </p>
-                          <p className="mt-1 text-[10px] text-muted">{row.availability.detail} · Last checked {sourceDate(row.last_verified_at)}
-                          </p>
-                        </div>
-                        <div className="hidden border-l border-hairline pl-4 md:block">
-                          <p className="text-[8px] font-semibold uppercase tracking-[0.08em] text-muted/45">
-                            Published funding
-                          </p>
-                          <strong className="mt-2 block text-[11px] leading-4">
-                            {row.tuition_coverage ?? row.benefit_type ?? NOT_STATED}
-                          </strong>
-                        </div>
-                        <div className="hidden border-l border-hairline pl-4 md:block">
-                          <p className="text-[8px] font-semibold uppercase tracking-[0.08em] text-muted/45">
-                            Published criteria
-                          </p>
-                          <strong className="mt-2 block text-[10px] leading-4">
-                            {row.topik_requirement ?? "Review language rules"}
-                          </strong>
-                          <p className="mt-1 text-[8px] leading-4 text-muted">
-                            {row.gpa_requirement ?? "Review academic rules"}
-                          </p>
-                        </div>
-                        <span className="hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-white text-muted transition-colors group-hover:border-primary/30 group-hover:bg-primary-soft group-hover:text-primary md:flex">
-                          <ChevronDown className="h-4 w-4" />
-                        </span>
-                      </button>
-                    </article>
-                  );
-                })
-              )}
-            </div>
-          </section>
-
-          <section className="mt-8 rounded-2xl border border-hairline bg-surface p-5">
-            <div>
+          <details className="mt-8 rounded-2xl border border-hairline bg-surface p-5">
+            <summary className="cursor-pointer text-[14px] font-semibold text-ink">Archive · {archivedRows.length} closed or inactive records</summary>
+            <div className="mt-3">
               <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-primary">Previous cycles</p>
               <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.035em]">Archive & Cycle Watch</h2>
               <p className="mt-1 text-[10px] text-muted">
@@ -1389,7 +1252,7 @@ export default function ScholarshipStudio({
                 </p>
               )}
             </div>
-          </section>
+          </details>
 
           <section className="mt-3 rounded-2xl border border-hairline bg-surface p-5">
             <div className="flex items-end justify-between gap-4">
