@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { ConnectionsTabBar, type ConnectionsTab } from "@/components/connections/connections-tab-bar";
@@ -137,6 +138,8 @@ export default async function ConnectionsPage({
       <p className="mt-1 text-[13.5px] text-muted">
         Applicants you&apos;re connected with, requests in progress, and new people to find.
       </p>
+
+      {!reviewerGuest && process.env.KMATE_STAGE_MATCHING_ENABLED === "true" && <Link href="/stage-matching" className="mt-4 inline-block rounded-full px-4 py-2 text-[13px] font-medium text-primary ring-1 ring-hairline">Find peers at the same application stage</Link>}
 
       <div className="mt-6">
         <ConnectionsTabBar active={tab} receivedCount={received.length} />
