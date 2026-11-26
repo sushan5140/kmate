@@ -72,9 +72,10 @@ export const OFFICIAL_GUIDELINES: Record<Track, OfficialGuideline[]> = {
       id: "gks-g-2026",
       track: "gks_g",
       title: "GKS-G 2026 Application Guidelines",
-      description: "Official NIIED application guidelines for the 2026 Global Korea Scholarship — Graduate track.",
-      url: "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf",
-      downloadFilename: "2026-GKS-G-Application-Guidelines-English.pdf",
+      description: "Historical 2026 GKS-G reference. The official notice includes the revised 0220 package; do not use it as confirmed 2027 procedure.",
+      url: "https://studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4420",
+      assetType: "notice",
+      versionLabel: "Archive — 2026 graduate edition",
     },
   ],
 };
