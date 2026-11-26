@@ -666,7 +666,7 @@ for (const track of ["", "embassy", "university"] as const) {
 ok(JSON.stringify(parseGraduatePreparationProgress('["academic-records","academic-records","fake",42]')) === '["academic-records"]', "stored progress rejects unknown and duplicate task IDs");
 ok(parseGraduatePreparationProgress("{bad json").length === 0 && parseGraduatePreparationProgress("{}").length === 0, "malformed storage safely resets");
 ok(graduatePreparationCount(graduatePreparationGroups("embassy"), ["route-university"]).done === 0, "other route completion cannot inflate visible progress");
-ok(GKS_G_PREPARATION_PATH === "/application-readiness?program=GKS-G&own=1#graduate-preparation", "guest entry selects the graduate program and hub anchor");
+ok(GKS_G_PREPARATION_PATH === "/application-readiness?program=GKS-G&cycle=2027&own=1#graduate-preparation", "guest entry selects the graduate program and hub anchor");
 
 
 console.log("");
