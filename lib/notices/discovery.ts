@@ -2,6 +2,7 @@ import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
   fetchNoticeList,
+  fetchScholarshipNoticeList,
   fetchNoticeDetail,
   sha256,
   detectLanguage,
@@ -87,7 +88,12 @@ export async function runDiscovery(): Promise<DiscoveryResult[]> {
     const checkedAt = new Date().toISOString();
 
     try {
-      const items = await fetchNoticeList();
+      const boards = await Promise.allSettled([fetchNoticeList(), fetchScholarshipNoticeList()]);
+      const items = boards.flatMap((board, index) => {
+        if (board.status === "fulfilled" && board.value.length) return board.value;
+        result.errors.push((index === 0 ? "General board" : "Scholarship board") + ": " + (board.status === "rejected" ? String(board.reason) : "zero parsed items"));
+        return [];
+      });
       result.listed = items.length;
       if (items.length === 0) throw new Error("notice list parsed to 0 items -- markup may have changed");
 
@@ -185,7 +191,7 @@ export async function runDiscovery(): Promise<DiscoveryResult[]> {
 
       await admin
         .from("sources")
-        .update({ last_checked_at: checkedAt, last_successful_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .update({ last_checked_at: checkedAt, ...(result.errors.length === 0 ? { last_successful_at: new Date().toISOString(), last_error: null } : { last_error: result.errors.join("; ").slice(0, 1500) }), updated_at: new Date().toISOString() })
         .eq("id", source.id);
     } catch (e) {
       result.errors.push((e as Error).message);
@@ -193,7 +199,7 @@ export async function runDiscovery(): Promise<DiscoveryResult[]> {
       // last_successful_at is withheld, so a stuck source is visible.
       await admin
         .from("sources")
-        .update({ last_checked_at: checkedAt, updated_at: new Date().toISOString() })
+        .update({ last_checked_at: checkedAt, last_error: result.errors.join("; ").slice(0, 1500), updated_at: new Date().toISOString() })
         .eq("id", source.id);
     }
 
