@@ -15,6 +15,8 @@ import { buildApplicationDashboardSummary } from "@/lib/applications/summary";
 import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applications/summary";
 import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
+import { EditionNotice } from "@/components/official-guidelines/edition-notice";
+import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
 import type { PublishedGksNotice } from "@/lib/notices/published-schema";
 import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
@@ -151,7 +153,9 @@ export function ApplicationDashboard({
   // application changes: a result for a different configuration is simply not
   // used, which avoids a synchronous setState inside the effect and makes a
   // late response for an old application impossible to display.
-  const query = app ? readinessHref(app).split("?")[1] : "";
+  const target = app ? profileIntake(app.program, defaults.program, cycle) : null;
+  const editionSupported = app ? editionMatches(app.program, target) : false;
+  const query = app && editionSupported ? readinessHref(app).split("?")[1] : "";
   const [fetched, setFetched] = useState<{ key: string; data: Snapshot | null } | null>(null);
 
   useEffect(() => {
@@ -172,7 +176,7 @@ export function ApplicationDashboard({
     };
   }, [query]);
 
-  const current = fetched && fetched.key === query ? fetched : null;
+  const current = query && fetched && fetched.key === query ? fetched : null;
   const snapshot = current?.data ?? null;
   const loadState: "loading" | "error" | "idle" = !current ? "loading" : current.data ? "idle" : "error";
 
@@ -288,7 +292,7 @@ export function ApplicationDashboard({
           </Link>
         </div>
 
-        {loadState === "error" ? (
+        {!editionSupported ? <EditionNotice program={app.program} target={target} /> : loadState === "error" ? (
           <div className="flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
             <p className="text-[12.5px] leading-relaxed text-muted">
@@ -415,7 +419,7 @@ export function ApplicationDashboard({
       <DeadlineNoticeFeed
         program={app.program}
         track={app.track}
-        cycle={cycle ?? ""}
+        cycle={target ?? ""}
         attention={{
           missing: summary?.overall.requiredMissing ?? 0,
           untracked: summary?.overall.requiredUntracked ?? 0,
