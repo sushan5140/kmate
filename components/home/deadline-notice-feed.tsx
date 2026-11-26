@@ -129,7 +129,7 @@ export function DeadlineNoticeFeed({
   const notices = useMemo(() => {
     const staticMatched = feed.notices;
     const liveMatched = liveNotices
-      .filter((n) => noticeAppliesTo(n, program, track ?? null))
+      .filter((n) => noticeAppliesTo(n, program, track ?? null, cycle))
       .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
 
     // De-duplicated against the WHOLE curated dataset, not just the notices
@@ -170,15 +170,16 @@ export function DeadlineNoticeFeed({
     ]
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
       .slice(0, 3);
-  }, [feed.notices, liveNotices, program, track, staticSourceUrl]);
+  }, [feed.notices, liveNotices, program, track, cycle, staticSourceUrl]);
 
   // The existing /notices route with the saved application pre-applied -- not a
   // second notices page.
   const noticesHref = useMemo(() => {
     const p = new URLSearchParams({ view: "gks", program });
     if (track) p.set("track", track);
+    if (/^20\d{2}$/.test(cycle)) p.set("cycle", cycle);
     return `/notices?${p.toString()}`;
-  }, [program, track]);
+  }, [program, track, cycle]);
 
   return (
     <div className="flex flex-col gap-4">
