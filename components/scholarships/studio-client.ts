@@ -1,3 +1,5 @@
+import { scholarshipSourceFreshness, type Availability } from "@/lib/scholarships/availability";
+
 export interface ScholarshipStudioRow {
   id: string;
   university_name: string;
@@ -17,6 +19,8 @@ export interface ScholarshipStudioRow {
   content_hash: string | null;
   last_verified_at: string | null;
   deadline_label: string;
+  availability: Availability;
+  is_active: boolean;
 }
 
 export interface ScholarshipStudioProfileSeed {
@@ -485,17 +489,8 @@ export function relevanceScore(row: ScholarshipStudioRow, profile: StudioProfile
   return { score, reasons };
 }
 
-export function sourceFreshness(row: ScholarshipStudioRow): {
-  label: string;
-  state: "fresh" | "aging" | "stale" | "unknown";
-  days: number | null;
-} {
-  if (!row.last_verified_at) return { label: "Needs verification", state: "unknown", days: null };
-  const checked = new Date(row.last_verified_at);
-  const days = Math.max(0, Math.floor((Date.now() - checked.getTime()) / 86_400_000));
-  if (days <= 14) return { label: "Fresh", state: "fresh", days };
-  if (days <= 30) return { label: "Recheck soon", state: "aging", days };
-  return { label: "Stale", state: "stale", days };
+export function sourceFreshness(row: ScholarshipStudioRow) {
+  return scholarshipSourceFreshness(row.last_verified_at);
 }
 
 export function applicationProgress(app: StudioApplication): number {

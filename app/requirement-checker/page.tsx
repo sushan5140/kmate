@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import { Database, ExternalLink, FileText, Lightbulb, Route, ShieldCheck } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
+import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
+import { CycleWorksheet } from "@/components/applications/cycle-worksheet";
+import { DEPARTMENT_GROUPS } from "@/lib/applications/worksheets";
 import { checkUniversityRequirements, requirementDataset } from "@/lib/requirements";
 import { buildCheckerOptions, subtypeEvidence, trackEvidence } from "@/lib/requirements/options";
 import type { CheckerInput } from "@/lib/requirements/matcher";
 import { RequirementForm } from "@/components/requirements/requirement-form";
 import { RequirementResults } from "@/components/requirements/requirement-results";
 import { getProfileDefaults } from "@/lib/readiness/profile";
+import { EditionNotice } from "@/components/official-guidelines/edition-notice";
+import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
+import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
 import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
 
@@ -34,6 +39,7 @@ export default async function RequirementCheckerPage({
 }) {
   const user = await requireOnboarded("/requirement-checker");
   const params = await searchParams;
+  const worksheetAccountId = (await getReviewerGuest()) ? null : user.id;
   const defaults = await getProfileDefaults(user.id);
   const options = buildCheckerOptions();
 
@@ -92,8 +98,10 @@ export default async function RequirementCheckerPage({
 
   // A record kept because its source was less specific says so, rather than
   // being presented as verified for a route it never named.
+  const target = profileIntake(program || defaults.program, defaults.program, defaults.applicationYear);
   const results = inTrack.map((r) => {
     const notes = [...r.notes];
+    if (!editionMatches(r.record.program, target)) return { ...r, verdict: "conditional" as const, matchedRules: [], notes: [...notes, "Reference edition only: this record does not confirm eligibility, participation or requirements for your intended intake."] };
     if (!trackEvidence(r.record, track).stated) {
       notes.push(
         `${trackLabel} is not specifically stated by this source — it names the program type without restating the track.`
@@ -105,15 +113,14 @@ export default async function RequirementCheckerPage({
     return notes.length === r.notes.length ? r : { ...r, notes };
   });
 
-  const showGksU2027 = program === "GKS-U" || (!program && defaults.program === "GKS-U");
+  const showGksU2027 = (program === "GKS-U" || (!program && defaults.program === "GKS-U")) && editionMatches("GKS-U", target);
   const selectedProgram = (program || defaults.program || "GKS-U") as "GKS-U" | "GKS-G";
   const selectedCycle =
     requirementDataset.program_cycles?.[selectedProgram] ??
     (selectedProgram === "GKS-U" ? "2027" : requirementDataset.cycle);
   const toolTrack = program === "GKS-U" && track ? track : defaults.track;
   const toolSubtype = program === "GKS-U" && track ? subtype : defaults.subtype;
-  const toolPath =
-    toolTrack === "embassy" ? (toolSubtype === "r_gks" ? "r_gks" : "general") : null;
+  const toolPath = resolvePlanningRoute(toolTrack, toolSubtype);
   const toolUniversities = university ? [university] : defaults.universities;
   const toolMajor = major || defaults.major;
 
@@ -132,9 +139,11 @@ export default async function RequirementCheckerPage({
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-[12px] font-medium text-muted">
           <Database className="h-3.5 w-3.5" />
-          {selectedProgram} {selectedCycle} · {requirementDataset.record_count} cycle-tagged records
+          {selectedProgram} {selectedCycle} reference dataset
         </span>
       </header>
+
+      <EditionNotice program={selectedProgram} target={target} />
 
       {/* Form and results lead; the guidance panel sits alongside on desktop
           and drops below the form on narrow screens. */}
@@ -161,6 +170,17 @@ export default async function RequirementCheckerPage({
               />
             ) : null}
           </RequirementForm>
+          {checked && (
+            <details className="rounded-2xl border border-hairline bg-white p-4">
+              <summary className="cursor-pointer text-[14px] font-semibold text-ink">Department verification worksheet · {university}{major ? " · " + major : ""}</summary>
+              <div className="mt-3">
+                <CycleWorksheet key={JSON.stringify([worksheetAccountId, program, track, subtype, university, major])}
+                  accountId={worksheetAccountId} scope={JSON.stringify(["department", program, track, subtype, university, major])}
+                  groups={DEPARTMENT_GROUPS} title="Verify department-specific requirements"
+                  description="Use the official records above as leads. Record your own evidence separately, with the source date and intended cycle. Unknown is never a waiver or an eligibility result." />
+              </div>
+            </details>
+          )}
         </div>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
@@ -193,8 +213,8 @@ export default async function RequirementCheckerPage({
             </ul>
             <p className="border-t border-hairline pt-3 text-[11.5px] text-muted">
               {selectedProgram === "GKS-U"
-                ? "2027 national route/type/UIC eligibility is current. University-specific language, process and extra-document details keep their own source-cycle label and are never silently presented as 2027 when only an older official source is available."
-                : `Based on the latest verified ${selectedCycle} ${selectedProgram} information in KMate's dataset (${requirementDataset.record_count} cycle-tagged records).`}
+                ? "National route/type/UIC eligibility is sourced from the 2027 edition only. University-specific language, process and extra-document details keep their own source-cycle label and are never silently presented as 2027 when only an older official source is available."
+                : `Reference data from ${selectedCycle} ${selectedProgram}; not confirmation of a different intake's requirements.`}
             </p>
           </Card>
         </aside>
@@ -202,8 +222,9 @@ export default async function RequirementCheckerPage({
 
       {showGksU2027 && (
         <section className="mt-10 border-t border-hairline pt-8">
-          <GksU2027TrackComparator defaultPath={toolPath} defaultMajor={toolMajor} />
+          <GksU2027TrackComparator defaultPath={toolPath === "university" ? null : toolPath} defaultMajor={toolMajor} />
           <GksU2027SmartTools
+            key={toolPath ?? "unselected"}
             mode="requirements"
             defaultPath={toolPath}
             savedUniversities={toolUniversities}

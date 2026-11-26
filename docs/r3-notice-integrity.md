@@ -1,0 +1,10 @@
+# R3 — Official notice and verified-deadline integrity
+Audit: 26 November 2026.
+
+- Production queue audit: 17 approved records have unknown program and are general events/news; one additional pending general GKS webinar. Do not relabel them as application notices. The original crawler used /en/community/noticeList.do, not the dedicated GKS scholarship board.
+- Add the dedicated official scholarship board alongside the general board: https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3. Preserve both sources and require successful nonempty parsing; report partial fetch errors in automation health instead of recording silent success.
+- Program and single explicit intake are derived from the title, not publication year or unrelated body mentions. Korea–Japan and other separately scoped programs are not general GKS-U/GKS-G. Keep human approval as a prerequisite for live notices. Unknown and conflicting titles never populate the personal feed.
+- Reviewed static additions: #4522, 2027 GKS-U guideline (9 September 2026); #4527, 2027 undergraduate university-track notice (23 September 2026); #4420, 2026 graduate guideline (2 February 2026, revised package 20 February). The University Track notice says universities set their own schedules. No nationwide future deadline was inferred.
+- Personal notice feed and notice-centre filters include the intake. Deduplicate the same board notice by ID across URL variants. Unknown scope is not global; global deadline proposals require review even when the automatic gate otherwise passes.
+- No database rows, approval flags, or production environment variables were changed. No verified future deadlines were added. The dedicated board parser has a synthetic markup regression, not a captured live HTML fixture; verify it against real markup in preview, run the scout, inspect resulting pending rows and reviewer decisions, then test the deadline assistant. A zero result or partial board failure must be investigated, not described as successful ingestion.
+- R1/R2/P3/P4 integration and full browser verification remain prerequisites. Do not merge the stacked PRs out of order.

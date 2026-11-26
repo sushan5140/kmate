@@ -15,8 +15,10 @@ import { buildApplicationDashboardSummary } from "@/lib/applications/summary";
 import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applications/summary";
 import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
+import { ApplicationStageTracker } from "@/components/home/application-stage-tracker";
+import { EditionNotice } from "@/components/official-guidelines/edition-notice";
+import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
-import { deadlineNoticeDataset } from "@/lib/deadlines";
 import type { PublishedGksNotice } from "@/lib/notices/published-schema";
 import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
 
@@ -108,10 +110,12 @@ function requirementHref(app: SavedApplication, universityName: string, major?: 
 export function ApplicationDashboard({
   defaults,
   cycle,
+  accountId,
   liveNotices,
   liveDeadlines,
 }: {
   defaults: ProfileDefaults;
+  accountId: string | null;
   /** The applicant's application year, so deadlines are matched to THEIR cycle. */
   cycle: string | null;
   /**
@@ -152,7 +156,9 @@ export function ApplicationDashboard({
   // application changes: a result for a different configuration is simply not
   // used, which avoids a synchronous setState inside the effect and makes a
   // late response for an old application impossible to display.
-  const query = app ? readinessHref(app).split("?")[1] : "";
+  const target = app ? profileIntake(app.program, defaults.program, cycle) : null;
+  const editionSupported = app ? editionMatches(app.program, target) : false;
+  const query = app && editionSupported ? readinessHref(app).split("?")[1] : "";
   const [fetched, setFetched] = useState<{ key: string; data: Snapshot | null } | null>(null);
 
   useEffect(() => {
@@ -173,7 +179,7 @@ export function ApplicationDashboard({
     };
   }, [query]);
 
-  const current = fetched && fetched.key === query ? fetched : null;
+  const current = query && fetched && fetched.key === query ? fetched : null;
   const snapshot = current?.data ?? null;
   const loadState: "loading" | "error" | "idle" = !current ? "loading" : current.data ? "idle" : "error";
 
@@ -197,7 +203,7 @@ export function ApplicationDashboard({
       <Card className="mt-8 flex flex-col gap-3">
         <MicroLabel>Your GKS application</MicroLabel>
         <p className="text-[13.5px] leading-relaxed text-muted">
-          Save an application to track its documents from here. Nothing is saved until you choose to.
+          Save an application to track its documents and self-reported selection stages from here. Nothing is saved until you choose to.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           {canBootstrap && (
@@ -289,7 +295,7 @@ export function ApplicationDashboard({
           </Link>
         </div>
 
-        {loadState === "error" ? (
+        {!editionSupported ? <EditionNotice program={app.program} target={target} /> : loadState === "error" ? (
           <div className="flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
             <p className="text-[12.5px] leading-relaxed text-muted">
@@ -408,15 +414,17 @@ export function ApplicationDashboard({
         </div>
       )}
 
+      <ApplicationStageTracker key={accountId ?? "guest"} app={app} accountId={accountId} profileCycle={target} />
+
       {/* ---------------- deadlines and notices ---------------- */}
       {/* Only rendered with a saved application: without a program and track
           there is nothing to match against, and guessing one would be exactly
           the inference this feature forbids. A profile with no application
-          year falls back to the dataset's own cycle rather than inventing one. */}
+          year yields no deadline instead of borrowing the dataset's cycle. */}
       <DeadlineNoticeFeed
         program={app.program}
         track={app.track}
-        cycle={cycle ?? deadlineNoticeDataset.generated_for_cycle}
+        cycle={target ?? ""}
         attention={{
           missing: summary?.overall.requiredMissing ?? 0,
           untracked: summary?.overall.requiredUntracked ?? 0,

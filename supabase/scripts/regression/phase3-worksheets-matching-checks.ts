@@ -1,0 +1,42 @@
+import assert from "node:assert/strict";
+import { DEPARTMENT_GROUPS, ESSAY_GROUPS, PACKET_GROUPS, countWords, normalizeWorksheet, parseWorksheet, safeWorksheetUrl, validateWorksheet, worksheetDate } from "../../../lib/applications/worksheets";
+import { MATCH_STAGES, isMatchCycle, isChoiceId, isMatchStage, matchPreferenceActive, type MatchPreference } from "../../../lib/connections/stage-matching";
+
+for (const groups of [DEPARTMENT_GROUPS, ESSAY_GROUPS, PACKET_GROUPS]) {
+  const ids = groups.flatMap(g => g.fields.map(f => f.id));
+  assert.equal(new Set(ids).size, ids.length);
+  assert.deepEqual(parseWorksheet(groups, "{broken"), {});
+  assert.deepEqual(parseWorksheet(groups, null), {});
+  assert.deepEqual(normalizeWorksheet(groups, { unknown_field: "not stored" }), {});
+}
+assert.equal(safeWorksheetUrl("https://example.edu/gks"), true);
+for (const url of ["http://example.edu", "javascript:alert(1)", "https://u:p@example.edu", "invalid"]) assert.equal(safeWorksheetUrl(url), false);
+assert.equal(worksheetDate("2028-02-29"), true);
+assert.equal(worksheetDate("2027-02-29"), false);
+assert.equal(worksheetDate("2026-02-30"), false);
+assert.equal(validateWorksheet(DEPARTMENT_GROUPS, { language_review: "reviewed" }) !== null, true);
+assert.equal(validateWorksheet(DEPARTMENT_GROUPS, { language_review: "unknown" }), null);
+assert.equal(validateWorksheet(DEPARTMENT_GROUPS, { language_review: "reviewed", source: "https://example.edu/gks", checked: "2026-11-26" }), null);
+assert.equal(validateWorksheet(PACKET_GROUPS, { certificates: "reviewed", source: "https://example.edu/gks" }) !== null, true);
+assert.equal(validateWorksheet(PACKET_GROUPS, { certificates: "not_required" }) !== null, true);
+assert.deepEqual(normalizeWorksheet(DEPARTMENT_GROUPS, { source: "javascript:alert(1)", language_review: "not_required", checked: "2026-02-30" }), {});
+assert.equal(validateWorksheet(ESSAY_GROUPS, { motivation: "a".repeat(6001) }) !== null, true);
+assert.equal(countWords("  actual research\n evidence "), 3);
+assert.equal(countWords(""), 0);
+assert.equal(MATCH_STAGES.length, 4);
+assert.equal(isMatchStage("selected"), false);
+assert.equal(isMatchStage("not_selected"), false);
+assert.equal(isMatchStage("awaiting_result"), true);
+assert.equal(isMatchCycle("2027"), false);
+assert.equal(isMatchCycle(2027), true);
+assert.equal(isMatchCycle(2100), false);
+const id = "00000000-0000-4000-8000-000000000001";
+assert.equal(isChoiceId(id), true);
+assert.equal(isChoiceId("not-a-choice"), false);
+const choices = [{ id, name: "Example University" }];
+const pref: MatchPreference = { choice_id: id, stage: "preparing", consented_at: "2026-11-26T00:00:00Z", expires_at: "2026-12-26T00:00:00Z" };
+assert.equal(matchPreferenceActive(pref, choices, Date.parse("2026-12-01T00:00:00Z")), true);
+assert.equal(matchPreferenceActive(pref, [], Date.parse("2026-12-01T00:00:00Z")), false);
+assert.equal(matchPreferenceActive(pref, choices, Date.parse(pref.expires_at)), false);
+assert.equal(matchPreferenceActive(null, choices, Date.parse("2026-12-01T00:00:00Z")), false);
+console.log("P3.4–P3.7 worksheet and matching model regressions passed.");

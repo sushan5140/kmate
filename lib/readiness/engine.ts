@@ -24,6 +24,8 @@ type RequirementRecordLike = {
   }>;
   verification: {
     level: "verified" | "partial" | "not_stated" | "excluded";
+    detail_cycle?: string | null;
+    field_cycles?: Partial<Record<"process_extra_documents", string>>;
   };
   sources: string[];
 };
@@ -50,7 +52,8 @@ function requirementRecordMatches(
 
 function universityExtras(
   records: RequirementRecordLike[],
-  input: ReadinessInput
+  input: ReadinessInput,
+  sourceCycle: string
 ): ReadinessItem[] {
   if (!input.university) return [];
 
@@ -58,6 +61,9 @@ function universityExtras(
   const extras: ReadinessItem[] = [];
 
   for (const record of matching) {
+    const detailCycle = record.verification.field_cycles?.process_extra_documents ?? record.verification.detail_cycle ?? null;
+    const matchedEdition = detailCycle === sourceCycle;
+    const provenance = matchedEdition ? "" : "Reference only: university detail source cycle " + (detailCycle ?? "not stated") + "; reverify against " + sourceCycle + " before treating this as required. ";
     const process = record.requirements.process_extra_documents?.trim();
     if (process) {
       extras.push({
@@ -65,7 +71,7 @@ function universityExtras(
         label: "University / track-specific process or extra documents",
         category: "university_extra",
         status: record.verification.level === "verified" ? "conditional" : "not_stated",
-        notes: process,
+        notes: provenance + process,
         sourceUrls: record.sources,
         origin: "university_requirement",
         progress: "untracked",
@@ -86,9 +92,9 @@ function universityExtras(
         id: `university-rule:${record.university}:${rule.value}`,
         label: rule.value,
         category: "university_extra",
-        status: applies ? "required" : "conditional",
+        status: applies && matchedEdition && record.verification.level === "verified" ? "required" : "conditional",
         condition: rule.condition,
-        notes: rule.evidence,
+        notes: provenance + rule.evidence,
         sourceUrls: record.sources,
         origin: "university_requirement",
         progress: "untracked",
@@ -132,7 +138,7 @@ export function buildReadinessResult(
     progress: progress.get(doc.id)?.state ?? "untracked",
   }));
 
-  const extras = universityExtras(requirementRecords, input).map((item) => ({
+  const extras = universityExtras(requirementRecords, input, checklist.program_cycles?.[input.program] ?? checklist.cycle).map((item) => ({
     ...item,
     progress: progress.get(item.id)?.state ?? item.progress,
   }));

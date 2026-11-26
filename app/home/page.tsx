@@ -28,6 +28,7 @@ import { TrackBadge } from "@/components/ui/track-badge";
 import { DeadlineBannerText } from "@/components/home/deadline-banner";
 import { WarningBanner } from "@/components/notifications/warning-banner";
 import { ContactWalletNudge } from "@/components/contacts/contact-wallet-nudge";
+import { scholarshipAvailability, scholarshipDeadlineLabel } from "@/lib/scholarships/availability";
 import { pickSpotlight } from "@/lib/scholarships/spotlight";
 import { ApplicationDashboard } from "@/components/home/application-dashboard";
 import { getApprovedGksNotices } from "@/lib/notices/published";
@@ -62,7 +63,6 @@ export default async function HomePage() {
     { count: contactMethodsCount },
     { count: connectedCount },
     { count: currentNoticesCount },
-    { count: activeScholarshipsCount },
     { data: conversationRows },
   ] = await Promise.all([
     admin.from("university_choices").select("university_id").eq("user_id", user.id),
@@ -70,11 +70,11 @@ export default async function HomePage() {
     // the pool is small so a fresh one surfaces each time you come back.
     admin
       .from("scholarships")
-      .select("id, university_name, scholarship_name, benefit_type, tuition_coverage, deadline, deadline_type, source_url, created_at")
+      .select("id, university_name, scholarship_name, benefit_type, tuition_coverage, deadline, deadline_type, source_url, created_at, status, is_active, last_verified_at")
       .eq("is_active", true)
       .neq("status", "expired")
       .order("created_at", { ascending: false })
-      .limit(8),
+      .limit(250),
     admin.from("draft_answers").select("content").eq("user_id", user.id),
     admin.from("interview_questions").select("id", { count: "exact", head: true }).eq("status", "approved").eq("kind", "interview"),
     admin
@@ -99,11 +99,6 @@ export default async function HomePage() {
       .from("notices")
       .select("id", { count: "exact", head: true })
       .in("status", ["new", "current"])
-      .eq("is_active", true),
-    admin
-      .from("scholarships")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["active", "expiring_soon"])
       .eq("is_active", true),
     admin
       .from("conversations")
@@ -158,7 +153,8 @@ export default async function HomePage() {
   // superseded verification stops reaching applicants immediately.
   const liveDeadlines = await getLiveVerifiedDeadlines();
 
-  const scholarshipPool = newestScholarships ?? [];
+  const scholarshipNow = new Date();
+  const scholarshipPool = (newestScholarships ?? []).map(row => ({ ...row, availability: scholarshipAvailability(row, scholarshipNow) })).filter(row => row.availability.spotlight).slice(0, 8);
   const spotlight = pickSpotlight(scholarshipPool, user.id);
 
   const draftedCount = (draftRows ?? []).filter((d) => d.content.trim().length > 0).length;
@@ -198,7 +194,7 @@ export default async function HomePage() {
       <Card className="mt-8 bg-primary text-white">
         <MicroLabel className="text-white/60">Application calendar</MicroLabel>
         {track ? (
-          <DeadlineBannerText track={track} />
+          <DeadlineBannerText selection={{ program: readinessDefaults.program, track: readinessDefaults.track, cycle: profile?.application_year ? String(profile.application_year) : null }} liveDeadlines={liveDeadlines} />
         ) : (
           <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
         )}
@@ -211,6 +207,7 @@ export default async function HomePage() {
       </Card>
 
       <ApplicationDashboard
+        accountId={reviewerGuest ? null : user.id}
         cycle={profile?.application_year ? String(profile.application_year) : null}
         // Every approved GKS notice, not a pre-filtered slice. Which ones apply
         // depends on the saved application, which lives in localStorage and is
@@ -236,9 +233,9 @@ export default async function HomePage() {
       {spotlight && (
         <Card className="mt-4 flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <MicroLabel>New in scholarships</MicroLabel>
+            <MicroLabel>Recently checked scholarship</MicroLabel>
             <span className="text-[11.5px] text-muted">
-              {scholarshipPool.length} recently added
+              {spotlight.availability.freshness.label}
             </span>
           </div>
 
@@ -247,6 +244,7 @@ export default async function HomePage() {
               {spotlight.scholarship_name}
             </h2>
             <p className="mt-0.5 text-[13px] text-muted">{spotlight.university_name}</p>
+            <p className="mt-2 text-[12px] text-muted">{spotlight.availability.label} · {spotlight.availability.detail}</p>
           </div>
 
           <dl className="flex flex-wrap gap-x-6 gap-y-2">
@@ -268,17 +266,7 @@ export default async function HomePage() {
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wide text-muted">Deadline</dt>
               <dd className="mt-0.5 text-[13px] text-ink">
-                {spotlight.deadline
-                  ? new Date(spotlight.deadline).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  : spotlight.deadline_type === "admission_schedule"
-                    ? "Follows the admission schedule"
-                    : spotlight.deadline_type === "automatic"
-                      ? "Granted without application"
-                      : "Not stated"}
+                {scholarshipDeadlineLabel(spotlight)}
               </dd>
             </div>
           </dl>
@@ -323,6 +311,13 @@ export default async function HomePage() {
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
               Track every document for your application
             </p>
+          </Card>
+        </Link>
+        <Link href="/professor-outreach">
+          <Card interactive className="h-full">
+            <GraduationCap className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Professor Outreach</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Track research fit, contacts and follow-up plans</p>
           </Card>
         </Link>
         <Link href="/requirement-checker">
@@ -425,7 +420,7 @@ export default async function HomePage() {
             <GraduationCap className="h-4 w-4 text-muted" />
             <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Scholarships</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              {activeScholarshipsCount ?? 0} active university scholarship{activeScholarshipsCount === 1 ? "" : "s"}
+              Browse indexed university scholarship records and check current availability at the source.
             </p>
           </Card>
         </Link>

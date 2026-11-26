@@ -126,9 +126,9 @@ const STORAGE_KEY = "kmate:gks-u-2027-form-progress";
 export function GksU2027FormAssistant({
   defaultRoute,
 }: {
-  defaultRoute: "general" | "r_gks" | null;
+  defaultRoute: "general" | "r_gks" | "university" | null;
 }) {
-  const [route, setRoute] = useState<RouteMode>(defaultRoute ? "embassy" : "embassy");
+  const [route, setRoute] = useState<RouteMode>(defaultRoute === "university" ? "university" : "embassy");
   const [activeForm, setActiveForm] = useState(1);
   const [done, setDone] = useState<Record<number, boolean>>({});
   const storageLoaded = useRef(false);

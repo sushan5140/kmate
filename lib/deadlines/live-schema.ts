@@ -262,7 +262,7 @@ export function toDeadlineRecord(d: LiveVerifiedDeadline): DeadlineRecord & { so
     program: d.program,
     cycle: d.cycle,
     track: d.track,
-    scope: "application",
+    scope: d.deadlineType === "document_deadline" ? "post_selection" : "application",
     label: d.label,
     deadline: d.deadline,
     status: "verified",
@@ -272,7 +272,7 @@ export function toDeadlineRecord(d: LiveVerifiedDeadline): DeadlineRecord & { so
       publisher: "NIIED / Study in Korea",
       title: d.label,
       url: d.sourceUrl,
-      published_at: d.deadline,
+      published_at: "",
     },
   };
 }

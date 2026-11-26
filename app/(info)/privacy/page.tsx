@@ -20,6 +20,7 @@ const SECTIONS = [
     body: [
       "Your username and the applicant details on your profile can be discoverable to other KMate users. Do not put your phone number, email, address or other sensitive information in your public bio.",
       "External contact methods are stored separately from the public profile. Under KMate's current access rules, an accepted connection can access the contact methods you supplied. Even if the current interface mainly offers in-app messaging, do not assume accepted contacts are inaccessible. Remove optional contact methods if you do not want them shared with connections.",
+      "If the stage matching pilot is enabled, users can voluntarily share a broad self-reported stage with other opted-in users in the same program, cycle, university and stage. Only the existing username and selected university are displayed; private tracker entries, outcomes, dates, notes and contact details are not shared. Consent expires after 30 days or can be revoked; blocked users are excluded. Expiry stops matching but does not itself erase the database row.",
       "Accepting a request, revoking a connection and blocking someone change who can interact with you inside KMate. Information someone already copied or saved cannot be recalled.",
     ],
   },
@@ -34,7 +35,10 @@ const SECTIONS = [
     title: "Guest mode and browser data",
     body: [
       "Guest preview uses a temporary browser cookie lasting up to four hours and does not create a normal KMate login. It is intended for browsing only, not saving private application data.",
+      "Graduate preparation task completion is stored locally under your account, separate from official document readiness. It is not synced and can be cleared from the preparation hub.",
       "Some application checklist progress is stored in your own browser's local storage. Clearing browser storage removes that local copy. Changing devices or browsers may not carry local progress across.",
+      "Professor Outreach records are stored in browser-local storage under your KMate account. The tracker does not send records to the server or other applicants. They are not encrypted, do not sync across devices, and may remain after sign-out or profile reset. Use the tracker’s Clear all outreach records action or clear site storage to remove the local copy.",
+      "Department verification, personal statement and study plan, and document packet worksheets store only user-entered notes and review states in this browser under your account. They are not uploaded, encrypted, or synced across devices. Clearing a worksheet removes that local copy. Browser-local records may remain after sign-out or profile reset.",
       "Like most hosted websites, KMate and its infrastructure providers process the technical request and session information needed to serve the site. KMate uses Google sign-in, Supabase and Vercel infrastructure.",
     ],
   },
@@ -42,6 +46,7 @@ const SECTIONS = [
     title: "Resetting your profile is not full account deletion",
     body: [
       "The current Reset profile action clears selected profile fields, university choices, optional contact methods and saved draft answers, and revokes accepted connections. It releases your username and signs out of KMate if the operation succeeds.",
+      "Application stage tracker entries are self-reported, stored under your account in this browser, not encrypted or synced across devices, and are not sent to the server. They may remain after profile reset or sign-out. Clear them inside the stage tracker or clear browser site storage.",
       "It does not delete your Google-linked Supabase authentication identity. Past community contributions, conversations, reports, system logs or locally stored browser progress may remain. Resetting is not an erasure of all information and must not be described as one.",
       "No universal deletion or retention deadline is promised here because KMate has not implemented a verified full-account erasure workflow. Use the in-app Report a problem option to raise a private data-handling concern while signed in.",
     ],
@@ -57,7 +62,7 @@ export default function PrivacyPage() {
           Know what you share before you join.
         </h1>
         <p className="mt-3 text-muted">
-          Updated 22 November 2026. This page describes the current implementation; it is not a promise that all
+          Updated 26 November 2026. This page describes the current implementation; it is not a promise that all
           stored records can already be deleted automatically.
         </p>
       </header>

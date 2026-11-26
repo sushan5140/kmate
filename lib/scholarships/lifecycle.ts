@@ -31,6 +31,12 @@ export interface LifecycleResult {
   isActive: boolean;
 }
 
+export function validScholarshipDate(value: string | null): value is string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const time = Date.parse(value + "T00:00:00Z");
+  return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value;
+}
+
 const dayString = (d: Date) => d.toISOString().slice(0, 10);
 
 /**
@@ -50,7 +56,7 @@ export function classifyScholarshipLifecycle(
   row: LifecycleInput,
   today: Date = new Date()
 ): LifecycleResult {
-  if (row.deadline_type !== "fixed" || !row.deadline) {
+  if (row.deadline_type !== "fixed" || !validScholarshipDate(row.deadline)) {
     return { status: "active", isActive: true };
   }
 

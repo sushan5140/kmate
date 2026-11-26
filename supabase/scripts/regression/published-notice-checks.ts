@@ -227,7 +227,7 @@ console.log("=== the deadline matcher is untouched ===");
 // -------------------------------------------------------------------------
 const NOW = new Date("2026-08-27T00:00:00Z");
 const feed = deadlineNoticeDataset;
-ok(feed.deadlines.length === 3 && feed.notices.length === 8, "static dataset still 3 deadlines / 8 notices");
+ok(feed.deadlines.length === 3 && feed.notices.length === 11, "static dataset has 3 deadlines / 11 notices");
 ok(feed.generated_for_cycle === "2026", "cycle still 2026");
 ok(feed.policy.never_infer_future_cycle_dates === true, "never-infer policy intact");
 void NOW;

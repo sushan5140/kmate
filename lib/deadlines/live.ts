@@ -29,6 +29,7 @@ export async function getLiveVerifiedDeadlines(): Promise<LiveVerifiedDeadline[]
 
   return data.flatMap((d) => {
     if (d.program !== "GKS-U" && d.program !== "GKS-G") return [];
+    if (!["global", "country", "university"].includes(d.scope_type) || !/^20\d{2}$/.test(String(d.cycle))) return [];
     return [
       {
         id: d.id,
@@ -39,7 +40,7 @@ export async function getLiveVerifiedDeadlines(): Promise<LiveVerifiedDeadline[]
         label: d.label,
         deadline: d.deadline,
         timezone: d.timezone,
-        scopeType: (d.scope_type ?? "global") as LiveVerifiedDeadline["scopeType"],
+        scopeType: d.scope_type as LiveVerifiedDeadline["scopeType"],
         country: d.country,
         university: d.university,
         sourceUrl: d.source_url,

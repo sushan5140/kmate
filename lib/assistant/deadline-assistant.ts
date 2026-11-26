@@ -1,4 +1,4 @@
-import { classifyNotice } from "@/lib/notices/classify";
+import { classifyNotice, noticeIntake } from "@/lib/notices/classify";
 import type { CandidateDate } from "@/lib/notices/review-schema";
 import { parseProposal, sanitizeText, type DeadlineProposal, type ParseResult } from "./schema";
 
@@ -126,7 +126,8 @@ export function proposeFromCandidate({ notice, candidate, siblings }: ProposalIn
         : null;
   const track = notice.approvedTrack ?? derived.track;
 
-  const cycle = extractCycle(notice.title);
+  const explicitCycle = noticeIntake(notice.title);
+  const cycle = explicitCycle ? Number(explicitCycle) : null;
   const scope = extractScope(combined);
   const deadlineType = KIND_TO_TYPE[candidate.kind] ?? null;
 

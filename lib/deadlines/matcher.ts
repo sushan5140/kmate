@@ -26,6 +26,13 @@ export interface MatchedNotice extends NoticeRecord {
 
 const DAY_MS = 86_400_000;
 
+/** Date-only evidence: compare calendar days, not a fabricated cutoff time. */
+function calendarDaysUntil(deadline: string, now: Date): number {
+  const day = Date.parse(deadline + "T00:00:00Z");
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return (day - today) / DAY_MS;
+}
+
 export function matchDeadlineNoticeFeed(dataset: DeadlineNoticeDataset, input: NoticeMatchInput) {
   const now = input.now ?? new Date();
   const cycle = input.cycle ?? dataset.generated_for_cycle;
@@ -40,8 +47,7 @@ export function matchDeadlineNoticeFeed(dataset: DeadlineNoticeDataset, input: N
     .flatMap((record) => {
       const source = sources.get(record.source_id);
       if (!source) return [];
-      const end = new Date(`${record.deadline}T23:59:59Z`);
-      const daysUntil = Math.ceil((end.getTime() - now.getTime()) / DAY_MS);
+      const daysUntil = calendarDaysUntil(record.deadline, now);
       return [{ ...record, source, isPast: daysUntil < 0, daysUntil }];
     })
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
@@ -73,8 +79,7 @@ export function matchDeadlineNoticeFeed(dataset: DeadlineNoticeDataset, input: N
 
   const liveDeadlines: MatchedDeadline[] = merged.live.map((d) => {
     const record = toDeadlineRecord(d);
-    const end = new Date(`${record.deadline}T23:59:59Z`);
-    const daysUntil = Math.ceil((end.getTime() - now.getTime()) / DAY_MS);
+    const daysUntil = calendarDaysUntil(record.deadline, now);
     return { ...record, isPast: daysUntil < 0, daysUntil };
   });
 

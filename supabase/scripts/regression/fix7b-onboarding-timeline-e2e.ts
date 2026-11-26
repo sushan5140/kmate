@@ -65,20 +65,11 @@ async function cookiesFor(email: string) {
 // Pure re-implementation of validApplicationYears, to compute the expected
 // set independently of the app's own code (so this isn't just "does the
 // app agree with itself").
-function estimateApplicationDeadline(track: "gks_u" | "gks_g", applicationYear: number): Date {
-  if (track === "gks_g") return new Date(applicationYear, 1, 15);
-  return new Date(applicationYear - 1, 8, 30);
-}
 function expectedValidYears(track: "gks_u" | "gks_g"): number[] {
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const candidates = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
-  const years = candidates.filter((year) => estimateApplicationDeadline(track, year) > now);
-  // Mirrors the same one-off 2026/gks_u carve-out in lib/deadline.ts
-  // (GKS-U 2026 is still open past this estimate's cutoff) -- kept in sync
-  // by hand since this is a deliberately independent reimplementation.
-  if (track === "gks_u" && !years.includes(2026)) years.unshift(2026);
-  return years;
+  const year = now.getUTCFullYear();
+  const published = track === "gks_u" ? "2026-01-09" : "2026-07-01";
+  return [year, year + 1, year + 2, year + 3].filter(y => y !== 2026 || now.toISOString().slice(0, 10) < published);
 }
 
 async function runOnboardingToYearStep(browser: Browser, email: string, trackButtonName: string, username: string) {

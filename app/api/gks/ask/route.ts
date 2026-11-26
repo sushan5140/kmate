@@ -3,6 +3,7 @@ import { getAuthenticatedUser, isAuthorizedAdmin } from "@/lib/supabase/auth-ser
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { retrieveGksU2027, guidelineCoverage } from "@/lib/gks/guideline-retriever";
+import { assistantIntake, editionMatches, evidenceForIntake, GUIDELINE_EDITIONS } from "@/lib/gks/guideline-editions";
 import { synthesizeGksAnswer } from "@/lib/gks/grok-synthesis";
 import {
   upsertQuestion,
@@ -86,6 +87,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_program" }, { status: 400 });
   }
 
+  const selectedProgram = program === "UG" ? "GKS-U" : "GKS-G";
+  const { data: profile } = await admin.from("profiles").select("track, application_year").eq("id", user.id).maybeSingle();
+  const storedProgram = profile?.track === "gks_u" ? "GKS-U" : profile?.track === "gks_g" ? "GKS-G" : "";
+  const intake = assistantIntake(question, selectedProgram, storedProgram, profile?.application_year);
+  if (!intake || !editionMatches(selectedProgram, intake)) {
+    const reference = GUIDELINE_EDITIONS[selectedProgram].cycle;
+    return NextResponse.json({
+      question, program, answer: "", mode: "needs_clarification", needs_clarification: true,
+      clarification: intake
+        ? "KMate has no reviewed " + selectedProgram + " " + intake + " guideline in its answer corpus. The " + reference + " edition cannot establish this intake's rules. Check the official notices; you may explicitly ask about the " + reference + " edition for reference."
+        : "Specify the intended GKS program and intake year (for example, GKS-U 2027). KMate will not assume a year or mix guideline editions.",
+      official_sources_found: 0, community_cases_found: 0,
+      coverage: { question_concepts: [], covered: [], unsupported: [], unsupported_labels: [] },
+      evidence: { official: [], community: [] }, thread: null,
+    });
+  }
+
   let official: RagOfficialEvidence[] = [];
   let coverage: {
     question_concepts: string[];
@@ -136,6 +154,9 @@ export async function POST(request: Request) {
       };
   }
 
+  official = evidenceForIntake(official, intake, program);
+  // Coverage from the upstream retriever is no longer authoritative after edition filtering.
+  if (program === "G" && official.length > 0) coverage = { question_concepts: [], covered: [], unsupported: [], unsupported_labels: [] };
   if (official.length === 0) {
     return NextResponse.json({
       question,
@@ -157,20 +178,21 @@ export async function POST(request: Request) {
     question,
     program,
     official,
+    intake,
     unsupportedLabels: coverage.unsupported_labels ?? [],
   });
 
   const data = {
     question,
     program,
-    answer: synthesis.answer,
+    answer: selectedProgram + " " + intake + " guideline edition only" + (program === "G" ? " (historical reference; not verified for later intakes)" : "") + ". This is not a live application-status check.\n\n" + synthesis.answer,
     mode:
       synthesis.provider === "grok"
         ? ("grok_generated" as const)
         : ("retrieval_only" as const),
     synthesis_provider: synthesis.provider,
     synthesis_status: synthesis.providerStatus,
-    guideline_cycle: program === "UG" ? "2027" : official[0]?.cycle ?? null,
+    guideline_cycle: intake,
     needs_clarification: false,
     official_sources_found: official.length,
     community_cases_found: 0,

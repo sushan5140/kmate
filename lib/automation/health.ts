@@ -163,6 +163,8 @@ export async function recordRun<T extends object>(
 
   try {
     result = await fn();
+    const reported = (result as { errors?: unknown }).errors;
+    if (Array.isArray(reported) && reported.length > 0) error = reported.map(String).join("; ").slice(0, 2000);
   } catch (e) {
     error = (e as Error).message;
   }

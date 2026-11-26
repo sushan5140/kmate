@@ -338,6 +338,7 @@ export function OnboardingWizard({ destination = "/home" }: { destination?: stri
       {step === "year" && (
         <div className="mt-3">
           <h2 className="text-[18px] font-semibold text-ink">Which application year are you applying for?</h2>
+          <p className="mt-1 text-[12px] text-muted">Select your intended intake or ongoing selection cycle. These options do not confirm applications are open; check the official notice.</p>
           <div className="mt-4 flex gap-2">
             {validApplicationYears(track!).map((year) => (
               <button

@@ -12,6 +12,7 @@ interface OfficialEvidence {
 export interface SynthesisInput {
   question: string;
   program: "UG" | "G";
+  intake: string;
   official: OfficialEvidence[];
   unsupportedLabels?: string[];
 }
@@ -97,7 +98,7 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
               "You are KMate's official GKS guideline assistant.",
               "Answer ONLY from the official guideline evidence supplied in this request.",
               "Do not use applicant anecdotes, community reports, memory, web knowledge, or unstated assumptions.",
-              "For GKS-U, the evidence is from the current 2027 GKS-U guideline.",
+              "Use only evidence from the requested program and intake edition. For historical GKS-G evidence, explicitly label it historical; never extrapolate rules to a later cycle. Do not infer current application availability or results from a schedule.",
               "If the evidence does not directly support an answer, say that the guideline evidence provided does not confirm it.",
               "Prefer a direct yes/no first when the question allows it.",
               "Then explain the rule in 2-4 concise sentences and cite the supplied page number(s) as 'p.X'.",
@@ -112,6 +113,7 @@ export async function synthesizeGksAnswer(input: SynthesisInput): Promise<Synthe
             content: JSON.stringify({
               question: input.question,
               program: input.program,
+              intake: input.intake,
               official_guideline_evidence: official,
               unsupported_topics: input.unsupportedLabels ?? [],
             }),

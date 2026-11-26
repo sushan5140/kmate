@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { classifyProgram, noticeIntake } from "./classify";
 import type { QueueNoticeType } from "./review-schema";
 import type { PublishedGksNotice, PublishedTrack } from "./published-schema";
 
@@ -64,6 +65,7 @@ export async function getApprovedGksNotices(): Promise<PublishedGksNotice[]> {
   return (data as unknown as QueueJoinRow[]).flatMap((row) => {
     if (!row.notice || row.notice.is_active === false) return [];
     if (row.program !== "GKS-U" && row.program !== "GKS-G") return [];
+    if (classifyProgram(row.notice.title) !== row.program) return [];
     return [
       {
         id: row.notice.id,
@@ -73,6 +75,7 @@ export async function getApprovedGksNotices(): Promise<PublishedGksNotice[]> {
         publishedAt: row.notice.published_date,
         language: row.notice.language,
         program: row.program,
+        cycle: noticeIntake(row.notice.title),
         track: (row.track === "embassy" || row.track === "university" ? row.track : null) as PublishedTrack,
         noticeType: row.notice_type as QueueNoticeType,
         publisher: row.source_publisher,

@@ -13,6 +13,14 @@
  * own behaviour: hierarchy scoping, the client-side summary, and the cases the
  * UI is expected to handle.
  */
+import "./calendar-banner-checks";
+import "./r1-intake-schedule-checks";
+import "./r2-guideline-edition-checks";
+import "./r3-notice-integrity-checks";
+import "./r4-scholarship-availability-checks";
+import "./application-stage-checks";
+import "./phase3-worksheets-matching-checks";
+import "./growth-checks";
 import { strict as assert } from "node:assert";
 import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";
@@ -23,6 +31,8 @@ import { createNameResolver, UNIVERSITY_NAME_ALIASES } from "@/lib/readiness/uni
 import gksUniversities from "@/data/gks-universities.json";
 import { summarizeReadiness } from "@/lib/readiness/summary";
 import type { ReadinessItem } from "@/lib/readiness/schema";
+
+import { graduatePreparationGroups, graduatePreparationCount, parseGraduatePreparationProgress, GKS_G_PREPARATION_PATH } from "@/lib/readiness/graduate-preparation";
 
 const c = checklist as any;
 const r = requirements.records as any[];
@@ -325,7 +335,7 @@ function MULTI_UNIVERSITY_CHECKS() {
   const maritimeItem = sectionFor(mixed, "Korea Maritime & Ocean University").items.find(
     (i) => i.label === "Seafarer's Medical Certificate"
   );
-  ok(maritimeItem?.status === "required", "the maritime major makes the KMOU certificate required for that slot");
+  ok(maritimeItem?.status === "conditional" && maritimeItem.notes?.includes("Reference only") === true, "2026 KMOU medical certificate evidence cannot create a 2027 required item");
   const noMajor = getApplicationWorkspace({
     program: "GKS-U",
     track: "embassy",
@@ -639,6 +649,25 @@ function PROGRESS_SUMMARY_CHECKS() {
 
 NAME_RECONCILIATION_CHECKS();
 PROGRESS_SUMMARY_CHECKS();
+
+console.log("=== GKS-G pre-cycle preparation stays separate from official readiness ===");
+for (const track of ["", "embassy", "university"] as const) {
+  const groups = graduatePreparationGroups(track);
+  const tasks = groups.flatMap(group => group.tasks);
+  const ids = tasks.map(task => task.id);
+  ok(tasks.length === 10 && new Set(ids).size === ids.length, "ten unique preparation tasks for " + (track || "undecided"));
+  ok(ids.includes("route-" + (track || "undecided")), "correct route-specific task");
+  ok(ids.includes("verify-national") && ids.includes("verify-recipient"), "reverification tasks remain present");
+  ok(graduatePreparationCount(groups, []).done === 0 && graduatePreparationCount(groups, ids).done === tasks.length, "progress counts only visible tasks");
+  const checker = tasks.find(task => task.id === "language")?.link?.href;
+  const expected = track ? "/requirement-checker?program=GKS-G&track=" + track : "/requirement-checker?program=GKS-G";
+  ok(checker === expected, "checker link preserves graduate route");
+}
+ok(JSON.stringify(parseGraduatePreparationProgress('["academic-records","academic-records","fake",42]')) === '["academic-records"]', "stored progress rejects unknown and duplicate task IDs");
+ok(parseGraduatePreparationProgress("{bad json").length === 0 && parseGraduatePreparationProgress("{}").length === 0, "malformed storage safely resets");
+ok(graduatePreparationCount(graduatePreparationGroups("embassy"), ["route-university"]).done === 0, "other route completion cannot inflate visible progress");
+ok(GKS_G_PREPARATION_PATH === "/application-readiness?program=GKS-G&own=1#graduate-preparation", "guest entry selects the graduate program and hub anchor");
+
 
 console.log("");
 console.log(fail ? fail + " FAILURES" : "ALL READINESS INTEGRATION CHECKS PASSED");
