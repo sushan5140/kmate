@@ -129,7 +129,7 @@ export function DeadlineNoticeFeed({
   const notices = useMemo(() => {
     const staticMatched = feed.notices;
     const liveMatched = liveNotices
-      .filter((n) => noticeAppliesTo(n, program, track ?? null, cycle))
+      .filter((n) => noticeAppliesTo(n, program, track ?? null, cycle) && (n.track === null || n.track === track))
       .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
 
     // De-duplicated against the WHOLE curated dataset, not just the notices
@@ -141,6 +141,7 @@ export function DeadlineNoticeFeed({
       liveMatched,
       deadlineNoticeDataset.notices.map((n) => ({
         sourceUrl: staticSourceUrl.get(n.source_id) ?? "",
+        sourceNoticeId: staticSourceUrl.get(n.source_id) ? new URL(staticSourceUrl.get(n.source_id)!).searchParams.get("nttId") : null,
         title: n.title,
         publishedAt: n.published_at,
       }))
