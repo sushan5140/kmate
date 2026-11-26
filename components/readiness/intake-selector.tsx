@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { normalizeIntake, profileIntake } from "@/lib/gks/guideline-editions";
 import { canSetProfileIntake } from "@/lib/readiness/intake";
 
@@ -7,6 +8,7 @@ export function IntakeSelector({ program, cycle, profileProgram, profileYear, ye
   program: string; cycle: string | null; profileProgram: string; profileYear: number | null;
   years: string[]; guest: boolean; onSelect: (year: string) => void; pending: boolean;
 }) {
+  const router = useRouter();
   const [choice, setChoice] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -25,7 +27,7 @@ export function IntakeSelector({ program, cycle, profileProgram, profileYear, ye
         setError(response.status === 409 ? "Your profile changed. Refresh the page before saving a new default." : "Could not save the profile default. You can still use this year for this application only.");
         return;
       }
-      onSelect(choice); setChoice("");
+      onSelect(choice); setChoice(""); router.refresh();
     } catch { setError("Could not save the profile default. Your existing default has not been confirmed as changed."); }
     finally { setSaving(false); }
   }
@@ -39,6 +41,7 @@ export function IntakeSelector({ program, cycle, profileProgram, profileYear, ye
       {years.map(year => <option key={year} value={year}>{year}{year === profileCycle ? " (profile default)" : ""}</option>)}
     </select>
     <p className="text-[12px] text-muted">{cycle ? "Viewing " + cycle + (cycle === profileCycle ? " · profile default" : " · application-specific selection") : "No intake selected."} Intake year does not establish application availability.</p>
+    {!guest && !choice && cycle && cycle !== profileCycle && program === profileProgram && <button type="button" onClick={() => setChoice(cycle)} className="text-[12px] font-medium text-primary underline">Make {cycle} my default</button>}
     {choice && <div className="rounded-xl border border-hairline bg-canvas p-3 space-y-2">
       <p className="text-[13px] font-semibold text-ink">Make {choice} your default intake year?</p>
       <p className="text-[12px] text-muted">{allowed ? "Saving updates only the intake year on your profile. Your other profile information is unchanged." : "This programme or year cannot replace your profile default. You can still use it for this application."}</p>
