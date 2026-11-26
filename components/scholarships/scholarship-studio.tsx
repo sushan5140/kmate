@@ -146,11 +146,13 @@ export default function ScholarshipStudio({
 }) {
   const [now, setNow] = useState(asOf);
   useEffect(() => {
-    const refresh = () => setNow(new Date().toISOString());
+    const serverTime = Date.parse(asOf);
+    const started = performance.now();
+    const refresh = () => setNow(new Date(serverTime + Math.max(0, performance.now() - started)).toISOString());
     const timer = window.setInterval(refresh, 15000);
     window.addEventListener("focus", refresh);
     return () => { window.clearInterval(timer); window.removeEventListener("focus", refresh); };
-  }, []);
+  }, [asOf]);
   const allRows = useMemo(() => [...sourceRows, ...sourceArchive].map(row => ({ ...row, availability: scholarshipAvailability(row, new Date(now)) })), [sourceRows, sourceArchive, now]);
   const rows = useMemo(() => allRows.filter(row => row.availability.listed), [allRows]);
   const archivedRows = useMemo(() => allRows.filter(row => !row.availability.listed), [allRows]);
@@ -2199,8 +2201,10 @@ export default function ScholarshipStudio({
                     <h3 className="mt-1 min-h-[34px] text-[10px] font-semibold">{row.scholarship_name}</h3>
                     <div className="mt-3 grid gap-1 text-[8px] text-muted">
                       <p className="flex justify-between gap-3"><span>Assumed annual cost</span><b className="text-ink">₩{Math.round(base).toLocaleString()}</b></p>
-                      <p className="flex justify-between gap-3"><span>Modeled support</span><b className="text-ink">₩{Math.round(support).toLocaleString()}</b></p>
-                      <p className="flex justify-between gap-3 border-t border-hairline pt-2 text-ink"><span>Estimated gap</span><b>₩{Math.round(gap).toLocaleString()}</b></p>
+                      {row.application_window ? <p className="leading-5 text-[11px]">Funding varies by award tier and eligibility. An exact cost estimate is not available; see the published terms.</p> : <>
+                        <p className="flex justify-between gap-3"><span>Modeled support</span><b className="text-ink">₩{Math.round(support).toLocaleString()}</b></p>
+                        <p className="flex justify-between gap-3 border-t border-hairline pt-2 text-ink"><span>Estimated gap</span><b>₩{Math.round(gap).toLocaleString()}</b></p>
+                      </>}
                     </div>
                   </article>
                 );
