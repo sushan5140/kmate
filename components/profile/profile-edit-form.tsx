@@ -9,7 +9,7 @@ import { MajorStep } from "@/components/onboarding/major-step";
 import { UniversityPicker, type SelectedUniversity } from "@/components/onboarding/university-picker";
 import { UsernameField } from "@/components/onboarding/username-field";
 import { BioStep } from "@/components/onboarding/bio-step";
-import { validApplicationYears } from "@/lib/deadline";
+import { profileApplicationYears, validApplicationYears } from "@/lib/deadline";
 import {
   TRACK_LABELS,
   type GksUApplicationRoute,
@@ -268,10 +268,11 @@ export function ProfileEditForm({
 
       <div>
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">Application year</p>
+        <p className="mt-1 text-[12px] text-muted">Intake years are for planning or tracking, not confirmation that applications are open. Your previously saved intake can be retained.</p>
         <div className="mt-2 flex gap-2">
-          {validApplicationYears(initial.track).map((year) => (
+          {profileApplicationYears(initial.track, initial.applicationYear).map((year) => (
             <button
-              key={year}
+              key={year}{!validApplicationYears(initial.track).includes(year) ? " (saved)" : ""}
               type="button"
               onClick={() => setApplicationYear(year)}
               className={`rounded-lg border px-4 py-2 text-[14px] ${
