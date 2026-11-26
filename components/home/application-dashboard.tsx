@@ -16,7 +16,6 @@ import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applicatio
 import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
-import { deadlineNoticeDataset } from "@/lib/deadlines";
 import type { PublishedGksNotice } from "@/lib/notices/published-schema";
 import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
 
@@ -412,11 +411,11 @@ export function ApplicationDashboard({
       {/* Only rendered with a saved application: without a program and track
           there is nothing to match against, and guessing one would be exactly
           the inference this feature forbids. A profile with no application
-          year falls back to the dataset's own cycle rather than inventing one. */}
+          year yields no deadline instead of borrowing the dataset's cycle. */}
       <DeadlineNoticeFeed
         program={app.program}
         track={app.track}
-        cycle={cycle ?? deadlineNoticeDataset.generated_for_cycle}
+        cycle={cycle ?? ""}
         attention={{
           missing: summary?.overall.requiredMissing ?? 0,
           untracked: summary?.overall.requiredUntracked ?? 0,
