@@ -13,6 +13,11 @@ export default async function StageMatchingPage() {
   const enabled = process.env.KMATE_STAGE_MATCHING_ENABLED === "true";
   let choices: MatchChoice[] = [], preference: MatchPreference | null = null, matches: Match[] = [];
   let available = false, matchesAvailable = false, canMatch = false;
+  // When disabled, only retrieve the caller’s preference so revocation remains available.
+  if (!guest && !enabled) {
+    const own = await getSupabaseAdmin().from("stage_matching_preferences").select("choice_id,stage,expires_at,consented_at").eq("user_id", user.id).maybeSingle();
+    if (!own.error) preference = own.data as MatchPreference | null;
+  }
   if (!guest && enabled) {
     const admin = getSupabaseAdmin();
     const [profile, choiceRows, own] = await Promise.all([
@@ -40,7 +45,7 @@ export default async function StageMatchingPage() {
     <h1 className="text-[24px] font-semibold text-ink">Stage-based applicant matching</h1>
     <p className="text-[13.5px] leading-relaxed text-muted">Find peers who have independently chosen to share a broad application stage. Matching is not evidence of admission or scholarship eligibility.</p>
     {guest ? <p className="rounded-xl bg-canvas p-4 text-[13px] text-muted">Sign in to participate. Guests cannot view matching participants.</p> :
-      !enabled ? <p className="rounded-xl bg-canvas p-4 text-[13px] text-muted">Matching pilot is not enabled. No participant data is shown.</p> :
+      !enabled ? <><p className="rounded-xl bg-canvas p-4 text-[13px] text-muted">Matching pilot is not enabled. No participant data is shown.</p>{preference && <StageMatchingConsent choices={[]} preference={preference} enabled={false} />}</> :
       !available ? <p role="alert" className="rounded-xl bg-canvas p-4 text-[13px] text-muted">Matching is unavailable. No data was disclosed.</p> :
       <>
         <StageMatchingConsent key={preference?.consented_at ?? "none"} choices={canMatch ? choices : []} preference={preference} enabled={canMatch} />
