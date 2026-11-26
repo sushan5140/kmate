@@ -100,6 +100,7 @@ export function readinessHref(app: SavedApplication): string {
 function requirementHref(app: SavedApplication, universityName: string, major?: string): string {
   const p = new URLSearchParams();
   p.set("program", app.program);
+  if (normalizeIntake(app.cycle)) p.set("cycle", app.cycle!);
   if (app.track) p.set("track", app.track);
   if (app.subtype) p.set("subtype", app.subtype);
   p.set("university", universityName);
@@ -199,7 +200,7 @@ export function ApplicationDashboard({
   /* ---------------- empty state ---------------- */
 
   if (!app) {
-    const canBootstrap = Boolean(defaults.program && defaults.track);
+    const canBootstrap = Boolean(accountId && defaults.program && defaults.track && normalizeIntake(cycle));
     return (
       <Card className="mt-8 flex flex-col gap-3">
         <MicroLabel>Your GKS application</MicroLabel>
@@ -416,7 +417,7 @@ export function ApplicationDashboard({
         </div>
       )}
 
-      <ApplicationStageTracker key={accountId ?? "guest"} app={app} accountId={accountId} profileCycle={target} />
+      <ApplicationStageTracker key={JSON.stringify([accountId, app.id, target])} app={app} accountId={accountId} profileCycle={target} />
 
       {/* ---------------- deadlines and notices ---------------- */}
       {/* Only rendered with a saved application: without a program and track
