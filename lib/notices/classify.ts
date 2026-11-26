@@ -88,8 +88,9 @@ const any = (patterns: RegExp[], text: string) => patterns.some((p) => p.test(te
  */
 export function classifyProgram(text: string): QueueProgram {
   const t = norm(text);
-  const u = any(UNDERGRAD, t);
-  const g = any(GRAD, t);
+  if (!/\b(?:gks|kgsp|global korea scholarship)\b|(?:한국)?정부초청/.test(t) || /korea[\s–-]*japan|kor[\s–-]*jpn|한일|韓日|unhcr[\s–-]*rok|wb[\s–-]*rok/.test(t)) return "unknown";
+  const u = any(UNDERGRAD, t) || /\bgks\b.{0,55}\bundergraduate\b|정부초청.{0,20}학부/.test(t);
+  const g = any(GRAD, t) || /\bgks\b.{0,55}\bgraduate\b|정부초청.{0,20}대학원/.test(t);
   if (u && !g) return "GKS-U";
   if (g && !u) return "GKS-G";
   return "unknown";
@@ -208,8 +209,8 @@ export function classifyNotice(title: string, body: string): Classification {
   const titleType = classifyNoticeType(title);
 
   return {
-    program: titleProgram !== "unknown" ? titleProgram : classifyProgram(combined),
-    track: titleTrack !== null ? titleTrack : classifyTrack(combined),
+    program: titleProgram,
+    track: titleTrack,
     notice_type: titleType !== "other" ? titleType : classifyNoticeType(combined),
   };
 }
