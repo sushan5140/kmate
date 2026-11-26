@@ -21,7 +21,7 @@ export const GUIDES: Guide[] = [
       { title: "Recheck before submitting", body: "Verify eligibility, eligible departments, routes, recommendation instructions, forms and deadlines in the general current-cycle notice and the first-round institution's instructions. An informal faculty reply is not an admission or scholarship guarantee." },
     ],
     sources: [{label:"2026 GKS-G guideline (historical)",href:GKS_G_HISTORICAL_NOTICE},{label:"Current Study in Korea notices",href:OFFICIAL_NOTICE_LIST}],
-    tool: { label: "Open graduate preparation hub", href: "/application-readiness?program=GKS-G&own=1#graduate-preparation" },
+    tool: { label: "Open graduate preparation hub", href: "/application-readiness?program=GKS-G&cycle=2027&own=1#graduate-preparation" },
   },
   {
     slug: "gks-u-2027-next-steps", title: "GKS-U 2027 application and selection next steps | KMate",
@@ -35,7 +35,7 @@ export const GUIDES: Guide[] = [
       { title: "Confirm each outcome from its issuer", body: "Track self-reported progress separately from official notices. Do not assume that passing one selection stage guarantees the final scholarship." },
     ],
     sources: [{label:"Official 2027 GKS-U announcement",href:GKS_U_NOTICE},{label:"Current Study in Korea notices",href:OFFICIAL_NOTICE_LIST}],
-    tool: {label:"Open undergraduate readiness",href:"/application-readiness?program=GKS-U&own=1"},
+    tool: {label:"Open undergraduate readiness",href:"/application-readiness?program=GKS-U&cycle=2027&own=1"},
   },
   {
     slug: "gks-document-checklist", title: "GKS documents and apostille preparation checklist | KMate",
