@@ -160,7 +160,7 @@ export async function runDeadlineAssistant(): Promise<AssistantRunResult> {
 
       const gate = evaluateGate(proposal, {
         noticeApproved: true,
-        officialSource: true,
+        officialSource: (() => { try { const u = new URL(row.source_url); return u.protocol === "https:" && u.hostname === "www.studyinkorea.go.kr" && u.searchParams.get("bbsId") === "BBSMSTR_000000000461"; } catch { return false; } })(),
         existingVerifiedDate:
           outcome.kind === "conflict" || outcome.kind === "extension" ? outcome.existingDate : null,
         conflictingCandidateDates: conflictDates,
@@ -180,7 +180,9 @@ export async function runDeadlineAssistant(): Promise<AssistantRunResult> {
         reasonParts.push("the gate passed in full; auto-verify is disabled, so this is a suggestion only");
       }
 
+      // A text heuristic cannot establish that a deadline is global. All global proposals require explicit review.
       const status =
+        gate.decision === "auto_verified" && proposal.scope_type === "global" ? "needs_review" :
         gate.decision === "auto_verified"
           ? "auto_verified"
           : gate.decision === "rejected_not_deadline"
