@@ -1,5 +1,5 @@
 /** Preparation suggestions, not scholarship requirements or verified deadlines. */
-export const GKS_G_PREPARATION_PATH = "/application-readiness?program=GKS-G&own=1#graduate-preparation";
+export const GKS_G_PREPARATION_PATH = "/application-readiness?program=GKS-G&cycle=2027&own=1#graduate-preparation";
 export const HISTORICAL_GUIDELINES_URL = "https://studyinkorea.go.kr/ko/plan/gksNoticeRead.do?bbsId=BBSMSTR_000000000461&nttId=4420";
 export const OFFICIAL_NOTICES_URL = "https://www.studyinkorea.go.kr/ko/notice/scholarshipsList.do?boardSort=3";
 
