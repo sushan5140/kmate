@@ -211,6 +211,7 @@ export default async function HomePage() {
       </Card>
 
       <ApplicationDashboard
+        accountId={reviewerGuest ? null : user.id}
         cycle={profile?.application_year ? String(profile.application_year) : null}
         // Every approved GKS notice, not a pre-filtered slice. Which ones apply
         // depends on the saved application, which lives in localStorage and is
