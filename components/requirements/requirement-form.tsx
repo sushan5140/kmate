@@ -19,8 +19,10 @@ export function RequirementForm({
   options,
   initial,
   children,
+  cycle,
 }: {
   options: CheckerOptions;
+  cycle?: string | null;
   initial: { program: string; track: string; subtype: string; university: string; major: string; gender: string };
   /** The results for the checked selection, rendered below the form. */
   children?: React.ReactNode;
@@ -96,6 +98,7 @@ export function RequirementForm({
   function check() {
     if (!program || !track || !university) return;
     const params = new URLSearchParams({ program, track, university, check: "1" });
+    if (cycle && program === initial.program) params.set("cycle", cycle);
     if (subtype) params.set("subtype", subtype);
     if (major.trim()) params.set("major", major.trim());
     if (gender) params.set("gender", gender);
