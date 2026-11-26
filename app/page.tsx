@@ -12,6 +12,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { GKS_G_PREPARATION_PATH } from "@/lib/readiness/graduate-preparation";
 import { ConnectionGraph } from "@/components/marketing/connection-graph";
 import { DiscoverMockup } from "@/components/marketing/discover-mockup";
 import { InterviewMockup } from "@/components/marketing/interview-mockup";
@@ -293,6 +294,16 @@ export default async function LandingPage() {
               );
             })}
           </div>
+          <Link
+            href={`/guest/start?next=${encodeURIComponent(GKS_G_PREPARATION_PATH)}`}
+            className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-canvas p-4 ring-1 ring-hairline hover:shadow-card"
+          >
+            <div>
+              <h3 className="text-[15px] font-semibold text-ink">Preparing for GKS-G 2027?</h3>
+              <p className="mt-1 text-[12.5px] leading-relaxed text-muted">Plan academic records, referees, language tests and graduate department research before the current-cycle notice.</p>
+            </div>
+            <span className="text-[12px] font-semibold text-primary">Open preparation hub</span>
+          </Link>
           <p className="mt-5 text-[12px] leading-relaxed text-muted">
             For a 2027 GKS-U decision, confirm the final requirements in the{" "}
             <a
