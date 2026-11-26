@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { isExpiredNow } from "@/lib/scholarships/lifecycle";
+import { scholarshipAvailability, scholarshipDeadlineLabel } from "@/lib/scholarships/availability";
 import ScholarshipStudio, {
   type ScholarshipStudioProfileSeed,
   type ScholarshipStudioRow,
@@ -14,13 +14,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-dynamic";
-
-const NOT_SPECIFIED = "Not specified in the official source";
-
-const DEADLINE_TYPE_LABELS: Record<string, string> = {
-  admission_schedule: "Follows the admission schedule",
-  automatic: "Awarded automatically — no application",
-};
 
 interface ScholarshipRow {
   id: string;
@@ -43,26 +36,8 @@ interface ScholarshipRow {
   last_verified_at: string | null;
 }
 
-function formatDate(value: string): string {
-  const [y, m, d] = value.split("-").map(Number);
-  if (!y || !m || !d) return value;
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function deadlineLabel(row: ScholarshipRow): string {
-  if (row.deadline) return formatDate(row.deadline);
-  if (row.deadline_type && DEADLINE_TYPE_LABELS[row.deadline_type]) {
-    return DEADLINE_TYPE_LABELS[row.deadline_type];
-  }
-  return NOT_SPECIFIED;
-}
-
-function studioRow(row: ScholarshipRow): ScholarshipStudioRow {
+function studioRow(row: ScholarshipRow, now: Date): ScholarshipStudioRow {
+  const availability = scholarshipAvailability(row, now);
   return {
     id: row.id,
     university_name: row.university_name,
@@ -81,7 +56,9 @@ function studioRow(row: ScholarshipRow): ScholarshipStudioRow {
     source_url: row.source_url,
     content_hash: row.content_hash,
     last_verified_at: row.last_verified_at,
-    deadline_label: deadlineLabel(row),
+    deadline_label: scholarshipDeadlineLabel(row),
+    availability,
+    is_active: row.is_active,
   };
 }
 
@@ -107,21 +84,10 @@ export default async function ScholarshipsPage() {
   ]);
 
   const allRows = (scholarshipData ?? []) as ScholarshipRow[];
-  const activeRows = allRows.filter(
-    (row) =>
-      row.is_active &&
-      row.status !== "expired" &&
-      !isExpiredNow(row)
-  );
-  const archivedRows = allRows.filter(
-    (row) =>
-      row.status === "expired" ||
-      !row.is_active ||
-      isExpiredNow(row)
-  );
-
-  const rows = activeRows.map(studioRow);
-  const archive = archivedRows.map(studioRow);
+  const now = new Date();
+  const mapped = allRows.map(row => studioRow(row, now));
+  const rows = mapped.filter(row => row.availability.listed);
+  const archive = mapped.filter(row => !row.availability.listed);
 
   const profileSeed: ScholarshipStudioProfileSeed = {
     major: profile?.major ?? "",
