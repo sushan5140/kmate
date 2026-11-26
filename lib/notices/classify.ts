@@ -214,3 +214,10 @@ export function classifyNotice(title: string, body: string): Classification {
     notice_type: titleType !== "other" ? titleType : classifyNoticeType(combined),
   };
 }
+
+/** Intake is explicit in the headline, never inferred from publication date. */
+export function noticeIntake(title: string): string | null {
+  if (classifyProgram(title) === "unknown") return null;
+  const years = [...new Set([...title.matchAll(/(?<!\d)(20\d{2})(?!\d)/g)].map(m => m[1]))];
+  return years.length === 1 ? years[0] : null;
+}
