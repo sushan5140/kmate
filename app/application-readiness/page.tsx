@@ -4,6 +4,7 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
 import { getProfileDefaults } from "@/lib/readiness/profile";
+import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { universitySlotsFor } from "@/lib/readiness/application";
 import { ReadinessWorkspace } from "@/components/readiness/readiness-workspace";
 import { GksU2027RouteDashboard } from "@/components/official-guidelines/gks-u-2027-route-dashboard";
@@ -103,8 +104,7 @@ export default async function ApplicationReadinessPage({
   }
 
   const showGksU2027 = program === "GKS-U";
-  const routePath =
-    track === "embassy" ? (subtype === "r_gks" ? "r_gks" : "general") : null;
+  const routePath = resolvePlanningRoute(track, subtype);
   const savedUniversityNames = universities.map((u) => u.name);
   const toolMajor =
     universities.find((u) => u.major.trim().length > 0)?.major ?? defaults.major;
@@ -189,6 +189,7 @@ export default async function ApplicationReadinessPage({
               </summary>
               <div className="border-t border-hairline px-4 pb-5">
                 <GksU2027SmartTools
+                  key={routePath ?? "unselected"}
                   mode="readiness"
                   defaultPath={routePath}
                   savedUniversities={savedUniversityNames}
@@ -203,7 +204,7 @@ export default async function ApplicationReadinessPage({
                 <span className="float-right text-muted transition-transform group-open:rotate-180">⌄</span>
               </summary>
               <div className="border-t border-hairline px-4 pb-5">
-                <GksU2027FormAssistant defaultRoute={routePath} />
+                <GksU2027FormAssistant key={routePath ?? "unselected"} defaultRoute={routePath} />
               </div>
             </details>
 
