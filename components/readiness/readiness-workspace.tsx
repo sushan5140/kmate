@@ -93,14 +93,18 @@ export function ReadinessWorkspace({
   const { program, track, subtype, universities } = config;
 
   const storageKey = storageKeyFor(program, track, subtype, cycle);
+  const legacyKey = storageKeyFor(program, track, subtype);
   const raw = useSyncExternalStore(
     subscribe,
-    () => (program ? readRaw(storageKey) : null),
+    () => (program && !guest ? readRaw(storageKey) : null),
     () => null
   );
   const stored: StoredProgress = useMemo(() => (program ? parseProgress(raw) : EMPTY_PROGRESS), [program, raw]);
 
+  const legacyRaw = useSyncExternalStore(subscribe, () => !guest && cycle ? readRaw(legacyKey) : null, () => null);
+
   function write(next: StoredProgress) {
+    if (guest || !cycle) return;
     try {
       const empty = Object.keys(next.common).length === 0 && Object.keys(next.byUniversity).length === 0;
       if (empty) window.localStorage.removeItem(storageKey);
@@ -186,9 +190,7 @@ export function ReadinessWorkspace({
     write(EMPTY_PROGRESS);
   }
   function startNewApplication() {
-    // This application's saved progress, and only this one -- every other
-    // route's saved checklist is left alone. Then back to a bare URL, which
-    // reloads the profile defaults.
+    // A bare URL reloads the profile defaults without deleting progress.
     // A fresh configuration must not erase the previous intake checklist.
     startTransition(() => router.push("/application-readiness"));
   }
@@ -233,8 +235,6 @@ export function ReadinessWorkspace({
           </div>
         )}
 
-        <IntakeSelector key={JSON.stringify([program, cycle, defaults.applicationYear])} program={program} cycle={cycle} profileProgram={defaults.program} profileYear={defaults.applicationYear ?? null} years={intakeYears} guest={guest} pending={isPending} onSelect={year => go({}, year)} />
-
         <Step index={1} label="GKS program" done={Boolean(program)} from={usingDefaults && defaults.from.program}>
           <div className="flex flex-wrap gap-1.5">
             {options.programs.map((p) => (
@@ -244,6 +244,8 @@ export function ReadinessWorkspace({
             ))}
           </div>
         </Step>
+
+        <IntakeSelector key={JSON.stringify([program, cycle, defaults.applicationYear])} program={program} cycle={cycle} profileProgram={defaults.program} profileYear={defaults.applicationYear ?? null} years={intakeYears} guest={guest} pending={isPending} onSelect={year => go({}, year)} />
 
         <Step
           index={2}
@@ -424,6 +426,7 @@ export function ReadinessWorkspace({
         )}
       </Card>
 
+      {workspace && legacyRaw && !raw && !guest && cycle && <div className="rounded-xl border border-hairline bg-canvas p-3 text-[12px] text-muted">Older checklist progress exists without an intake year. It has not been deleted or assigned automatically. <button type="button" className="font-medium text-primary underline" onClick={() => { if (window.confirm("Copy your own previous checklist to " + cycle + "? Only proceed if those documents belong to this intake.")) write(parseProgress(legacyRaw)); }}>Copy to {cycle} checklist</button></div>}
       {workspace && (
         <>
           {/* ------------ overall application progress ------------ */}
