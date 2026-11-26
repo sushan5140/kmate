@@ -3,6 +3,8 @@ import { Download, ExternalLink } from "lucide-react";
 import { requireOnboarded, createClient } from "@/lib/supabase/auth-server";
 import { Card } from "@/components/ui/card";
 import { TrackBadge } from "@/components/ui/track-badge";
+import { EditionNotice } from "@/components/official-guidelines/edition-notice";
+import { normalizeIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { GksURevisionNote } from "@/components/official-guidelines/gks-u-revision-note";
 import { GksU2027QuickGuide } from "@/components/official-guidelines/gks-u-2027-quick-guide";
 import { OFFICIAL_GUIDELINES, type OfficialGuideline } from "@/lib/official-guidelines";
@@ -89,11 +91,13 @@ export default async function OfficialGuidelinesPage() {
   const user = await requireOnboarded("/official-guidelines");
   const supabase = await createClient();
 
-  const { data: profile } = await supabase.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const { data: profile } = await supabase.from("profiles").select("track, application_year").eq("id", user.id).maybeSingle();
   const track = (profile?.track as Track | null) ?? "gks_u";
   const guidelines = OFFICIAL_GUIDELINES[track];
-  const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent);
-  const archivedGuidelines = guidelines.filter((guideline) => !guideline.isCurrent);
+  const program = track === "gks_u" ? "GKS-U" : "GKS-G";
+  const target = normalizeIntake(profile?.application_year);
+  const currentGuidelines = guidelines.filter((guideline) => guideline.isCurrent && editionMatches(program, target));
+  const archivedGuidelines = guidelines.filter((guideline) => !currentGuidelines.includes(guideline));
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
@@ -108,10 +112,12 @@ export default async function OfficialGuidelinesPage() {
         </p>
       </Card>
 
+      <EditionNotice program={program} target={target} />
+
       {currentGuidelines.length > 0 ? (
         <>
           <div className="mt-6">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">Current cycle</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">Intake-matched edition</p>
           </div>
           <div className="mt-2 flex flex-col gap-4">
             {currentGuidelines.map((guideline) => (
@@ -122,25 +128,25 @@ export default async function OfficialGuidelinesPage() {
       ) : (
         <Card className="mt-6 bg-canvas">
           <p className="text-[13px] leading-relaxed text-muted">
-            No newer official guideline has been added for this track yet. The latest archived edition is shown below.
+            No reviewed active edition is matched to your profile here. See the reference archive and official source links below.
           </p>
         </Card>
       )}
 
-      {track === "gks_u" && <GksU2027QuickGuide />}
+      {track === "gks_u" && editionMatches(program, target) && <GksU2027QuickGuide />}
 
       {archivedGuidelines.length > 0 && (
         <section className="mt-10">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Previous cycle archive</p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-              Kept for transparency and comparison. Do not use an archived edition as the active 2027 procedure.
+              Kept for transparency and comparison. Do not apply a different source edition to your intended intake.
             </p>
           </div>
 
           <div className="mt-3 flex flex-col gap-4">
             {archivedGuidelines.map((guideline) => (
-              <GuidelineCard key={guideline.id} guideline={guideline} />
+              <GuidelineCard key={guideline.id} guideline={{ ...guideline, isCurrent: false, versionLabel: guideline.isCurrent ? "2027 edition · reference" : guideline.versionLabel }} />
             ))}
           </div>
 
