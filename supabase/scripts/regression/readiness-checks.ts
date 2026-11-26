@@ -14,6 +14,7 @@
  * UI is expected to handle.
  */
 import "./application-stage-checks";
+import "./phase3-worksheets-matching-checks";
 import { strict as assert } from "node:assert";
 import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";
