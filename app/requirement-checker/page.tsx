@@ -8,6 +8,7 @@ import type { CheckerInput } from "@/lib/requirements/matcher";
 import { RequirementForm } from "@/components/requirements/requirement-form";
 import { RequirementResults } from "@/components/requirements/requirement-results";
 import { getProfileDefaults } from "@/lib/readiness/profile";
+import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
 import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
 
@@ -112,8 +113,7 @@ export default async function RequirementCheckerPage({
     (selectedProgram === "GKS-U" ? "2027" : requirementDataset.cycle);
   const toolTrack = program === "GKS-U" && track ? track : defaults.track;
   const toolSubtype = program === "GKS-U" && track ? subtype : defaults.subtype;
-  const toolPath =
-    toolTrack === "embassy" ? (toolSubtype === "r_gks" ? "r_gks" : "general") : null;
+  const toolPath = resolvePlanningRoute(toolTrack, toolSubtype);
   const toolUniversities = university ? [university] : defaults.universities;
   const toolMajor = major || defaults.major;
 
@@ -202,8 +202,9 @@ export default async function RequirementCheckerPage({
 
       {showGksU2027 && (
         <section className="mt-10 border-t border-hairline pt-8">
-          <GksU2027TrackComparator defaultPath={toolPath} defaultMajor={toolMajor} />
+          <GksU2027TrackComparator defaultPath={toolPath === "university" ? null : toolPath} defaultMajor={toolMajor} />
           <GksU2027SmartTools
+            key={toolPath ?? "unselected"}
             mode="requirements"
             defaultPath={toolPath}
             savedUniversities={toolUniversities}

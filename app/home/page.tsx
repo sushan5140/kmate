@@ -198,7 +198,7 @@ export default async function HomePage() {
       <Card className="mt-8 bg-primary text-white">
         <MicroLabel className="text-white/60">Application calendar</MicroLabel>
         {track ? (
-          <DeadlineBannerText track={track} />
+          <DeadlineBannerText selection={{ program: readinessDefaults.program, track: readinessDefaults.track, cycle: profile?.application_year ? String(profile.application_year) : null }} liveDeadlines={liveDeadlines} />
         ) : (
           <h2 className="mt-1 text-[19px] font-semibold leading-snug">Set your track to see your application calendar</h2>
         )}

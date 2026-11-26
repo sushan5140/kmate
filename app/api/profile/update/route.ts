@@ -5,7 +5,7 @@ import { isValidUsernameFormat, isValidBio, escapeForIlike } from "@/lib/validat
 import { validateUniversityChoices } from "@/lib/validation/university-eligibility";
 import { TRACKS, GKS_U_APPLICATION_ROUTES, GKS_U_EMBASSY_PATHS } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { validApplicationYears } from "@/lib/deadline";
+import { profileApplicationYears } from "@/lib/deadline";
 
 // track is deliberately NOT part of this body -- it's fixed at onboarding
 // and this route always re-reads the stored value from the DB (see below),
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   // completes) -- so a request landing here with no track is someone
   // calling the wrong endpoint directly for their account's current state,
   // not a server-side failure. 400, not 500.
-  const { data: currentProfile } = await admin.from("profiles").select("track").eq("id", user.id).maybeSingle();
+  const { data: currentProfile } = await admin.from("profiles").select("track, application_year").eq("id", user.id).maybeSingle();
   const track = currentProfile?.track as (typeof TRACKS)[number] | undefined;
   if (!track || !TRACKS.includes(track)) {
     return NextResponse.json({ error: "onboarding_incomplete" }, { status: 400 });
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
   if (!major || typeof major !== "string" || major.length > 100) {
     return NextResponse.json({ error: "invalid_major" }, { status: 400 });
   }
-  if (!Number.isInteger(applicationYear) || !validApplicationYears(track).includes(applicationYear)) {
+  if (!Number.isInteger(applicationYear) || !profileApplicationYears(track, currentProfile?.application_year ?? null).includes(applicationYear)) {
     return NextResponse.json({ error: "invalid_year" }, { status: 400 });
   }
   if (!isValidUsernameFormat(username)) {

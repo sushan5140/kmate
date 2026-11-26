@@ -110,7 +110,7 @@ export function GksU2027SmartTools({
   defaultMajor,
   mode = "all",
 }: {
-  defaultPath: "general" | "r_gks" | null;
+  defaultPath: RouteType | null;
   savedUniversities: string[];
   defaultMajor: string;
   mode?: "all" | "readiness" | "requirements";
@@ -326,7 +326,7 @@ export function GksU2027SmartTools({
                 <p className="mt-1 text-[15px] font-semibold text-ink">{ROUTE_LABELS[route]}</p>
                 {defaultPath && (
                   <p className="mt-1 text-[12px] text-muted">
-                    Prefilled from your KMate profile. You can change it here without changing your profile.
+                    Prefilled from your selected application route. You can change it here without changing your profile.
                   </p>
                 )}
               </div>
