@@ -67,7 +67,7 @@ export function ApplicationStageTracker({ app, accountId, profileCycle }: {
 }) {
   const key = accountId ? PREFIX + accountId : null;
   const raw = useSyncExternalStore(subscribe, () => read(key), () => null);
-  const [cycle, setCycle] = useState("");
+  const [cycle, setCycle] = useState(profileCycle && validStageCycle(profileCycle) ? profileCycle : "");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [confirmClear, setConfirmClear] = useState<"scope" | "all" | null>(null);
