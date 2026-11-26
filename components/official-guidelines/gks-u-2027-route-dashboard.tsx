@@ -21,7 +21,8 @@ import {
 } from "@/lib/gks/guidelines-2027";
 import { GKS_U_2027_POLICY } from "@/lib/gks/gks-u-2027-policy";
 
-type RouteType = "general" | "r_gks" | null;
+import { gksU2027Schedule, type GksUPlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
+import { useUtcDateKey } from "@/lib/hooks/use-date-key";
 
 const TYPE_A = new Set<string>(GKS_U_2027_TYPE_A);
 const TYPE_B = new Set<string>(GKS_U_2027_TYPE_B);
@@ -37,68 +38,19 @@ function normalizeUniversity(name: string): string | null {
   return match ?? null;
 }
 
-function getEmbassyStage() {
-  const now = Date.now();
-  const open = Date.parse(GKS_U_2027_POLICY.embassyApplication.opensAtUtc);
-  const close = Date.parse(GKS_U_2027_POLICY.embassyApplication.closesAtUtc);
-  const firstRound = Date.parse(GKS_U_2027_POLICY.timeline.embassyRound1ResultBy + "T23:59:59Z");
-  const thirdRound = Date.parse(GKS_U_2027_POLICY.timeline.universityRound3By + "T23:59:59Z");
-  const final = Date.parse(GKS_U_2027_POLICY.timeline.finalResultExpected + "T23:59:59Z");
-
-  if (now < open) {
-    return {
-      label: "Preparing application",
-      next: "Finish forms, verify university choices, and be ready for the Embassy portal opening.",
-    };
-  }
-  if (now <= close) {
-    return {
-      label: "Embassy application open",
-      next: `Complete the Study in Korea submission before ${GKS_U_2027_POLICY.embassyApplication.display.split("→")[1].trim()}.`,
-    };
-  }
-  if (now <= firstRound) {
-    return {
-      label: "Waiting for Embassy Round 1",
-      next: "Prepare post-Round-1 originals/authentication and monitor the Embassy result.",
-    };
-  }
-  if (now <= thirdRound) {
-    return {
-      label: "Post-Embassy Round 1",
-      next: "Follow your result route: successful candidates continue to NIIED; unsuccessful candidates may still use an open University Track deadline.",
-    };
-  }
-  if (now <= final) {
-    return {
-      label: "Final selection period",
-      next: "Monitor Study in Korea and your selected university for the remaining result announcements.",
-    };
-  }
-  return {
-    label: "2027 cycle completed",
-    next: "Use the archived 2027 material only for reference and check the current cycle before applying.",
-  };
-}
-
 export function GksU2027RouteDashboard({
   defaultPath,
   savedUniversities,
   unresolvedUniversities,
   defaultMajor,
 }: {
-  defaultPath: RouteType;
+  defaultPath: GksUPlanningRoute;
   savedUniversities: string[];
   unresolvedUniversities: string[];
   defaultMajor: string;
 }) {
-  const stage =
-    defaultPath === null
-      ? {
-          label: "Choose your application route",
-          next: "Compare Embassy Track and University Track below, then save your intended route in KMate before relying on route-specific checks.",
-        }
-      : getEmbassyStage();
+  const day = useUtcDateKey();
+  const stage = gksU2027Schedule(defaultPath, day);
 
   const normalized = useMemo(
     () =>
@@ -111,6 +63,7 @@ export function GksU2027RouteDashboard({
 
   const warnings = useMemo(() => {
     const items: Array<{ id: string; title: string; text: string; page: string }> = [];
+    if (defaultPath === "university" || defaultPath === null) return items;
     const matched = normalized.map((item) => item.matched).filter((x): x is string => Boolean(x));
 
     if (defaultPath === "general") {
@@ -180,14 +133,14 @@ export function GksU2027RouteDashboard({
       ? "Embassy Track — R-GKS"
       : defaultPath === "general"
         ? "Embassy Track — General"
-        : "Route not saved yet";
+        : defaultPath === "university" ? "University Track" : "Route not selected";
 
   const choiceRule =
     defaultPath === "r_gks"
       ? GKS_U_2027_POLICY.choiceRules.r_gks.display.replace("; ", " · ")
       : defaultPath === "general"
         ? GKS_U_2027_POLICY.choiceRules.general.display.replace("; ", " · ")
-        : "Choose your route in the Smart 2027 workspace";
+        : defaultPath === "university" ? GKS_U_2027_POLICY.choiceRules.university.display : "Choose your route in the Smart 2027 workspace";
 
   return (
     <section className="mt-8">
@@ -197,7 +150,7 @@ export function GksU2027RouteDashboard({
             My GKS route
           </p>
           <h2 className="mt-1 text-[20px] font-semibold text-ink">
-            Your 2027 application at a glance
+            2027 GKS-U published schedule
           </h2>
         </div>
         <Link
@@ -230,7 +183,7 @@ export function GksU2027RouteDashboard({
           <div className="rounded-xl bg-white/80 p-3">
             <div className="flex items-center gap-1.5 text-muted">
               <CalendarClock className="h-3.5 w-3.5" />
-              <p className="text-[10.5px] font-semibold uppercase tracking-wide">Current stage</p>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide">Scheduled phase</p>
             </div>
             <p className="mt-1.5 text-[13px] font-semibold text-ink">{stage.label}</p>
           </div>
@@ -238,10 +191,10 @@ export function GksU2027RouteDashboard({
           <div className="rounded-xl bg-white/80 p-3">
             <div className="flex items-center gap-1.5 text-muted">
               <ShieldCheck className="h-3.5 w-3.5" />
-              <p className="text-[10.5px] font-semibold uppercase tracking-wide">Embassy deadline</p>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide">Application deadline</p>
             </div>
             <p className="mt-1.5 text-[13px] font-semibold text-ink">
-              {defaultPath ? "Sep 30 · 18:00 KST" : "Depends on selected route"}
+              {stage.deadline}
             </p>
           </div>
         </div>
@@ -273,7 +226,7 @@ export function GksU2027RouteDashboard({
           <GuidelineRuleActions
             id="route-summary-2027"
             title={routeLabel}
-            text={choiceRule + ". Embassy Track applications are submitted through Study in Korea during " + GKS_U_2027_POLICY.embassyApplication.display + "."}
+            text={choiceRule + ". " + (defaultPath === "university" ? GKS_U_2027_POLICY.universityTrackWindow.note : defaultPath ? "Published Embassy window: " + GKS_U_2027_POLICY.embassyApplication.display : "Select a route to review its schedule.")}
             page="pp.6, 9"
             sourceUrl={GKS_U_2027_SOURCE.sourceUrl}
             askQuestion={`Explain my 2027 GKS-U route: ${routeLabel}. My current saved university choices are ${savedUniversities.join(", ") || "none yet"}. Use only the official guideline and tell me the rules I must follow.`}
@@ -288,10 +241,10 @@ export function GksU2027RouteDashboard({
               Contradiction warnings
             </p>
             <p className="mt-1 text-[12.5px] text-muted">
-              Checks only the profile data KMate actually has; it does not invent missing application details.
+              Embassy-choice checks run only for a selected Embassy route. University Track rules are checked separately in the Requirement Checker.
             </p>
           </div>
-          {warnings.length === 0 && (
+          {warnings.length === 0 && (defaultPath === "general" || defaultPath === "r_gks") && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-[11.5px] font-medium text-success">
               <CheckCircle2 className="h-3.5 w-3.5" />
               No saved-choice conflict found
