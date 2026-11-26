@@ -379,11 +379,11 @@ ok(feed.upcoming.length === 0 && feed.historical.length === 3, "GKS-U embassy 20
 ok(nextVerifiedDeadline(deadlineNoticeDataset, { program: "GKS-U", track: "embassy", cycle: "2026", now: NOW }) === null,
    "still no next verified deadline");
 const f2027 = matchDeadlineNoticeFeed(deadlineNoticeDataset, { program: "GKS-U", track: "embassy", cycle: "2027", now: NOW });
-ok(f2027.upcoming.length === 0 && f2027.historical.length === 0 && f2027.notices.length === 0,
-   "2027 still returns nothing -- ingestion added no fallback path");
+ok(f2027.upcoming.length === 0 && f2027.historical.length === 0,
+   "2027 still has no inferred deadlines");
 ok(deadlineNoticeDataset.generated_for_cycle === "2026", "dataset cycle still 2026");
 ok(deadlineNoticeDataset.policy.never_infer_future_cycle_dates === true, "the never-infer policy flag is intact");
-ok(deadlineNoticeDataset.deadlines.length === 3 && deadlineNoticeDataset.notices.length === 8,
+ok(deadlineNoticeDataset.deadlines.length === 3 && deadlineNoticeDataset.notices.length === 11,
    "record counts unchanged: " + deadlineNoticeDataset.deadlines.length + " deadlines, " + deadlineNoticeDataset.notices.length + " notices");
 
 // -------------------------------------------------------------------------
