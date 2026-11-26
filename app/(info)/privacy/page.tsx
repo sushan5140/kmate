@@ -35,6 +35,7 @@ const SECTIONS = [
     title: "Guest mode and browser data",
     body: [
       "Guest preview uses a temporary browser cookie lasting up to four hours and does not create a normal KMate login. It is intended for browsing only, not saving private application data.",
+      "Graduate preparation task completion is stored locally under your account, separate from official document readiness. It is not synced and can be cleared from the preparation hub.",
       "Some application checklist progress is stored in your own browser's local storage. Clearing browser storage removes that local copy. Changing devices or browsers may not carry local progress across.",
       "Professor Outreach records are stored in browser-local storage under your KMate account. The tracker does not send records to the server or other applicants. They are not encrypted, do not sync across devices, and may remain after sign-out or profile reset. Use the tracker’s Clear all outreach records action or clear site storage to remove the local copy.",
       "Department verification, personal statement and study plan, and document packet worksheets store only user-entered notes and review states in this browser under your account. They are not uploaded, encrypted, or synced across devices. Clearing a worksheet removes that local copy. Browser-local records may remain after sign-out or profile reset.",
