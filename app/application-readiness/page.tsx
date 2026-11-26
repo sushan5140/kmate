@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
+import { CycleWorksheet } from "@/components/applications/cycle-worksheet";
+import { ESSAY_GROUPS, PACKET_GROUPS } from "@/lib/applications/worksheets";
 import { GraduatePreparationHub } from "@/components/readiness/graduate-preparation-hub";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
@@ -106,7 +108,8 @@ export default async function ApplicationReadinessPage({
   const showGksU2027 = program === "GKS-U";
   const showGraduatePreparation = program === "GKS-G";
   const graduateTrack = track === "embassy" || track === "university" ? track : "";
-  const graduateAccountId = showGraduatePreparation && !(await getReviewerGuest()) ? user.id : null;
+  const worksheetAccountId = (await getReviewerGuest()) ? null : user.id;
+  const graduateAccountId = showGraduatePreparation ? worksheetAccountId : null;
   const routePath =
     track === "embassy" ? (subtype === "r_gks" ? "r_gks" : "general") : null;
   const savedUniversityNames = universities.map((u) => u.name);
@@ -230,6 +233,32 @@ export default async function ApplicationReadinessPage({
               </div>
             </details>
           </div>
+        </section>
+      )}
+      {program && track && (
+        <section id="personal-preparation" className="mt-10 space-y-4 border-t border-hairline pt-6">
+          <h2 className="text-[18px] font-semibold text-ink">Personal preparation tools</h2>
+          <details className="rounded-2xl border border-hairline bg-white p-4">
+            <summary className="cursor-pointer text-[14px] font-semibold text-ink">Personal statement &amp; study plan builder</summary>
+            <div className="mt-3">
+              <CycleWorksheet key={JSON.stringify([worksheetAccountId, program, track, subtype, universities])}
+                accountId={worksheetAccountId} scope={JSON.stringify(["essays", program, track, subtype, universities])}
+                groups={ESSAY_GROUPS} title="Build your own evidence-based drafts" wordCounts
+                description="Outline real experiences, research or study interests and goals. This is a planning workspace, not an AI writer or an official form. Verify the actual format and length requirements for your cycle." />
+            </div>
+          </details>
+          <details className="rounded-2xl border border-hairline bg-white p-4">
+            <summary className="cursor-pointer text-[14px] font-semibold text-ink">Document submission validator · manual self-check</summary>
+            <div className="mt-3 space-y-4">
+              {track === "embassy" && <CycleWorksheet key={JSON.stringify([worksheetAccountId, program, track, subtype, "embassy"])}
+                accountId={worksheetAccountId} scope={JSON.stringify(["packet", program, track, subtype, "embassy"])}
+                groups={PACKET_GROUPS} title="Embassy / first-round packet" description="Use the specific embassy notice. No documents are uploaded or inspected, and this worksheet does not certify readiness or eligibility." />}
+              {track === "university" && universities.length === 0 && <p className="text-[13px] text-muted">Choose a university above to open its individual document packet review.</p>}
+              {track === "university" && universities.map(u => <CycleWorksheet key={JSON.stringify([worksheetAccountId, program, track, subtype, u.name, u.major])}
+                accountId={worksheetAccountId} scope={JSON.stringify(["packet", program, track, subtype, u.name, u.major])}
+                groups={PACKET_GROUPS} title={u.name + " · submission packet"} description="Check the exact recipient instructions against your physical or electronic packet. Unknown remains unknown; no official verification or universal copy count is implied." />)}
+            </div>
+          </details>
         </section>
       )}
     </main>
