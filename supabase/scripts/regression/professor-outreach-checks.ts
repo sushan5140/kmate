@@ -11,7 +11,6 @@ const draft = { ...EMPTY_OUTREACH_DRAFT, professor: " Example Lab ", university:
   status: "contacted" as const, contactedOn: "2026-11-20", followUpOn: "2026-11-26" };
 const validated = validateOutreachDraft(draft);
 assert.equal(validated.error, null);
-if (validated.error !== null) throw Error(validated.error);
 const record: OutreachRecord = { ...validated.draft, id: "example-1" };
 assert.equal(record.professor, "Example Lab");
 assert.equal(validateOutreachDraft(EMPTY_OUTREACH_DRAFT).error !== null, true);
