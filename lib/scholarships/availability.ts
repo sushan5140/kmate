@@ -1,4 +1,4 @@
-import { classifyScholarshipLifecycle, type LifecycleInput } from "./lifecycle";
+import { classifyScholarshipLifecycle, validScholarshipDate, type LifecycleInput } from "./lifecycle";
 
 export const SOURCE_FRESH_DAYS = 14;
 export const SOURCE_STALE_DAYS = 30;
@@ -15,15 +15,11 @@ export type Availability = {
 export function scholarshipSourceFreshness(checked: string | null, now = new Date()): SourceFreshness {
   const time = checked ? Date.parse(checked) : NaN;
   if (!Number.isFinite(time) || time > now.getTime()) return { label: "Verification not established", state: "unknown", days: null };
-  const days = Math.floor((now.getTime() - time) / 86_400_000);
-  if (days <= SOURCE_FRESH_DAYS) return { label: "Recently checked", state: "fresh", days };
-  if (days <= SOURCE_STALE_DAYS) return { label: "Recheck source", state: "aging", days };
+  const age = (now.getTime() - time) / 86_400_000;
+  const days = Math.floor(age);
+  if (age <= SOURCE_FRESH_DAYS) return { label: "Recently checked", state: "fresh", days };
+  if (age <= SOURCE_STALE_DAYS) return { label: "Recheck source", state: "aging", days };
   return { label: "Stale source check", state: "stale", days };
-}
-export function validScholarshipDate(value: string | null): value is string {
-  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const time = Date.parse(value + "T00:00:00Z");
-  return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value;
 }
 export function scholarshipAvailability(row: AvailabilityInput, now = new Date()): Availability {
   const freshness = scholarshipSourceFreshness(row.last_verified_at, now);
