@@ -1,4 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { GUIDES, guidePath } from "@/lib/marketing/gks-guides";
+
+export const metadata: Metadata = { alternates: { canonical: "https://kmate.vercel.app/" } };
 import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
@@ -256,6 +260,12 @@ export default async function LandingPage() {
       {/* ---------------------------------------------------------------- */}
       {/* Public tool entry points: explain the value before sign-in.         */}
       {/* ---------------------------------------------------------------- */}
+      <section className="mx-auto max-w-5xl px-6 py-12" aria-labelledby="public-guides-heading">
+        <h2 id="public-guides-heading" className="text-[24px] font-semibold tracking-tight text-ink">Global Korea Scholarship preparation guides</h2>
+        <p className="mt-2 text-[14px] text-muted">Read practical preparation advice without an account, then explore the relevant KMate tool.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">{GUIDES.map(g => <Link key={g.slug} href={guidePath(g.slug)} className="rounded-xl border border-hairline bg-white p-4 hover:shadow-card"><h3 className="text-[14px] font-semibold text-ink">{g.heading}</h3><p className="mt-1 text-[12px] text-muted">{g.description}</p></Link>)}</div>
+        <Link href="/gks-guides" className="mt-4 inline-block text-[13px] font-medium text-primary underline">All GKS guides</Link>
+      </section>
       <section id="explore-tools" className="border-y border-hairline bg-surface/60">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <Reveal>
