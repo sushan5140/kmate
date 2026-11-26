@@ -17,41 +17,6 @@ export function estimateApplicationDeadline(track: Track, applicationYear: numbe
 }
 
 /**
- * Hand-maintained calendar dates for the upcoming intake cycle, shown as a
- * single banner rather than derived from estimateApplicationDeadline above.
- * GKS-U's embassy deadline is reasonably predictable year to year, but
- * GKS-G's official notice isn't published this far ahead, so it's labeled
- * rather than dated. Same caveat as estimateApplicationDeadline and the
- * university list / mistake-data seeds elsewhere in this codebase: these
- * are estimates/placeholders, not pulled from an authoritative NIIED
- * source -- verify and update at the start of each new cycle.
- */
-const GKS_U_PREP_BY_DATE = new Date(2026, 8, 15); // ~Sept 15, 2026
-const GKS_U_OFFICIAL_DEADLINE_DATE = new Date(2026, 8, 30); // ~Sept 30, 2026 (embassy deadline estimate)
-const GKS_G_PREP_BY_DATE = new Date(2027, 1, 15); // ~Feb 15, 2027
-
-const bannerDateFormatter = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
-
-export interface DeadlineBannerCopy {
-  prepBy: string;
-  official: string;
-}
-
-/** Prep-by / official-deadline copy for the calendar banner, by track. */
-export function deadlineBannerCopy(track: Track): DeadlineBannerCopy {
-  if (track === "gks_g") {
-    return {
-      prepBy: `Prepare your documents by ${bannerDateFormatter.format(GKS_G_PREP_BY_DATE)}`,
-      official: "Official deadline: not yet announced",
-    };
-  }
-  return {
-    prepBy: `Prepare your documents by ${bannerDateFormatter.format(GKS_U_PREP_BY_DATE)}`,
-    official: `Official embassy deadline: ${bannerDateFormatter.format(GKS_U_OFFICIAL_DEADLINE_DATE)}`,
-  };
-}
-
-/**
  * Application years a user could reasonably still pick for `track`, i.e.
  * ones whose estimated deadline hasn't already passed. Replaces a flat
  * [currentYear, +1, +2] list that didn't account for GKS-G's deadline
