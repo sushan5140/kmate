@@ -327,7 +327,7 @@ function MULTI_UNIVERSITY_CHECKS() {
   const maritimeItem = sectionFor(mixed, "Korea Maritime & Ocean University").items.find(
     (i) => i.label === "Seafarer's Medical Certificate"
   );
-  ok(maritimeItem?.status === "required", "the maritime major makes the KMOU certificate required for that slot");
+  ok(maritimeItem?.status === "conditional" && maritimeItem.notes?.includes("Reference only"), "2026 KMOU medical certificate evidence cannot create a 2027 required item");
   const noMajor = getApplicationWorkspace({
     program: "GKS-U",
     track: "embassy",
