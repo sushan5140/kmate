@@ -42,6 +42,7 @@ const SECTIONS = [
     title: "Resetting your profile is not full account deletion",
     body: [
       "The current Reset profile action clears selected profile fields, university choices, optional contact methods and saved draft answers, and revokes accepted connections. It releases your username and signs out of KMate if the operation succeeds.",
+      "Application stage tracker entries are self-reported, stored under your account in this browser, not encrypted or synced across devices, and are not sent to the server. They may remain after profile reset or sign-out. Clear them inside the stage tracker or clear browser site storage.",
       "It does not delete your Google-linked Supabase authentication identity. Past community contributions, conversations, reports, system logs or locally stored browser progress may remain. Resetting is not an erasure of all information and must not be described as one.",
       "No universal deletion or retention deadline is promised here because KMate has not implemented a verified full-account erasure workflow. Use the in-app Report a problem option to raise a private data-handling concern while signed in.",
     ],
