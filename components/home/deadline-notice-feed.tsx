@@ -217,8 +217,9 @@ export function DeadlineNoticeFeed({
             NIIED's. KMate holds no verified embassy dates, so it says so
             rather than implying the date above applies locally. */}
         <p className="border-t border-hairline pt-3 text-[11.5px] leading-relaxed text-muted">
-          Local embassy deadline not verified — your embassy sets its own timetable, which is usually earlier
-          than NIIED&apos;s. Confirm it with the embassy handling your application.
+          {track === "university" ? "University-specific deadline not verified here. Confirm it with your chosen university."
+            : track === "embassy" ? "Local embassy timetable not verified here. Confirm any additional deadlines with your embassy."
+            : "Choose your application route and verify the relevant institution's instructions."}
         </p>
       </Card>
 
