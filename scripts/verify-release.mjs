@@ -208,6 +208,26 @@ ok(p4Robots.includes('"/professor-outreach"') && p4Robots.includes('"/stage-matc
   "New private tool routes must stay out of crawls");
 ok(p4Article.includes("alternates: { canonical: url }") && p4Article.includes("guestToolHref(g.tool.href)"),
   "Public guides need unique canonicals and safe guest links");
+// R5 integration guards: feature additions must not bypass the repair gates.
+const calendar = read("components/home/deadline-banner.tsx");
+const dashboard = read("components/home/application-dashboard.tsx");
+const deadlineFeed = read("components/home/deadline-notice-feed.tsx");
+const scholarshipPage = read("app/scholarships/page.tsx");
+ok(calendar.includes("calendarBanner(selection, liveDeadlines)") && home.includes("liveDeadlines={liveDeadlines}") &&
+   home.includes("accountId={reviewerGuest ? null : user.id}"),
+  "Home must retain verified calendar and account-scoped tracker after integration");
+ok(readiness.includes("editionMatches(program, target)") && readiness.includes("const workspace = supported") &&
+   readiness.includes("<GraduatePreparationHub") && (readiness.match(/<GraduatePreparationHub/g) || []).length === 1 &&
+   (readiness.match(/<\/nav>/g) || []).length === 1,
+  "Readiness must retain intake safety and exactly one graduate hub/navigation");
+ok(dashboard.includes("app && editionSupported") && dashboard.includes("<ApplicationStageTracker") &&
+   dashboard.includes('cycle={target ?? ""}') && deadlineFeed.includes("noticeAppliesTo(n, program, track ?? null, cycle)"),
+  "Dashboard stage tracking must not restore cross-cycle deadlines or notices");
+ok(home.includes("row.availability.spotlight") && scholarshipPage.includes("scholarshipAvailability(row, now)") &&
+   !home.includes("activeScholarshipsCount"),
+  "Scholarship discovery and Home must use availability evidence, not active-count claims");
+ok(departmentPage.includes("editionMatches(r.record.program, target)") && departmentPage.includes("DEPARTMENT_GROUPS"),
+  "Department worksheets must coexist with exact-intake checks");
 if (failures.length) {
   console.error("\nKMate release audit failed:");
   for (const failure of failures) console.error(" - " + failure);
