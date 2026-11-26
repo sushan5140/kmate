@@ -31,6 +31,8 @@ export default function robots(): MetadataRoute.Robots {
         "/mistakes",
         "/faq-trends",
         "/scholar-stats",
+        "/professor-outreach",
+        "/stage-matching",
       ],
     },
     sitemap: "https://kmate.vercel.app/sitemap.xml",
