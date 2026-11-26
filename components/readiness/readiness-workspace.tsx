@@ -22,6 +22,7 @@ import {
 } from "@/lib/readiness/application";
 import type { ApplicantDocumentState, ReadinessItem } from "@/lib/readiness/schema";
 import { ChecklistSection } from "@/components/readiness/readiness-checklist";
+import { IntakeSelector } from "@/components/readiness/intake-selector";
 import { SaveApplication } from "@/components/readiness/save-application";
 
 /**
@@ -71,6 +72,9 @@ export function ReadinessWorkspace({
   pool,
   majorSuggestions,
   workspace,
+  cycle,
+  intakeYears,
+  guest,
 }: {
   options: CheckerOptions;
   defaults: ProfileDefaults;
@@ -80,12 +84,15 @@ export function ReadinessWorkspace({
   pool: string[];
   majorSuggestions: Record<string, string[]>;
   workspace: ApplicationReadiness | null;
+  cycle: string | null;
+  intakeYears: string[];
+  guest: boolean;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { program, track, subtype, universities } = config;
 
-  const storageKey = storageKeyFor(program, track, subtype);
+  const storageKey = storageKeyFor(program, track, subtype, cycle);
   const raw = useSyncExternalStore(
     subscribe,
     () => (program ? readRaw(storageKey) : null),
@@ -123,10 +130,11 @@ export function ReadinessWorkspace({
 
   /* ---------------- configuration -> URL ---------------- */
 
-  function go(next: Partial<ApplicationConfig>) {
+  function go(next: Partial<ApplicationConfig>, selectedCycle: string | null = cycle) {
     const merged = { ...config, ...next };
     const params = new URLSearchParams();
     if (merged.program) params.set("program", merged.program);
+    if (selectedCycle && merged.program === program) params.set("cycle", selectedCycle);
     if (merged.track) params.set("track", merged.track);
     if (merged.subtype) params.set("subtype", merged.subtype);
     for (const u of merged.universities) {
@@ -181,7 +189,7 @@ export function ReadinessWorkspace({
     // This application's saved progress, and only this one -- every other
     // route's saved checklist is left alone. Then back to a bare URL, which
     // reloads the profile defaults.
-    write(EMPTY_PROGRESS);
+    // A fresh configuration must not erase the previous intake checklist.
     startTransition(() => router.push("/application-readiness"));
   }
 
@@ -220,10 +228,12 @@ export function ReadinessWorkspace({
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <p className="text-[12.5px] leading-relaxed text-muted">
               Started from your KMate profile. Change anything here and it applies to this application only —
-              your profile is not touched.
+              your profile is not touched unless you explicitly save a new intake default.
             </p>
           </div>
         )}
+
+        <IntakeSelector key={JSON.stringify([program, cycle, defaults.applicationYear])} program={program} cycle={cycle} profileProgram={defaults.program} profileYear={defaults.applicationYear ?? null} years={intakeYears} guest={guest} pending={isPending} onSelect={year => go({}, year)} />
 
         <Step index={1} label="GKS program" done={Boolean(program)} from={usingDefaults && defaults.from.program}>
           <div className="flex flex-wrap gap-1.5">
@@ -400,7 +410,7 @@ export function ReadinessWorkspace({
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3.5">
             {/* Saves the configuration only -- progress stays in the readiness
                 store this page already writes to. */}
-            <SaveApplication program={program} track={track} subtype={subtype} universities={universities} />
+            {!guest && <SaveApplication program={program} track={track} subtype={subtype} universities={universities} cycle={cycle} />}
             <button
               type="button"
               onClick={startNewApplication}
