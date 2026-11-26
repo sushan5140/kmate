@@ -324,7 +324,7 @@ export function GksU2027SmartTools({
               <div>
                 <p className="text-[12px] font-semibold uppercase tracking-wide text-muted">Your route</p>
                 <p className="mt-1 text-[15px] font-semibold text-ink">{ROUTE_LABELS[route]}</p>
-                {defaultPath ? (
+                {defaultPath && (
                   <p className="mt-1 text-[12px] text-muted">
                     Prefilled from your selected application route. You can change it here without changing your profile.
                   </p>
