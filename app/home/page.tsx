@@ -207,6 +207,7 @@ export default async function HomePage() {
       </Card>
 
       <ApplicationDashboard
+        accountId={reviewerGuest ? null : user.id}
         cycle={profile?.application_year ? String(profile.application_year) : null}
         // Every approved GKS notice, not a pre-filtered slice. Which ones apply
         // depends on the saved application, which lives in localStorage and is
@@ -310,6 +311,13 @@ export default async function HomePage() {
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
               Track every document for your application
             </p>
+          </Card>
+        </Link>
+        <Link href="/professor-outreach">
+          <Card interactive className="h-full">
+            <GraduationCap className="h-4 w-4 text-muted" />
+            <h2 className="mt-3 text-[14.5px] font-semibold text-ink">Professor Outreach</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">Track research fit, contacts and follow-up plans</p>
           </Card>
         </Link>
         <Link href="/requirement-checker">

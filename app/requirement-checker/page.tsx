@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Database, ExternalLink, FileText, Lightbulb, Route, ShieldCheck } from "lucide-react";
 import { Card, MicroLabel } from "@/components/ui/card";
-import { requireOnboarded } from "@/lib/supabase/auth-server";
+import { getReviewerGuest, requireOnboarded } from "@/lib/supabase/auth-server";
+import { CycleWorksheet } from "@/components/applications/cycle-worksheet";
+import { DEPARTMENT_GROUPS } from "@/lib/applications/worksheets";
 import { checkUniversityRequirements, requirementDataset } from "@/lib/requirements";
 import { buildCheckerOptions, subtypeEvidence, trackEvidence } from "@/lib/requirements/options";
 import type { CheckerInput } from "@/lib/requirements/matcher";
@@ -37,6 +39,7 @@ export default async function RequirementCheckerPage({
 }) {
   const user = await requireOnboarded("/requirement-checker");
   const params = await searchParams;
+  const worksheetAccountId = (await getReviewerGuest()) ? null : user.id;
   const defaults = await getProfileDefaults(user.id);
   const options = buildCheckerOptions();
 
@@ -167,6 +170,17 @@ export default async function RequirementCheckerPage({
               />
             ) : null}
           </RequirementForm>
+          {checked && (
+            <details className="rounded-2xl border border-hairline bg-white p-4">
+              <summary className="cursor-pointer text-[14px] font-semibold text-ink">Department verification worksheet · {university}{major ? " · " + major : ""}</summary>
+              <div className="mt-3">
+                <CycleWorksheet key={JSON.stringify([worksheetAccountId, program, track, subtype, university, major])}
+                  accountId={worksheetAccountId} scope={JSON.stringify(["department", program, track, subtype, university, major])}
+                  groups={DEPARTMENT_GROUPS} title="Verify department-specific requirements"
+                  description="Use the official records above as leads. Record your own evidence separately, with the source date and intended cycle. Unknown is never a waiver or an eligibility result." />
+              </div>
+            </details>
+          )}
         </div>
 
         <aside className="flex flex-col gap-4 lg:sticky lg:top-6">

@@ -15,6 +15,7 @@ import { buildApplicationDashboardSummary } from "@/lib/applications/summary";
 import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applications/summary";
 import type { SavedApplication } from "@/lib/applications/schema";
 import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
+import { ApplicationStageTracker } from "@/components/home/application-stage-tracker";
 import { EditionNotice } from "@/components/official-guidelines/edition-notice";
 import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
@@ -109,10 +110,12 @@ function requirementHref(app: SavedApplication, universityName: string, major?: 
 export function ApplicationDashboard({
   defaults,
   cycle,
+  accountId,
   liveNotices,
   liveDeadlines,
 }: {
   defaults: ProfileDefaults;
+  accountId: string | null;
   /** The applicant's application year, so deadlines are matched to THEIR cycle. */
   cycle: string | null;
   /**
@@ -200,7 +203,7 @@ export function ApplicationDashboard({
       <Card className="mt-8 flex flex-col gap-3">
         <MicroLabel>Your GKS application</MicroLabel>
         <p className="text-[13.5px] leading-relaxed text-muted">
-          Save an application to track its documents from here. Nothing is saved until you choose to.
+          Save an application to track its documents and self-reported selection stages from here. Nothing is saved until you choose to.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           {canBootstrap && (
@@ -410,6 +413,8 @@ export function ApplicationDashboard({
           </div>
         </div>
       )}
+
+      <ApplicationStageTracker key={accountId ?? "guest"} app={app} accountId={accountId} profileCycle={target} />
 
       {/* ---------------- deadlines and notices ---------------- */}
       {/* Only rendered with a saved application: without a program and track

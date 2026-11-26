@@ -1,4 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { GUIDES, guidePath } from "@/lib/marketing/gks-guides";
+
+export const metadata: Metadata = { alternates: { canonical: "https://kmate.vercel.app/" } };
 import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
@@ -12,6 +16,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
+import { GKS_G_PREPARATION_PATH } from "@/lib/readiness/graduate-preparation";
 import { ConnectionGraph } from "@/components/marketing/connection-graph";
 import { DiscoverMockup } from "@/components/marketing/discover-mockup";
 import { InterviewMockup } from "@/components/marketing/interview-mockup";
@@ -255,6 +260,12 @@ export default async function LandingPage() {
       {/* ---------------------------------------------------------------- */}
       {/* Public tool entry points: explain the value before sign-in.         */}
       {/* ---------------------------------------------------------------- */}
+      <section className="mx-auto max-w-5xl px-6 py-12" aria-labelledby="public-guides-heading">
+        <h2 id="public-guides-heading" className="text-[24px] font-semibold tracking-tight text-ink">Global Korea Scholarship preparation guides</h2>
+        <p className="mt-2 text-[14px] text-muted">Read practical preparation advice without an account, then explore the relevant KMate tool.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">{GUIDES.map(g => <Link key={g.slug} href={guidePath(g.slug)} className="rounded-xl border border-hairline bg-white p-4 hover:shadow-card"><h3 className="text-[14px] font-semibold text-ink">{g.heading}</h3><p className="mt-1 text-[12px] text-muted">{g.description}</p></Link>)}</div>
+        <Link href="/gks-guides" className="mt-4 inline-block text-[13px] font-medium text-primary underline">All GKS guides</Link>
+      </section>
       <section id="explore-tools" className="border-y border-hairline bg-surface/60">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <Reveal>
@@ -293,6 +304,16 @@ export default async function LandingPage() {
               );
             })}
           </div>
+          <Link
+            href={`/guest/start?next=${encodeURIComponent(GKS_G_PREPARATION_PATH)}`}
+            className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-canvas p-4 ring-1 ring-hairline hover:shadow-card"
+          >
+            <div>
+              <h3 className="text-[15px] font-semibold text-ink">Preparing for GKS-G 2027?</h3>
+              <p className="mt-1 text-[12.5px] leading-relaxed text-muted">Plan academic records, referees, language tests and graduate department research before the current-cycle notice.</p>
+            </div>
+            <span className="text-[12px] font-semibold text-primary">Open preparation hub</span>
+          </Link>
           <p className="mt-5 text-[12px] leading-relaxed text-muted">
             For a 2027 GKS-U decision, confirm the final requirements in the{" "}
             <a
