@@ -47,7 +47,10 @@ const STAGES: Stage[] = [
   // Wrapped: discovery returns an array, and automation_runs.stats is a
   // jsonb OBJECT of counters. Keeps the per-source detail without storing a
   // bare array that later readers would have to special-case.
-  { name: "scholarships", run: async () => ({ sources: await runScholarshipDiscovery() }) },
+  { name: "scholarships", run: async () => {
+    const sources = await runScholarshipDiscovery();
+    return { sources, errors: sources.length ? sources.flatMap(s => s.errors) : ["No active scholarship sources registered"] };
+  } },
   { name: "scholarships-freshness", run: () => runScholarshipFreshness() },
   { name: "deadline-assistant", run: () => runDeadlineAssistant() },
 ];
