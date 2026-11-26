@@ -4,6 +4,8 @@ import { requireOnboarded } from "@/lib/supabase/auth-server";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
 import { getProfileDefaults } from "@/lib/readiness/profile";
+import { EditionNotice } from "@/components/official-guidelines/edition-notice";
+import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { universitySlotsFor } from "@/lib/readiness/application";
 import { ReadinessWorkspace } from "@/components/readiness/readiness-workspace";
@@ -86,7 +88,9 @@ export default async function ApplicationReadinessPage({
     universities.push({ name, major });
   }
 
-  const workspace = program
+  const target = profileIntake(program, defaults.program, defaults.applicationYear);
+  const supported = (program === "GKS-U" || program === "GKS-G") && editionMatches(program, target);
+  const workspace = supported
     ? getApplicationWorkspace({
         program: program as "GKS-U" | "GKS-G",
         ...(track ? { track } : {}),
@@ -103,7 +107,7 @@ export default async function ApplicationReadinessPage({
     if (meta?.majorSuggestions.length) majorSuggestions[u.name] = meta.majorSuggestions;
   }
 
-  const showGksU2027 = program === "GKS-U";
+  const showGksU2027 = program === "GKS-U" && supported;
   const routePath = resolvePlanningRoute(track, subtype);
   const savedUniversityNames = universities.map((u) => u.name);
   const toolMajor =
@@ -126,6 +130,9 @@ export default async function ApplicationReadinessPage({
           no rule for is never presented as <span className="font-medium text-ink">not required</span>.
         </p>
       </div>
+
+      {(program === "GKS-U" || program === "GKS-G") && <EditionNotice program={program} target={target} />}
+      {program && !supported && <p className="mt-3 text-[13px] leading-relaxed text-muted">The configuration can still be saved, but the required-document checklist and selection timeline are withheld until the intake matches a reviewed edition. Open Official Guidelines for reference material.</p>}
 
       <nav className="mt-4 flex flex-wrap gap-2 text-[11.5px]" aria-label="Readiness page sections">
         <a href="#application-setup" className="rounded-full bg-white px-3 py-1.5 font-medium text-ink ring-1 ring-hairline-strong">
@@ -154,7 +161,7 @@ export default async function ApplicationReadinessPage({
 
       <div id="application-checklist" className="mt-6 scroll-mt-6">
         <ReadinessWorkspace
-          key={`${program}|${track}|${subtype}|${universities.map((u) => u.name).join(",")}`}
+          key={`${target ?? "unknown"}|${program}|${track}|${subtype}|${universities.map((u) => u.name).join(",")}`}
           options={options}
           defaults={defaults}
           usingDefaults={usingDefaults}

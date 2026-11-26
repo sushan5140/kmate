@@ -15,6 +15,7 @@
  */
 import "./calendar-banner-checks";
 import "./r1-intake-schedule-checks";
+import "./r2-guideline-edition-checks";
 import { strict as assert } from "node:assert";
 import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";
@@ -327,7 +328,7 @@ function MULTI_UNIVERSITY_CHECKS() {
   const maritimeItem = sectionFor(mixed, "Korea Maritime & Ocean University").items.find(
     (i) => i.label === "Seafarer's Medical Certificate"
   );
-  ok(maritimeItem?.status === "required", "the maritime major makes the KMOU certificate required for that slot");
+  ok(maritimeItem?.status === "conditional" && maritimeItem.notes?.includes("Reference only") === true, "2026 KMOU medical certificate evidence cannot create a 2027 required item");
   const noMajor = getApplicationWorkspace({
     program: "GKS-U",
     track: "embassy",

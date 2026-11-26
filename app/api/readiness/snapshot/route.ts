@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { buildCheckerOptions } from "@/lib/requirements/options";
+import { getProfileDefaults } from "@/lib/readiness/profile";
+import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { getApplicationWorkspace } from "@/lib/readiness";
 
 /**
@@ -40,7 +42,9 @@ export async function GET(request: Request) {
   // exactly as the readiness page does, so a hand-edited request cannot ask for
   // a track or university that does not exist.
   const program = options.programs.some((p) => p.value === params.get("program")) ? params.get("program")! : "";
-  if (!program) return NextResponse.json({ error: "unknown_program" }, { status: 400 });
+  if (program !== "GKS-U" && program !== "GKS-G") return NextResponse.json({ error: "unknown_program" }, { status: 400 });
+  const defaults = await getProfileDefaults(user.id);
+  if (!editionMatches(program, profileIntake(program, defaults.program, defaults.applicationYear))) return NextResponse.json({ error: "intake_not_verified" }, { status: 409 });
 
   const track =
     (options.tracks[program] ?? []).some((t) => t.value === params.get("track")) ? params.get("track")! : "";
