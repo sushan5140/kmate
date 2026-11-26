@@ -18,6 +18,7 @@ import "./r1-intake-schedule-checks";
 import "./r2-guideline-edition-checks";
 import "./r3-notice-integrity-checks";
 import "./r4-scholarship-availability-checks";
+import "./readiness-intake-checks";
 import "./application-stage-checks";
 import "./phase3-worksheets-matching-checks";
 import "./growth-checks";
