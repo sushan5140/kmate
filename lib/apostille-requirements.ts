@@ -109,7 +109,7 @@ export const APOSTILLE_GENERAL_DEFAULT: Record<Track, ApostilleGeneralDefault> =
       ],
       otherOptional: ["TOPIK/TOPIK IBT or English Proficiency Test score report", "Awards and other certificates", "Passport copy"],
     },
-    sources: [{ label: "2026 GKS-G Application Guidelines (official NIIED PDF), p.16–17 and p.62–64", url: "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf" }],
+    sources: [{ label: "2026 GKS-G captured PDF (historical mirror; check revised official notice), p.16–17 and p.62–64", url: "https://gksscholarship.com/wp-content/uploads/2026/02/2026-GKS-G-Application-Guidelines-English.pdf" }],
     lastCheckedDate: "2026-07-29",
   },
   gks_u: {
@@ -172,7 +172,7 @@ export const APOSTILLE_COUNTRY_OVERRIDES: CountryOverride[] = [
     lastCheckedDate: "2026-09-14",
     verifiedCycleByTrack: { gks_g: "2026", gks_u: "2026" },
     caveat:
-      "This notice is current-cycle evidence for 2026 GKS-G, but it is previous-cycle evidence for 2027 GKS-U. Do not carry it forward to a 2027 undergraduate application unless the Korean Embassy in Nepal republishes or confirms the same process.",
+      "This notice applies to the 2026 GKS-G and 2026 GKS-U editions only. Do not carry it forward to a 2027 undergraduate application unless the Korean Embassy in Nepal republishes or confirms the same process.",
   },
   {
     country: "Bangladesh",
@@ -190,7 +190,7 @@ export const APOSTILLE_COUNTRY_OVERRIDES: CountryOverride[] = [
   {
     country: "Myanmar",
     embassyOrConsulate: "Embassy of the Republic of Korea in the Republic of the Union of Myanmar",
-    trackLabel: "GKS-U (sourced from a 2025-cycle notice — confirm against the 2026 notice directly)",
+    trackLabel: "GKS-U (sourced from a 2025-cycle notice — verify the intended intake against its own notice)",
     summary:
       "The general default's 'apostille or consular confirmation' becomes a specific three-step chain in practice: (1) notarization at a public notary office, (2) legalization of that notarized document by Myanmar's own MOFA, (3) presenting the legalized original, a photocopy, and a passport photocopy to the Korean Embassy's consular section for final confirmation. At the first-round application stage itself, none of this is required yet — but original documents with English notarization were described as mandatory even at that first stage for the undergraduate track.",
     hagueConventionMember: "No",
