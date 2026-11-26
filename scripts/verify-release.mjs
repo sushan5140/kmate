@@ -147,6 +147,15 @@ for (const anchor of ["application-setup", "application-checklist", "supporting-
   ok(readiness.includes(anchor), `Readiness flow anchor missing: ${anchor}`);
 }
 
+// P3.1 graduate pre-cycle preparation must not be mistaken for official 2027 rules.
+const graduateHub = read("components/readiness/graduate-preparation-hub.tsx");
+ok(readiness.includes('program === "GKS-G"') && readiness.includes("<GraduatePreparationHub") &&
+   readiness.includes("getReviewerGuest()") && landing.includes("GKS_G_PREPARATION_PATH"),
+  "Graduate preparation must be reachable in read-only guest mode and scoped to GKS-G");
+ok(graduateHub.includes("2026 guidelines (historical)") && graduateHub.includes("not official requirements or deadlines") &&
+   graduateHub.includes("Guest preview · read-only") && graduateHub.includes("Clear preparation progress"),
+  "Graduate preparation must preserve cycle boundaries, guest privacy and a local reset");
+ 
 const sync = read("lib/gks/university-sync.ts");
 ok(
   sync.includes("catalogVerified: true") &&
