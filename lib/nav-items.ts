@@ -57,6 +57,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/notices", label: "Official Notices", icon: Megaphone, group: "resources" },
   { href: "/scholarships", label: "Scholarship Studio", icon: GraduationCap, group: "resources" },
 
+  { href: "/professor-outreach", label: "Professor Outreach", icon: GraduationCap, group: "preparation" },
   { href: "/interview-db", label: "Interview DB", icon: MessageSquare, group: "preparation" },
   { href: "/mistakes", label: "Mistakes", icon: AlertTriangle, group: "preparation" },
   { href: "/eca", label: "Extracurriculars", icon: Award, group: "preparation" },
