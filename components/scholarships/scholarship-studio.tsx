@@ -234,7 +234,7 @@ export default function ScholarshipStudio({
     const needle = query.trim().toLowerCase();
     return rows.filter((row) => {
       if (activeUniversity !== "all" && row.university_name !== activeUniversity) return false;
-      if (statusFilter === "expiring" && row.status !== "expiring_soon") return false;
+      if (statusFilter === "expiring" && row.availability.kind !== "closing") return false;
       if (deadlineFilter !== "all" && row.deadline_type !== deadlineFilter) return false;
       if (!needle) return true;
       return [
@@ -707,7 +707,7 @@ export default function ScholarshipStudio({
     const question = assistantQuestion.toLowerCase();
     let answer = `${row.tuition_coverage ?? row.benefit_type ?? NOT_STATED}. Deadline: ${row.deadline_label}.`;
 
-    if (/deadline|date|when/.test(question)) answer = row.deadline_label;
+    if (/deadline|date|when|open|availab/.test(question)) answer = row.deadline_label + ". " + row.availability.detail;
     else if (/topik|korean|language/.test(question)) answer = row.topik_requirement ?? NOT_STATED;
     else if (/gpa|grade|academic/.test(question)) answer = row.gpa_requirement ?? NOT_STATED;
     else if (/fund|tuition|stipend|money|benefit/.test(question)) {
@@ -1227,7 +1227,7 @@ export default function ScholarshipStudio({
                   className="h-11 rounded-lg border border-border bg-white px-3 text-[11px] font-medium text-muted outline-none"
                 >
                   <option value="all">All statuses</option>
-                  <option value="expiring">Closing soon</option>
+                  <option value="expiring">Published date approaching</option>
                 </select>
                 <select
                   value={deadlineFilter}
@@ -1289,8 +1289,8 @@ export default function ScholarshipStudio({
                           <p className="text-[9px] text-muted/40">{String(index + 1).padStart(2, "0")}</p>
                           <p className="mt-3 text-[11px] font-semibold">{row.university_name}</p>
                           <p className="mt-1 text-[8px] text-muted">{degreeLabel(row.degree_level)}</p>
-                          <span className="mt-2 inline-flex rounded-full bg-success-soft px-2 py-1 text-[7px] font-semibold text-success">
-                            {row.status === "expiring_soon" ? "Closing soon" : "Active"}
+                          <span className="mt-2 inline-flex rounded-full bg-canvas px-2 py-1 text-[10px] font-medium text-muted">
+                            {row.availability.label}
                           </span>
                         </div>
                         <div>
@@ -1302,6 +1302,8 @@ export default function ScholarshipStudio({
                           </h3>
                           <p className="mt-2 text-[9px] text-muted">
                             Deadline · <b className="text-ink">{row.deadline_label}</b>
+                          </p>
+                          <p className="mt-1 text-[10px] text-muted">{row.availability.detail} · Last checked {sourceDate(row.last_verified_at)}
                           </p>
                         </div>
                         <div className="hidden border-l border-hairline pl-4 md:block">
@@ -1339,7 +1341,7 @@ export default function ScholarshipStudio({
               <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-primary">Previous cycles</p>
               <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.035em]">Archive & Cycle Watch</h2>
               <p className="mt-1 text-[10px] text-muted">
-                Expired rows come from KMate&apos;s real scholarship archive. Previous terms are reference only.
+                Expired or inactive rows are historical references. A new intake must be checked separately.
               </p>
             </div>
             <div className="mt-4 grid gap-2">
@@ -1383,7 +1385,7 @@ export default function ScholarshipStudio({
                 })
               ) : (
                 <p className="rounded-xl border border-dashed border-hairline-strong bg-canvas p-5 text-[9px] text-muted">
-                  No expired scholarship rows are currently stored in KMate&apos;s archive.
+                  No expired or inactive scholarship rows are currently shown in the archive.
                 </p>
               )}
             </div>
@@ -2451,6 +2453,7 @@ export default function ScholarshipStudio({
                   <span className="text-[9px] font-bold uppercase tracking-[0.13em] text-primary">Scholarship record</span>
                   <h2 className="mt-2 max-w-[800px] text-[clamp(34px,4vw,62px)] font-semibold leading-[.96] tracking-[-0.05em]">{selectedAward.scholarship_name}</h2>
                   <p className="mt-4 text-[11px] text-muted">Deadline · {selectedAward.deadline_label}</p>
+                   <p className="mt-2 text-[11px] text-muted">{selectedAward.availability.label}. {selectedAward.availability.detail}</p>
                 </div>
                 <div className="flex min-h-[190px] flex-col justify-end rounded-[20px] border border-primary/10 bg-canvas p-5">
                   <span className="text-[8px] font-bold uppercase tracking-[0.1em] text-muted">Published funding</span>
