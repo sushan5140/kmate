@@ -13,6 +13,7 @@
  * own behaviour: hierarchy scoping, the client-side summary, and the cases the
  * UI is expected to handle.
  */
+import "./calendar-banner-checks";
 import { strict as assert } from "node:assert";
 import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";
