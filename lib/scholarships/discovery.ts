@@ -193,10 +193,11 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
       result.found = mapped.length;
       if (mapped.length === 0) throw new Error("page parsed to 0 scholarships -- markup may have changed");
 
-      const { data: existingRows } = await admin
+      const { data: existingRows, error: existingError } = await admin
         .from("scholarships")
         .select("id, scholarship_name, source_url, content_hash")
         .eq("source_id", source.id);
+      if (existingError) throw new Error("loading existing scholarships failed: " + existingError.message);
       // Keyed on name + URL, matching the table's own unique constraint. SNU
       // lists "Global Korea Scholarship (GKS)" twice -- once for degree
       // students, once for exchange -- as two separate pages, so name alone
@@ -206,7 +207,7 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
       );
 
       for (const s of mapped) {
-        const hash = sha256(JSON.stringify({ name: s.name, sections: s.sections }));
+        const hash = sha256(JSON.stringify(s));
         const rowUrl = s.sourceUrl ?? source.notice_url;
         const existing = existingByKey.get(`${s.name}\u0000${rowUrl}`);
         const now = new Date().toISOString();
@@ -237,7 +238,10 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
           if (insertError) result.errors.push(`insert "${s.name}": ${insertError.message}`);
           else result.inserted++;
         } else if (existing.content_hash === hash) {
-          result.unchanged++;
+          // A successful source read verifies unchanged content too.
+          const { error: verifyError } = await admin.from("scholarships").update({ last_verified_at: now }).eq("id", existing.id).eq("content_hash", hash);
+          if (verifyError) result.errors.push(`verification timestamp "${s.name}": ${verifyError.message}`);
+          else result.unchanged++;
         } else {
           const { error: updateError } = await admin
             .from("scholarships")
@@ -253,13 +257,13 @@ export async function runScholarshipDiscovery(): Promise<ScholarshipDiscoveryRes
 
       await admin
         .from("sources")
-        .update({ last_checked_at: checkedAt, last_successful_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .update({ last_checked_at: checkedAt, ...(result.errors.length === 0 ? { last_successful_at: new Date().toISOString(), last_error: null } : { last_error: result.errors.join("; ").slice(0, 1500) }), updated_at: new Date().toISOString() })
         .eq("id", source.id);
     } catch (e) {
       result.errors.push((e as Error).message);
       await admin
         .from("sources")
-        .update({ last_checked_at: checkedAt, updated_at: new Date().toISOString() })
+        .update({ last_checked_at: checkedAt, last_error: result.errors.join("; ").slice(0, 1500), updated_at: new Date().toISOString() })
         .eq("id", source.id);
     }
 
@@ -275,6 +279,7 @@ export interface FreshnessResult {
   toExpiringSoon: number;
   toExpired: number;
   skippedNoFixedDeadline: number;
+  errors: string[];
 }
 
 /**
@@ -305,6 +310,7 @@ export async function runScholarshipFreshness(today: Date = new Date()): Promise
     toExpiringSoon: 0,
     toExpired: 0,
     skippedNoFixedDeadline: 0,
+    errors: [],
   };
 
   for (const r of rows ?? []) {
@@ -315,12 +321,15 @@ export async function runScholarshipFreshness(today: Date = new Date()): Promise
 
     if (r.deadline_type !== 'fixed' || !r.deadline) out.skippedNoFixedDeadline++;
 
+    // Never resurrect an archived/disabled row based on a calendar calculation.
+    if (!r.is_active || r.status === "expired") continue;
     if (r.status !== status || r.is_active !== isActive) {
       const { error: updateError } = await admin
         .from('scholarships')
         .update({ status, is_active: isActive, updated_at: new Date().toISOString() })
         .eq('id', r.id);
-      if (!updateError) {
+      if (updateError) out.errors.push(`aging ${r.id}: ${updateError.message}`);
+      else {
         if (status === 'active') out.toActive++;
         else if (status === 'expiring_soon') out.toExpiringSoon++;
         else out.toExpired++;
