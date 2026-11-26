@@ -1,3 +1,4 @@
+import { normalizeIntake } from "@/lib/gks/guideline-editions";
 import type { SavedApplication } from "./schema";
 import { canonicalUniversityId } from "./model";
 
@@ -6,6 +7,7 @@ export function savedApplicationFromReadiness(input: {
   program: "GKS-U" | "GKS-G";
   track: "embassy" | "university";
   subtype?: string;
+  cycle?: string | null;
   universities: Array<{ name: string; major?: string }>;
   createdAt?: string;
   now?: Date;
@@ -28,6 +30,7 @@ export function savedApplicationFromReadiness(input: {
     program: input.program,
     track: input.track,
     subtype: input.subtype?.trim() || undefined,
+    cycle: normalizeIntake(input.cycle) ?? undefined,
     universities,
     createdAt: input.createdAt ?? iso,
     updatedAt: iso

@@ -14,6 +14,8 @@ export interface SavedApplication {
   program: "GKS-U" | "GKS-G";
   track: "embassy" | "university";
   subtype?: string;
+  /** Explicit intake; older saved configurations have no cycle. */
+  cycle?: string;
   universities: SavedUniversityChoice[];
   createdAt: string;
   updatedAt: string;

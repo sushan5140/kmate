@@ -228,6 +228,16 @@ ok(home.includes("row.availability.spotlight") && scholarshipPage.includes("scho
   "Scholarship discovery and Home must use availability evidence, not active-count claims");
 ok(departmentPage.includes("editionMatches(r.record.program, target)") && departmentPage.includes("DEPARTMENT_GROUPS"),
   "Department worksheets must coexist with exact-intake checks");
+const intakeSelector = read("components/readiness/intake-selector.tsx");
+const intakeApi = read("app/api/profile/application-year/route.ts");
+const intakeWorkspace = read("components/readiness/readiness-workspace.tsx");
+ok(readiness.includes("resolveReadinessIntake(params.cycle") &&
+   intakeWorkspace.includes("storageKeyFor(program, track, subtype, cycle)") &&
+   intakeSelector.includes("Use for this application only") && intakeSelector.includes("Yes, make default"),
+   "Intake overrides must be explicit and isolate checklist progress");
+ok(intakeApi.includes("getAuthenticatedUser()") && intakeApi.includes("body.makeDefault !== true") &&
+   intakeApi.includes('eq("id", user.id)') && intakeApi.includes("canSetProfileIntake"),
+   "Changing the profile default must require authenticated explicit consent");
 if (failures.length) {
   console.error("\nKMate release audit failed:");
   for (const failure of failures) console.error(" - " + failure);

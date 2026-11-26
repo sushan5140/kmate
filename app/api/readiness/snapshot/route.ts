@@ -3,7 +3,8 @@ import { getAuthenticatedUser } from "@/lib/supabase/auth-server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getProfileDefaults } from "@/lib/readiness/profile";
-import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
+import { resolveReadinessIntake } from "@/lib/readiness/intake";
+import { editionMatches } from "@/lib/gks/guideline-editions";
 import { getApplicationWorkspace } from "@/lib/readiness";
 
 /**
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
   const program = options.programs.some((p) => p.value === params.get("program")) ? params.get("program")! : "";
   if (program !== "GKS-U" && program !== "GKS-G") return NextResponse.json({ error: "unknown_program" }, { status: 400 });
   const defaults = await getProfileDefaults(user.id);
-  if (!editionMatches(program, profileIntake(program, defaults.program, defaults.applicationYear))) return NextResponse.json({ error: "intake_not_verified" }, { status: 409 });
+  if (!editionMatches(program, resolveReadinessIntake(params.get("cycle"), program, defaults.program, defaults.applicationYear))) return NextResponse.json({ error: "intake_not_verified" }, { status: 409 });
 
   const track =
     (options.tracks[program] ?? []).some((t) => t.value === params.get("track")) ? params.get("track")! : "";

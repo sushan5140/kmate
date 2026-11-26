@@ -46,10 +46,10 @@ function readRaw(): string | null {
 /** The comparison that decides between "Saved" and "Update saved application". */
 function sameConfiguration(
   app: SavedApplication,
-  next: { program: string; track: string; subtype: string; universities: { name: string; major: string }[] }
+  next: { program: string; track: string; subtype: string; cycle: string | null; universities: { name: string; major: string }[] }
 ): boolean {
   if (app.program !== next.program || app.track !== next.track) return false;
-  if ((app.subtype ?? "") !== next.subtype) return false;
+  if ((app.subtype ?? "") !== next.subtype || (app.cycle ?? null) !== next.cycle) return false;
   if (app.universities.length !== next.universities.length) return false;
   return app.universities.every(
     (u, i) => u.name === next.universities[i].name && (u.major ?? "") === (next.universities[i].major ?? "")
@@ -61,10 +61,12 @@ export function SaveApplication({
   track,
   subtype,
   universities,
+  cycle,
 }: {
   program: string;
   track: string;
   subtype: string;
+  cycle: string | null;
   universities: { name: string; major: string }[];
 }) {
   const raw = useSyncExternalStore(subscribe, readRaw, () => null);
@@ -78,10 +80,10 @@ export function SaveApplication({
   );
 
   // Only a route the saved-application model can represent is offerable.
-  const savable = (program === "GKS-U" || program === "GKS-G") && (track === "embassy" || track === "university");
+  const savable = (program === "GKS-U" || program === "GKS-G") && (track === "embassy" || track === "university") && cycle !== null;
   if (!savable) return null;
 
-  const config = { program, track, subtype, universities };
+  const config = { program, track, subtype, universities, cycle };
   const isSaved = active !== null && sameConfiguration(active, config);
 
   function save() {
@@ -92,6 +94,7 @@ export function SaveApplication({
       program: program as "GKS-U" | "GKS-G",
       track: track as "embassy" | "university",
       subtype,
+      cycle,
       universities,
     });
     try {

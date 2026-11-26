@@ -11,7 +11,8 @@ import { RequirementForm } from "@/components/requirements/requirement-form";
 import { RequirementResults } from "@/components/requirements/requirement-results";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { EditionNotice } from "@/components/official-guidelines/edition-notice";
-import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
+import { resolveReadinessIntake } from "@/lib/readiness/intake";
+import { editionMatches } from "@/lib/gks/guideline-editions";
 import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { GksU2027TrackComparator } from "@/components/official-guidelines/gks-u-2027-track-comparator";
 import { GksU2027SmartTools } from "@/components/official-guidelines/gks-u-2027-smart-tools";
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
 
 interface SearchParams {
   program?: string;
+  cycle?: string;
   track?: string;
   subtype?: string;
   university?: string;
@@ -98,7 +100,7 @@ export default async function RequirementCheckerPage({
 
   // A record kept because its source was less specific says so, rather than
   // being presented as verified for a route it never named.
-  const target = profileIntake(program || defaults.program, defaults.program, defaults.applicationYear);
+  const target = resolveReadinessIntake(params.cycle, program || defaults.program, defaults.program, defaults.applicationYear);
   const results = inTrack.map((r) => {
     const notes = [...r.notes];
     if (!editionMatches(r.record.program, target)) return { ...r, verdict: "conditional" as const, matchedRules: [], notes: [...notes, "Reference edition only: this record does not confirm eligibility, participation or requirements for your intended intake."] };
@@ -155,9 +157,10 @@ export default async function RequirementCheckerPage({
               local state it had from mount, and the URL and the fields drift
               apart permanently. */}
           <RequirementForm
-            key={`${program}|${track}|${subtype}|${university}|${major}|${gender}|${checked}`}
+            key={`${target}|${program}|${track}|${subtype}|${university}|${major}|${gender}|${checked}`}
             options={options}
             initial={{ program, track, subtype, university, major, gender }}
+            cycle={target}
           >
             {checked ? (
               <RequirementResults

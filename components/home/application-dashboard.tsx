@@ -14,10 +14,10 @@ import { savedApplicationFromReadiness } from "@/lib/applications/readiness-adap
 import { buildApplicationDashboardSummary } from "@/lib/applications/summary";
 import type { DashboardReadinessSnapshot, ProgressState } from "@/lib/applications/summary";
 import type { SavedApplication } from "@/lib/applications/schema";
-import { STORAGE_PREFIX, parseProgress } from "@/lib/readiness/application";
+import { storageKeyFor, parseProgress } from "@/lib/readiness/application";
 import { ApplicationStageTracker } from "@/components/home/application-stage-tracker";
 import { EditionNotice } from "@/components/official-guidelines/edition-notice";
-import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
+import { normalizeIntake, profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
 import { DeadlineNoticeFeed } from "@/components/home/deadline-notice-feed";
 import type { PublishedGksNotice } from "@/lib/notices/published-schema";
 import type { LiveVerifiedDeadline } from "@/lib/deadlines/live-schema";
@@ -85,6 +85,7 @@ interface Snapshot {
 export function readinessHref(app: SavedApplication): string {
   const p = new URLSearchParams();
   p.set("program", app.program);
+  if (normalizeIntake(app.cycle)) p.set("cycle", app.cycle!);
   if (app.track) p.set("track", app.track);
   if (app.subtype) p.set("subtype", app.subtype);
   for (const u of app.universities) {
@@ -99,6 +100,7 @@ export function readinessHref(app: SavedApplication): string {
 function requirementHref(app: SavedApplication, universityName: string, major?: string): string {
   const p = new URLSearchParams();
   p.set("program", app.program);
+  if (normalizeIntake(app.cycle)) p.set("cycle", app.cycle!);
   if (app.track) p.set("track", app.track);
   if (app.subtype) p.set("subtype", app.subtype);
   p.set("university", universityName);
@@ -144,10 +146,11 @@ export function ApplicationDashboard({
     [store]
   );
 
-  const configKey = app ? `${app.program}|${app.track}|${app.subtype ?? ""}` : "";
+  const target = app ? normalizeIntake(app.cycle) : null;
+  const configKey = app ? storageKeyFor(app.program, app.track, app.subtype ?? "", target) : "";
   const progressRaw = useSyncExternalStore(
     subscribe,
-    () => (app ? readRaw(STORAGE_PREFIX + configKey) : null),
+    () => (app ? readRaw(configKey) : null),
     () => null
   );
   const progress = useMemo(() => parseProgress(progressRaw), [progressRaw]);
@@ -156,7 +159,6 @@ export function ApplicationDashboard({
   // application changes: a result for a different configuration is simply not
   // used, which avoids a synchronous setState inside the effect and makes a
   // late response for an old application impossible to display.
-  const target = app ? profileIntake(app.program, defaults.program, cycle) : null;
   const editionSupported = app ? editionMatches(app.program, target) : false;
   const query = app && editionSupported ? readinessHref(app).split("?")[1] : "";
   const [fetched, setFetched] = useState<{ key: string; data: Snapshot | null } | null>(null);
@@ -198,7 +200,7 @@ export function ApplicationDashboard({
   /* ---------------- empty state ---------------- */
 
   if (!app) {
-    const canBootstrap = Boolean(defaults.program && defaults.track);
+    const canBootstrap = Boolean(accountId && defaults.program && defaults.track && normalizeIntake(cycle));
     return (
       <Card className="mt-8 flex flex-col gap-3">
         <MicroLabel>Your GKS application</MicroLabel>
@@ -215,6 +217,7 @@ export function ApplicationDashboard({
                     program: defaults.program as "GKS-U" | "GKS-G",
                     track: defaults.track as "embassy" | "university",
                     subtype: defaults.subtype,
+                    cycle: profileIntake(defaults.program, defaults.program, cycle),
                     universities: defaults.universities.map((name) => ({ name, major: defaults.major })),
                   })
                 )
@@ -268,7 +271,7 @@ export function ApplicationDashboard({
     : null;
 
   const summary = readiness ? buildApplicationDashboardSummary(app, readiness) : null;
-  const routeLabel = [app.program, app.track === "embassy" ? "Embassy Track" : "University Track", app.subtype]
+  const routeLabel = [app.program, target ?? "Intake not saved", app.track === "embassy" ? "Embassy Track" : "University Track", app.subtype]
     .filter(Boolean)
     .join(" · ");
 
@@ -295,7 +298,7 @@ export function ApplicationDashboard({
           </Link>
         </div>
 
-        {!editionSupported ? <EditionNotice program={app.program} target={target} /> : loadState === "error" ? (
+        {!target ? <p className="text-[13px] text-muted">This older saved application has no intake year. Open Application Readiness, choose a year and save it again; old checklist progress is retained separately and is not assigned to a guessed year.</p> : !editionSupported ? <EditionNotice program={app.program} target={target} /> : loadState === "error" ? (
           <div className="flex items-start gap-2 rounded-xl bg-canvas px-3.5 py-3">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
             <p className="text-[12.5px] leading-relaxed text-muted">
@@ -414,7 +417,7 @@ export function ApplicationDashboard({
         </div>
       )}
 
-      <ApplicationStageTracker key={accountId ?? "guest"} app={app} accountId={accountId} profileCycle={target} />
+      <ApplicationStageTracker key={JSON.stringify([accountId, app.id, target])} app={app} accountId={accountId} profileCycle={target} />
 
       {/* ---------------- deadlines and notices ---------------- */}
       {/* Only rendered with a saved application: without a program and track

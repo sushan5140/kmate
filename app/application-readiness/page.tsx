@@ -8,7 +8,8 @@ import { buildCheckerOptions } from "@/lib/requirements/options";
 import { getApplicationWorkspace } from "@/lib/readiness";
 import { getProfileDefaults } from "@/lib/readiness/profile";
 import { EditionNotice } from "@/components/official-guidelines/edition-notice";
-import { profileIntake, editionMatches } from "@/lib/gks/guideline-editions";
+import { resolveReadinessIntake, readinessYearOptions } from "@/lib/readiness/intake";
+import { editionMatches } from "@/lib/gks/guideline-editions";
 import { resolvePlanningRoute } from "@/lib/gks/gks-u-2027-schedule";
 import { universitySlotsFor } from "@/lib/readiness/application";
 import { ReadinessWorkspace } from "@/components/readiness/readiness-workspace";
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
 
 interface SearchParams {
   program?: string;
+  cycle?: string;
   track?: string;
   subtype?: string;
   /** Repeated, one per slot; `maj` pairs with `uni` positionally. */
@@ -91,7 +93,8 @@ export default async function ApplicationReadinessPage({
     universities.push({ name, major });
   }
 
-  const target = profileIntake(program, defaults.program, defaults.applicationYear);
+  const target = resolveReadinessIntake(params.cycle, program, defaults.program, defaults.applicationYear);
+  const intakeYears = readinessYearOptions(program, defaults.program, defaults.applicationYear, target);
   const supported = (program === "GKS-U" || program === "GKS-G") && editionMatches(program, target);
   const workspace = supported
     ? getApplicationWorkspace({
@@ -182,6 +185,9 @@ export default async function ApplicationReadinessPage({
           defaults={defaults}
           usingDefaults={usingDefaults}
           config={{ program, track, subtype, universities }}
+          cycle={target}
+          intakeYears={intakeYears}
+          guest={worksheetAccountId === null}
           slots={slots}
           pool={pool}
           majorSuggestions={majorSuggestions}
