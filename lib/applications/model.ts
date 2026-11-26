@@ -1,3 +1,4 @@
+import { normalizeIntake } from "@/lib/gks/guideline-editions";
 import type { SavedApplication, SavedApplicationStore, SavedUniversityChoice } from "./schema";
 
 export function canonicalUniversityId(name: string): string {
@@ -22,6 +23,7 @@ export function createSavedApplication(input: {
   program: SavedApplication["program"];
   track: SavedApplication["track"];
   subtype?: string;
+  cycle?: string | null;
   universities?: Array<{ name: string; major?: string }>;
   now?: Date;
 }): SavedApplication {
@@ -34,6 +36,7 @@ export function createSavedApplication(input: {
     program: input.program,
     track: input.track,
     subtype: input.subtype?.trim() || undefined,
+    cycle: normalizeIntake(input.cycle) ?? undefined,
     universities: normalizeUniversityChoices(input.universities ?? []),
     createdAt: iso,
     updatedAt: iso
