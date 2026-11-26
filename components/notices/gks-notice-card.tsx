@@ -46,7 +46,7 @@ export function GksNoticeCard({ notice }: { notice: PublishedGksNotice }) {
     <Card className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold ${PROGRAM_BADGE[notice.program]}`}>
-          {notice.program}
+          {notice.program} · {notice.cycle ?? "Intake not stated"}
         </span>
         {/* A null track is not rendered as "no track" -- the notice simply
             names none, so no track claim is made on screen at all. */}

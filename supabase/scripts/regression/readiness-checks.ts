@@ -16,6 +16,7 @@
 import "./calendar-banner-checks";
 import "./r1-intake-schedule-checks";
 import "./r2-guideline-edition-checks";
+import "./r3-notice-integrity-checks";
 import { strict as assert } from "node:assert";
 import { buildReadinessResult } from "@/lib/readiness/engine";
 import checklist from "@/data/readiness-checklist-data.json";

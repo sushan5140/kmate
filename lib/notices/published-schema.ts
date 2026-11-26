@@ -41,6 +41,7 @@ export interface PublishedGksNotice {
   language: string | null;
   /** Approved classification. Never inferred at read time. */
   program: PublishedProgram;
+  cycle?: string | null;
   track: PublishedTrack;
   noticeType: QueueNoticeType;
   publisher: string;
@@ -60,6 +61,7 @@ export interface PublishedGksNotice {
 
 export interface NoticeFilter {
   program?: PublishedProgram | "all";
+  cycle?: string | "all";
   track?: "embassy" | "university" | "all";
   noticeType?: QueueNoticeType | "all";
 }
@@ -75,9 +77,11 @@ export interface NoticeFilter {
 export function noticeAppliesTo(
   notice: PublishedGksNotice,
   program: PublishedProgram,
-  track?: "embassy" | "university" | null
+  track?: "embassy" | "university" | null,
+  cycle?: string
 ): boolean {
   if (notice.program !== program) return false;
+  if (cycle !== undefined && (!/^20\d{2}$/.test(cycle) || notice.cycle !== cycle)) return false;
   return notice.track === null || !track || notice.track === track;
 }
 
@@ -87,6 +91,7 @@ export function filterPublishedNotices(
   filter: NoticeFilter
 ): PublishedGksNotice[] {
   return notices.filter((n) => {
+    if (filter.cycle && filter.cycle !== "all" && n.cycle !== filter.cycle) return false;
     if (filter.program && filter.program !== "all" && n.program !== filter.program) return false;
     // Track null stays visible under either track selection -- see above.
     if (filter.track && filter.track !== "all" && n.track !== null && n.track !== filter.track) return false;

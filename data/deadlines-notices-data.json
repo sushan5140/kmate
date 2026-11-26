@@ -63,6 +63,27 @@
       "title": "Notice on the Revised Schedule for Issuance of 2026 GKS-G Invitation Letters",
       "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4514",
       "published_at": "2026-07-10"
+    },
+    {
+      "id": "gks_u_2027_guidelines",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2027 Global Korea Scholarship for Undergraduate Degrees",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4522",
+      "published_at": "2026-09-09"
+    },
+    {
+      "id": "gks_u_2027_university",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2027 GKS Undergraduate Program - University Track",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4527",
+      "published_at": "2026-09-23"
+    },
+    {
+      "id": "gks_g_2026_guidelines",
+      "publisher": "NIIED / Study in Korea",
+      "title": "2026 GKS-G application guidelines (revised February 20)",
+      "url": "https://www.studyinkorea.go.kr/ko/notice/scholarshipsRead.do?bbsId=BBSMSTR_000000000461&nttId=4420",
+      "published_at": "2026-02-02"
     }
   ],
   "deadlines": [
@@ -189,6 +210,39 @@
       "title": "2026 GKS-G invitation-letter schedule revised",
       "published_at": "2026-07-10",
       "source_id": "gks_g_2026_invitation_delay",
+      "importance": "high"
+    },
+    {
+      "id": "notice_gks_u_2027_guidelines",
+      "program": "GKS-U",
+      "cycle": "2027",
+      "track": null,
+      "type": "guideline",
+      "title": "2027 Global Korea Scholarship for Undergraduate Degrees",
+      "published_at": "2026-09-09",
+      "source_id": "gks_u_2027_guidelines",
+      "importance": "high"
+    },
+    {
+      "id": "notice_gks_u_2027_university",
+      "program": "GKS-U",
+      "cycle": "2027",
+      "track": "university",
+      "type": "other",
+      "title": "2027 GKS Undergraduate Program - University Track",
+      "published_at": "2026-09-23",
+      "source_id": "gks_u_2027_university",
+      "importance": "high"
+    },
+    {
+      "id": "notice_gks_g_2026_guidelines",
+      "program": "GKS-G",
+      "cycle": "2026",
+      "track": null,
+      "type": "guideline",
+      "title": "2026 GKS-G application guidelines (revised February 20)",
+      "published_at": "2026-02-02",
+      "source_id": "gks_g_2026_guidelines",
       "importance": "high"
     }
   ]

@@ -11,6 +11,8 @@ import {
   sortNewestFirst,
   type PublishedGksNotice,
 } from "@/lib/notices/published";
+import { deadlineNoticeDataset } from "@/lib/deadlines";
+import { dedupeAgainstStatic } from "@/lib/notices/published-schema";
 import type { QueueNoticeType } from "@/lib/notices/review-schema";
 
 export const metadata: Metadata = {
@@ -69,6 +71,7 @@ interface SearchParams {
   program?: string;
   track?: string;
   type?: string;
+  cycle?: string;
 }
 
 interface NoticeRow {
@@ -96,7 +99,7 @@ function formatDate(value: string | null): string {
 }
 
 /** Builds a /notices URL preserving the other filters. "all" is dropped so URLs stay short. */
-function noticesHref(current: { view: string; program: string; track: string; type: string }, patch: Partial<typeof current>) {
+function noticesHref(current: { view: string; program: string; track: string; type: string; cycle: string }, patch: Partial<typeof current>) {
   const next = { ...current, ...patch };
   const p = new URLSearchParams();
   if (next.view === "gks") p.set("view", "gks");
@@ -104,6 +107,7 @@ function noticesHref(current: { view: string; program: string; track: string; ty
     if (next.program !== "all") p.set("program", next.program);
     if (next.track !== "all") p.set("track", next.track);
     if (next.type !== "all") p.set("type", next.type);
+    if (next.cycle !== "all") p.set("cycle", next.cycle);
   }
   const qs = p.toString();
   return qs ? `/notices?${qs}` : "/notices";
@@ -135,7 +139,7 @@ function FilterRow({
             ? PROGRAM_LABELS[o as (typeof PROGRAMS)[number]]
             : label === "Track"
               ? TRACK_LABELS[o as (typeof TRACKS)[number]]
-              : TYPE_LABELS[o as (typeof TYPES)[number]]}
+              : label === "Cycle" ? (o === "all" ? "All cycles" : o) : TYPE_LABELS[o as (typeof TYPES)[number]]}
         </Link>
       ))}
     </div>
@@ -152,9 +156,10 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
   const program = (PROGRAMS as readonly string[]).includes(params.program ?? "") ? params.program! : "all";
   const track = (TRACKS as readonly string[]).includes(params.track ?? "") ? params.track! : "all";
   const type = (TYPES as readonly string[]).includes(params.type ?? "") ? params.type! : "all";
-  const current = { view, program, track, type };
+  const cycle = /^20\d{2}$/.test(params.cycle ?? "") ? params.cycle! : "all";
+  const current = { view, program, track, type, cycle };
 
-  const [approved, boardResult] = await Promise.all([
+  const [liveApproved, boardResult] = await Promise.all([
     getApprovedGksNotices(),
     getSupabaseAdmin()
       .from("notices")
@@ -168,15 +173,23 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
   const board = (boardResult.data ?? []) as unknown as NoticeRow[];
   const sourceName = board[0]?.source?.name ?? null;
 
+  const sourceMap = new Map(deadlineNoticeDataset.sources.map(s => [s.id, s]));
+  const curated: PublishedGksNotice[] = deadlineNoticeDataset.notices.flatMap(n => {
+    const source = sourceMap.get(n.source_id);
+    return source ? [{ id: n.id, title: n.title, sourceUrl: source.url, sourceNoticeId: new URL(source.url).searchParams.get("nttId"), publishedAt: n.published_at, language: null, program: n.program, cycle: n.cycle, track: n.track, noticeType: n.type, publisher: source.publisher, reviewed: true as const }] : [];
+  });
+  const approved = [...curated, ...dedupeAgainstStatic(liveApproved, curated)];
+  const cycles = ["all", ...new Set([...approved.flatMap(n => n.cycle ? [n.cycle] : []), ...(cycle !== "all" ? [cycle] : [])].sort().reverse())];
   const filtered: PublishedGksNotice[] = sortNewestFirst(
     filterPublishedNotices(approved, {
       program: program === "all" ? "all" : (program as "GKS-U" | "GKS-G"),
       track: track === "all" ? "all" : (track as "embassy" | "university"),
+      cycle,
       noticeType: type === "all" ? "all" : (type as QueueNoticeType),
     })
   );
 
-  const hasFilters = program !== "all" || track !== "all" || type !== "all";
+  const hasFilters = program !== "all" || track !== "all" || type !== "all" || cycle !== "all";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
@@ -211,7 +224,7 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
       {view === "gks" ? (
         <>
           <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
-            GKS notices a KMate reviewer has confirmed. Reviewed means the program and type below were
+            Source-reviewed curated notices and approved live GKS notices. Reviewed means the program and type below were
             checked against the official notice — it does not turn any date inside a notice into a
             verified KMate deadline.
           </p>
@@ -219,6 +232,7 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
           <div className="mt-4 flex flex-col gap-2.5">
             <FilterRow label="Program" options={PROGRAMS} active={program} hrefFor={(v) => noticesHref(current, { program: v })} />
             <FilterRow label="Track" options={TRACKS} active={track} hrefFor={(v) => noticesHref(current, { track: v })} />
+            <FilterRow label="Cycle" options={cycles} active={cycle} hrefFor={(v) => noticesHref(current, { cycle: v })} />
             <FilterRow label="Type" options={TYPES} active={type} hrefFor={(v) => noticesHref(current, { type: v })} />
           </div>
 
@@ -236,7 +250,7 @@ export default async function NoticesPage({ searchParams }: { searchParams: Prom
                 </p>
               )}
               {approved.length > 0 && hasFilters && (
-                <Link href={noticesHref(current, { program: "all", track: "all", type: "all" })} className="mt-2 inline-block text-[12.5px] font-medium text-primary hover:underline">
+                <Link href={noticesHref(current, { program: "all", track: "all", type: "all", cycle: "all" })} className="mt-2 inline-block text-[12.5px] font-medium text-primary hover:underline">
                   Clear filters
                 </Link>
               )}
