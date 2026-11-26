@@ -89,8 +89,9 @@ export const EMPTY_PROGRESS: StoredProgress = { common: {}, byUniversity: {} };
  * produced a different key and silently abandoned the applicant's work. The
  * selected universities live inside the record instead.
  */
-export function storageKeyFor(program: string, track: string, subtype: string): string {
-  return `${STORAGE_PREFIX}${program}|${track}|${subtype}`;
+export function storageKeyFor(program: string, track: string, subtype: string, cycle?: string | null): string {
+  const legacy = `${STORAGE_PREFIX}${program}|${track}|${subtype}`;
+  return cycle === undefined ? legacy : `${legacy}|cycle:${cycle ?? "unknown"}`;
 }
 
 export function parseProgress(raw: string | null): StoredProgress {
