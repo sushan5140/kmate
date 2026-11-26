@@ -20,6 +20,7 @@ const SECTIONS = [
     body: [
       "Your username and the applicant details on your profile can be discoverable to other KMate users. Do not put your phone number, email, address or other sensitive information in your public bio.",
       "External contact methods are stored separately from the public profile. Under KMate's current access rules, an accepted connection can access the contact methods you supplied. Even if the current interface mainly offers in-app messaging, do not assume accepted contacts are inaccessible. Remove optional contact methods if you do not want them shared with connections.",
+      "If the stage matching pilot is enabled, users can voluntarily share a broad self-reported stage with other opted-in users in the same program, cycle, university and stage. Only the existing username and selected university are displayed; private tracker entries, outcomes, dates, notes and contact details are not shared. Consent expires after 30 days or can be revoked; blocked users are excluded. Expiry stops matching but does not itself erase the database row.",
       "Accepting a request, revoking a connection and blocking someone change who can interact with you inside KMate. Information someone already copied or saved cannot be recalled.",
     ],
   },
@@ -36,6 +37,7 @@ const SECTIONS = [
       "Guest preview uses a temporary browser cookie lasting up to four hours and does not create a normal KMate login. It is intended for browsing only, not saving private application data.",
       "Some application checklist progress is stored in your own browser's local storage. Clearing browser storage removes that local copy. Changing devices or browsers may not carry local progress across.",
       "Professor Outreach records are stored in browser-local storage under your KMate account. The tracker does not send records to the server or other applicants. They are not encrypted, do not sync across devices, and may remain after sign-out or profile reset. Use the tracker’s Clear all outreach records action or clear site storage to remove the local copy.",
+      "Department verification, personal statement and study plan, and document packet worksheets store only user-entered notes and review states in this browser under your account. They are not uploaded, encrypted, or synced across devices. Clearing a worksheet removes that local copy. Browser-local records may remain after sign-out or profile reset.",
       "Like most hosted websites, KMate and its infrastructure providers process the technical request and session information needed to serve the site. KMate uses Google sign-in, Supabase and Vercel infrastructure.",
     ],
   },
