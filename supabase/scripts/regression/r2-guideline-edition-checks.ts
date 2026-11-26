@@ -1,0 +1,25 @@
+import { strict as assert } from "node:assert";
+import { assistantIntake, editionMatches, editionNotice, evidenceForIntake, explicitQuestionIntake, normalizeIntake, profileIntake } from "@/lib/gks/guideline-editions";
+
+assert.equal(normalizeIntake(2027), "2027");
+assert.equal(normalizeIntake("2027"), "2027");
+for (const value of [null, undefined, 2027.5, "2027-01-01", "", "abcd", 1999]) assert.equal(normalizeIntake(value), null);
+assert.equal(profileIntake("GKS-G", "GKS-U", 2027), null);
+assert.equal(profileIntake("GKS-G", "GKS-G", 2027), "2027");
+assert.equal(editionMatches("GKS-U", "2027"), true);
+assert.equal(editionMatches("GKS-U", "2028"), false);
+assert.equal(editionMatches("GKS-G", "2027"), false);
+assert.equal(editionMatches("GKS-G", "2026"), true);
+assert.equal(editionMatches("GKS-U", null), false);
+assert.ok(editionNotice("GKS-G", "2027").includes("Reference only"));
+assert.ok(editionNotice("GKS-G", "2027").includes("2026"));
+assert.equal(explicitQuestionIntake("For GKS-G 2027, which forms?"), "2027");
+assert.equal(explicitQuestionIntake("What does 2026 GKS-G require?"), "2026");
+assert.equal(explicitQuestionIntake("Compare GKS-G 2026 and GKS-G 2027"), "ambiguous");
+assert.equal(explicitQuestionIntake("I graduate in 2026"), null);
+assert.equal(assistantIntake("What forms?", "GKS-G", "GKS-G", 2027), "2027");
+assert.equal(assistantIntake("What forms?", "GKS-G", "GKS-U", 2027), null);
+assert.equal(assistantIntake("GKS-G 2026 requirements", "GKS-G", "GKS-G", 2027), "2026");
+assert.equal(assistantIntake("GKS-G 2026 requirements", "GKS-U", "GKS-U", 2027), null);
+assert.deepEqual(evidenceForIntake([{program:"UG",cycle:"2027",id:1},{program:"UG",cycle:"2026",id:2},{program:"G",cycle:"2027",id:3},{program:"UG",cycle:null,id:4},{cycle:"2027",id:5}], "2027", "UG").map(e=>e.id), [1]);
+console.log("R2 guideline edition and evidence isolation checks passed.");
