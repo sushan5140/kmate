@@ -24,11 +24,14 @@ export function editionNotice(program: GuidelineProgram, target: string | null):
 /** Only a year attached to a GKS/cycle/intake label overrides the profile. A graduation year is not an intake. */
 export function explicitQuestionIntake(question: string): string | null | "ambiguous" {
   const years = new Set<string>();
-  const patterns = [/\b(20\d{2})\s+(?:GKS(?:-[UG])?|cycle|intake)\b/gi, /\b(?:GKS(?:-[UG])?|cycle|intake)\s*[:\-]?\s*(20\d{2})\b/gi];
+  const patterns = [/\b(20\d{2})\s+(?:GKS(?:-[UG])?|cycle|intake|application|scholarship)\b/gi, /\b(?:GKS(?:-[UG])?|cycle|intake|application|scholarship)\s*[:\-]?\s*(20\d{2})\b/gi];
   for (const pattern of patterns) for (const match of question.matchAll(pattern)) years.add(match[1]);
   return years.size > 1 ? "ambiguous" : [...years][0] ?? null;
 }
 export function assistantIntake(question: string, selected: GuidelineProgram, storedProgram: string, storedYear: unknown) {
+  const namedU = /\bGKS[- ]U\b/i.test(question);
+  const namedG = /\bGKS[- ]G\b/i.test(question);
+  if ((namedU && selected !== "GKS-U") || (namedG && selected !== "GKS-G")) return null;
   const explicit = explicitQuestionIntake(question);
   if (explicit === "ambiguous") return null;
   return explicit ?? profileIntake(selected, storedProgram, storedYear);
