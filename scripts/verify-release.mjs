@@ -156,6 +156,27 @@ ok(graduateHub.includes("2026 guidelines (historical)") && graduateHub.includes(
    graduateHub.includes("Guest preview · read-only") && graduateHub.includes("Clear preparation progress"),
   "Graduate preparation must preserve cycle boundaries, guest privacy and a local reset");
  
+// P3.4–P3.7 release invariants: private manual worksheets, separate from official rules.
+const worksheet = read("components/applications/local-worksheet.tsx");
+const cycleWorksheet = read("components/applications/cycle-worksheet.tsx");
+const departmentPage = read("app/requirement-checker/page.tsx");
+ok(departmentPage.includes("DEPARTMENT_GROUPS") && departmentPage.includes("worksheetAccountId") &&
+   readiness.includes("ESSAY_GROUPS") && readiness.includes("PACKET_GROUPS"),
+  "All manual preparation worksheets must be wired into existing application tools");
+ok(worksheet.includes("Guest preview · read-only") && worksheet.includes("window.localStorage.removeItem(key)") &&
+   cycleWorksheet.includes("Intended application cycle") && worksheet.includes("validateWorksheet"),
+  "Worksheets require cycle scoping, local reset, guest isolation and validation");
+const matchingApi = read("app/api/stage-matching/route.ts");
+const matchingPage = read("app/stage-matching/page.tsx");
+const matchingSql = read("supabase/staged/p3_7_stage_matching.sql");
+ok(matchingApi.includes("getAuthenticatedUser()") && matchingApi.includes('body.consent !== true') &&
+   matchingApi.includes('eq("user_id", user.id)') && matchingPage.includes('process.env.KMATE_STAGE_MATCHING_ENABLED === "true"'),
+  "Stage matching must require explicit authenticated consent and default to disabled");
+ok(matchingSql.includes("enable row level security") && matchingSql.includes("security invoker") &&
+   matchingSql.includes("from public, anon, authenticated") && matchingSql.includes("public.blocks") &&
+   matchingSql.includes("mine.expires_at > now() and theirs.expires_at > now()"),
+  "Staged matching schema must restrict direct access, respect blocks and require mutual active consent");
+
 const sync = read("lib/gks/university-sync.ts");
 ok(
   sync.includes("catalogVerified: true") &&
