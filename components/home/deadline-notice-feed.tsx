@@ -92,8 +92,12 @@ export function DeadlineNoticeFeed({
     return getApplicationNotices({ program, ...(track ? { track } : {}), cycle, live: liveDeadlines });
   }, [program, track, cycle, dateKey, liveDeadlines]);
 
-  const next = feed.upcoming[0] ?? null;
-  const past = feed.historical;
+  // The application dashboard must not show a route-specific date when the route is unknown.
+  const applies = (d: (typeof feed.upcoming)[number]) =>
+    d.status === "verified" && (d.scope === "application" || d.scope === "post_selection") &&
+    (d.track === null || d.track === track);
+  const next = track ? feed.upcoming.find(applies) ?? null : null;
+  const past = feed.historical.filter(applies);
 
   /**
    * Precedence, in order:
@@ -207,7 +211,7 @@ export function DeadlineNoticeFeed({
           <div>
             <p className="text-[14px] font-medium text-ink">No upcoming verified deadline</p>
             <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-              The next official date has not been published in KMate&apos;s verified sources. Dates are never
+              No matching upcoming deadline is recorded in KMate&apos;s verified sources. Dates are never
               estimated from a previous cycle — check the official notices for your round.
             </p>
           </div>
