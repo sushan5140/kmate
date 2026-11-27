@@ -1,4 +1,4 @@
-import { scholarshipSourceFreshness, type Availability } from "@/lib/scholarships/availability";
+import { scholarshipSourceFreshness, type Availability, type ApplicationWindow } from "@/lib/scholarships/availability";
 
 export interface ScholarshipStudioRow {
   id: string;
@@ -20,6 +20,7 @@ export interface ScholarshipStudioRow {
   last_verified_at: string | null;
   deadline_label: string;
   availability: Availability;
+  application_window?: ApplicationWindow | null;
   is_active: boolean;
 }
 

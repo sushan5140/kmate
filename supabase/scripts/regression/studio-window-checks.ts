@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import { curatedScholarshipRows } from "@/lib/scholarships/curated-windows";
+import { scholarshipAvailability } from "@/lib/scholarships/availability";
+const at=(time:string)=>curatedScholarshipRows(new Date(time));
+const get=(id:string,time:string)=>at(time).find(row=>row.id===id)!;
+const now="2026-11-26T17:30:00Z";
+assert.equal(at(now).filter(r=>r.availability.kind==="open").length,2); // Inje closing day in Korea, exact cutoff unconfirmed
+assert.equal(at(now).filter(r=>r.availability.kind==="upcoming").length,1);
+assert.equal(get("curated-smu-2027-spring-r2","2026-11-27T06:59:59Z").availability.kind,"open");
+assert.equal(get("curated-smu-2027-spring-r2","2026-11-27T07:00:00Z").availability.kind,"archived");
+assert.equal(get("curated-inje-2027-spring","2026-11-26T15:00:00Z").availability.kind,"cutoff");
+assert.equal(get("curated-inje-2027-spring","2026-11-27T15:00:00Z").availability.kind,"archived");
+assert.equal(get("curated-hallym-2027-spring","2026-12-11T01:00:00Z").availability.kind,"recheck");
+assert.equal(get("curated-hallym-2027-spring","2026-12-18T08:00:00Z").availability.kind,"archived");
+const row=get("curated-smu-2027-spring-r2",now);
+assert.equal(scholarshipAvailability({...row,application_window:null},new Date(now)).kind,"admission");
+assert.equal(scholarshipAvailability({...row,is_active:false},new Date(now)).listed,false);
+assert.equal(scholarshipAvailability({...row,application_window:{...row.application_window!,closesAt:"bad"}},new Date(now)).kind,"recheck");
+assert.equal(scholarshipAvailability({...row,last_verified_at:"2026-11-01T00:00:00Z"},new Date(now)).kind,"recheck");
+console.log("Studio window and exact-cutoff checks passed");

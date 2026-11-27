@@ -3,9 +3,18 @@ import { classifyScholarshipLifecycle, validScholarshipDate, type LifecycleInput
 export const SOURCE_FRESH_DAYS = 14;
 export const SOURCE_STALE_DAYS = 30;
 export type SourceFreshness = { label: string; state: "fresh" | "aging" | "stale" | "unknown"; days: number | null };
-export type AvailabilityInput = LifecycleInput & { status: string; is_active?: boolean; last_verified_at: string | null };
+export type ApplicationWindow = {
+  opensAt: string;
+  closesAt: string;
+  kind: "admission" | "scholarship";
+  /** A date-only closing statement cannot establish availability on that day. */
+  cutoffKnown: boolean;
+  intake: string;
+  note: string;
+};
+export type AvailabilityInput = LifecycleInput & { status: string; is_active?: boolean; last_verified_at: string | null; application_window?: ApplicationWindow | null };
 export type Availability = {
-  kind: "archived" | "recheck" | "fixed" | "closing" | "automatic" | "admission" | "unknown";
+  kind: "archived" | "recheck" | "fixed" | "closing" | "automatic" | "admission" | "unknown" | "open" | "upcoming" | "cutoff";
   label: string;
   detail: string;
   freshness: SourceFreshness;
@@ -24,12 +33,29 @@ export function scholarshipSourceFreshness(checked: string | null, now = new Dat
 export function scholarshipAvailability(row: AvailabilityInput, now = new Date()): Availability {
   const freshness = scholarshipSourceFreshness(row.last_verified_at, now);
   const result = (kind: Availability["kind"], label: string, detail: string, listed = true): Availability => ({
-    kind, label, detail, freshness, listed, spotlight: listed && freshness.state === "fresh",
+    kind, label, detail, freshness, listed, spotlight: listed && freshness.state === "fresh" && (!row.application_window || kind === "open"),
   });
   const fixed = row.deadline_type === "fixed" && validScholarshipDate(row.deadline);
   const lifecycle = classifyScholarshipLifecycle(row, now);
   if (row.is_active === false || row.status === "expired" || (fixed && lifecycle.status === "expired"))
     return result("archived", "Archived / unavailable", "Historical reference only; verify a new intake separately.", false);
+  const window = row.application_window;
+  if (window) {
+    const start = Date.parse(window.opensAt);
+    const end = Date.parse(window.closesAt);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end)
+      return result("recheck", "Window not verified", "The source window is incomplete.");
+    // Check exact KST cutoff even if the crawler's stored status is stale.
+    if (now.getTime() >= end)
+      return result("archived", "Application window ended", window.note, false);
+    if (freshness.state !== "fresh")
+      return result("recheck", "Availability unverified", "The published window needs a fresh source check. " + window.note);
+    if (now.getTime() < start)
+      return result("upcoming", "Upcoming published window", window.note);
+    if (!window.cutoffKnown && now.getTime() >= end - 86_400_000)
+      return result("cutoff", "Closing day · verify exact cutoff", window.note);
+    return result("open", window.kind === "admission" ? "Admission window open" : "Scholarship window open", window.note + " Based on the published schedule; verify the live application portal.");
+  }
   if (freshness.state !== "fresh")
     return result("recheck", "Availability unverified", "Source check is not recent. Verify the relevant intake and application window before acting.");
   if (fixed)
