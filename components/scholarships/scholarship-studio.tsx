@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Bookmark,
   Check,
   ChevronDown,
   CircleDot,
@@ -17,6 +16,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Card, MicroLabel } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { scholarshipAvailability } from "@/lib/scholarships/availability";
 import {
   COMMON_DOCUMENT_TYPES,
@@ -827,24 +827,22 @@ export default function ScholarshipStudio({
             )}
           </button>
         ))}
-        <button
+        <Button type="button" variant="secondary" size="sm" onClick={() => setNotificationsOpen(true)} className="sm:ml-auto">
+          Alerts {unreadNotifications > 0 && <span className="text-primary">{unreadNotifications}</span>}
+        </Button>
+        <Button
           type="button"
-          onClick={() => setNotificationsOpen(true)}
-          className="rounded-full border border-hairline-strong bg-white px-3 py-1.5 text-[12.5px] font-medium text-muted hover:bg-canvas hover:text-ink sm:ml-auto"
-        >
-          Alerts {unreadNotifications > 0 && <b className="ml-1 text-primary">{unreadNotifications}</b>}
-        </button>
-        <button
-          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={!workspace.compare.length && !workspace.tracked.length && !rows.length}
           onClick={() => {
             setAssistantAwardId(workspace.compare[0] ?? workspace.tracked[0] ?? rows[0]?.id ?? null);
             setAssistantQuestion("");
             setAssistantAnswer("");
           }}
-          className="rounded-full border border-hairline-strong bg-white px-3 py-1.5 text-[12.5px] font-medium text-muted hover:bg-canvas hover:text-ink"
         >
           Ask scholarship
-        </button>
+        </Button>
       </nav>
 
       {view === "discover" && (
@@ -890,13 +888,13 @@ export default function ScholarshipStudio({
                     className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-muted/50"
                   />
                 </label>
-                <label className="relative flex h-11 items-center rounded-lg border border-border bg-white">
+                <label className="relative flex h-10 min-w-0 items-center rounded-xl border border-hairline-strong bg-white focus-within:border-primary">
                   <SlidersHorizontal className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-muted/55" />
                   <select
                     aria-label="University"
                     value={activeUniversity}
                     onChange={(event) => setActiveUniversity(event.target.value)}
-                    className="h-full w-full appearance-none bg-transparent pl-9 pr-3 text-[11px] font-medium text-muted outline-none"
+                    className="h-full w-full min-w-0 appearance-none rounded-xl bg-transparent pl-9 pr-3 text-[13px] font-medium text-ink outline-none"
                   >
                     <option value="all">All universities</option>
                     {universities.map((university) => (
@@ -906,7 +904,7 @@ export default function ScholarshipStudio({
                     ))}
                   </select>
                 </label>
-                <select aria-label="Degree level" value={degreeFilter} onChange={e => setDegreeFilter(e.target.value)} className="h-11 rounded-xl border border-hairline-strong bg-white px-3 text-[13px] text-muted"><option value="all">All degrees</option><option value="undergraduate">Undergraduate</option><option value="graduate">Graduate</option></select>
+                <select aria-label="Degree level" value={degreeFilter} onChange={e => setDegreeFilter(e.target.value)} className="h-10 min-w-0 rounded-xl border border-hairline-strong bg-white px-3 text-[13px] text-ink"><option value="all">All degrees</option><option value="undergraduate">Undergraduate</option><option value="graduate">Graduate</option></select>
                 <select
                   aria-label="Deadline type"
                   value={deadlineFilter}
@@ -915,7 +913,7 @@ export default function ScholarshipStudio({
                       event.target.value as "all" | "fixed" | "admission_schedule" | "automatic"
                     )
                   }
-                  className="h-11 rounded-xl border border-hairline-strong bg-white px-3 text-[11px] font-medium text-muted outline-none"
+                  className="h-10 min-w-0 rounded-xl border border-hairline-strong bg-white px-3 text-[13px] font-medium text-ink"
                 >
                   <option value="all">All deadline types</option>
                   <option value="fixed">Fixed date</option>
@@ -963,7 +961,7 @@ export default function ScholarshipStudio({
                       <button
                         type="button"
                         onClick={() => setSelectedAwardId(row.id)}
-                        className="group grid w-full cursor-pointer grid-cols-1 gap-3 p-5 text-left transition-colors hover:bg-canvas focus-visible:bg-primary-soft lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_32px] lg:items-start"
+                        className="group grid w-full cursor-pointer grid-cols-1 gap-3 p-5 text-left transition-colors hover:bg-canvas focus-visible:bg-primary-soft focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_32px] lg:items-start"
                       >
                         <div className="min-w-0">
                           <MicroLabel>{row.university_name}</MicroLabel>
@@ -1045,7 +1043,7 @@ export default function ScholarshipStudio({
                       className="relative min-h-[92px] rounded-xl border border-hairline bg-canvas p-3 text-left hover:border-primary/20 hover:bg-primary-soft"
                     >
                       <span className="text-[12px] font-semibold text-primary">{row.university_name}</span>
-                      <strong className="mt-1 block pr-6 text-[11px] leading-4">{row.scholarship_name}</strong>
+                      <strong className="mt-1 block pr-6 text-[13px] leading-snug">{row.scholarship_name}</strong>
                       <small className="mt-2 block text-[12px] text-muted">
                         {reasons.length ? reasons.join(" · ") : "Needs source review"}
                       </small>
@@ -1059,7 +1057,7 @@ export default function ScholarshipStudio({
             <aside className="rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
               <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Saved search watch</p>
               <h3 className="mt-1 text-[18px] font-semibold tracking-tight">Watch this search</h3>
-              <p className="mt-2 text-[12px] leading-4 text-muted">
+              <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
                 Save the current university, deadline, and search filters. Watch events stay inside your Studio alerts.
               </p>
               <button
@@ -1125,7 +1123,7 @@ export default function ScholarshipStudio({
                   {nextAction.eyebrow}
                 </span>
                 <h3 className="mt-1 text-[17px] font-semibold tracking-tight">{nextAction.title}</h3>
-                <p className="mt-1 max-w-[760px] text-[12px] leading-4 text-muted">{nextAction.detail}</p>
+                <p className="mt-1 max-w-[760px] text-[12.5px] leading-relaxed text-muted">{nextAction.detail}</p>
               </div>
               <button
                 type="button"
@@ -1251,7 +1249,7 @@ export default function ScholarshipStudio({
                       <span className="text-[11px] font-medium uppercase tracking-wide text-primary">
                         Community note{row ? ` · ${row.university_name}` : ""}
                       </span>
-                      <p className="mt-1 text-[12px] leading-4 text-muted">{note.body}</p>
+                      <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{note.body}</p>
                     </div>
                     <button
                       type="button"
@@ -1413,7 +1411,7 @@ export default function ScholarshipStudio({
               <h2 className="mt-1 text-[17px] font-semibold tracking-tight">
                 {workspace.profile.major || "Build once. Reuse everywhere."}
               </h2>
-              <p className="mt-2 text-[12px] leading-4 text-muted">
+              <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
                 Structured checks only evaluate criteria that KMate can represent safely.
               </p>
               <div className="mt-4 divide-y divide-hairline border-y border-hairline">
@@ -1472,7 +1470,7 @@ export default function ScholarshipStudio({
                         />
                         <div>
                           <b className="block text-[12px]">{check.label}</b>
-                          <span className="mt-0.5 block text-[12px] leading-4 text-muted">{check.detail}</span>
+                          <span className="mt-0.5 block text-[12.5px] leading-relaxed text-muted">{check.detail}</span>
                         </div>
                       </div>
                     ))}
@@ -1481,14 +1479,14 @@ export default function ScholarshipStudio({
                     <button
                       type="button"
                       onClick={() => toggleTracked(row.id)}
-                      className="h-8 rounded-lg border border-border bg-white px-2.5 text-[12px] font-semibold"
+                      className="h-8 rounded-full border border-border bg-white px-2.5 text-[12px] font-semibold"
                     >
                       {workspace.tracked.includes(row.id) ? "✓ Tracked" : "＋ Track"}
                     </button>
                     <button
                       type="button"
                       onClick={() => toggleCompare(row.id)}
-                      className="h-8 rounded-lg border border-border bg-white px-2.5 text-[12px] font-semibold"
+                      className="h-8 rounded-full border border-border bg-white px-2.5 text-[12px] font-semibold"
                     >
                       Compare
                     </button>
@@ -1496,7 +1494,7 @@ export default function ScholarshipStudio({
                       href={row.source_url}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="ml-auto inline-flex h-8 items-center rounded-lg bg-ink px-2.5 text-[12px] font-semibold text-white"
+                      className="ml-auto inline-flex h-8 items-center rounded-full bg-ink px-2.5 text-[12px] font-semibold text-white"
                     >
                       Official source ↗
                     </a>
@@ -1525,7 +1523,7 @@ export default function ScholarshipStudio({
                       {row.university_name} · {row.scholarship_name}
                     </small>
                     <h3 className="mt-1 text-[12px] font-semibold">{check.label}</h3>
-                    <p className="mt-1 text-[12px] leading-4 text-muted">{check.detail}</p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{check.detail}</p>
                   </div>
                   <button
                     type="button"
@@ -1629,7 +1627,7 @@ export default function ScholarshipStudio({
                     >
                       <span className="text-[12px] font-bold text-muted">0{index + 1}</span>
                       <b className="mt-4 block text-[12px]">{node.label}</b>
-                      <small className="mt-1 block text-[12px] leading-3 text-muted">{node.detail}</small>
+                      <small className="mt-1 block text-[12px] leading-relaxed text-muted">{node.detail}</small>
                     </article>
                     {index < nodes.length - 1 && (
                       <i className="w-7 shrink-0 text-center text-[12px] not-italic text-muted">→</i>
@@ -1704,8 +1702,8 @@ export default function ScholarshipStudio({
                         <p className="text-[12px] text-muted">{Math.ceil(file.size / 1024)} KB{file.issuedDate ? ` · ${formatShortDate(file.issuedDate)}` : ""}</p>
                       </div>
                       <div className="flex gap-1">
-                        <button type="button" onClick={() => void downloadVaultFile(file.id)} className="h-8 rounded-lg border border-border px-2 text-[12px]">Download</button>
-                        <button type="button" onClick={() => void removeVaultFile(file.id)} className="h-8 rounded-lg border border-border px-2 text-[12px] text-danger">Delete</button>
+                        <button type="button" onClick={() => void downloadVaultFile(file.id)} className="h-8 rounded-full border border-border px-2 text-[12px]">Download</button>
+                        <button type="button" onClick={() => void removeVaultFile(file.id)} className="h-8 rounded-full border border-border px-2 text-[12px] text-danger">Delete</button>
                       </div>
                     </article>
                   )) : (
@@ -1786,7 +1784,7 @@ export default function ScholarshipStudio({
                       </div>
                     ))}
                   </div>
-                  <p className="mt-3 text-[12px] leading-4 text-muted">
+                  <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
                     {new Set(vaultFiles.map((file) => file.type)).size
                       ? "Saved evidence can be reused across tracked applications where the official requirement is compatible."
                       : "Add documents to the Vault to unlock evidence reuse."}
@@ -2242,7 +2240,7 @@ export default function ScholarshipStudio({
             if (event.target === event.currentTarget) setSelectedAwardId(null);
           }}
         >
-          <article className="flex max-h-[90dvh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-hairline bg-white shadow-pop ">
+          <article className="flex max-h-[90dvh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-hairline bg-white shadow-pop">
             <header className="flex min-h-[72px] items-center justify-between gap-4 border-b border-hairline bg-white/95 px-5 backdrop-blur-xl">
               <div>
                 <span className="text-[11px] font-medium uppercase tracking-wide text-primary">{selectedAward.university_name}</span>
@@ -2353,7 +2351,7 @@ export default function ScholarshipStudio({
                 <article key={item.id} className={cn("mb-2 rounded-xl border border-hairline bg-canvas p-3", item.read && "opacity-55")}>
                   <span className="text-[12px] font-semibold uppercase text-primary">{item.kind}</span>
                   <h3 className="mt-1 text-[12px] font-semibold">{item.title}</h3>
-                  <p className="mt-1 text-[12px] leading-4 text-muted">{item.body}</p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{item.body}</p>
                 </article>
               )) : <p className="rounded-xl border border-dashed border-hairline-strong bg-canvas p-5 text-[12px] text-muted">No alerts yet.</p>}
             </div>
@@ -2427,7 +2425,7 @@ export default function ScholarshipStudio({
               {pendingEmailUpdate ? (
                 <>
                   <span className="text-[12px] font-semibold uppercase text-primary">Suggested update</span>
-                  <p className="mt-1 text-[12px] leading-4">{Object.entries(pendingEmailUpdate).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")}</p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed">{Object.entries(pendingEmailUpdate).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")}</p>
                   <small className="mt-2 block text-[12px] text-muted">Nothing changes until you approve.</small>
                 </>
               ) : (
@@ -2504,7 +2502,7 @@ export default function ScholarshipStudio({
       {compareRows.length > 0 && view !== "compare" && (
         <div className="fixed bottom-4 left-1/2 z-50 flex w-[min(620px,calc(100vw-28px))] -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink/95 p-2.5 pl-4 text-white shadow-pop backdrop-blur-xl md:left-[calc(210px+(100vw-210px)/2)] md:w-[min(620px,calc(100vw-250px))]">
           <div className="min-w-0">
-            <p className="text-[12px] font-semibold text-white/42">{compareRows.length}/3 selected</p>
+            <p className="text-[12px] font-semibold text-white/80">{compareRows.length}/3 selected</p>
             <div className="mt-1 flex max-w-[340px] gap-1.5 overflow-hidden">
               {compareRows.map((row) => (
                 <button key={row.id} type="button" onClick={() => toggleCompare(row.id)} className="flex h-7 max-w-[110px] items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[12px] text-white/70">
