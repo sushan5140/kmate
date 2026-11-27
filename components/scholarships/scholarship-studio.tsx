@@ -229,10 +229,7 @@ export default function ScholarshipStudio({
   }, [workspace, hydrated]);
 
   useEffect(() => {
-    document.body.style.overflow = selectedAwardId ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    if (selectedAwardId) document.getElementById("scholarship-record-heading")?.focus();
   }, [selectedAwardId]);
 
   const rowById = useMemo(
@@ -790,9 +787,9 @@ export default function ScholarshipStudio({
   };
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10 pb-28 sm:px-6">
+    <main className="mx-auto max-w-5xl px-6 py-10">
       <header>
-        <h1 className="text-[24px] font-semibold tracking-tight text-ink">Scholarship Studio</h1>
+        <h1 className="text-[22px] font-semibold tracking-tight text-ink">Scholarship Studio</h1>
         <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted">Find university funding, check published eligibility, track applications and compare official scholarship records.</p>
       </header>
       <nav aria-label="Scholarship Studio sections" className="mt-5 flex flex-wrap items-center gap-1.5">
@@ -805,7 +802,7 @@ export default function ScholarshipStudio({
           <button
             key={id}
             type="button"
-            onClick={() => setView(id)}
+            onClick={() => { setSelectedAwardId(null); setView(id); }}
             aria-pressed={view === id}
             className={cn(
               "rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
@@ -845,7 +842,96 @@ export default function ScholarshipStudio({
         </Button>
       </nav>
 
-      {view === "discover" && (
+      {!selectedAward && compareRows.length > 0 && view !== "compare" && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-canvas px-1 py-2">
+          <div className="min-w-0">
+            <p className="text-[12.5px] font-medium text-muted">{compareRows.length}/3 selected for comparison</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {compareRows.map((row) => (
+                <button key={row.id} type="button" onClick={() => toggleCompare(row.id)} aria-label={`Remove ${row.scholarship_name} from comparison`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-hairline-strong bg-white px-3 py-1.5 text-[12px] text-ink">
+                  <span className="truncate">{row.university_name}</span>
+                  <X className="h-3 w-3 shrink-0 text-muted" />
+                </button>
+              ))}
+            </div>
+          </div>
+          <Button type="button" size="sm" onClick={() => setView("compare")}>Compare now <ArrowRight className="h-3.5 w-3.5" /></Button>
+        </div>
+      )}
+
+      {selectedAward && (
+        <Card className="mt-6">
+            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-hairline pb-4">
+              <div>
+                <span className="text-[11px] font-medium uppercase tracking-wide text-primary">{selectedAward.university_name}</span>
+                <p className="mt-1 text-[12px] text-muted">{selectedAward.scholarship_type ?? "University scholarship"} · {degreeLabel(selectedAward.degree_level)}</p>
+              </div>
+              <Button type="button" variant="secondary" size="sm" onClick={() => setSelectedAwardId(null)}>Back to {view === "discover" ? "scholarships" : view}</Button>
+            </header>
+
+            <div className="pt-4">
+              <section className="grid gap-4 sm:grid-cols-[minmax(0,1.25fr)_minmax(0,.75fr)]">
+                <div>
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-primary">Scholarship record</span>
+                  <h2 id="scholarship-record-heading" tabIndex={-1} className="scroll-mt-20 mt-2 text-[19px] font-semibold leading-snug tracking-tight break-words">{selectedAward.scholarship_name}</h2>
+                  <p className="mt-4 text-[12.5px] text-muted">Deadline · {selectedAward.deadline_label}</p>
+                   <p className="mt-2 text-[12.5px] text-muted">{selectedAward.availability.label}. {selectedAward.availability.detail}</p>
+                </div>
+                <div className="rounded-xl bg-canvas p-4">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted">Published funding</span>
+                  <strong className="mt-2 text-[15px] font-semibold leading-relaxed break-words">{selectedAward.tuition_coverage ?? selectedAward.benefit_type ?? NOT_STATED}</strong>
+                </div>
+              </section>
+
+              <section className="mt-5 grid gap-3 border-y border-hairline py-4 sm:grid-cols-2">
+                {[
+                  ["TOPIK / language", selectedAward.topik_requirement ?? NOT_STATED],
+                  ["Academic", selectedAward.gpa_requirement ?? NOT_STATED],
+                  ["Application mechanics", selectedAward.automatic_consideration ? "Automatic consideration" : selectedAward.application_required === true ? "Application required" : selectedAward.application_required === false ? "No separate scholarship application stated" : NOT_STATED],
+                  ["Source health", (() => { const health = sourceFreshness(selectedAward); return `${health.label}${health.days !== null ? ` · ${health.days}d` : ""}`; })()],
+                ].map(([label, value]) => (
+                  <article key={label} className="min-w-0">
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</span>
+                    <strong className="mt-2 block text-[12px] leading-5">{value}</strong>
+                  </article>
+                ))}
+              </section>
+
+              <section className="mt-4 grid gap-3 sm:grid-cols-2">
+                <article className="min-w-0">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted">Source verification</span>
+                  <p className="mt-2 text-[12px] leading-5 text-muted">
+                    Last verified {sourceDate(selectedAward.last_verified_at)}. Scholarship Studio only exposes structured values stored from the linked official source.
+                  </p>
+                </article>
+                <article className="rounded-xl border border-gold/15 bg-gold-soft p-4">
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-gold">Caution</span>
+                  <p className="mt-2 text-[12px] leading-5 text-muted">
+                    Confirm the current intake&apos;s full eligibility, documents, and program conditions before relying on this record.
+                  </p>
+                </article>
+              </section>
+            </div>
+
+            <footer className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => toggleTracked(selectedAward.id)} className={cn("h-9 rounded-full border px-3 text-[12px] font-semibold", workspace.tracked.includes(selectedAward.id) ? "border-success/25 bg-success-soft text-success" : "border-border bg-white")}>
+                  {workspace.tracked.includes(selectedAward.id) ? "✓ Tracked" : "＋ Track"}
+                </button>
+                <button type="button" onClick={() => toggleCompare(selectedAward.id)} className={cn("h-9 rounded-full border px-3 text-[12px] font-semibold", workspace.compare.includes(selectedAward.id) ? "border-primary/25 bg-primary-soft text-primary" : "border-border bg-white")}>
+                  {workspace.compare.includes(selectedAward.id) ? "✓ In comparison" : "⇄ Compare"}
+                </button>
+                <button type="button" onClick={() => { setSelectedAwardId(null); setView("eligibility"); }} className="h-9 rounded-full border border-border bg-white px-3 text-[12px] font-semibold">Check eligibility</button>
+                <button type="button" onClick={() => { setAssistantAwardId(selectedAward.id); setAssistantQuestion(""); setAssistantAnswer(""); setSelectedAwardId(null); }} className="h-9 rounded-full border border-border bg-white px-3 text-[12px] font-semibold">Ask scholarship</button>
+              </div>
+              <a href={selectedAward.source_url} target="_blank" rel="noreferrer noopener" className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-ink px-3 text-[12px] font-semibold text-white">
+                Official source <ExternalLink className="h-3 w-3" />
+              </a>
+            </footer>
+        </Card>
+      )}
+
+      {!selectedAward && view === "discover" && (
         <>
           <div className="mt-5">
             <p className="text-[12.5px] leading-relaxed text-muted">Published application windows are shown in Korean time. Expired calls leave discovery automatically; confirm eligibility and the official application portal before applying.</p>
@@ -859,7 +945,7 @@ export default function ScholarshipStudio({
           </div>
 
           <section id="scholarship-stream" className="mt-5 scroll-mt-20">
-            <Card>
+            <div>
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
                 <div>
                   <MicroLabel>Scholarship stream</MicroLabel>
@@ -937,9 +1023,9 @@ export default function ScholarshipStudio({
                   </button>
                 </div>
               </div>
-            </Card>
+            </div>
 
-            <div className="mt-3 flex flex-col gap-3">
+            <div className="mt-5 flex flex-col gap-3">
               {filtered.length === 0 ? (
                 <Card className="text-center">
                   <p className="text-[18px] font-medium">Nothing matches this view.</p>
@@ -1000,7 +1086,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,.65fr)]">
+          <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(280px,.65fr)]">
             <div className="rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
               <div className="flex items-end justify-between gap-4">
                 <div>
@@ -1099,7 +1185,7 @@ export default function ScholarshipStudio({
             </aside>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">
@@ -1191,7 +1277,7 @@ export default function ScholarshipStudio({
             </div>
           </details>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Community context</p>
@@ -1272,7 +1358,7 @@ export default function ScholarshipStudio({
         </>
       )}
 
-      {view === "eligibility" && (
+      {!selectedAward && view === "eligibility" && (
         <>
           <header className="mt-6 grid gap-4 border-b border-hairline pb-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
             <div>
@@ -1406,7 +1492,7 @@ export default function ScholarshipStudio({
               </div>
             </form>
 
-            <aside className="self-start rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline xl:sticky xl:top-20">
+            <aside className="self-start rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
               <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Profile reuse</p>
               <h2 className="mt-1 text-[17px] font-semibold tracking-tight">
                 {workspace.profile.major || "Build once. Reuse everywhere."}
@@ -1537,7 +1623,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">
@@ -1604,7 +1690,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <p className="text-[11px] font-medium uppercase tracking-wide text-primary">
               Requirement Dependency Graph
             </p>
@@ -1638,7 +1724,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Document Vault</p>
@@ -1718,7 +1804,7 @@ export default function ScholarshipStudio({
         </>
       )}
 
-      {view === "applications" && (
+      {!selectedAward && view === "applications" && (
         <>
           <header className="mt-6 grid gap-4 border-b border-hairline pb-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
             <div>
@@ -1798,7 +1884,7 @@ export default function ScholarshipStudio({
             </article>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Application Pathway</p>
@@ -1857,7 +1943,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Deadline intelligence</p>
@@ -2048,7 +2134,7 @@ export default function ScholarshipStudio({
         </>
       )}
 
-      {view === "compare" && (
+      {!selectedAward && view === "compare" && (
         <>
           <header className="mt-6 grid gap-4 border-b border-hairline pb-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
             <div>
@@ -2107,7 +2193,7 @@ export default function ScholarshipStudio({
             </div>
           </section>
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Funding calculator</p>
             <h2 className="mt-1 text-[17px] font-semibold tracking-tight">Estimate the gap after published support.</h2>
             <p className="mt-1 text-[12px] text-muted">Planning calculator only. It uses your assumptions and only scholarship values that can be parsed from KMate&apos;s verified fields.</p>
@@ -2189,7 +2275,7 @@ export default function ScholarshipStudio({
             </div>
           )}
 
-          <section className="mt-3 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
+          <section className="mt-5 rounded-2xl bg-surface p-5 shadow-card ring-1 ring-hairline">
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-primary">Source history</p>
@@ -2230,90 +2316,8 @@ export default function ScholarshipStudio({
         </>
       )}
 
-      {selectedAward && (
-        <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/35 p-3 backdrop-blur-[8px] sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label={selectedAward.scholarship_name}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setSelectedAwardId(null);
-          }}
-        >
-          <article className="flex max-h-[90dvh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-hairline bg-white shadow-pop">
-            <header className="flex min-h-[72px] items-center justify-between gap-4 border-b border-hairline bg-white/95 px-5 backdrop-blur-xl">
-              <div>
-                <span className="text-[11px] font-medium uppercase tracking-wide text-primary">{selectedAward.university_name}</span>
-                <p className="mt-1 text-[12px] text-muted">{selectedAward.scholarship_type ?? "University scholarship"} · {degreeLabel(selectedAward.degree_level)}</p>
-              </div>
-              <button type="button" onClick={() => setSelectedAwardId(null)} aria-label="Close scholarship details" className="grid h-10 w-10 place-items-center rounded-xl border border-border bg-canvas text-[20px] text-muted hover:bg-white">×</button>
-            </header>
-
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-canvas p-5 sm:p-7">
-              <section className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
-                <div>
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-primary">Scholarship record</span>
-                  <h2 className="mt-2 max-w-[800px] text-[22px] font-semibold leading-snug tracking-tight break-words">{selectedAward.scholarship_name}</h2>
-                  <p className="mt-4 text-[12.5px] text-muted">Deadline · {selectedAward.deadline_label}</p>
-                   <p className="mt-2 text-[12.5px] text-muted">{selectedAward.availability.label}. {selectedAward.availability.detail}</p>
-                </div>
-                <div className="flex flex-col justify-center rounded-2xl border border-primary/10 bg-canvas p-5">
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted">Published funding</span>
-                  <strong className="mt-2 text-[15px] font-semibold leading-relaxed break-words">{selectedAward.tuition_coverage ?? selectedAward.benefit_type ?? NOT_STATED}</strong>
-                </div>
-              </section>
-
-              <section className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {[
-                  ["TOPIK / language", selectedAward.topik_requirement ?? NOT_STATED],
-                  ["Academic", selectedAward.gpa_requirement ?? NOT_STATED],
-                  ["Application mechanics", selectedAward.automatic_consideration ? "Automatic consideration" : selectedAward.application_required === true ? "Application required" : selectedAward.application_required === false ? "No separate scholarship application stated" : NOT_STATED],
-                  ["Source health", (() => { const health = sourceFreshness(selectedAward); return `${health.label}${health.days !== null ? ` · ${health.days}d` : ""}`; })()],
-                ].map(([label, value]) => (
-                  <article key={label} className="min-h-[116px] rounded-xl border border-hairline bg-white p-4">
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted">{label}</span>
-                    <strong className="mt-2 block text-[12px] leading-5">{value}</strong>
-                  </article>
-                ))}
-              </section>
-
-              <section className="mt-2 grid gap-2 lg:grid-cols-2">
-                <article className="rounded-xl border border-hairline bg-white p-4">
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted">Source verification</span>
-                  <p className="mt-2 text-[12px] leading-5 text-muted">
-                    Last verified {sourceDate(selectedAward.last_verified_at)}. Scholarship Studio only exposes structured values stored from the linked official source.
-                  </p>
-                </article>
-                <article className="rounded-xl border border-gold/15 bg-gold-soft p-4">
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-gold">Caution</span>
-                  <p className="mt-2 text-[12px] leading-5 text-muted">
-                    Confirm the current intake&apos;s full eligibility, documents, and program conditions before relying on this record.
-                  </p>
-                </article>
-              </section>
-            </div>
-
-            <footer className="flex min-h-[72px] flex-col justify-between gap-2 border-t border-hairline bg-white/95 p-3 backdrop-blur-xl sm:flex-row sm:items-center sm:px-5">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => toggleTracked(selectedAward.id)} className={cn("h-9 rounded-full border px-3 text-[12px] font-semibold", workspace.tracked.includes(selectedAward.id) ? "border-success/25 bg-success-soft text-success" : "border-border bg-white")}>
-                  {workspace.tracked.includes(selectedAward.id) ? "✓ Tracked" : "＋ Track"}
-                </button>
-                <button type="button" onClick={() => toggleCompare(selectedAward.id)} className={cn("h-9 rounded-full border px-3 text-[12px] font-semibold", workspace.compare.includes(selectedAward.id) ? "border-primary/25 bg-primary-soft text-primary" : "border-border bg-white")}>
-                  {workspace.compare.includes(selectedAward.id) ? "✓ In comparison" : "⇄ Compare"}
-                </button>
-                <button type="button" onClick={() => { setSelectedAwardId(null); setView("eligibility"); }} className="h-9 rounded-full border border-border bg-white px-3 text-[12px] font-semibold">Check eligibility</button>
-                <button type="button" onClick={() => { setAssistantAwardId(selectedAward.id); setAssistantQuestion(""); setAssistantAnswer(""); setSelectedAwardId(null); }} className="h-9 rounded-full border border-border bg-white px-3 text-[12px] font-semibold">Ask scholarship</button>
-              </div>
-              <a href={selectedAward.source_url} target="_blank" rel="noreferrer noopener" className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-ink px-3 text-[12px] font-semibold text-white">
-                Official source <ExternalLink className="h-3 w-3" />
-              </a>
-            </footer>
-          </article>
-        </div>
-      )}
-
       {assistantAwardId && (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4">
           <div className="max-h-[90dvh] overflow-y-auto w-full max-w-[520px] rounded-2xl border border-hairline bg-white p-5 shadow-pop">
             <div className="flex justify-between gap-3">
               <div>
@@ -2337,7 +2341,7 @@ export default function ScholarshipStudio({
       )}
 
       {notificationsOpen && (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4">
           <div className="max-h-[90dvh] overflow-y-auto w-full max-w-[560px] rounded-2xl border border-hairline bg-white p-5 shadow-pop">
             <div className="flex justify-between gap-3">
               <div>
@@ -2361,7 +2365,7 @@ export default function ScholarshipStudio({
       )}
 
       {reminderOpen && (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -2408,7 +2412,7 @@ export default function ScholarshipStudio({
       )}
 
       {emailOpen && (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4">
           <div className="max-h-[90dvh] overflow-y-auto w-full max-w-[560px] rounded-2xl border border-hairline bg-white p-5 shadow-pop">
             <div className="flex justify-between gap-3">
               <div>
@@ -2458,7 +2462,7 @@ export default function ScholarshipStudio({
       )}
 
       {reviewDraft && (
-        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[90] grid place-items-center bg-ink/30 p-4">
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -2499,28 +2503,8 @@ export default function ScholarshipStudio({
         </div>
       )}
 
-      {compareRows.length > 0 && view !== "compare" && (
-        <div className="fixed bottom-4 left-1/2 z-50 flex w-[min(620px,calc(100vw-28px))] -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-white/10 bg-ink/95 p-2.5 pl-4 text-white shadow-pop backdrop-blur-xl md:left-[calc(210px+(100vw-210px)/2)] md:w-[min(620px,calc(100vw-250px))]">
-          <div className="min-w-0">
-            <p className="text-[12px] font-semibold text-white/80">{compareRows.length}/3 selected</p>
-            <div className="mt-1 flex max-w-[340px] gap-1.5 overflow-hidden">
-              {compareRows.map((row) => (
-                <button key={row.id} type="button" onClick={() => toggleCompare(row.id)} className="flex h-7 max-w-[110px] items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 text-[12px] text-white/70">
-                  <span className="truncate">{row.university_name}</span>
-                  <X className="h-2.5 w-2.5 shrink-0 text-primary" />
-                </button>
-              ))}
-            </div>
-          </div>
-          <button type="button" onClick={() => setView("compare")} className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-primary px-3.5 text-[12px] font-semibold text-white">
-            Compare now
-            <ArrowRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-[100] rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-pop">
+        <div role="status" className="fixed bottom-5 right-5 z-[100] max-w-[calc(100vw-2.5rem)] rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-pop">
           {toastMessage}
         </div>
       )}
